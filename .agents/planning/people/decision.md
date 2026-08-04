@@ -2,19 +2,37 @@
 
 ## Aliases
 - Journey grid = ministries (rows) × universal stages (columns); one stage per ministry per person
-- Stage = journey_stage_slug (contact, guest, linked, regular, archived, deleted_privacy_data)
+- Stage = journey_stage_slug — values & colors in peopleFields.md journey grid
 - WWCC = Working With Children Check; SMT = Safe Ministry Training; SMC = Safe Ministry Check
 - RLS = Row Level Security
 - kindy_start_year = calendar year the person started Kindy (replaces mutable school_year enum)
 - Calculated school year = CURRENT_YEAR − kindy_start_year (Kindy=0, Year 1=1, … Year 12=12)
 - Demographic progression = auto-update of demographic column on Jan 1 each year via pg_cron
 - Kindy prompt = Nov/Dec cron notification asking admin to confirm kindy start for age 3–5 children
+- Field mapping source = `peopleFields.md` (field names, enums, and journey-grid migration mapping)
 
 ## What & Why
 Baseline always-on people module: CRM of people, households, relationships, tags, roles. Journey grid replaces flat people_category + locations[] to track ministry-specific engagement.
 
 ## Who
 Church admins/staff managing people; household members self-viewing; groups/services/calendar modules consuming people data.
+
+## Scope
+- Core tables: households, addresses, people, people_relationships, tags, people_tags, user_roles, ministries, journey_stages, people_ministry_journey, people_audit
+- People field groups: personal, demographics, contact (adult-only), medical, consents, child-safety (WWCC/SMT/SMC), admin-only (access_permissions, legacy_*, date_professed), metadata
+- Conditional field visibility by demographic (adult/youth/child) — per-field rules annotated in peopleFields.md
+- Field mapping (journey grid, kindy_start_year, contact channels, consents) defined in `peopleFields.md`; this doc is authoritative for the target model
+- Contact channels first-class with `phone_type` (home/mobile/…) — replaces separate Phone/Mobile columns
+- `school_email_permission` single source of truth — Demographics/Consents duplicate removed
+- `safe_ministry_start_date` stored as DATE — free-text ("Text area") dropped
+- PG enums (values defined in peopleFields.md): demographic, marital_status, gender, phone_type, consent_status, school_email_permission, safe_ministry_leader_type, wwcc_verification_outcome, wwcc_exemption_type, smt_type, smc_result, access_permission, journey_stage_slug
+- Seeded stages: contact, guest, linked, regular + terminal archived, deleted_privacy_data (colors in peopleFields.md journey grid)
+- people_audit: field_changed = ministry_journey | gdpr_deletion; change_reason = manual | auto_progression | gdpr_request
+- RLS posture: household sees own people + journeys; admins see/manage all; users update own profile; ministries/stages readable by authenticated; people_audit admin-only
+- Indexes: name search GIN (first+last+preferred), household, demographic, auth_user, parent/guardian relationships, journey grid, audit
+- Module API: getById(s), getByHousehold, getGuardians, getByDemographic, getByMinistry, getWithValidWWCC, getWithSafeMinistry, getJourneyGrid, search
+- Tags categories: location, ministry, demographic, status, custom
+- Relationships: unique (person_id, related_person_id, relationship_type); is_primary guardian flag
 
 ## Constraints
 - Australian Anglican child-safety compliance (WWCC, SMT, SMC)
@@ -37,8 +55,8 @@ Church admins/staff managing people; household members self-viewing; groups/serv
 
 ## Assumptions
 - Ministries are admin-customizable (seeded defaults)
-- Legacy people_category + locations[] migrated (gap open)
-- user_roles values align to base 5-level platform roles (verify)
+- people_category + locations[] replaced by the journey grid (migration mapping in peopleFields.md)
+- user_roles values align to base 5-level platform roles (access_permission values in peopleFields.md; decision #37)
 - Australian school year: Kindy = year before Year 1; Year 1 = kindy_start_year + 1
 - Demographic is auto-promoted without confirmation; admin reviews via notification after the fact
 - pg_cron available on Supabase tier; if free tier, fallback = Edge Function triggered by GitHub Actions schedule (open)
@@ -67,7 +85,7 @@ Church admins/staff managing people; household members self-viewing; groups/serv
 19 Seed default stages with colors + terminal flags → consistent UI
 20 RLS: household reads own journeys; admin manages → privacy + control
 21 Expose journey grid + ministry APIs to modules → cross-module queries
-22 Soft-delete people (deleted_at) → never truly delete (child safety)
+22 Soft-delete people (deleted_at); hard delete only for error entries → never lose legitimate records (child safety)
 23 Auto-apply demographic progression on Jan 1 via pg_cron → no manual admin effort required
 24 Replace school_year enum with kindy_start_year integer → calculated school year never drifts
 25 Calculate school year as CURRENT_YEAR − kindy_start_year → single source of truth, preschool handled separately
@@ -78,15 +96,18 @@ Church admins/staff managing people; household members self-viewing; groups/serv
 30 Run Nov/Dec kindy prompt cron for age 3–5 children without kindy_start_year → ensures data is ready before Jan 1
 31 Flag children aged 5+ with no kindy_start_year as admin warning (not kindy prompt) → data integrity alert
 32 Kindy prompt notification: both in-app + email, same system as demographic change notifications → consistent UX
+33 Define field mapping in peopleFields.md (journey grid, kindy_start_year, contact channels, consents) → single authoritative reference for build + data migration
+34 Model contact channels first-class with phone_type enum (home/mobile), replacing separate Phone/Mobile columns → extends #3; consistent contact data
+35 Treat school_email_permission as single source of truth, removing the Demographics/Consents duplicate → no dual-write drift
+36 Store safe_ministry_start_date as DATE (not free-text) → typed child-safety data
+37 Map Access Permissions onto base 5-level platform roles (value list in peopleFields.md) → consistent role model across modules
 
 ## Decision Gap Log
 1 Table architecture: single people vs vertical partitioning → open
 2 Journey grid UI (render, inline edit, bulk actions) → open
-3 Migration: people_category + locations[] → people_ministry_journey → open
-4 Performance: large households, search, pagination → open
-5 Align user_roles values to base 5-level platform roles → open
-6 pg_cron availability on Supabase tier → if free tier, fallback to Edge Function + GitHub Actions schedule cron → open
-7 Migration: school_year enum column → kindy_start_year integer (data mapping for existing records) → open
-8 Notification system architecture: in-app notifications table + email provider integration → open
-9 Kindy prompt response flow: how admin sets kindy_start_year from the notification (inline action vs navigate to person) → open
-10 Demographic progression UI: dedicated admin review screen vs notification-only → open
+3 Performance: large households, search, pagination → open
+4 pg_cron availability on Supabase tier → if free tier, fallback to Edge Function + GitHub Actions schedule cron → open
+5 Notification system architecture: in-app notifications table + email provider integration → open
+6 Kindy prompt response flow: how admin sets kindy_start_year from the notification (inline action vs navigate to person) → open
+7 Demographic progression UI: dedicated admin review screen vs notification-only → open
+8 Journey seeding for existing people: source has one People Category + multiple Locations[] per person, but journey grid is one stage per (person, ministry) → how to derive stages for each ministry → open

@@ -1,96 +1,109 @@
-> **Single source of truth** for field-level data: field names, enum values, conditional visibility, and the journey-grid mapping. Model decisions and rationale live in `decision.md`.
+> Single source of truth for PEOPLE field-level data (names, enums, visibility, journey-grid mapping). Decisions/rationale → `decision.md` (governs on conflict).
 
-# Journey Grid (replaces Locations, status, and People Category)
-Journey grid = **ministries (rows) × universal stages (columns)**; one stage per ministry per person (PK: person_id + ministry_id).
+# Journey Grid Overview (replaces Locations, status, People Category)
+= journey tracks (rows) × universal stages (columns); 1 stage/track/person in `people.journey` JSONB `{track_id → stage}`. Decisions #38–43.
+Single status source — no `people.status`, `people_category`, `locations[]`.
 
-The journey grid is a **single status source** — there is **no** separate `people.status`, `people_category`, or `locations[]` field.
+### Definitions
+- **Journey stage** (column, `journey_stage_slug`, admin-customizable) — a progression point a person holds on a track: `contact` #e6e3d7 → `guest` #7ec8b5 → `linked` #5ab2aa → `regular` #1c7782; terminal: `archived` #6B7280, `deleted_privacy_data` #a16969.
+- **Journey track** (row, admin-customizable) — the ongoing program a person is engaged with; one stage per track per person (a `people.journey` key). Seeded: Sundays 10am · Playtime (Tues) · Youth (Fri).
+- **Category** (heading only — never a track) — groups tracks for organising/navigation; `journey_track_categories (id, parent_id nullable, name, sort_order)`, self-referencing tree (#41). Categories hold no journey data.
+- **`archived`** no longer in a program
+- **`deleted_privacy_data`** after 5 years in archived contact details are removed -- attendance data is retains
 
-Universal stages (`journey_stage_slug`):
-- `contact` — #e6e3d7
-- `guest` — #7ec8b5
-- `linked` — #5ab2aa
-- `regular` — #1c7782
-- `archived` — #6B7280 (terminal)
-- `deleted_privacy_data` — #a16969 (terminal)
+### Example grid (stages = columns, tracks = rows)
+| Track ↓ / Stage → | `contact` | `guest` | `linked` | `regular` | `archived` |
+|---|---|---|---|---|---|
+| **Church Location (multi-site option)** | | | | | |
+| 　Sundays 10am | | | | J. Doe | |
+| 　Youth (Fri) | | J. Doe | | | |
+| **Kids** | | | | | |
+| 　Playtime (Tues) | | | | | |
 
-Ministries (rows, admin-customizable):
-- Sundays 10am
-- Playtime (Tues)
-- Youth (Fri)
+J. Doe = regular on Sundays 10am + guest on Youth (Fri) → `people.journey` = `{sundays_10am: "regular", youth_fri: "guest"}`; 
+Category example: **Campus** (e.g. *New Light – Southern Highlands*) → subcategory **Youth** → track **Youth (Fri)**; a track always lives under a category/subcategory.
+
+### Tables (field structure)
+- `journey_tracks (id, category_id nullable, name, sort_order)` — rows
+- `journey_track_categories (id, parent_id nullable, name, sort_order)` — headings only
+- `people.journey` — JSONB `{journey_track_id → journey_stage_slug}`, 1 entry/track, GIN-indexed (#43); `CHECK (journey <> '{}')` — never zero tracks: last unchecked → forced `archived` (#45); track delete → required migration target (#44)
+
+### Sorting & grouping
+Ordering/nesting = live drag-and-drop in **Journey Grid Settings** (#39/#41). This file = structure (tables, columns, stages, defaults), not live ordering. Behaviour → `decision.md` #38–45.
 
 ---
 
-#Personal Details
-First Name
-Preferred Name
-Last Name
+# Handling People Categories ( Adult | Youth | Child )
+`demographic` PG enum (Adult | Youth | Child) — age-based classification; replaces legacy free-form People Category. Journey grid = status; demographic = who-sees-what.
 
-#Demographics
-Demographics: Adult | Youth | Child → PG enum `demographic`
-Gender → PG enum `gender` Male | Female | Blank
-Date of Birth
-Marital Status (visible if adult): Blank | Single | Enaged | Married | Partner | Widowed | Divorced | Separated → PG enum `marital_status` (typo: "Enaged" → "Engaged")
-School (Visible if not adult)
-School Year (visible if not adult): Preschool | Kindy |  1 | 2 |3 | .. | 12 → **REPLACED by `kindy_start_year` integer** (calculated school year = CURRENT_YEAR − kindy_start_year; "Preschool" option dropped — no preschool tracking per decision #24–25)
-School Email permission: Blank | Yes | No (visible only if youth) → PG enum `school_email_permission` (DUPLICATED with Consents "Youth School Email Permission")
-School Email: (Visible only if Youth and School Email permission is 'yes')
+Derivation & auto-progression (#23–32):
+- Derived from DOB + school year (CURRENT_YEAR − kindy_start_year; Kindy=0 → Year 12)
+- child→youth at Year 5→6; youth→adult post-Year 12 (Jan 1 via pg_cron; no admin confirmation)
+- Kindy prompt (Nov/Dec): age 3–5 missing kindy_start_year; children 5+ missing → admin warning
+- Auto-progressions logged people_audit (change_reason = auto_progression)
 
-#Address
-Home Address
-Suburb
-State
-Post code
+Visibility by category (per-section tags in Person Profile Page):
+- **Adult** — full profile: Contact + Child Safety (WWCC/SMT/SMC)
+- **Youth** — no Contact (reached via guardians); Child Safety + School fields apply
+- **Child** — no Contact, no Child Safety; guardians shown; Biscuit consent if <5
 
-#Contact (Only Visible if demographic is adult--not youth/child)
-Email
-Phone Number → contact channel
-Mobile Number → contact channel
+Notes:
+- Youth/Child reached via guardian channels (Registered + Contact-only, #46–47)
+- Child-safety accreditation applies to Youth+Adult only (never children)
 
-Fields if demographic is Child or Youth
-Linked Parent/Guardians (multiple select-- search and select or add new)
-For each parent/guardian show First Name, Last Name, Email, Phone visible
+---
 
-#Medical
-Anaphylaxis/Allergy/Medical Details
-Other Medical/Behavioral info
-Regular Medication
+# Person Profile Page
+Section visibility keyed by `demographic` (see Handling People Categories): **[All]** every demographic · **[Adult]** adult only · **[Youth]** youth only · **[Child]** child only · **[Youth+Child]** guardians view · **[Youth+Adult]** child-safety · **[Admin]** role-gated.
 
-#Consents 
-External Photo Consent: Blank | Yes | No → PG enum `consent_status`
-Internel Photo Consent: Blank | Yes | No → typo "Internel" → "Internal"; PG enum `consent_status`
-Youth School Email Permission: Blank | Yes | No → DUPLICATE of Demographics "School Email permission"; PG enum `school_email_permission`
-Biscuit Permission (Under 5s): Blank | Yes | No → `biscuit_permission_under5`, visible if child <5
-Girl Guide Off-site Permission: Blank | Yes | No → PG enum `consent_status`
+## Personal Details [All]
+First Name · Preferred Name · Last Name
 
-#Child Safety Accreditation (Only visible if youth or adult)
-Safe Ministry Leader Type: Adults Leader | Junior Leader | Not Active | Under 13 Assistant | Visiting Leader
-Safe Min Notes
-Safe Ministry Start Date → should be DATE type (legacy says "Text area" — inconsistent with WWCC Expiry Date being a date)
+## Demographics [All] — sub-fields gated
+- `demographic`: Adult | Youth | Child (PG enum)
+- `gender`: Male | Female | Blank (PG enum)
+- Date of Birth
+- Marital Status [Adult]: Blank | Single | Engaged | Married | Partner | Widowed | Divorced | Separated → `marital_status` (PG enum; legacy typo "Enaged"→"Engaged")
+- School [Youth+Child]; School Year → **REPLACED by `kindy_start_year` int** (calc = CURRENT_YEAR − kindy_start_year; no preschool per #24–25)
+- School Email permission [Youth]: Blank | Yes | No → `school_email_permission` (DUPLICATE of Consents "Youth School Email Permission")
+- School Email [Youth + permission 'yes']
 
-##WWCC 
-WWCC Number
-WWCC Expiry Date
-WWCC Verification Date
-WWCC Verification Made By
-WWCC Verification Outcome: blank | Cleared
-WWCC Exemption: Support Role | Volunteer and Parent of attending Child (multiple select)
+## Address [All]
+Home Address · Suburb · State · Post code
 
-##Safe Ministry Training (SMT)
-SMT Certificate No
-SMT Completion Date
-Last SMT Type: Blank | Essentials | Junior | Refresher
+## Contact [Adult]
+Email · Phone Number → contact channel · Mobile Number → contact channel
 
-##Safe Ministry Check (SMC)
-SMC Exemption
-SMC Reviewer
-SMC Result Date
-SMC Result: Age 13-17 Application Approved | Over 18 Application Approved
+## Guardians [Youth+Child]
+Linked guardians — **Registered** (members via people_relationships → profile) or **Contact-only** (not in system; person row, journey auto-reconciled at `contact` on child's tracks, #46–47; shows name/email/phone, promotable). Child reached via guardian channels.
 
-#Admin (Visible to Admins only)
-#Access Permissions: Public | Member Area | Team Leaders | Admin | SuperAdmin → PG enum `access_permission`;
-Date Professed → `date_professed`
-Legacy Date Added → `legacy_date_added`
-Legacy Member ID → `legacy_member_id`
+## Medical [Youth+Child]
+Anaphylaxis/Allergy/Medical Details · Other Medical/Behavioral info · Regular Medication
+
+## Consents [Youth+Child]
+- External Photo Consent: Blank | Yes | No → `consent_status`
+- Internal Photo Consent: Blank | Yes | No → `consent_status` (typo "Internel"→"Internal")
+- Youth School Email Permission [Youth]: Blank | Yes | No → `school_email_permission` (DUPLICATE of Demographics "School Email permission")
+- Biscuit Permission [Child <5]: Blank | Yes | No → `biscuit_permission_under5`
+- Girl Guide Off-site Permission: Blank | Yes | No → `consent_status`
+
+## Child Safety Accreditation [Youth+Adult]
+- Safe Ministry Leader Type: Adults Leader | Junior Leader | Not Active | Under 13 Assistant | Visiting Leader
+- Safe Min Notes
+- Safe Ministry Start Date → DATE type (legacy "Text area" inconsistent with WWCC Expiry Date)
+
+### WWCC [Youth+Adult]
+WWCC Number · WWCC Expiry Date · WWCC Verification Date · WWCC Verification Made By · WWCC Verification Outcome: blank | Cleared · WWCC Exemption: Support Role | Volunteer and Parent of attending Child (multi-select)
+
+### Safe Ministry Training (SMT) [Youth+Adult]
+SMT Certificate No · SMT Completion Date · Last SMT Type: Blank | Essentials | Junior | Refresher
+
+### Safe Ministry Check (SMC) [Youth+Adult]
+SMC Exemption · SMC Reviewer · SMC Result Date · SMC Result: Age 13-17 Application Approved | Over 18 Application Approved
+
+## Admin [Admin role — All]
+- `access_permission`: Public | Member Area | Team Leaders | Admin | SuperAdmin (PG enum)
+- `date_professed` · `legacy_date_added` · `legacy_member_id`
 
 
 

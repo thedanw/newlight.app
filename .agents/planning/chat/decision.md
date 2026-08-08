@@ -57,6 +57,13 @@ Team leaders ↔ their team members; admins broadcast to all opted-in users. All
 14 Mark delivered via client view + SW ping-back + reconnect catch-up → self-correcting status, no server guessing
 15 Re-push undelivered via cron at 1h/3h/8h/24h then give up → covers prolonged offline; bounded notification spam
 
+## Findings (verified)
+- Web Push = Push API + Notifications API + Service Worker; VAPID-signed POST to subscription endpoint; no native SDK needed
+- Android/desktop: push works from non-installed PWA; iOS Safari: iOS 16.4+ AND Home-Screen install required
+- Permission requires a user gesture; per-site revocable; payload E2E-encrypted but body (title/count) visible to push service
+- Push services free (FCM/Autopush/Apple); Supabase has no built-in web push → Edge Fn (VAPID + POST)
+- Verify at build: free-tier Realtime concurrency; VAPID key mgmt + CF-Pages vs Supabase Edge Fn; iOS 16.4+ coverage; declined-permission re-prompt
+
 ## Decision Gap Log
 1 Multi-device push subscription management → open
 2 Team-leader role derivation from existing modules → open

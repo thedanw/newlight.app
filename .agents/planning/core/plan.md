@@ -2,10 +2,13 @@
 
 **Goal:** Build a lightweight, modular web application CRM platform for New Light Anglican Church with a baseline "people" module and extensible architecture for additional modules (groups, services, calendar) that can be independently developed and toggled on/off, using Supabase free tier for data storage.
 
-**Current brainstorm (authentication):** Phone + SMS-code login for all users alongside email/password, magic link, OAuth. Single "email or mobile" identifier, then password OR SMS code (touchSMS). MFA-for-admin removed (#10). Driven by `01_brainstorming` skill; decisions land in [core decision.md](decision.md).
+**Active brainstorm (UI architecture & CSS):** Base DS = **Park UI** (Ark UI headless + Panda config recipes, MIT) CLI-vendored into `src/core/ui` — zero-runtime styling, named BEM classes, source owned + editable, no preset black-box, only add what you use (no bloat). Radix + Bits eras superseded (core #3, ui-ux #10). Decisions land in [ui-ux decision.md](../ui-ux/decision.md) (UI/CSS) + [module-design decision.md](../module-design/decision.md) (agent containment).
 
-**New brainstorm (chat module):** Add a chat component allowing team leaders/members to communicate with opt-in gating — a user can only be messaged once they've accepted the chat/notification feature in the app on their phone. Team leaders can send a push notification (or in-app/SMS nudge) asking the user to accept chat notifications. Once enabled, browser + device notifications and popups behave like any chat app. Driven by `01_brainstorming` skill; decisions land in [chat decision.md](../chat/decision.md).
+**Goal 3 (agent containment):** Small-context LLM agents must be able to build 'bolt-on' modules that are 99% consistent with the app. The UI architecture must therefore be a strict, fail-closed code environment: locked import surface, recipe-only CSS, typed contracts, scaffold generator, and CI enforcement — so an agent that loses context physically cannot create rogue components, use atomic classes, or stray outside the prescribed framework.
 
 ## Decision Logs (from brainstorming)
 - [Core Platform decisions](decision.md)
 - [People Module decisions](../people/decision.md)
+- [Chat Module decisions](../chat/decision.md)
+- [UI/CSS decisions](../ui-ux/decision.md)
+- [Module design + agent containment](../module-design/decision.md)

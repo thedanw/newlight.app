@@ -1,3 +1,19 @@
 # Ignore the boss skill junction
 .agents/skills/boss
 .agents/planning/.referenceFiles/churchcrm
+
+# Logs
+logs
+*.log
+pnpm-debug.log*
+
+# Dependencies
+node_modules
+
+# Build output
+dist
+dist-ssr
+*.local
+
+# Panda CSS generated
+styled-system

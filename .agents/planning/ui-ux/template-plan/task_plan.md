@@ -1,10 +1,10 @@
 # Task Plan — UI/UX Design Lab (Boilerplate + Styleguide)
 
-Status: planning
+Status: in_progress
 
 | Batch | Phase | Goal | Status |
 |---|---|---|---|
-| 1 | Scaffold | Vite + React + TS-strict boilerplate boots via pnpm on `feat/ui-design-lab` | not-started |
+| 1 | Scaffold | Vite + React + TS-strict boilerplate boots via pnpm on `feat/ui-design-lab` | completed |
 | 2 | Panda CSS | `hash:false` config + single `global.css` | not-started |
 | 3 | Park UI base | vendor shell + Dashboard base components into `src/core/ui` | not-started |
 | 4 | Theme + font | `<html data-*>` emission + static Inter preload | not-started |

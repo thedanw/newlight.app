@@ -30,12 +30,15 @@
 - AU compliance: Spam Act 2003 (consent, sender ID, functional unsubscribe, suppression list) — tie to people consents (e.g. school_email_permission, consent_status) + global email_unsubscribes
 - Settings: sender identity, domain/DKIM status, default footer, daily/monthly caps, provider key (secret → env, core #18/#23)
 
-## Open questions for brainstorm (Decision Gap Log seeds)
-1. Placement: email as foundation module (like people) vs core service + module wrapper
-2. Editor engine: GrapesJS vs Craft.js vs React Email+TipTap vs hybrid
-3. Send provider: Resend vs SES vs alternative
-4. Dynamic data blocks: server-side data binding vs edit-time snapshot vs defer
-5. MVP scope: simple send vs templates library + send history/status/tracking
-6. Audience model: segment builder from people queries vs simple manual lists
-7. Compliance: unsubscribe + suppression + consent gating now vs defer
-8. Email address selection: which people-module email channel is "preferred" for outreach
+## Confirmed (Understanding Lock 2026-08-08)
+- Placement: email = FOUNDATION module `src/modules/email` (always-on, like people; public API for other modules)
+- Editor: **GrapesJS** (BSD-3) — drag-drop Block Manager + plugin/block system + `grapesjs-preset-newsletter`; JSON storage
+- Send: **Google Workspace SMTP** (smtp.gmail.com) via Supabase Edge Fn (Deno + nodemailer); volume <50/day, ~200-300 broadcast (within 2,000/day ceiling)
+- Sender: global account (superadmin-configured) + per-user alias From override (same-domain aliases only)
+- Data blocks: **edit-time snapshot** (HTML saved with template); send-time server binding = future upgrade
+- MVP scope: reusable templates + send history/status (queued/sent/failed only — no open/click on SMTP)
+- Compliance: unsubscribe + suppression + consent gate NOW (AU Spam Act 2003)
+- Consent flags in PEOPLE module (shared foundation, core #13): `broadcasts` = "Church news and updates" (church-wide/program/ministry/newsletter); `team_updates` = "Team updates" (small groups, calendars, journey tracks); both follow `consent_status` Blank|Yes|No
+
+## Open gaps (Decision Gap Log — see decision.md)
+Sending roles · recipient segment builder scope · unsubscribe UX details · preferred email channel selection · consent demographic gating · SMTP secret + alias verification · GrapesJS theming · data-block extension point contract

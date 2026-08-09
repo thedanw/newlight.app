@@ -88,7 +88,15 @@ export default defineConfig({
           green: green
         },
 
-        shadows: shadows
+        shadows: shadows,
+
+        // Park UI radius scale — the `data-radius` knob on <html> re-maps these
+        // via the theme emission block (src/core/theme/theme.css).
+        radii: {
+          l1: { value: '{radii.xs}' },
+          l2: { value: '{radii.sm}' },
+          l3: { value: '{radii.md}' },
+        },
       }
     },
   },

@@ -307,7 +307,7 @@
    Consumed by the shell's Heading recipe (Batch 5).
    -------------------------------------------------------------------------- */
 :root {
-  --heading-font-weight: 700;
+  --heading-font-weight: var(--font-weights-semibold);
   --heading-text-transform: none;
   --heading-letter-spacing: normal;
   --heading-color: var(--colors-fg-default);

@@ -1,11 +1,21 @@
 'use client'
-import { useState, type MouseEvent, type ReactNode } from 'react'
+import { useRef, useState, type MouseEvent, type ReactNode } from 'react'
 import { AnimatePresence, motion, useReducedMotion, type Variants } from 'framer-motion'
-import { CalendarDays, ChevronLeftIcon, Settings2, Sun, Users, UsersRound, Wrench } from 'lucide-react'
+import {
+  CalendarDays,
+  ChevronLeftIcon,
+  Settings2,
+  SlidersHorizontalIcon,
+  Sun,
+  Users,
+  UsersRound,
+  Wrench,
+} from 'lucide-react'
 import { css } from 'styled-system/css'
 import { token } from 'styled-system/tokens'
-import { Box, Stack } from 'styled-system/jsx'
-import { Breadcrumb, Heading, Icon, IconButton, Text } from '@/core/ui'
+import { Box, HStack, Stack } from 'styled-system/jsx'
+import { Avatar, Breadcrumb, Heading, Icon, IconButton, Menu, Text } from '@/core/ui'
+import { BrandForm } from './BrandForm'
 import { Dashboard } from './pages/Dashboard'
 import { CategoryPage } from './pages/Category'
 import { SlidePanel, type SlidePanelVariant } from './SlidePanel'
@@ -83,6 +93,7 @@ const pagePanelCss = css({
 const pageHeaderCss = css({
   display: 'flex',
   alignItems: 'center',
+  justifyContent: 'space-between',
   gap: '3',
   px: '6',
   py: '3',
@@ -113,6 +124,8 @@ export default function StyleguideApp() {
   const [stack, setStack] = useState<Panel[]>([{ kind: 'dashboard' }])
   const [direction, setDirection] = useState(1)
   const [slide, setSlide] = useState<SlideState>(null)
+  const [brandLogo, setBrandLogo] = useState<string | null>(null)
+  const brandLogoRef = useRef<string | null>(null)
   const reduceMotion = useReducedMotion()
 
   const current = stack[stack.length - 1]
@@ -168,6 +181,26 @@ export default function StyleguideApp() {
     })
   }
 
+  // BrandForm — opens from the header kebab as a SlidePanel 'normal' (decision
+  // #46). The logo commits to the sidebar brand slot on Apply (decision #45);
+  // old committed URLs are revoked so object URLs never leak.
+  const commitLogo = (url: string) => {
+    if (brandLogoRef.current) URL.revokeObjectURL(brandLogoRef.current)
+    brandLogoRef.current = url
+    setBrandLogo(url)
+  }
+
+  const openBrandForm = () => {
+    setSlide({
+      key: 'brand',
+      variant: 'normal',
+      title: 'Brand',
+      children: (
+        <BrandForm logo={brandLogo} onApplyLogo={commitLogo} onClose={() => setSlide(null)} />
+      ),
+    })
+  }
+
   const renderPanel = (panel: Panel) => {
     if (panel.kind === 'category') {
       return <CategoryPage category={panel.category} />
@@ -196,18 +229,27 @@ export default function StyleguideApp() {
         >
           <Box
             className={css({
-              boxSize: '8',
+              boxSize: '9',
               borderRadius: 'l2',
-              bg: 'var(--sidebar-accent)',
+              bg: brandLogo ? 'transparent' : 'var(--sidebar-accent)',
               color: 'var(--sidebar-accent-fg)',
               display: 'grid',
               placeItems: 'center',
               flexShrink: '0',
+              overflow: 'hidden',
             })}
           >
-            <Icon size="sm">
-              <Sun />
-            </Icon>
+            {brandLogo ? (
+              <img
+                src={brandLogo}
+                alt="Logo"
+                className={css({ boxSize: 'full', objectFit: 'contain' })}
+              />
+            ) : (
+              <Icon size="sm">
+                <Sun />
+              </Icon>
+            )}
           </Box>
           <Stack gap="0">
             <Text textStyle="sm" fontWeight="semibold" color="var(--sidebar-fg)">
@@ -238,36 +280,79 @@ export default function StyleguideApp() {
       {/* #page-panel — header + push/pop stack */}
       <div id="page-panel" className={pagePanelCss}>
         <header className={pageHeaderCss}>
-          {stack.length > 1 && (
-            <IconButton variant="plain" colorPalette="gray" aria-label="Back" onClick={pop}>
-              <ChevronLeftIcon />
-            </IconButton>
-          )}
-          <Breadcrumb.Root>
-            <Breadcrumb.List>
-              <Breadcrumb.Item>
-                <Breadcrumb.Link href="#" onClick={goHome}>
-                  Style Guide
-                </Breadcrumb.Link>
-              </Breadcrumb.Item>
-              {current.kind === 'category' && (
-                <>
-                  <Breadcrumb.Separator />
-                  <Breadcrumb.Item>
-                    <Breadcrumb.Link href="#" onClick={goHome}>
-                      Dashboard
-                    </Breadcrumb.Link>
-                  </Breadcrumb.Item>
-                  <Breadcrumb.Separator />
-                  <Breadcrumb.Item>
-                    <Breadcrumb.Link href="#" aria-current="page">
-                      {current.category.name}
-                    </Breadcrumb.Link>
-                  </Breadcrumb.Item>
-                </>
-              )}
-            </Breadcrumb.List>
-          </Breadcrumb.Root>
+          <HStack gap="2" flex="1" minWidth="0">
+            {stack.length > 1 && (
+              <IconButton variant="plain" colorPalette="gray" aria-label="Back" onClick={pop}>
+                <ChevronLeftIcon />
+              </IconButton>
+            )}
+            <Breadcrumb.Root>
+              <Breadcrumb.List>
+                <Breadcrumb.Item>
+                  <Breadcrumb.Link href="#" onClick={goHome}>
+                    Style Guide
+                  </Breadcrumb.Link>
+                </Breadcrumb.Item>
+                {current.kind === 'category' && (
+                  <>
+                    <Breadcrumb.Separator />
+                    <Breadcrumb.Item>
+                      <Breadcrumb.Link href="#" onClick={goHome}>
+                        Dashboard
+                      </Breadcrumb.Link>
+                    </Breadcrumb.Item>
+                    <Breadcrumb.Separator />
+                    <Breadcrumb.Item>
+                      <Breadcrumb.Link href="#" aria-current="page">
+                        {current.category.name}
+                      </Breadcrumb.Link>
+                    </Breadcrumb.Item>
+                  </>
+                )}
+              </Breadcrumb.List>
+            </Breadcrumb.Root>
+          </HStack>
+
+          {/* Header kebab (decision #29/#46): avatar trigger + brand settings */}
+          <Menu.Root
+            positioning={{ placement: 'bottom-end' }}
+            onSelect={(details) => {
+              if (details.value === 'brand-settings') openBrandForm()
+            }}
+          >
+            <Menu.Trigger asChild>
+              <IconButton variant="plain" colorPalette="gray" aria-label="Account menu">
+                <Avatar.Root size="xs">
+                  <Avatar.Fallback name="Design Lab" />
+                </Avatar.Root>
+              </IconButton>
+            </Menu.Trigger>
+            <Menu.Positioner>
+              <Menu.Content minWidth="13rem">
+                <Menu.ItemGroup id="account">
+                  <Menu.ItemGroupLabel>
+                    <HStack gap="2">
+                      <Avatar.Root size="2xs">
+                        <Avatar.Fallback name="Design Lab" />
+                      </Avatar.Root>
+                      <Stack gap="0">
+                        <Text textStyle="sm" fontWeight="semibold">
+                          Design Lab
+                        </Text>
+                        <Text textStyle="xs" color="fg.muted">
+                          New Light
+                        </Text>
+                      </Stack>
+                    </HStack>
+                  </Menu.ItemGroupLabel>
+                  <Menu.Item value="brand-settings">
+                    <SlidersHorizontalIcon />
+                    <Menu.ItemText>Brand settings</Menu.ItemText>
+                  </Menu.Item>
+                </Menu.ItemGroup>
+              </Menu.Content>
+            </Menu.Positioner>
+          </Menu.Root>
         </header>
 
         <div className={contentCss}>

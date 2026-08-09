@@ -91,11 +91,11 @@ Goal: `src/styleguide/App.tsx` shell (sidebar waffle mock + `#page-panel` header
 ### Batch 6: Brand form
 Goal: Brand form (8 fields) as SlidePanel 'normal' from the header kebab: logo upload (FileUpload.Dropzone, 1 file, png/svg/webp/jpg ≤1MB, square), light/dark, font (Inter/Poppins/Raleway/DM Sans), gray, accent, radius (native Slider + Marks), sidebar style dropdown, heading style checkboxes. Live whole-shell re-theme; logo save-on-apply.
 **YAGNI yet: no persistence, no super-admin gate — pure local emulation writing `<html>` data-* attrs.**
-- [ ] Header kebab (Menu + Avatar) with brand-settings entry (decision.md #29/#46)
-- [ ] `BrandForm.tsx`: 8 fields wired to `<html>` data-* (theme knobs live)
-- [ ] Logo upload: Dropzone, 1 file, type/size guard (png/svg/webp/jpg, ≤1MB) → object URL → brand slot; save-on-apply only (decision.md #45)
-- [ ] Radius Slider + Marks (7 labeled stops) (decision.md #49)
-- [ ] Commit: `feat: brand form with live whole-shell re-theme`
+- [x] Header kebab (Menu + Avatar) with brand-settings entry (decision.md #29/#46)
+- [x] `BrandForm.tsx`: 8 fields wired to `<html>` data-* (theme knobs live)
+- [x] Logo upload: Dropzone, 1 file, type/size guard (png/svg/webp/jpg, ≤1MB) → object URL → brand slot; save-on-apply only (decision.md #45)
+- [x] Radius Slider + Marks (7 labeled stops) (decision.md #49)
+- [x] Commit: `feat: brand form with live whole-shell re-theme`
 
 **Context prompt:**
 > Read `template-plan/plan.md` Batch 6 + `temp-styleguide-pages.md` decisions #12–18/#40–46 + `tokens.md` (knobs table). Build the 8-field brand form in a normal SlidePanel from the kebab; wire knobs to `<html>` data-*; logo = save-on-apply asset. Track via `manage_todo_list`; log every 2 ops to `progress.md`; compact at end. Bare bones only — YAGNI yet.

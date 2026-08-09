@@ -4,7 +4,6 @@ import { ChevronLeftIcon, ChevronRightIcon, SlidersHorizontalIcon, SparklesIcon,
 import { css } from 'styled-system/css'
 import { Box, Grid, HStack, Stack } from 'styled-system/jsx'
 import { tocCategories, type TocCategory } from '../toc'
-import { Input } from '../Input'
 import { type SlidePanelVariant } from '../SlidePanel'
 import {
   AbsoluteCenter,
@@ -17,6 +16,7 @@ import {
   Heading,
   Icon,
   IconButton,
+  Input,
   Loader,
   Separator,
   Spinner,

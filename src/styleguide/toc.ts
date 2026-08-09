@@ -12,10 +12,11 @@ import {
 
 /* ---------------------------------------------------------------------------
    TOC — category → components index for the Styleguide Dashboard.
-   Type-safe data only; no UI. Batch 5 ships the VENDORED set (33 from
-   `src/core/ui` barrel). Batch 7 appends the remaining 62-catalog entries
-   (add to the matching `components` array, keep `shipped: false` until the
-   component is vendored + demonstrated).
+   Type-safe data only; no UI. Batch 7 ships the FULL catalog (63 components,
+   all vendored + demonstrated in `src/styleguide/pages/demos.tsx`).
+   Counts by category: Layout 3 · Buttons 5 · Typography 5 · Forms 24 ·
+   Feedback 6 · Overlays 6 · Navigation 8 · Display 6.
+   `group` (Forms/Navigation) drives Accordion sections in SubpageTemplate.
 --------------------------------------------------------------------------- */
 
 export type TocComponent = {
@@ -78,9 +79,11 @@ export const tocCategories: TocCategory[] = [
     icon: Type,
     description: 'Text, headings and keyboard input affordances.',
     components: [
+      { name: 'Code', description: 'Inline code snippet.', shipped: true },
       { name: 'Heading', description: 'Section heading (textStyle xs–7xl).', shipped: true },
-      { name: 'Text', description: 'Body text primitive.', shipped: true },
       { name: 'Kbd', description: 'Keyboard key / shortcut.', shipped: true },
+      { name: 'Link', description: 'Anchor / inline link.', shipped: true },
+      { name: 'Text', description: 'Body text primitive.', shipped: true },
     ],
   },
   {
@@ -89,11 +92,30 @@ export const tocCategories: TocCategory[] = [
     icon: TextCursorInput,
     description: 'Inputs, selectors and data-entry controls.',
     components: [
-      { name: 'Checkbox', description: 'Multi-select toggle.', shipped: true },
-      { name: 'Field', description: 'Label + helper/error wrapper for inputs.', shipped: true },
-      { name: 'FileUpload', description: 'Drag-and-drop file input.', shipped: true },
-      { name: 'Select', description: 'Dropdown selector.', shipped: true },
-      { name: 'Slider', description: 'Range input with discrete marks.', shipped: true },
+      { name: 'Field', description: 'Label + helper/error wrapper for inputs.', group: 'Text input', shipped: true },
+      { name: 'Fieldset', description: 'Groups fields into a bordered section.', group: 'Text input', shipped: true },
+      { name: 'Input', description: 'Single-line text input.', group: 'Text input', shipped: true },
+      { name: 'InputAddon', description: 'Static prefix/suffix adornment.', group: 'Text input', shipped: true },
+      { name: 'InputGroup', description: 'Input with leading/trailing elements.', group: 'Text input', shipped: true },
+      { name: 'Textarea', description: 'Multi-line text input.', group: 'Text input', shipped: true },
+      { name: 'Checkbox', description: 'Multi-select toggle.', group: 'Selection', shipped: true },
+      { name: 'RadioGroup', description: 'Single-select radio list.', group: 'Selection', shipped: true },
+      { name: 'RadioCardGroup', description: 'Radio options as selectable cards.', group: 'Selection', shipped: true },
+      { name: 'SegmentGroup', description: 'Segmented single-select control.', group: 'Selection', shipped: true },
+      { name: 'Slider', description: 'Range input with discrete marks.', group: 'Selection', shipped: true },
+      { name: 'Switch', description: 'On/off toggle.', group: 'Selection', shipped: true },
+      { name: 'ToggleGroup', description: 'Multi-select icon toggle bar.', group: 'Selection', shipped: true },
+      { name: 'ColorPicker', description: 'Color swatch + format selection.', group: 'Advanced & composite', shipped: true },
+      { name: 'Combobox', description: 'Searchable dropdown with free input.', group: 'Advanced & composite', shipped: true },
+      { name: 'DatePicker', description: 'Date input with calendar popup.', group: 'Advanced & composite', shipped: true },
+      { name: 'DisplayValue', description: 'Displays a field value inline.', group: 'Advanced & composite', shipped: true },
+      { name: 'Editable', description: 'Click/double-click inline edit.', group: 'Advanced & composite', shipped: true },
+      { name: 'FileUpload', description: 'Drag-and-drop file input.', group: 'Advanced & composite', shipped: true },
+      { name: 'NumberInput', description: 'Stepper numeric input.', group: 'Advanced & composite', shipped: true },
+      { name: 'PinInput', description: 'Code/OTP digit input.', group: 'Advanced & composite', shipped: true },
+      { name: 'RatingGroup', description: 'Star rating input.', group: 'Advanced & composite', shipped: true },
+      { name: 'Select', description: 'Dropdown selector.', group: 'Advanced & composite', shipped: true },
+      { name: 'TagsInput', description: 'Chip/tag multi-input.', group: 'Advanced & composite', shipped: true },
     ],
   },
   {
@@ -102,7 +124,10 @@ export const tocCategories: TocCategory[] = [
     icon: BellRing,
     description: 'Loading, progress and transient notifications.',
     components: [
+      { name: 'Alert', description: 'Banner with icon + title + body.', shipped: true },
       { name: 'Loader', description: 'Inline loading spinner with text.', shipped: true },
+      { name: 'Progress', description: 'Determinate progress bar.', shipped: true },
+      { name: 'Skeleton', description: 'Placeholder shimmer (Skeleton/SkeletonText/SkeletonCircle).', shipped: true },
       { name: 'Spinner', description: 'Circular progress indicator.', shipped: true },
       { name: 'Toast', description: 'Transient notification (Toaster + toaster).', shipped: true },
     ],
@@ -127,10 +152,14 @@ export const tocCategories: TocCategory[] = [
     icon: Compass,
     description: 'Tabs, breadcrumbs and paging/carousel navigation.',
     components: [
-      { name: 'Accordion', description: 'Collapsible sections.', shipped: true },
-      { name: 'Breadcrumb', description: 'Navigation trail.', shipped: true },
-      { name: 'Carousel', description: 'Slideable strip.', shipped: true },
-      { name: 'Tabs', description: 'Tabbed views.', shipped: true },
+      { name: 'Accordion', description: 'Collapsible sections.', group: 'Expandable & scrolling', shipped: true },
+      { name: 'Collapsible', description: 'Inline expand/collapse region.', group: 'Expandable & scrolling', shipped: true },
+      { name: 'ScrollArea', description: 'Custom scrollable region.', group: 'Expandable & scrolling', shipped: true },
+      { name: 'Splitter', description: 'Resizable multi-panel split.', group: 'Expandable & scrolling', shipped: true },
+      { name: 'Carousel', description: 'Slideable strip.', group: 'Tabs & paging', shipped: true },
+      { name: 'Pagination', description: 'Paged navigation controls.', group: 'Tabs & paging', shipped: true },
+      { name: 'Tabs', description: 'Tabbed views.', group: 'Tabs & paging', shipped: true },
+      { name: 'Breadcrumb', description: 'Navigation trail.', group: 'Trail', shipped: true },
     ],
   },
   {
@@ -143,6 +172,8 @@ export const tocCategories: TocCategory[] = [
       { name: 'Badge', description: 'Status / label chip.', shipped: true },
       { name: 'Card', description: 'Content container (Root/Header/Body/Footer).', shipped: true },
       { name: 'Icon', description: 'Icon wrapper for SVG icons.', shipped: true },
+      { name: 'Image', description: 'Responsive image element.', shipped: true },
+      { name: 'Table', description: 'Tabular data (Head/Body/Row/Cell).', shipped: true },
     ],
   },
 ]

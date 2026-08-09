@@ -103,9 +103,9 @@ Goal: Brand form (8 fields) as SlidePanel 'normal' from the header kebab: logo u
 ### Batch 7: Category subpages + catalog expansion
 Goal: Per-subpage template (one Card per component, Accordion for long pages) + build the 8 category subpages progressively (Layout / Buttons / Typography / Forms / Feedback / Overlays / Navigation / Display), vendor + catalogue the remaining 62 components in natural contexts.
 **YAGNI yet: each subpage is a template — one natural context per component, no over-engineered demos; expand iteratively, don't polish everything at once.**
-- [ ] Subpage template component (Card grid + Accordion groups for long pages)
-- [ ] Build the 8 subpages; vendor remaining Park UI components per category
-- [ ] `toc.ts` count check: all 62 present (3+4+5+24+6+6+8+6)
+- [x] Subpage template component (Card grid + Accordion groups for long pages)
+- [x] Build the 8 subpages; vendor remaining Park UI components per category
+- [x] `toc.ts` count check: all components present (actual 63 = Layout 3 + Buttons 5 + Typography 5 + Forms 24 + Feedback 6 + Overlays 6 + Navigation 8 + Display 6 — plan's "62" miscounted Buttons/Typography at 4 each)
 - [ ] Commit: `feat: category subpages + full catalog`
 
 **Context prompt:**

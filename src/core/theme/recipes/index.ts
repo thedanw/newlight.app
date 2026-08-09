@@ -1,3 +1,31 @@
+import { tagsInput } from "./tags-input";
+import { ratingGroup } from "./rating-group";
+import { editable } from "./editable";
+import { datePicker } from "./date-picker";
+import { combobox } from "./combobox";
+import { colorPicker } from "./color-picker";
+import { toggleGroup } from "./toggle-group";
+import { segmentGroup } from "./segment-group";
+import { radioCardGroup } from "./radio-card-group";
+import { radioGroup } from "./radio-group";
+import { pinInput } from "./pin-input";
+import { numberInput } from "./number-input";
+import { switchRecipe } from "./switch";
+import { textarea } from "./textarea";
+import { fieldset } from "./fieldset";
+import { inputAddon } from "./input-addon";
+import { inputGroup } from "./input-group";
+import { input } from "./input";
+import { splitter } from "./splitter";
+import { scrollArea } from "./scroll-area";
+import { pagination } from "./pagination";
+import { collapsible } from "./collapsible";
+import { table } from "./table";
+import { skeleton } from "./skeleton";
+import { progress } from "./progress";
+import { alert } from "./alert";
+import { link } from "./link";
+import { code } from "./code";
 import { absoluteCenter } from "./absolute-center";
 import { spinner } from "./spinner";
 import { icon } from "./icon";
@@ -56,6 +84,34 @@ export const recipes = {
   icon,
   spinner,
   absoluteCenter,
-  separator
+  separator,
+  code,
+  link,
+  alert,
+  progress,
+  skeleton,
+  table,
+  collapsible,
+  pagination,
+  scrollArea,
+  splitter,
+  input,
+  inputGroup,
+  inputAddon,
+  fieldset,
+  textarea,
+  switchRecipe,
+  numberInput,
+  pinInput,
+  radioGroup,
+  radioCardGroup,
+  segmentGroup,
+  toggleGroup,
+  colorPicker,
+  combobox,
+  datePicker,
+  editable,
+  ratingGroup,
+  tagsInput
 }
 export const slotRecipes = {}

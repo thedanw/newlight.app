@@ -14,7 +14,7 @@ import {
 import { css } from 'styled-system/css'
 import { token } from 'styled-system/tokens'
 import { Box, HStack, Stack } from 'styled-system/jsx'
-import { Avatar, Breadcrumb, Heading, Icon, IconButton, Menu, Text } from '@/core/ui'
+import { Avatar, Breadcrumb, Heading, Icon, IconButton, Menu, Text, Toaster } from '@/core/ui'
 import { BrandForm } from './BrandForm'
 import { Dashboard } from './pages/Dashboard'
 import { CategoryPage } from './pages/Category'
@@ -382,6 +382,9 @@ export default function StyleguideApp() {
       >
         {slide?.children}
       </SlidePanel>
+
+      {/* Toaster — mounted once so Toast demos (Batch 7) have a surface */}
+      <Toaster />
     </div>
   )
 }

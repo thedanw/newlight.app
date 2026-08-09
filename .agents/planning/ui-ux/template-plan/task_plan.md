@@ -5,7 +5,7 @@ Status: in_progress
 | Batch | Phase | Goal | Status |
 |---|---|---|---|
 | 1 | Scaffold | Vite + React + TS-strict boilerplate boots via pnpm on `feat/ui-design-lab` | completed |
-| 2 | Panda CSS | `hash:false` config + single `global.css` | not-started |
+| 2 | Panda CSS | `hash:false` config + single `global.css` | completed |
 | 3 | Park UI base | vendor shell + Dashboard base components into `src/core/ui` | not-started |
 | 4 | Theme + font | `<html data-*>` emission + static Inter preload | not-started |
 | 5 | SG shell + Dashboard | `App.tsx` panel stack + Dashboard TOC + breadcrumbs + toolPanel | not-started |

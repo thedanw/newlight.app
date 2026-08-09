@@ -34,11 +34,11 @@ Out (YAGNI):
 ### Batch 1: Scaffold
 Goal: Vite + React + TS-strict app boots via pnpm on `feat/ui-design-lab`.
 **YAGNI yet: no router, no aliases, no lint/CI — just a runnable dev server.**
-- [ ] Create branch `feat/ui-design-lab` from `main`
-- [ ] Scaffold Vite react-ts (`pnpm create vite . --template react-ts`)
-- [ ] `pnpm install`; confirm `tsconfig` strict
-- [ ] Verify `pnpm dev` boots (expected: Vite ready URL)
-- [ ] Commit: `chore: scaffold vite react-ts boilerplate`
+- [x] Create branch `feat/ui-design-lab` from `main`
+- [x] Scaffold Vite react-ts (`pnpm create vite . --template react-ts`)
+- [x] `pnpm install`; confirm `tsconfig` strict
+- [x] Verify `pnpm dev` boots (expected: Vite ready URL)
+- [x] Commit: `chore: scaffold vite react-ts boilerplate`
 
 **Context prompt (paste to a fresh subagent):**
 > Read `.agents/planning/ui-ux/template-plan/plan.md` Batch 1 + `task_plan.md` + `findings.md` (refs only). Create branch `feat/ui-design-lab`, scaffold Vite react-ts with pnpm, confirm `pnpm dev` boots and tsconfig is strict. Track steps with `manage_todo_list` (one in_progress at a time). Every 2 ops, append outcomes to `progress.md`; end by compacting this batch to ≤3 bullets there. Build only the bare bones — YAGNI yet.
@@ -46,10 +46,10 @@ Goal: Vite + React + TS-strict app boots via pnpm on `feat/ui-design-lab`.
 ### Batch 2: Panda CSS wiring
 Goal: Panda configured (`hash:false`, central recipe registration) emitting one `global.css`; a smoke recipe renders.
 **YAGNI yet: no custom token scale beyond what Park UI needs — no app-specific recipes.**
-- [ ] Install `@pandacss/dev` + PostCSS; add `postcss.config` + `panda.config.ts` (`hash:false`, outdir, `include: ['src/**']`)
-- [ ] Register recipes centrally in `panda.config.ts` `theme.recipes` (empty to start)
-- [ ] Verify `panda` generates `global.css` and the dev server compiles
-- [ ] Commit: `chore: wire panda css (hash:false)`
+- [x] Install `@pandacss/dev` + PostCSS; add `postcss.config` + `panda.config.ts` (`hash:false`, outdir, `include: ['src/**']`)
+- [x] Register recipes centrally in `panda.config.ts` `theme.recipes` (empty to start)
+- [x] Verify `panda` generates `global.css` and the dev server compiles
+- [x] Commit: `chore: wire panda css (hash:false)`
 
 **Context prompt:**
 > Read `template-plan/plan.md` Batch 2 + `task_plan.md`. Configure Panda CSS with `hash:false` and central recipe registration; verify a single `global.css` is generated and the dev server compiles. Track via `manage_todo_list`. Every 2 ops, log to `progress.md`; compact at end. Bare bones only — YAGNI yet.
@@ -57,10 +57,10 @@ Goal: Panda configured (`hash:false`, central recipe registration) emitting one 
 ### Batch 3: Park UI base components
 Goal: Vendor the Park UI components the shell + Dashboard need (NOT all 62) via `@park-ui/cli` into `src/core/ui`.
 **YAGNI yet: add only what the shell and Dashboard render now — Button, IconButton, Heading, Text, Card, Badge, Avatar, Separator, Kbd, Menu, Tooltip, FileUpload, Slider, Checkbox, Select, Field, Tabs, Accordion, Carousel, Breadcrumb, Clipboard, Dialog, Popover, HoverCard, Drawer, Toaster as triggered by the next batches.**
-- [ ] Init `@park-ui/cli` in the repo (no preset — CLI copies source + recipe in-repo, per findings)
-- [ ] Add the Batch-3 base set under `src/core/ui` (relative imports only — no barrel yet)
-- [ ] Smoke-render a Button/Heading/Card on a temp page; confirm named BEM classes appear
-- [ ] Commit: `feat: vendor park-ui base components`
+- [x] Init `@park-ui/cli` in the repo (no preset — CLI copies source + recipe in-repo, per findings)
+- [x] Add the Batch-3 base set under `src/core/ui` (relative imports only — no barrel yet)
+- [x] Smoke-render a Button/Heading/Card on a temp page; confirm named BEM classes appear
+- [x] Commit: `feat: vendor park-ui base components`
 
 **Context prompt:**
 > Read `template-plan/plan.md` Batch 3 + `findings.md` (Park UI CLI facts). Vendor only the listed base Park UI components into `src/core/ui` via `@park-ui/cli add`; confirm named BEM classes in devtools. Track via `manage_todo_list`; log every 2 ops to `progress.md`; compact at end. Bare bones only — YAGNI yet.
@@ -68,10 +68,10 @@ Goal: Vendor the Park UI components the shell + Dashboard need (NOT all 62) via 
 ### Batch 4: Static theme emission + Inter font
 Goal: `<html data-*>` theme emission block (color-scheme/accent/gray/radius/sidebar-style/heading-style → CSS vars) + Inter variable font so the whole shell can re-theme live.
 **YAGNI yet: only Inter loads in-lab (Poppins/Raleway/DM Sans stay listed in the Select but are NOT bundled); no service worker — static preload only.**
-- [ ] Add theme emission block (mirrors Park UI ThemeTokens/ThemeAttributes; tokens.md mechanism)
-- [ ] Preload Inter variable font statically in `index.html`
-- [ ] Smoke: flip a `data-*` attr → shell re-themes instantly
-- [ ] Commit: `feat: add static theme emission + inter font`
+- [x] Add theme emission block (mirrors Park UI ThemeTokens/ThemeAttributes; tokens.md mechanism)
+- [x] Preload Inter variable font statically in `index.html`
+- [x] Smoke: flip a `data-*` attr → shell re-themes instantly
+- [x] Commit: `feat: add static theme emission + inter font`
 
 **Context prompt:**
 > Read `template-plan/plan.md` Batch 4 + `tokens.md` (mechanism + brand asset sections). Add the `<html data-*>` CSS-var emission block and static Inter preload; verify flipping a data attr re-themes the shell. Track via `manage_todo_list`; log every 2 ops to `progress.md`; compact at end. Bare bones only — YAGNI yet.
@@ -79,11 +79,11 @@ Goal: `<html data-*>` theme emission block (color-scheme/accent/gray/radius/side
 ### Batch 5: Styleguide shell + Dashboard
 Goal: `src/styleguide/App.tsx` shell (sidebar waffle mock + `#page-panel` header + component-level panel stack via AnimatePresence, no router), Dashboard page (TOC Cards + Table index, breadcrumbs, toolPanel), `toc.ts` index.
 **YAGNI yet: no router/history depth; `toc.ts` indexes only the components built so far (grows in Batch 7); no real modules — mock tiles + 'not-built' SlidePanel.**
-- [ ] `src/styleguide/toc.ts` (category → components, start with vendored set)
-- [ ] `App.tsx`: waffle sidebar mock + `#page-panel` header + push/pop stack (AnimatePresence, `durations.slowest`, `useReducedMotion`)
-- [ ] `pages/Dashboard.tsx`: TOC Cards + Table index + SlidePanel trio demo buttons + featured strip
-- [ ] Breadcrumbs on every page header; toolPanel search/filter demo
-- [ ] Commit: `feat: styleguide shell + dashboard toc`
+- [x] `src/styleguide/toc.ts` (category → components, start with vendored set)
+- [x] `App.tsx`: waffle sidebar mock + `#page-panel` header + push/pop stack (AnimatePresence, `durations.slowest`, `useReducedMotion`)
+- [x] `pages/Dashboard.tsx`: TOC Cards + Table index + SlidePanel trio demo buttons + featured strip
+- [x] Breadcrumbs on every page header; toolPanel search/filter demo
+- [x] Commit: `feat: styleguide shell + dashboard toc`
 
 **Context prompt:**
 > Read `template-plan/plan.md` Batch 5 + `temp-styleguide-pages.md` decisions #1–11/#19–28 (refs only) + `findings.md` SG layout. Build the component-level panel stack, Dashboard TOC, breadcrumbs, toolPanel — NO router. Track via `manage_todo_list`; log every 2 ops to `progress.md`; compact at end. Bare bones only — YAGNI yet.
@@ -125,7 +125,7 @@ Goal: Type-check/build clean, styleguide navigable end-to-end, branch pushed.
 ## Finalization
 
 Open Questions
-- [ ] None blocking — assume current `@park-ui/cli` + Vite template defaults; verify at Batch 1/3.
+- [x] None blocking — assumed current `@park-ui/cli` + Vite template defaults; verified at Batch 1/3.
 
 Verification
 - [ ] `pnpm dev` serves the styleguide

@@ -1,0 +1,42 @@
+/* Radius theme - loaded dynamically */
+[data-radius='none'] {
+  --radii-l1: 0;
+  --radii-l2: 0;
+  --radii-l3: 0;
+}
+
+[data-radius='xs'] {
+  --radii-l1: var(--radii-xs);
+  --radii-l2: var(--radii-sm);
+  --radii-l3: var(--radii-md);
+}
+
+[data-radius='sm'] {
+  --radii-l1: var(--radii-sm);
+  --radii-l2: var(--radii-md);
+  --radii-l3: var(--radii-lg);
+}
+
+[data-radius='md'] {
+  --radii-l1: var(--radii-md);
+  --radii-l2: var(--radii-lg);
+  --radii-l3: var(--radii-xl);
+}
+
+[data-radius='lg'] {
+  --radii-l1: var(--radii-lg);
+  --radii-l2: var(--radii-xl);
+  --radii-l3: var(--radii-2xl);
+}
+
+[data-radius='xl'] {
+  --radii-l1: var(--radii-xl);
+  --radii-l2: var(--radii-2xl);
+  --radii-l3: var(--radii-3xl);
+}
+
+[data-radius='2xl'] {
+  --radii-l1: var(--radii-2xl);
+  --radii-l2: var(--radii-3xl);
+  --radii-l3: var(--radii-4xl);
+}

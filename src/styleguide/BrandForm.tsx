@@ -2,8 +2,9 @@
 import { createListCollection } from '@ark-ui/react/collection'
 import type { FileUploadFileRejectDetails } from '@ark-ui/react/file-upload'
 import { CloudUploadIcon } from 'lucide-react'
+import { switchTheme } from '@/core/theme/theme-loader'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { HStack, Stack } from 'styled-system/jsx'
+import { Box, HStack, Stack } from 'styled-system/jsx'
 import {
   Avatar,
   Button,
@@ -13,14 +14,13 @@ import {
   Heading,
   Icon,
   Select,
-  Separator,
   Slider,
   Text,
 } from '@/core/ui'
 
 /* ---------------------------------------------------------------------------
    BrandForm — the 8-field brand-settings surface (temp-styleguide #38, #13).
-   Opens as a SlidePanel 'normal' from the header kebab. The 7 theme knobs
+   Opens as a native Park UI Drawer from the header kebab. The 7 theme knobs
    write `<html>` data-* attributes and re-theme the WHOLE shell live
    (tokens.md, decision #16); the logo is the ONLY save-on-apply field
    (decision #45) — a dropped file becomes a pending object URL and only lands
@@ -29,8 +29,8 @@ import {
 --------------------------------------------------------------------------- */
 
 type ColorScheme = 'light' | 'dark'
-type Accent = 'orange' | 'red' | 'green'
-type Gray = 'sand'
+type Accent = 'orange' | 'green' | 'violet' | 'mint'
+type Gray = 'neutral'
 type RadiusKey = 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl'
 type SidebarStyle = 'light' | 'dark' | 'brand-dark' | 'brand-light'
 type FontKey = 'inter' | 'poppins' | 'raleway' | 'dm-sans'
@@ -66,12 +66,13 @@ const FONT_OPTIONS: Array<{ label: string; value: FontKey }> = [
   { label: 'DM Sans', value: 'dm-sans' },
 ]
 
-const GRAY_OPTIONS: Array<{ label: string; value: Gray }> = [{ label: 'Sand', value: 'sand' }]
+const GRAY_OPTIONS: Array<{ label: string; value: Gray }> = [{ label: 'Neutral', value: 'neutral' }]
 
 const ACCENT_OPTIONS: Array<{ label: string; value: Accent }> = [
   { label: 'Orange', value: 'orange' },
-  { label: 'Red', value: 'red' },
   { label: 'Green', value: 'green' },
+  { label: 'Violet', value: 'violet' },
+  { label: 'Mint', value: 'mint' },
 ]
 
 const SIDEBAR_OPTIONS: Array<{ label: string; value: SidebarStyle }> = [
@@ -108,13 +109,20 @@ export function BrandForm({ logo, onApplyLogo, onClose }: BrandFormProps) {
   // (sidebar, header, visible components) re-themes with no rebuild. The logo
   // is deliberately NOT touched here (save-on-apply, decision #45).
   useEffect(() => {
+    // Live whole-shell re-theme via the dynamic theme loader: it loads the
+    // selected color-scheme CSS (remap-only, no hex) and writes the matching
+    // <html> data-* attributes. data-color-scheme carries the accent scheme;
+    // light/dark mode lives on data-mode (Park UI color refactor).
+    switchTheme({
+      accent: state.accent,
+      gray: state.gray,
+      radius: state.radius,
+      sidebarStyle: state.sidebarStyle,
+      colorScheme: state.scheme,
+      headingStyle: state.headingStyle.join(' '),
+      font: state.font,
+    })
     const root = document.documentElement
-    root.setAttribute('data-color-scheme', state.scheme)
-    root.setAttribute('data-accent-color', state.accent)
-    root.setAttribute('data-gray-color', state.gray)
-    root.setAttribute('data-radius', state.radius)
-    root.setAttribute('data-sidebar-style', state.sidebarStyle)
-    root.setAttribute('data-heading-style', state.headingStyle.join(' '))
     root.style.fontFamily = FONT_FAMILIES[state.font]
   }, [state])
 
@@ -185,7 +193,7 @@ export function BrandForm({ logo, onApplyLogo, onClose }: BrandFormProps) {
         </Text>
       </Stack>
 
-      <Separator />
+      <Box borderTopWidth="1px" borderColor="border" />
 
       {/* 1 — Logo (save-on-apply, decisions #40/#42/#43/#45) */}
       <Field.Root invalid={logoError !== null}>
@@ -236,7 +244,7 @@ export function BrandForm({ logo, onApplyLogo, onClose }: BrandFormProps) {
         </Stack>
       </HStack>
 
-      <Separator />
+      <Box borderTopWidth="1px" borderColor="border" />
 
       {/* 2 — Color scheme (segmented toggle, decision #13) */}
       <Field.Root>
@@ -344,7 +352,7 @@ export function BrandForm({ logo, onApplyLogo, onClose }: BrandFormProps) {
         </Field.HelperText>
       </Field.Root>
 
-      <Separator />
+      <Box borderTopWidth="1px" borderColor="border" />
 
       {/* Footer — Apply commits the logo (+ re-applies attrs); Cancel discards */}
       <HStack justify="flex-end" gap="2">
@@ -409,9 +417,9 @@ function ThemeSelect({
 function getInitialState(): BrandState {
   const root = document.documentElement
   return {
-    scheme: (root.getAttribute('data-color-scheme') as ColorScheme) ?? 'light',
-    accent: (root.getAttribute('data-accent-color') as Accent) ?? 'orange',
-    gray: (root.getAttribute('data-gray-color') as Gray) ?? 'sand',
+    scheme: (root.getAttribute('data-mode') as ColorScheme) ?? 'light',
+    accent: (root.getAttribute('data-color-scheme') as Accent) ?? 'orange',
+    gray: (root.getAttribute('data-gray-color') as Gray) ?? 'neutral',
     font: getInitialFont(root),
     radius: (root.getAttribute('data-radius') as RadiusKey) ?? 'md',
     sidebarStyle: (root.getAttribute('data-sidebar-style') as SidebarStyle) ?? 'light',

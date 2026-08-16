@@ -65,7 +65,7 @@
 - **No maintained web library clones the iOS Settings menu** (npm + GitHub searched): `react-ios-settings-menu` / `ios-settings-menu` 404 on npm; GitHub "ios settings clone / iphone menu animation" hits are all native (SwiftUI, Flutter, React Native, Unity) or Ionic demos (e.g. `julescript/ios-wifi-settings-ionic`) — nothing web/React to adopt
 - **Implement with Framer Motion (already in stack)** — verified pattern (motion.dev docs): `AnimatePresence` `custom` prop + dynamic variants give direction-aware push/pop (`hidden: (direction) => ({ x: direction === 1 ? -300 : 300 })`); `usePresenceData` reads direction in exiting children; `mode: sync | wait | popLayout`
 - **iOS Settings push/pop mechanics:** entering panel slides in from right (x 100%→0); outgoing panel slides left with parallax (x 0→-30%); ~400ms ease-out; back = exact reverse
-- **Ionic** (`@ionic/react`) has built-in iOS push/pop but is a heavyweight full framework (Web Components + runtime CSS) — conflicts with zero-runtime lean constraints (ui-ux #1/#2)
+- **Ionic** (`@ionic/react`) has built-in iOS push/pop but is a heavyweight full framework (Web Components + runtime CSS) — conflicts with zero-runtime lean constraints (1.1–1.2)
 
 ## SlidePanel overlay modal (reference analysis) — verified 2026-08-08
 - Component: `src/components/SlidePanel.jsx` — portal modal (`createPortal`→`document.body`), `motion/react` `AnimatePresence` + `motion.div`; spring `{damping: 28, stiffness: 220}`; `useReducedMotion` respected (disables slide, jumps to target)
@@ -81,10 +81,10 @@
 - ✅ DS trio = `normal`(default) / `fullscreen` / `immersive`: `fullscreen` slides in from right WITH back-chevron header (top-left, title + headerActions); `immersive` slides in from right with close-only (top-right), no title bar. Reference `control` dropped (0 usages).
 
 ## Cross-refs
-- Decisions: [`decision.md`](decision.md) (DS architecture + sidebar #12–36)
+- Decisions: [`decision.md`](decision.md) (DS architecture: 1–10; foundation, DS source, layout, nav 7.x, stack 8.x, SlidePanel 9.x, customizer 10.x)
 
 ## Park UI compatibility adaptations (what the DS builds with)
-The raw values above are legacy reference facts. The design system maps them onto Park UI tokens (verified from `@park-ui/preset`, 2026-08-09); full before/after table in `decision.md` → "Park UI compatibility mapping". Highlights:
+The raw values above are legacy reference facts. The design system maps them onto Park UI tokens (verified from `@park-ui/preset`, 2026-08-09). Highlights:
 - **Breakpoints**: 1300px → `xl` (1280px); 576px → `sm` (640px)
 - **Sizes**: 1200px → `sizes.6xl` (1152px); 750px → `sizes.3xl` (768px); 32px → `sizes.8`; 52px header → `--header-height` (custom)
 - **Spacing**: 10px → `spacing.2.5`; 8px → `spacing.2`; 48px → `spacing.12`; 5px peek = custom (off-grid, deliberate)
@@ -138,7 +138,7 @@ Avatar, Badge, Card, Icon, Image, Table
   </Slider.Root>
   ```
 - `radii = ['none','xs','sm','md','lg','xl','2xl']` (from `website/src/lib/theme.ts`) — EXACTLY the 7 preset sizes in tokens.md.
-- Conclusion: a 7-stop discrete radius slider is a **native Park UI Slider** (`Slider.Marks` with labels) — no custom control needed (decision.md #49).
+- Conclusion: a 7-stop discrete radius slider is a **native Park UI Slider** (`Slider.Marks` with labels) — no custom control needed (decision.md 10.8).
 
 ## SG layout: component → natural location (proposed allocation, all 62)
 

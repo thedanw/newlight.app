@@ -1,0 +1,42 @@
+/* Sidebar style - loaded dynamically */
+:root {
+  --sidebar-bg: var(--colors-gray-1);
+  --sidebar-fg: var(--colors-gray-9);
+  --sidebar-muted: var(--colors-gray-11);
+  --sidebar-subtle: var(--colors-gray-10);
+  --sidebar-border: var(--colors-gray-4);
+  --sidebar-accent: var(--colors-color-palette-solid-bg);
+  --sidebar-accent-fg: var(--colors-color-palette-solid-fg);
+  --sidebar-accent-hover: var(--colors-color-palette-solid-bg-hover);
+}
+
+[data-sidebar-style='dark'] {
+  --sidebar-bg: var(--colors-gray-12);
+  --sidebar-fg: var(--colors-gray-1);
+  --sidebar-muted: var(--colors-gray-3);
+  --sidebar-subtle: var(--colors-gray-4);
+  --sidebar-border: var(--colors-gray-8);
+  --sidebar-accent: var(--colors-color-palette-solid-bg);
+  --sidebar-accent-fg: var(--colors-color-palette-solid-fg);
+}
+
+[data-sidebar-style='brand-dark'] {
+  --sidebar-bg: var(--colors-color-palette-solid-bg);
+  --sidebar-fg: var(--colors-color-palette-solid-fg);
+  --sidebar-muted: var(--colors-color-palette-subtle-fg);
+  --sidebar-subtle: var(--colors-color-palette-2);
+  --sidebar-border: var(--colors-color-palette-8);
+  --sidebar-accent: var(--colors-color-palette-solid-fg);
+  --sidebar-accent-fg: var(--colors-color-palette-solid-bg);
+}
+
+[data-sidebar-style='brand-light'] {
+  --sidebar-bg: var(--colors-color-palette-subtle-bg);
+  --sidebar-fg: var(--colors-color-palette-11);
+  --sidebar-muted: var(--colors-color-palette-10);
+  --sidebar-subtle: var(--colors-color-palette-9);
+  --sidebar-border: var(--colors-color-palette-7);
+  --sidebar-accent: var(--colors-color-palette-solid-bg);
+  --sidebar-accent-fg: var(--colors-color-palette-solid-fg);
+  --sidebar-accent-hover: var(--colors-color-palette-solid-bg-hover);
+}

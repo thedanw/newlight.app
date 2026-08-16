@@ -8,6 +8,7 @@ export const globalCss = {
     },
     html: {
       colorPalette: 'gray',
+      fontFamily: 'var(--font-family-base)',
     },
     body: {
       background: 'canvas',

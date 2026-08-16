@@ -1,11 +1,11 @@
 
 # Simple Token Design System
 
-> Decided 2026-08-09 (decision.md #36–#40, #60–61). Model: **5 theme knobs + 2 pattern fields (sidebar style, heading style) → Park UI derives the rest** (token→semantic→pattern, core #35).
+> Decided 2026-08-09 (decision.md 10.1–10.5, 10.14–10.15). Model: **5 theme knobs + 2 pattern fields (sidebar style, heading style) → Park UI derives the rest** (token→semantic→pattern, core #35).
 
 ## Brand Customisation Settings — globally applied settings
 
-Super-admin customizer = Park UI's exact theme drawer, plus Light/Dark as the **first, locked** choice, plus two brand pattern fields: **sidebar style** + **heading style** (decision.md #60–61).
+Super-admin customizer = Park UI's exact theme drawer, plus Light/Dark as the **first, locked** choice, plus two brand pattern fields: **sidebar style** + **heading style** (decision.md 10.14–10.15).
 
 | # | Knob | Catalog (Park UI presets) | Default | Editable? |
 |---|---|---|---|---|
@@ -52,9 +52,9 @@ These are the "shades of the bare minimum": every step, alpha, and variant slot 
 
 ## Brand asset (logo) — NOT a token knob
 
-- Logo = image brand asset surfaced via a brand slot (sidebar + header); set from a local object URL (lab) or Supabase Storage URL (final app) → `platform_settings` → Realtime (decision.md #43).
-- **Logo applies on SAVE only** (decision.md #45) — NOT part of the live re-theme. The 5 theme knobs + sidebar style + heading style re-theme live via `<html>` data-attrs; the logo appears after save/refresh (persisted asset, not a runtime knob).
-- Radius knob = Park UI **native Slider with discrete Marks** (min 0, max 6, labeled marks for the 7 preset sizes) — same pattern as Park UI's own `BorderRadiusSlider` (decision.md #49, findings). Preset catalog preserved.
+- Logo = image brand asset surfaced via a brand slot (sidebar + header); set from a local object URL (lab) or Supabase Storage URL (final app) → `platform_settings` → Realtime (decision.md 10.7).
+- **Logo applies on SAVE only** (decision.md 10.9) — NOT part of the live re-theme. The 5 theme knobs + sidebar style + heading style re-theme live via `<html>` data-attrs; the logo appears after save/refresh (persisted asset, not a runtime knob).
+- Radius knob = Park UI **native Slider with discrete Marks** (min 0, max 6, labeled marks for the 7 preset sizes) — same pattern as Park UI's own `BorderRadiusSlider` (decision.md 10.8, findings). Preset catalog preserved.
 
 ---
 

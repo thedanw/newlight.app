@@ -48,13 +48,14 @@ import { fileUpload } from "./file-upload";
 import { tooltip } from "./tooltip";
 import { menu } from "./menu";
 import { kbd } from "./kbd";
+import { navTile } from "./nav-tile";
+import { pullTab } from "./pull-tab";
 import { avatar } from "./avatar";
 import { badge } from "./badge";
 import { card } from "./card";
 import { text } from "./text";
 import { heading } from "./heading";
 import { button } from "./button";
-import { separator } from "./separator";
 export const recipes = {
   button,
   heading,
@@ -84,7 +85,6 @@ export const recipes = {
   icon,
   spinner,
   absoluteCenter,
-  separator,
   code,
   link,
   alert,
@@ -112,6 +112,8 @@ export const recipes = {
   datePicker,
   editable,
   ratingGroup,
-  tagsInput
+  tagsInput,
+  navTile,
+  pullTab
 }
 export const slotRecipes = {}

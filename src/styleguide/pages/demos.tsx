@@ -127,10 +127,10 @@ const ACCORDION_ITEMS = [
 ]
 
 const TABLE_ROWS = [
-  { name: 'Button', category: 'Buttons' },
+  { name: 'Button', category: 'Buttons & Navigation' },
   { name: 'Slider', category: 'Forms' },
   { name: 'Tooltip', category: 'Overlays' },
-  { name: 'Tabs', category: 'Navigation' },
+  { name: 'Tabs', category: 'Layout' },
 ]
 
 const SCROLL_TEXT = `Scrollable content\n\nThis panel demonstrates the ScrollArea inside a fixed-height box. Long content scrolls vertically while the thumb tracks your position.\n\nKeep scrolling — every row here is part of one continuous surface. ScrollArea is great for logs, member lists and long form summaries.\n\n(That's it — you've reached the end of the demo.)`

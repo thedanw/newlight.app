@@ -4,15 +4,17 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "panda": "panda codegen",
     "prepare": "panda codegen",
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
-    "typecheck": "tsc -b"
+    "typecheck": "tsc -b",
+    "panda": "panda codegen"
   },
   "dependencies": {
     "@ark-ui/react": "^5.38.1",
+    "@use-gesture/react": "^10.3.1",
     "framer-motion": "^13.0.0",
     "lucide-react": "^1.30.0",
     "react": "^19.1.0",

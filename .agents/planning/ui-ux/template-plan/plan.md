@@ -2,7 +2,7 @@
 
 Goal: Ship a bare Vite + React + Panda + Park UI boilerplate with a runnable Styleguide (Dashboard TOC + brand form + 8 category subpages) that developers/agents use to refine the ui/ux design system **before any app module exists**.
 
-Approach: Phase-0 design lab (ui-ux decision #11). Minimal scaffold, Panda config recipes (`hash:false`), Park UI vendored in-repo via `@park-ui/cli`, styleguide under `src/styleguide/*` using a component-level panel stack (no router). The styleguide shell IS the live re-theme preview (5 theme knobs + sidebar style + heading style; logo save-on-apply). Lab output ports wholesale into future `src/core/ui`.
+Approach: Phase-0 design lab (ui-ux decision 4.1). Minimal scaffold, Panda config recipes (`hash:false`), Park UI vendored in-repo via `@park-ui/cli`, styleguide under `src/styleguide/*` using a component-level panel stack (no router). The styleguide shell IS the live re-theme preview (5 theme knobs + sidebar style + heading style; logo save-on-apply). Lab output ports wholesale into future `src/core/ui`.
 
 Branch: `feat/ui-design-lab` (from `main`; remote `origin` = thedanw/newlight.app)
 
@@ -12,12 +12,12 @@ In:
 - Vite + React + TypeScript strict + pnpm scaffold (core #1/#4)
 - Panda CSS config recipes, `hash:false`, single cached `global.css` (core #2)
 - Park UI vendored via `@park-ui/cli` into `src/core/ui` (core #3/#10)
-- Static theme emission (`<html data-*>` + CSS-var block) + Inter font (ui-ux #38/#36)
+- Static theme emission (`<html data-*>` + CSS-var block) + Inter font (ui-ux 10.3/2.2)
 - Styleguide: `src/styleguide/App.tsx` shell + `pages/Dashboard.tsx` + `pages/<category>.tsx` (8) + `BrandForm.tsx` + `toc.ts` (temp-styleguide #38)
 - Brand form = 8 fields (logo + 5 knobs + sidebar style + heading style) — SlidePanel 'normal' from header kebab, live whole-shell re-theme, logo save-on-apply (temp-styleguide #13/#16/#45/#46)
 
 Out (YAGNI):
-- Router / modules / registry / barrel / aliases / CI / Supabase / PWA / service worker / auth / persistence (ui-ux #11)
+- Router / modules / registry / barrel / aliases / CI / Supabase / PWA / service worker / auth / persistence (ui-ux 4.1)
 - Per-component polish of all 62 — the catalog expands **iteratively** in Batch 7
 - Super-admin gating + admin-customizer persistence (final-app concerns)
 
@@ -91,10 +91,10 @@ Goal: `src/styleguide/App.tsx` shell (sidebar waffle mock + `#page-panel` header
 ### Batch 6: Brand form
 Goal: Brand form (8 fields) as SlidePanel 'normal' from the header kebab: logo upload (FileUpload.Dropzone, 1 file, png/svg/webp/jpg ≤1MB, square), light/dark, font (Inter/Poppins/Raleway/DM Sans), gray, accent, radius (native Slider + Marks), sidebar style dropdown, heading style checkboxes. Live whole-shell re-theme; logo save-on-apply.
 **YAGNI yet: no persistence, no super-admin gate — pure local emulation writing `<html>` data-* attrs.**
-- [x] Header kebab (Menu + Avatar) with brand-settings entry (decision.md #29/#46)
+- [x] Header kebab (Menu + Avatar) with brand-settings entry (decision.md 6.4/10.10)
 - [x] `BrandForm.tsx`: 8 fields wired to `<html>` data-* (theme knobs live)
-- [x] Logo upload: Dropzone, 1 file, type/size guard (png/svg/webp/jpg, ≤1MB) → object URL → brand slot; save-on-apply only (decision.md #45)
-- [x] Radius Slider + Marks (7 labeled stops) (decision.md #49)
+- [x] Logo upload: Dropzone, 1 file, type/size guard (png/svg/webp/jpg, ≤1MB) → object URL → brand slot; save-on-apply only (decision.md 10.9)
+- [x] Radius Slider + Marks (7 labeled stops) (decision.md 10.8)
 - [x] Commit: `feat: brand form with live whole-shell re-theme`
 
 **Context prompt:**

@@ -1,216 +1,61 @@
 /* ==========================================================================
-   THEME EMISSION BLOCK
+   BASE THEME SHELL - base-level CSS variables only (no color values).
    --------------------------------------------------------------------------
-   Static CSS-var emission that mirrors Park UI's ThemeTokens / ThemeAttributes.
-   The whole design lab re-themes LIVE by setting data-* attributes on <html>:
+   The app defines ONLY base-level variables here. Actual color values come
+   exclusively from Park UI color packages (src/core/theme/colors/*.ts, CLI-
+   installed via `npx @park-ui/cli add <color>`) and are applied at runtime by
+   dynamically-loaded scheme files (public/core/theme/colors/*.css) that
+   re-map the base vars:
 
-     data-color-scheme  = light | dark          → semantic colors flip (Panda
-                                                  token `_light`/`_dark` pairs,
-                                                  see conditions.ts `dark` override)
-     data-accent-color  = orange | red | green  → re-maps `--colors-color-palette-*`
-                                                  (installed accents; default orange)
-     data-gray-color    = sand | …              → re-maps the `gray` semantic
-                                                  (only sand installed so far)
-     data-radius        = none|xs|sm|md|lg|xl|2xl → re-maps `--radii-l1/l2/l3`
-     data-sidebar-style = light|dark|brand-dark|brand-light → sidebar shell vars
-     data-heading-style = "bold accent" (space-separated checkboxes) → heading vars
+     data-color-scheme  = orange | green | violet | mint -> re-maps
+                          `--colors-color-palette-*` to the selected accent
+                          (default orange, loaded dynamically)
+     data-gray-color    = neutral -> re-maps the `gray` semantic
+     data-mode          = light | dark -> semantic colors flip (Panda `_light`/
+                          `_dark` pairs, see conditions.ts `dark` override)
+     data-radius        = none|xs|sm|md|lg|xl|2xl -> re-maps `--radii-l1/l2/l3`
+     data-sidebar-style = light|dark|brand-dark|brand-light -> sidebar shell vars
+     data-heading-style = "bold accent" (space-separated checkboxes) -> heading vars
 
-   This file is UN-LAYERED plain CSS imported AFTER `index.css`, so these rules
-   override Panda's generated `@layer` token/recipe styles.
+   No hex/rgb literals in this file. The raw `--colors-{name}-*` tokens are
+   emitted by Panda codegen from the Park UI packages and carried in the
+   generated bundle; the dynamic scheme CSS files reference only those vars.
    ========================================================================== */
 
-/* --------------------------------------------------------------------------
-   1. COLOR SCHEME
-   Panda already emits `--colors-*` light values on `:where(:root,:host)` and
-   dark values on `[data-color-scheme=dark]` (via conditions.ts). All we add
-   here is the native `color-scheme` hint so scrollbars / form controls follow.
-   -------------------------------------------------------------------------- */
+/* 0. BASE THEME - Always loaded (critical CSS) */
 :root {
+  /* Color scheme for scrollbars and form controls */
   color-scheme: light;
 }
 
-[data-color-scheme='dark'] {
+[data-mode='dark'] {
   color-scheme: dark;
 }
 
-/* Shell canvas + fg (auto-flips with the scheme since gray.1 / fg flip too). */
+/* Canvas and shell colors - always the same */
 :root {
   --canvas-bg: var(--colors-gray-1);
   --canvas-fg: var(--colors-fg-default);
 }
 
-/* Inter variable font — the only font loaded in-lab (YAGNI: Poppins /
-   Raleway / DM Sans stay listed in the Select but are NOT bundled). */
+/* Font optimization - Inter variable font with display swap */
 :root {
   font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
   font-feature-settings: 'cv11', 'ss01';
+  font-display: swap; /* Optimize font loading performance */
 }
 
 /* --------------------------------------------------------------------------
-   2. ACCENT → color-palette
-   Recipes reference `colorPalette.*`, which compiles to `--colors-color-palette-*`.
-   Panda defaults those to gray on `html`; these blocks re-point them at the
-   selected accent so recipes WITHOUT an explicit `colorPalette` prop pick up
-   the theme accent. An explicit `colorPalette="x"` on a component still wins,
-   because its `.color-palette_x` class sits on the component element itself.
+   1. COLOR SYSTEM - base vars + dynamic scheme mapping
+   --------------------------------------------------------------------------
+   The base `--colors-color-palette-*` vars default to gray (Panda codegen,
+   `gray: neutral`). The default accent (orange) and other schemes are applied
+   at runtime by the dynamically-loaded scheme CSS in
+   public/core/theme/colors/*.css. Nothing color-specific is hard-coded here.
    -------------------------------------------------------------------------- */
-[data-accent-color='orange'] {
-  /* scale 1–12 */
-  --colors-color-palette-1: var(--colors-orange-1);
-  --colors-color-palette-2: var(--colors-orange-2);
-  --colors-color-palette-3: var(--colors-orange-3);
-  --colors-color-palette-4: var(--colors-orange-4);
-  --colors-color-palette-5: var(--colors-orange-5);
-  --colors-color-palette-6: var(--colors-orange-6);
-  --colors-color-palette-7: var(--colors-orange-7);
-  --colors-color-palette-8: var(--colors-orange-8);
-  --colors-color-palette-9: var(--colors-orange-9);
-  --colors-color-palette-10: var(--colors-orange-10);
-  --colors-color-palette-11: var(--colors-orange-11);
-  --colors-color-palette-12: var(--colors-orange-12);
-  /* alpha scale a1–a12 */
-  --colors-color-palette-a1: var(--colors-orange-a1);
-  --colors-color-palette-a2: var(--colors-orange-a2);
-  --colors-color-palette-a3: var(--colors-orange-a3);
-  --colors-color-palette-a4: var(--colors-orange-a4);
-  --colors-color-palette-a5: var(--colors-orange-a5);
-  --colors-color-palette-a6: var(--colors-orange-a6);
-  --colors-color-palette-a7: var(--colors-orange-a7);
-  --colors-color-palette-a8: var(--colors-orange-a8);
-  --colors-color-palette-a9: var(--colors-orange-a9);
-  --colors-color-palette-a10: var(--colors-orange-a10);
-  --colors-color-palette-a11: var(--colors-orange-a11);
-  --colors-color-palette-a12: var(--colors-orange-a12);
-  /* semantic slots */
-  --colors-color-palette-solid-bg: var(--colors-orange-solid-bg);
-  --colors-color-palette-solid-bg-hover: var(--colors-orange-solid-bg-hover);
-  --colors-color-palette-solid-fg: var(--colors-orange-solid-fg);
-  --colors-color-palette-subtle-bg: var(--colors-orange-subtle-bg);
-  --colors-color-palette-subtle-bg-hover: var(--colors-orange-subtle-bg-hover);
-  --colors-color-palette-subtle-bg-active: var(--colors-orange-subtle-bg-active);
-  --colors-color-palette-subtle-fg: var(--colors-orange-subtle-fg);
-  --colors-color-palette-surface-bg: var(--colors-orange-surface-bg);
-  --colors-color-palette-surface-bg-hover: var(--colors-orange-surface-bg-hover);
-  --colors-color-palette-surface-bg-active: var(--colors-orange-surface-bg-active);
-  --colors-color-palette-surface-border: var(--colors-orange-surface-border);
-  --colors-color-palette-surface-border-hover: var(--colors-orange-surface-border-hover);
-  --colors-color-palette-surface-fg: var(--colors-orange-surface-fg);
-  --colors-color-palette-outline-bg-hover: var(--colors-orange-outline-bg-hover);
-  --colors-color-palette-outline-bg-active: var(--colors-orange-outline-bg-active);
-  --colors-color-palette-outline-border: var(--colors-orange-outline-border);
-  --colors-color-palette-outline-fg: var(--colors-orange-outline-fg);
-  --colors-color-palette-plain-bg-hover: var(--colors-orange-plain-bg-hover);
-  --colors-color-palette-plain-bg-active: var(--colors-orange-plain-bg-active);
-  --colors-color-palette-plain-fg: var(--colors-orange-plain-fg);
-}
-
-[data-accent-color='red'] {
-  --colors-color-palette-1: var(--colors-red-1);
-  --colors-color-palette-2: var(--colors-red-2);
-  --colors-color-palette-3: var(--colors-red-3);
-  --colors-color-palette-4: var(--colors-red-4);
-  --colors-color-palette-5: var(--colors-red-5);
-  --colors-color-palette-6: var(--colors-red-6);
-  --colors-color-palette-7: var(--colors-red-7);
-  --colors-color-palette-8: var(--colors-red-8);
-  --colors-color-palette-9: var(--colors-red-9);
-  --colors-color-palette-10: var(--colors-red-10);
-  --colors-color-palette-11: var(--colors-red-11);
-  --colors-color-palette-12: var(--colors-red-12);
-  --colors-color-palette-a1: var(--colors-red-a1);
-  --colors-color-palette-a2: var(--colors-red-a2);
-  --colors-color-palette-a3: var(--colors-red-a3);
-  --colors-color-palette-a4: var(--colors-red-a4);
-  --colors-color-palette-a5: var(--colors-red-a5);
-  --colors-color-palette-a6: var(--colors-red-a6);
-  --colors-color-palette-a7: var(--colors-red-a7);
-  --colors-color-palette-a8: var(--colors-red-a8);
-  --colors-color-palette-a9: var(--colors-red-a9);
-  --colors-color-palette-a10: var(--colors-red-a10);
-  --colors-color-palette-a11: var(--colors-red-a11);
-  --colors-color-palette-a12: var(--colors-red-a12);
-  --colors-color-palette-solid-bg: var(--colors-red-solid-bg);
-  --colors-color-palette-solid-bg-hover: var(--colors-red-solid-bg-hover);
-  --colors-color-palette-solid-fg: var(--colors-red-solid-fg);
-  --colors-color-palette-subtle-bg: var(--colors-red-subtle-bg);
-  --colors-color-palette-subtle-bg-hover: var(--colors-red-subtle-bg-hover);
-  --colors-color-palette-subtle-bg-active: var(--colors-red-subtle-bg-active);
-  --colors-color-palette-subtle-fg: var(--colors-red-subtle-fg);
-  --colors-color-palette-surface-bg: var(--colors-red-surface-bg);
-  --colors-color-palette-surface-bg-hover: var(--colors-red-surface-bg-hover);
-  --colors-color-palette-surface-bg-active: var(--colors-red-surface-bg-active);
-  --colors-color-palette-surface-border: var(--colors-red-surface-border);
-  --colors-color-palette-surface-border-hover: var(--colors-red-surface-border-hover);
-  --colors-color-palette-surface-fg: var(--colors-red-surface-fg);
-  --colors-color-palette-outline-bg-hover: var(--colors-red-outline-bg-hover);
-  --colors-color-palette-outline-bg-active: var(--colors-red-outline-bg-active);
-  --colors-color-palette-outline-border: var(--colors-red-outline-border);
-  --colors-color-palette-outline-fg: var(--colors-red-outline-fg);
-  --colors-color-palette-plain-bg-hover: var(--colors-red-plain-bg-hover);
-  --colors-color-palette-plain-bg-active: var(--colors-red-plain-bg-active);
-  --colors-color-palette-plain-fg: var(--colors-red-plain-fg);
-}
-
-[data-accent-color='green'] {
-  --colors-color-palette-1: var(--colors-green-1);
-  --colors-color-palette-2: var(--colors-green-2);
-  --colors-color-palette-3: var(--colors-green-3);
-  --colors-color-palette-4: var(--colors-green-4);
-  --colors-color-palette-5: var(--colors-green-5);
-  --colors-color-palette-6: var(--colors-green-6);
-  --colors-color-palette-7: var(--colors-green-7);
-  --colors-color-palette-8: var(--colors-green-8);
-  --colors-color-palette-9: var(--colors-green-9);
-  --colors-color-palette-10: var(--colors-green-10);
-  --colors-color-palette-11: var(--colors-green-11);
-  --colors-color-palette-12: var(--colors-green-12);
-  --colors-color-palette-a1: var(--colors-green-a1);
-  --colors-color-palette-a2: var(--colors-green-a2);
-  --colors-color-palette-a3: var(--colors-green-a3);
-  --colors-color-palette-a4: var(--colors-green-a4);
-  --colors-color-palette-a5: var(--colors-green-a5);
-  --colors-color-palette-a6: var(--colors-green-a6);
-  --colors-color-palette-a7: var(--colors-green-a7);
-  --colors-color-palette-a8: var(--colors-green-a8);
-  --colors-color-palette-a9: var(--colors-green-a9);
-  --colors-color-palette-a10: var(--colors-green-a10);
-  --colors-color-palette-a11: var(--colors-green-a11);
-  --colors-color-palette-a12: var(--colors-green-a12);
-  --colors-color-palette-solid-bg: var(--colors-green-solid-bg);
-  --colors-color-palette-solid-bg-hover: var(--colors-green-solid-bg-hover);
-  --colors-color-palette-solid-fg: var(--colors-green-solid-fg);
-  --colors-color-palette-subtle-bg: var(--colors-green-subtle-bg);
-  --colors-color-palette-subtle-bg-hover: var(--colors-green-subtle-bg-hover);
-  --colors-color-palette-subtle-bg-active: var(--colors-green-subtle-bg-active);
-  --colors-color-palette-subtle-fg: var(--colors-green-subtle-fg);
-  --colors-color-palette-surface-bg: var(--colors-green-surface-bg);
-  --colors-color-palette-surface-bg-hover: var(--colors-green-surface-bg-hover);
-  --colors-color-palette-surface-bg-active: var(--colors-green-surface-bg-active);
-  --colors-color-palette-surface-border: var(--colors-green-surface-border);
-  --colors-color-palette-surface-border-hover: var(--colors-green-surface-border-hover);
-  --colors-color-palette-surface-fg: var(--colors-green-surface-fg);
-  --colors-color-palette-outline-bg-hover: var(--colors-green-outline-bg-hover);
-  --colors-color-palette-outline-bg-active: var(--colors-green-outline-bg-active);
-  --colors-color-palette-outline-border: var(--colors-green-outline-border);
-  --colors-color-palette-outline-fg: var(--colors-green-outline-fg);
-  --colors-color-palette-plain-bg-hover: var(--colors-green-plain-bg-hover);
-  --colors-color-palette-plain-bg-active: var(--colors-green-plain-bg-active);
-  --colors-color-palette-plain-fg: var(--colors-green-plain-fg);
-}
 
 /* --------------------------------------------------------------------------
-   3. GRAY → gray semantic
-   `gray` maps to a neutral palette (default sand). These blocks re-point the
-   `--colors-gray-*` vars at the selected neutral so the whole app's neutral
-   palette swaps. Only `sand` is installed in-lab (Batch 6 adds the rest).
-   -------------------------------------------------------------------------- */
-[data-gray-color='sand'] {
-  /* sand IS the current gray mapping — no-op today, establishes the pattern:
-     --colors-gray-1..12 / a1..a12 / solid..plain slots ← var(--colors-sand-*) */
-}
-
-/* --------------------------------------------------------------------------
-   4. RADIUS → radii.l1 / l2 / l3
+   2. RADIUS -> radii.l1 / l2 / l3
    The base semantic radii (l1 = xs, l2 = sm, l3 = md) come from panda.config.
    Each knob value shifts the whole triple up/down: l2 = knob, l1 = one step
    below, l3 = one step above.
@@ -258,17 +103,18 @@
 }
 
 /* --------------------------------------------------------------------------
-   5. SIDEBAR STYLE → shell vars
+   3. SIDEBAR STYLE -> shell vars
    Consumed by the styleguide shell (Batch 5). Default = light.
    -------------------------------------------------------------------------- */
 :root {
   --sidebar-bg: var(--colors-gray-1);
-  --sidebar-fg: var(--colors-gray-12);
+  --sidebar-fg: var(--colors-gray-9);
   --sidebar-muted: var(--colors-gray-11);
   --sidebar-subtle: var(--colors-gray-10);
   --sidebar-border: var(--colors-gray-4);
   --sidebar-accent: var(--colors-color-palette-solid-bg);
   --sidebar-accent-fg: var(--colors-color-palette-solid-fg);
+  --sidebar-accent-hover: var(--colors-color-palette-solid-bg-hover);
 }
 
 [data-sidebar-style='dark'] {
@@ -299,10 +145,11 @@
   --sidebar-border: var(--colors-color-palette-7);
   --sidebar-accent: var(--colors-color-palette-solid-bg);
   --sidebar-accent-fg: var(--colors-color-palette-solid-fg);
+  --sidebar-accent-hover: var(--colors-color-palette-solid-bg-hover);
 }
 
 /* --------------------------------------------------------------------------
-   6. HEADING STYLE → shell vars
+   4. HEADING STYLE -> shell vars
    Space-separated checkboxes in `data-heading-style` (e.g. "bold accent").
    Consumed by the shell's Heading recipe (Batch 5).
    -------------------------------------------------------------------------- */
@@ -325,3 +172,8 @@
 [data-heading-style*='accent'] {
   --heading-color: var(--colors-color-palette-11);
 }
+
+/* --------------------------------------------------------------------------
+   5. UTILITY - utility classes (unchanged)
+   -------------------------------------------------------------------------- */
+/* Utility classes are defined in separate utility CSS files */

@@ -1,5 +1,5 @@
 'use client'
-import { Accordion, Badge, Card, Heading, Icon, Text } from '@/core/ui'
+import { Accordion, Card, Heading, Icon, Text } from '@/core/ui'
 import { Box, Grid, HStack, Stack } from 'styled-system/jsx'
 import { type TocCategory } from '../toc'
 import { DEMOS } from './demos'
@@ -13,14 +13,11 @@ import { DEMOS } from './demos'
    scannable. Falls back to a single flat grid for ungrouped categories.
 --------------------------------------------------------------------------- */
 
-function ComponentCard({ name, description, shipped }: { name: string; description: string; shipped: boolean }) {
+function ComponentCard({ name, description }: { name: string; description: string }) {
   return (
-    <Card.Root>
+    <Card.Root id={`component-${name}`}>
       <Card.Header>
-        <HStack justify="space-between" alignItems="flex-start" gap="4">
-          <Heading textStyle="md">{name}</Heading>
-          <Badge colorPalette={shipped ? 'green' : 'gray'}>{shipped ? 'shipped' : 'pending'}</Badge>
-        </HStack>
+        <Heading textStyle="md">{name}</Heading>
         <Text textStyle="sm" color="fg.muted">
           {description}
         </Text>
@@ -41,6 +38,7 @@ function ComponentCard({ name, description, shipped }: { name: string; descripti
 export function SubpageTemplate({ category }: { category: TocCategory }) {
   const CategoryIcon = category.icon
   const groups = [...new Set(category.components.map((component) => component.group).filter(Boolean))] as string[]
+  const ungroupedComponents = category.components.filter((c) => !c.group)
 
   return (
     <Stack gap="8">
@@ -65,14 +63,16 @@ export function SubpageTemplate({ category }: { category: TocCategory }) {
         </Stack>
       </HStack>
 
-      {groups.length > 0 ? (
-        <AccordionSections category={category} groups={groups} />
-      ) : (
+      {ungroupedComponents.length > 0 && (
         <Grid columns={{ base: 1, sm: 2, xl: 3 }} gap="6">
-          {category.components.map((component) => (
+          {ungroupedComponents.map((component) => (
             <ComponentCard key={component.name} {...component} />
           ))}
         </Grid>
+      )}
+
+      {groups.length > 0 && (
+        <AccordionSections category={category} groups={groups} />
       )}
     </Stack>
   )

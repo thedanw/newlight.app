@@ -1,0 +1,58 @@
+/* Orange color scheme — dynamically loaded (DEFAULT accent).
+   Maps the base --colors-color-palette-* vars to the Park UI orange package.
+   The raw --colors-orange-* values are emitted by Panda codegen from
+   src/core/theme/colors/orange.ts. No hard-coded color values here.
+   Because orange is the default scheme, the :root selector applies it
+   immediately; [data-color-scheme='orange'] covers explicit re-selection. */
+
+:root,
+[data-color-scheme='orange'] {
+  /* scale 1–12 */
+  --colors-color-palette-1: var(--colors-orange-1);
+  --colors-color-palette-2: var(--colors-orange-2);
+  --colors-color-palette-3: var(--colors-orange-3);
+  --colors-color-palette-4: var(--colors-orange-4);
+  --colors-color-palette-5: var(--colors-orange-5);
+  --colors-color-palette-6: var(--colors-orange-6);
+  --colors-color-palette-7: var(--colors-orange-7);
+  --colors-color-palette-8: var(--colors-orange-8);
+  --colors-color-palette-9: var(--colors-orange-9);
+  --colors-color-palette-10: var(--colors-orange-10);
+  --colors-color-palette-11: var(--colors-orange-11);
+  --colors-color-palette-12: var(--colors-orange-12);
+  /* alpha scale a1–a12 */
+  --colors-color-palette-a1: var(--colors-orange-a1);
+  --colors-color-palette-a2: var(--colors-orange-a2);
+  --colors-color-palette-a3: var(--colors-orange-a3);
+  --colors-color-palette-a4: var(--colors-orange-a4);
+  --colors-color-palette-a5: var(--colors-orange-a5);
+  --colors-color-palette-a6: var(--colors-orange-a6);
+  --colors-color-palette-a7: var(--colors-orange-a7);
+  --colors-color-palette-a8: var(--colors-orange-a8);
+  --colors-color-palette-a9: var(--colors-orange-a9);
+  --colors-color-palette-a10: var(--colors-orange-a10);
+  --colors-color-palette-a11: var(--colors-orange-a11);
+  --colors-color-palette-a12: var(--colors-orange-a12);
+  /* semantic slots */
+  --colors-color-palette-solid-bg: var(--colors-orange-solid-bg);
+  --colors-color-palette-solid-bg-hover: var(--colors-orange-solid-bg-hover);
+  --colors-color-palette-solid-bg-active: var(--colors-orange-solid-bg);
+  --colors-color-palette-solid-fg: var(--colors-orange-solid-fg);
+  --colors-color-palette-subtle-bg: var(--colors-orange-subtle-bg);
+  --colors-color-palette-subtle-bg-hover: var(--colors-orange-subtle-bg-hover);
+  --colors-color-palette-subtle-bg-active: var(--colors-orange-subtle-bg-active);
+  --colors-color-palette-subtle-fg: var(--colors-orange-subtle-fg);
+  --colors-color-palette-surface-bg: var(--colors-orange-surface-bg);
+  --colors-color-palette-surface-bg-hover: var(--colors-orange-surface-bg);
+  --colors-color-palette-surface-bg-active: var(--colors-orange-surface-bg-active);
+  --colors-color-palette-surface-border: var(--colors-orange-surface-border);
+  --colors-color-palette-surface-border-hover: var(--colors-orange-surface-border-hover);
+  --colors-color-palette-surface-fg: var(--colors-orange-surface-fg);
+  --colors-color-palette-outline-bg-hover: var(--colors-orange-outline-bg-hover);
+  --colors-color-palette-outline-bg-active: var(--colors-orange-outline-bg-active);
+  --colors-color-palette-outline-border: var(--colors-orange-outline-border);
+  --colors-color-palette-outline-fg: var(--colors-orange-outline-fg);
+  --colors-color-palette-plain-bg-hover: var(--colors-orange-plain-bg-hover);
+  --colors-color-palette-plain-bg-active: var(--colors-orange-plain-bg-active);
+  --colors-color-palette-plain-fg: var(--colors-orange-plain-fg);
+}

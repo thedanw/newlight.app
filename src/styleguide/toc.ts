@@ -1,6 +1,5 @@
 import {
   BellRing,
-  Compass,
   Layers,
   LayoutGrid,
   Monitor,
@@ -32,12 +31,11 @@ export type TocComponent = {
 
 export type TocCategoryId =
   | 'layout'
-  | 'buttons'
+  | 'buttons-navigation'
   | 'typography'
   | 'forms'
   | 'feedback'
   | 'overlays'
-  | 'navigation'
   | 'display'
 
 export type TocCategory = {
@@ -53,24 +51,35 @@ export const tocCategories: TocCategory[] = [
     id: 'layout',
     name: 'Layout',
     icon: LayoutGrid,
-    description: 'Positioning, grouping and layout primitives.',
+    description: 'Layout primitives, containers and structural components.',
     components: [
       { name: 'AbsoluteCenter', description: 'Centers a child within its parent.', shipped: true },
       { name: 'Group', description: 'Groups related controls behind a shared border.', shipped: true },
       { name: 'Span', description: 'Inline text-span primitive.', shipped: true },
+      { name: 'Card', description: 'Content container (Root/Header/Body/Footer).', shipped: true },
+      { name: 'Table', description: 'Tabular data (Head/Body/Row/Cell).', shipped: true },
+      { name: 'Image', description: 'Responsive image element.', shipped: true },
+      { name: 'Tabs', description: 'Tabbed views.', shipped: true },
+      { name: 'Accordion', description: 'Collapsible sections.', shipped: true },
+      { name: 'Collapsible', description: 'Inline expand/collapse region.', shipped: true },
+      { name: 'ScrollArea', description: 'Custom scrollable region.', shipped: true },
+      { name: 'Splitter', description: 'Resizable multi-panel split.', shipped: true },
+      { name: 'Carousel', description: 'Slideable strip.', shipped: true },
     ],
   },
   {
-    id: 'buttons',
-    name: 'Buttons',
+    id: 'buttons-navigation',
+    name: 'Buttons & Navigation',
     icon: MousePointerClick,
-    description: 'Action triggers — solid, outline, subtle, surface, ghost.',
+    description: 'Action triggers and navigation controls.',
     components: [
       { name: 'Button', description: 'Primary action button (solid/outline/subtle/surface/ghost).', shipped: true },
       { name: 'ButtonGroup', description: 'Groups multiple buttons into one control.', shipped: true },
       { name: 'IconButton', description: 'Square icon-only button.', shipped: true },
       { name: 'CloseButton', description: 'Dismiss / close icon button.', shipped: true },
       { name: 'Clipboard', description: 'Copy-to-clipboard control with feedback.', shipped: true },
+      { name: 'Pagination', description: 'Paged navigation controls.', shipped: true },
+      { name: 'Breadcrumb', description: 'Navigation trail.', shipped: true },
     ],
   },
   {
@@ -147,33 +156,14 @@ export const tocCategories: TocCategory[] = [
     ],
   },
   {
-    id: 'navigation',
-    name: 'Navigation',
-    icon: Compass,
-    description: 'Tabs, breadcrumbs and paging/carousel navigation.',
-    components: [
-      { name: 'Accordion', description: 'Collapsible sections.', group: 'Expandable & scrolling', shipped: true },
-      { name: 'Collapsible', description: 'Inline expand/collapse region.', group: 'Expandable & scrolling', shipped: true },
-      { name: 'ScrollArea', description: 'Custom scrollable region.', group: 'Expandable & scrolling', shipped: true },
-      { name: 'Splitter', description: 'Resizable multi-panel split.', group: 'Expandable & scrolling', shipped: true },
-      { name: 'Carousel', description: 'Slideable strip.', group: 'Tabs & paging', shipped: true },
-      { name: 'Pagination', description: 'Paged navigation controls.', group: 'Tabs & paging', shipped: true },
-      { name: 'Tabs', description: 'Tabbed views.', group: 'Tabs & paging', shipped: true },
-      { name: 'Breadcrumb', description: 'Navigation trail.', group: 'Trail', shipped: true },
-    ],
-  },
-  {
     id: 'display',
     name: 'Display',
     icon: Monitor,
-    description: 'Avatars, badges, cards and content containers.',
+    description: 'Avatars, badges and content markers.',
     components: [
       { name: 'Avatar', description: 'User avatar / initials.', shipped: true },
       { name: 'Badge', description: 'Status / label chip.', shipped: true },
-      { name: 'Card', description: 'Content container (Root/Header/Body/Footer).', shipped: true },
       { name: 'Icon', description: 'Icon wrapper for SVG icons.', shipped: true },
-      { name: 'Image', description: 'Responsive image element.', shipped: true },
-      { name: 'Table', description: 'Tabular data (Head/Body/Row/Cell).', shipped: true },
     ],
   },
 ]

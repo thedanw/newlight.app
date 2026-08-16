@@ -1,0 +1,54 @@
+/* Neutral gray scheme — dynamically loaded.
+   Maps the gray semantic (--colors-gray-*) to the Park UI neutral package.
+   The raw --colors-neutral-* values are emitted by Panda codegen from
+   src/core/theme/colors/neutral.ts. No hard-coded color values here. */
+
+[data-gray-color='neutral'] {
+  /* scale 1–12 */
+  --colors-gray-1: var(--colors-neutral-1);
+  --colors-gray-2: var(--colors-neutral-2);
+  --colors-gray-3: var(--colors-neutral-3);
+  --colors-gray-4: var(--colors-neutral-4);
+  --colors-gray-5: var(--colors-neutral-5);
+  --colors-gray-6: var(--colors-neutral-6);
+  --colors-gray-7: var(--colors-neutral-7);
+  --colors-gray-8: var(--colors-neutral-8);
+  --colors-gray-9: var(--colors-neutral-9);
+  --colors-gray-10: var(--colors-neutral-10);
+  --colors-gray-11: var(--colors-neutral-11);
+  --colors-gray-12: var(--colors-neutral-12);
+  /* alpha scale a1–a12 */
+  --colors-gray-a1: var(--colors-neutral-a1);
+  --colors-gray-a2: var(--colors-neutral-a2);
+  --colors-gray-a3: var(--colors-neutral-a3);
+  --colors-gray-a4: var(--colors-neutral-a4);
+  --colors-gray-a5: var(--colors-neutral-a5);
+  --colors-gray-a6: var(--colors-neutral-a6);
+  --colors-gray-a7: var(--colors-neutral-a7);
+  --colors-gray-a8: var(--colors-neutral-a8);
+  --colors-gray-a9: var(--colors-neutral-a9);
+  --colors-gray-a10: var(--colors-neutral-a10);
+  --colors-gray-a11: var(--colors-neutral-a11);
+  --colors-gray-a12: var(--colors-neutral-a12);
+  /* semantic slots */
+  --colors-gray-solid-bg: var(--colors-neutral-solid-bg);
+  --colors-gray-solid-bg-hover: var(--colors-neutral-solid-bg-hover);
+  --colors-gray-solid-fg: var(--colors-neutral-solid-fg);
+  --colors-gray-subtle-bg: var(--colors-neutral-subtle-bg);
+  --colors-gray-subtle-bg-hover: var(--colors-neutral-subtle-bg-hover);
+  --colors-gray-subtle-bg-active: var(--colors-neutral-subtle-bg-active);
+  --colors-gray-subtle-fg: var(--colors-neutral-subtle-fg);
+  --colors-gray-surface-bg: var(--colors-neutral-surface-bg);
+  --colors-gray-surface-bg-hover: var(--colors-neutral-surface-bg);
+  --colors-gray-surface-bg-active: var(--colors-neutral-surface-bg-active);
+  --colors-gray-surface-border: var(--colors-neutral-surface-border);
+  --colors-gray-surface-border-hover: var(--colors-neutral-surface-border-hover);
+  --colors-gray-surface-fg: var(--colors-neutral-surface-fg);
+  --colors-gray-outline-bg-hover: var(--colors-neutral-outline-bg-hover);
+  --colors-gray-outline-bg-active: var(--colors-neutral-outline-bg-active);
+  --colors-gray-outline-border: var(--colors-neutral-outline-border);
+  --colors-gray-outline-fg: var(--colors-neutral-outline-fg);
+  --colors-gray-plain-bg-hover: var(--colors-neutral-plain-bg-hover);
+  --colors-gray-plain-bg-active: var(--colors-neutral-plain-bg-active);
+  --colors-gray-plain-fg: var(--colors-neutral-plain-fg);
+}

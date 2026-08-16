@@ -1,25 +1,21 @@
 'use client'
 import { useState } from 'react'
-import { ChevronLeftIcon, ChevronRightIcon, SlidersHorizontalIcon, SparklesIcon, XIcon } from 'lucide-react'
-import { css } from 'styled-system/css'
+import { SearchIcon, XIcon } from 'lucide-react'
 import { Box, Grid, HStack, Stack } from 'styled-system/jsx'
 import { tocCategories, type TocCategory } from '../toc'
-import { type SlidePanelVariant } from '../SlidePanel'
 import {
   AbsoluteCenter,
-  Avatar,
   Badge,
   Button,
   Card,
-  Carousel,
   Field,
   Heading,
   Icon,
   IconButton,
   Input,
   Loader,
-  Separator,
   Spinner,
+  Table,
   Tabs,
   Text,
   Tooltip,
@@ -28,42 +24,16 @@ import {
 /* ---------------------------------------------------------------------------
    Dashboard — the TOC hub (temp-styleguide #2/#19/#25): per-category Cards +
    a full Table index, toolPanel search/filter (#11/#32/#36), featured strip
-   (#28), SlidePanel variant trio (#9) and a loading/feedback strip (#24).
+   (#28), native Dialog/Drawer overlay demos (#9) and a loading/feedback
+   strip (#24).
 --------------------------------------------------------------------------- */
 
 export type DashboardProps = {
   onOpenCategory: (category: TocCategory) => void
-  onOpenSlideDemo: (variant: SlidePanelVariant) => void
+  onOpenOverlay: (kind: 'dialog' | 'drawer') => void
 }
 
-const FEATURED = [
-  {
-    name: 'Button',
-    blurb: 'Primary action trigger',
-    node: <Button size="sm">Primary action</Button>,
-  },
-  {
-    name: 'Badge',
-    blurb: 'Status chip',
-    node: <Badge colorPalette="green">Ready</Badge>,
-  },
-  {
-    name: 'Avatar',
-    blurb: 'Identities & initials',
-    node: (
-      <Avatar.Root size="sm">
-        <Avatar.Fallback name="Ada Lovelace" />
-      </Avatar.Root>
-    ),
-  },
-  {
-    name: 'Heading',
-    blurb: 'Section titles',
-    node: <Heading textStyle="xl">Heading level</Heading>,
-  },
-]
-
-export function Dashboard({ onOpenCategory, onOpenSlideDemo }: DashboardProps) {
+export function Dashboard({ onOpenCategory, onOpenOverlay }: DashboardProps) {
   const [filter, setFilter] = useState('')
   const [toolPanelOpen, setToolPanelOpen] = useState(false)
 
@@ -78,11 +48,12 @@ export function Dashboard({ onOpenCategory, onOpenSlideDemo }: DashboardProps) {
   const allComponents = tocCategories.flatMap((category) =>
     category.components
       .filter(matches)
-      .map((component) => ({ ...component, category: category.name })),
+      .map((component) => ({ ...component, category: category.name, categoryId: category.id })),
   )
 
   return (
     <Stack gap="8">
+
       {/* Page header + toolPanel toggle */}
       <HStack justify="space-between" alignItems="flex-start">
         <Stack gap="1">
@@ -98,7 +69,7 @@ export function Dashboard({ onOpenCategory, onOpenSlideDemo }: DashboardProps) {
             aria-label="Toggle filter panel"
             onClick={() => setToolPanelOpen((open) => !open)}
           >
-            <SlidersHorizontalIcon />
+            <SearchIcon />
           </IconButton>
         </Tooltip>
       </HStack>
@@ -138,42 +109,6 @@ export function Dashboard({ onOpenCategory, onOpenSlideDemo }: DashboardProps) {
         </Box>
       )}
 
-      {/* Featured strip (Carousel) */}
-      <Stack gap="3">
-        <HStack gap="2" color="fg.muted">
-          <SparklesIcon size={16} />
-          <Heading textStyle="md">Featured components</Heading>
-        </HStack>
-        <Carousel.Root slideCount={FEATURED.length} slidesPerPage={1} loop>
-          <Carousel.ItemGroup>
-            {FEATURED.map((feature, index) => (
-              <Carousel.Item key={feature.name} index={index}>
-                <Card.Root variant="elevated" h="full">
-                  <Card.Body>
-                    <Stack gap="3">
-                      <Heading textStyle="md">{feature.name}</Heading>
-                      <Text textStyle="sm" color="fg.muted">
-                        {feature.blurb}
-                      </Text>
-                      <Box py="2">{feature.node}</Box>
-                    </Stack>
-                  </Card.Body>
-                </Card.Root>
-              </Carousel.Item>
-            ))}
-          </Carousel.ItemGroup>
-          <Carousel.Control>
-            <Carousel.PrevTrigger aria-label="Previous slide">
-              <ChevronLeftIcon />
-            </Carousel.PrevTrigger>
-            <Carousel.IndicatorGroup />
-            <Carousel.NextTrigger aria-label="Next slide">
-              <ChevronRightIcon />
-            </Carousel.NextTrigger>
-          </Carousel.Control>
-        </Carousel.Root>
-      </Stack>
-
       {/* TOC — categories / full table views */}
       <Tabs.Root defaultValue="categories">
         <Tabs.List>
@@ -184,13 +119,13 @@ export function Dashboard({ onOpenCategory, onOpenSlideDemo }: DashboardProps) {
 
         <Tabs.Content value="categories">
           {filteredCategories.length > 0 ? (
-            <Grid gap="4" gridTemplateColumns={{ base: '1', md: '2', xl: '3' }}>
+            <Grid gap="4" columns={{ base: 1, md: 2, xl: 3 }}>
               {filteredCategories.map((category) => {
                 const CategoryIcon = category.icon
                 return (
                   <Card.Root key={category.id}>
-                    <Card.Body>
-                      <HStack justify="space-between" alignItems="flex-start">
+                    <Card.Header paddingBottom="0" gap="2">
+                        <HStack justify="space-between" alignItems="flex-start">
                         <Box
                           boxSize="10"
                           borderRadius="l2"
@@ -205,11 +140,34 @@ export function Dashboard({ onOpenCategory, onOpenSlideDemo }: DashboardProps) {
                         </Box>
                         <Badge>{category.components.length}</Badge>
                       </HStack>
-                      <Stack gap="1" mt="4">
-                        <Heading textStyle="lg">{category.name}</Heading>
-                        <Text textStyle="sm" color="fg.muted">
+                      <Heading textStyle="lg"
+                        >{category.name}</Heading>
+                      <Text textStyle="sm" color="fg.muted">
                           {category.description}
-                        </Text>
+                      </Text>
+                    </Card.Header>
+                    <Card.Body>
+                      {/* Component links */}
+                      <Stack gap="1" mt="4" pt="3" borderTopWidth="1px" borderColor="border">
+                        {category.components.map((component) => (
+                          <Text
+                            key={component.name}
+                            textStyle="sm"
+                            color="colorPalette.outline.fg"
+                            cursor="pointer"
+                            _hover={{ textDecoration: 'underline' }}
+                            onClick={() => {
+                              onOpenCategory(category)
+                              // Scroll to component after navigation
+                              setTimeout(() => {
+                                const el = document.getElementById(`component-${component.name}`)
+                                el?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                              }, 100)
+                            }}
+                          >
+                            {component.name}
+                          </Text>
+                        ))}
                       </Stack>
                     </Card.Body>
                     <Card.Footer>
@@ -234,58 +192,54 @@ export function Dashboard({ onOpenCategory, onOpenSlideDemo }: DashboardProps) {
 
         <Tabs.Content value="table">
           <Box overflowX="auto" borderWidth="1px" borderColor="border" borderRadius="l2">
-            <table className={css({ width: '100%', borderCollapse: 'collapse' })}>
-              <thead>
-                <tr className={css({ textAlign: 'left', color: 'fg.muted' })}>
-                  <th className={thCss}>Component</th>
-                  <th className={thCss}>Category</th>
-                  <th className={thCss}>Description</th>
-                  <th className={thCss}>Status</th>
-                </tr>
-              </thead>
-              <tbody>
+            <Table.Root interactive>
+              <Table.Head>
+                <Table.Row>
+                  <Table.Header>Component</Table.Header>
+                  <Table.Header>Category</Table.Header>
+                  <Table.Header>Description</Table.Header>
+                </Table.Row>
+              </Table.Head>
+              <Table.Body>
                 {allComponents.map((component) => (
-                  <tr
+                  <Table.Row
                     key={`${component.category}-${component.name}`}
-                    className={css({ borderTop: '1px solid var(--colors-border)' })}
+                    cursor="pointer"
+                    onClick={() => {
+                      // Find the category for this component using categoryId
+                      const targetCategory = tocCategories.find(c => c.id === component.categoryId)
+                      if (targetCategory) {
+                        onOpenCategory(targetCategory)
+                        setTimeout(() => {
+                          const el = document.getElementById(`component-${component.name}`)
+                          el?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                        }, 100)
+                      }
+                    }}
                   >
-                    <td className={tdCss({ fontWeight: 'semibold' })}>{component.name}</td>
-                    <td className={tdCss()}>
-                      <Badge size="sm" colorPalette="gray">
-                        {component.category}
-                      </Badge>
-                    </td>
-                    <td className={tdCss({ color: 'fg.muted', textStyle: 'sm' })}>
-                      {component.description}
-                    </td>
-                    <td className={tdCss()}>
-                      <Badge size="sm" colorPalette={component.shipped ? 'green' : 'gray'}>
-                        {component.shipped ? 'shipped' : 'pending'}
-                      </Badge>
-                    </td>
-                  </tr>
+                    <Table.Cell fontWeight="semibold">{component.name}</Table.Cell>
+                    <Table.Cell>{component.category}</Table.Cell>
+                    <Table.Cell whiteSpace="normal">{component.description}</Table.Cell>
+                  </Table.Row>
                 ))}
-              </tbody>
-            </table>
+              </Table.Body>
+            </Table.Root>
           </Box>
         </Tabs.Content>
       </Tabs.Root>
 
-      <Separator />
+      <Box borderTopWidth="1px" borderColor="border" />
 
-      {/* SlidePanel variant trio */}
+      {/* Native Park UI overlay demos — Dialog + Drawer */}
       <Stack gap="3">
-        <Heading textStyle="md">SlidePanel variants</Heading>
+        <Heading textStyle="md">Overlay demos</Heading>
         <Text textStyle="sm" color="fg.muted">
-          The overlay-shell trio used for dialogs, drill-down and focus modes.
+          Native Park UI Dialog and Drawer, opened from the shell.
         </Text>
         <HStack gap="2" flexWrap="wrap">
-          <Button onClick={() => onOpenSlideDemo('normal')}>Normal</Button>
-          <Button variant="outline" onClick={() => onOpenSlideDemo('fullscreen')}>
-            Fullscreen
-          </Button>
-          <Button variant="subtle" onClick={() => onOpenSlideDemo('immersive')}>
-            Immersive
+          <Button onClick={() => onOpenOverlay('dialog')}>Open Dialog</Button>
+          <Button variant="outline" onClick={() => onOpenOverlay('drawer')}>
+            Open Drawer
           </Button>
         </HStack>
       </Stack>
@@ -308,6 +262,4 @@ export function Dashboard({ onOpenCategory, onOpenSlideDemo }: DashboardProps) {
   )
 }
 
-const thCss = css({ px: '4', py: '3', textStyle: 'sm', fontWeight: 'medium' })
-const tdCss = (extra?: Parameters<typeof css>[0]) =>
-  css({ px: '4', py: '3', textAlign: 'left', verticalAlign: 'top', ...extra })
+

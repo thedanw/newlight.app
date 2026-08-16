@@ -1,7 +1,4 @@
-import { green } from "@/core/theme/colors/green";
-import { red } from "@/core/theme/colors/red";
-import { orange } from "@/core/theme/colors/orange";
-import { sand } from "@/core/theme/colors/sand";
+import { colorPackages } from "@/core/theme/colors";
 import { animationStyles } from "@/core/theme/animation-styles";
 import { zIndex } from "@/core/theme/tokens/z-index";
 import { shadows } from "@/core/theme/tokens/shadows";
@@ -15,10 +12,12 @@ import { conditions } from "@/core/theme/conditions";
 import { slotRecipes, recipes } from "@/core/theme/recipes";
 import { defineConfig } from '@pandacss/dev'
 
+const { orange, neutral, red } = colorPackages
+
 export default defineConfig({
   preflight: true,
   hash: false,
-  include: ['./src/**/*.{ts,tsx}'],
+  include: ['./src/**/*.{ts,tsx}', './pages/**/*.{js,jsx,ts,tsx}'],
   exclude: [],
   outdir: 'styled-system',
   jsxFramework: 'react',
@@ -46,52 +45,28 @@ export default defineConfig({
       semanticTokens: {
         colors: {
           fg: {
-            default: {
-              value: {
-                _light: "{colors.gray.12}",
-                _dark: "{colors.gray.12}"
-              }
-            },
-
-            muted: {
-              value: {
-                _light: "{colors.gray.11}",
-                _dark: "{colors.gray.11}"
-              }
-            },
-
-            subtle: {
-              value: {
-                _light: "{colors.gray.10}",
-                _dark: "{colors.gray.10}"
-              }
-            }
+            default: { value: { _light: '{colors.gray.12}', _dark: '{colors.gray.12}' } },
+            muted: { value: { _light: '{colors.gray.11}', _dark: '{colors.gray.11}' } },
+            subtle: { value: { _light: '{colors.gray.10}', _dark: '{colors.gray.10}' } },
           },
 
           border: {
-            value: {
-              _light: "{colors.gray.4}",
-              _dark: "{colors.gray.4}"
-            }
+            value: { _light: '{colors.gray.4}', _dark: '{colors.gray.4}' },
           },
 
           error: {
-            value: {
-              _light: "{colors.red.9}",
-              _dark: "{colors.red.9}"
-            }
+            value: { _light: '{colors.red.9}', _dark: '{colors.red.9}' },
           },
 
-          gray: sand,
+          gray: neutral,
+          neutral: neutral,
           orange: orange,
           red: red,
-          green: green
         },
-
         shadows: shadows,
 
         // Park UI radius scale — the `data-radius` knob on <html> re-maps these
-        // via the theme emission block (src/core/theme/theme.css).
+        // via the theme emission block (src/core/theme/radius.css).
         radii: {
           l1: { value: '{radii.xs}' },
           l2: { value: '{radii.sm}' },
@@ -100,7 +75,6 @@ export default defineConfig({
       }
     },
   },
-
   globalCss: globalCss,
   conditions: conditions
 })

@@ -2,17 +2,17 @@
 
 // Theme loader for dynamic color loading.
 // The base theme shell (src/core/theme/theme.css) is imported statically by
-// main.tsx. The loader applies the selected color scheme and writes the
-// matching data-* attributes on <html>:
-//   data-color-scheme = orange | green | violet | mint (accent scheme)
-//   data-gray-color   = neutral (gray scheme)
+// main.tsx. EVERY selectable palette — accent AND gray — is compiled ahead of
+// time by scripts/generate-theme-colors.mjs (`pnpm theme:colors`, wired into
+// dev/build/prepare) into a standalone, self-contained CSS file in
+// public/core/theme/colors/<name>.css (light + dark values scoped to its html
+// data attribute). At runtime this loader fetches ONLY the files for the
+// schemes currently in use and writes the matching data-* attributes:
+//   data-color-scheme = <any of the 26 Park UI accents>: amber … yellow incl.
+//                         neutral (monochrome accent) — see
+//                         scripts/generate-theme-colors.mjs ACCENTS
+//   data-gray-color   = neutral | mauve | olive | sage | sand | slate (gray scheme)
 //   data-mode         = light | dark
-// Only the default colors (orange + neutral) are baked into the bundle by
-// Panda; their scheme CSS (public/core/theme/colors/*.css) is a pure remap of
-// the base vars to the emitted raw vars. The other accent schemes (green,
-// violet, mint) are NOT in the bundle — the loader dynamically imports their
-// Park UI TS packages from src/core/theme/colors and generates the palette
-// vars from the package values at runtime (no hex is hard-coded here).
 
 let loadedThemes = new Set();
 let currentAccent = 'orange';
@@ -50,101 +50,29 @@ async function loadDynamicCss(path, styleId) {
 
 async function loadAccentTheme(accent) {
   clearAccentStyles();
-  if (accent === 'orange') {
-    // Base color: the orange raw vars are in the bundle, so the scheme CSS is
-    // a pure remap of the base palette vars to those emitted raw vars.
-    const success = await loadDynamicCss(`/core/theme/colors/${accent}.css`, `theme-accent-${accent}`);
-    if (success) currentAccent = accent;
-    return success;
-  }
-  // Dynamic color: not in the bundle — import its Park UI TS package and
-  // generate the palette vars from the package values at runtime.
-  const success = await loadDynamicAccent(accent);
+  // Every accent (default or not) has a pre-compiled theme file — see
+  // scripts/generate-theme-colors.mjs.
+  const success = await loadDynamicCss(`/core/theme/colors/${accent}.css`, `theme-accent-${accent}`);
   if (success) currentAccent = accent;
   return success;
 }
 
 // Only one accent scheme is active at a time — drop any previously applied
-// accent styles (orange remap CSS or a generated dynamic color) before the
-// new scheme is applied.
+// accent styles before the new scheme is applied.
 function clearAccentStyles() {
   document.querySelectorAll('style[id^="theme-accent-"]').forEach((style) => style.remove());
 }
 
-// Resolve a Park UI semantic-token value to a { light, dark } pair:
-//   '{colors.green.9}' -> the package's own '9' scale entry
-//   'white' / hex      -> literal (same for both modes)
-function resolveTokenValue(pkg, value) {
-  if (value !== null && typeof value === 'object') {
-    return { light: value._light, dark: value._dark };
-  }
-  const ref = /^\{colors\.([^.]+)\.(.+)\}$/.exec(String(value));
-  if (ref) {
-    const leaf = pkg[ref[2]];
-    if (leaf && leaf.value) {
-      const v = leaf.value;
-      return { light: v._light, dark: v._dark };
-    }
-  }
-  return { light: value, dark: value };
-}
-
-// Walk a Park UI color package and collect `--colors-color-palette-*` custom
-// property assignments for light and dark mode. DEFAULT slots are omitted from
-// the var name, mirroring Panda's emission (e.g. solid.bg.DEFAULT ->
-// --colors-color-palette-solid-bg).
-function collectColorVars(pkg, node, segments, light, dark) {
-  for (const [key, child] of Object.entries(node)) {
-    if (!child || typeof child !== 'object') continue;
-    if ('value' in child) {
-      const path = [...segments, ...(key === 'DEFAULT' ? [] : [key])];
-      const name = `--colors-color-palette-${path.join('-')}`;
-      const { light: l, dark: d } = resolveTokenValue(pkg, child.value);
-      light.push(`${name}:${l};`);
-      dark.push(`${name}:${d};`);
-    } else {
-      collectColorVars(pkg, child, [...segments, ...(key === 'DEFAULT' ? [] : [key])], light, dark);
-    }
-  }
-}
-
-// Build the CSS that re-maps the base palette vars to a dynamic color package.
-function generateAccentCss(pkg) {
-  const light = [];
-  const dark = [];
-  collectColorVars(pkg, pkg, [], light, dark);
-  return `:root{${light.join('')}}[data-mode='dark']{${dark.join('')}}`;
-}
-
-// Dynamically import a Park UI color package (code-split by Vite/Rollup, so
-// green/violet/mint only load when the user selects them).
-async function loadColorPackage(accent) {
-  switch (accent) {
-    case 'green': return (await import('./colors/green')).green;
-    case 'violet': return (await import('./colors/violet')).violet;
-    case 'mint': return (await import('./colors/mint')).mint;
-    default: return null;
-  }
-}
-
-async function loadDynamicAccent(accent) {
-  try {
-    const pkg = await loadColorPackage(accent);
-    if (!pkg) return false;
-    const css = generateAccentCss(pkg);
-    const style = document.createElement('style');
-    style.id = `theme-accent-${accent}`;
-    style.textContent = css;
-    document.head.appendChild(style);
-    loadedThemes.add(`theme-accent-${accent}`);
-    return true;
-  } catch (error) {
-    console.error(`Error loading dynamic color ${accent}:`, error);
-    return false;
-  }
+// Only one gray scheme is active at a time — drop any previously applied
+// gray styles before the new scheme is applied.
+function clearGrayStyles() {
+  document.querySelectorAll('style[id^="theme-gray-"]').forEach((style) => style.remove());
 }
 
 async function loadGrayTheme(gray) {
+  clearGrayStyles();
+  // Every gray has a pre-compiled theme file — see
+  // scripts/generate-theme-colors.mjs.
   const success = await loadDynamicCss(`/core/theme/colors/${gray}.css`, `theme-gray-${gray}`);
   if (success) currentGray = gray;
   return success;

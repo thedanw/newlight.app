@@ -20,7 +20,7 @@
   --sidebar-accent-fg: var(--colors-color-palette-solid-fg);
 }
 
-[data-sidebar-style='brand-dark'] {
+[data-sidebar-style='accent-dark'] {
   --sidebar-bg: var(--colors-color-palette-solid-bg);
   --sidebar-fg: var(--colors-color-palette-solid-fg);
   --sidebar-muted: var(--colors-color-palette-subtle-fg);
@@ -30,8 +30,8 @@
   --sidebar-accent-fg: var(--colors-color-palette-solid-bg);
 }
 
-[data-sidebar-style='brand-light'] {
-  --sidebar-bg: var(--colors-color-palette-subtle-bg);
+[data-sidebar-style='accent-light'] {
+  --sidebar-bg: var(--colors-color-palette-3);
   --sidebar-fg: var(--colors-color-palette-11);
   --sidebar-muted: var(--colors-color-palette-10);
   --sidebar-subtle: var(--colors-color-palette-9);

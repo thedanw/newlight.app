@@ -77,10 +77,10 @@ Goal: `<html data-*>` theme emission block (color-scheme/accent/gray/radius/side
 > Read `template-plan/plan.md` Batch 4 + `tokens.md` (mechanism + brand asset sections). Add the `<html data-*>` CSS-var emission block and static Inter preload; verify flipping a data attr re-themes the shell. Track via `manage_todo_list`; log every 2 ops to `progress.md`; compact at end. Bare bones only — YAGNI yet.
 
 ### Batch 5: Styleguide shell + Dashboard
-Goal: `src/styleguide/App.tsx` shell (sidebar waffle mock + `#page-panel` header + component-level panel stack via AnimatePresence, no router), Dashboard page (TOC Cards + Table index, breadcrumbs, toolPanel), `toc.ts` index.
+Goal: `src/styleguide/App.tsx` shell (sidebar mock + `#page-panel` header + component-level panel stack via AnimatePresence, no router), Dashboard page (TOC Cards + Table index, breadcrumbs, toolPanel), `toc.ts` index.
 **YAGNI yet: no router/history depth; `toc.ts` indexes only the components built so far (grows in Batch 7); no real modules — mock tiles + 'not-built' SlidePanel.**
 - [x] `src/styleguide/toc.ts` (category → components, start with vendored set)
-- [x] `App.tsx`: waffle sidebar mock + `#page-panel` header + push/pop stack (AnimatePresence, `durations.slowest`, `useReducedMotion`)
+- [x] `App.tsx`: sidebar mock + `#page-panel` header + push/pop stack (AnimatePresence, `durations.slowest`, `useReducedMotion`)
 - [x] `pages/Dashboard.tsx`: TOC Cards + Table index + SlidePanel trio demo buttons + featured strip
 - [x] Breadcrumbs on every page header; toolPanel search/filter demo
 - [x] Commit: `feat: styleguide shell + dashboard toc`

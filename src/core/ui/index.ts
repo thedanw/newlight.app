@@ -63,4 +63,4 @@ export { Textarea, type TextareaProps } from "./textarea";
 export { Toaster, toaster } from "./toast";
 export * as ToggleGroup from "./toggle-group";
 export { Tooltip, type TooltipProps } from "./tooltip";
-export { WaffleSidebar } from "./waffle-sidebar";
+export { Sidebar } from "./sidebar";

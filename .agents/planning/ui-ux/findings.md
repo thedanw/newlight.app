@@ -15,7 +15,7 @@
 | Component | Role |
 |---|---|
 | SidebarContainer | motion shell: drag, snap, breakpoint, dynamic width, outside-click |
-| Sidebar | waffle-menu content (module grid, logo, admin) |
+| Sidebar | sidebar content (module grid, logo, account avatar) |
 | SidebarToggle | pull-tab (9-dot grid + `.toggled` morph) |
 | NavigationContext | single source of truth for `isSidebarOpen` |
 | User layout | wires SidebarContainer + main-panel |
@@ -28,7 +28,7 @@
 
 ### Slide + 5px peek
 - `PEEK_WIDTH = 5`, `OPEN_X = 0`, `CLOSED_X = -(width - 5)` → **5px of the sidebar always visible** when closed
-- Sidebar width **measured dynamically** (`useResizeObserver`, min 90px) — not hard-coded, because the waffle-bar is `width: max-content`
+- Sidebar width **measured dynamically** (`useResizeObserver`, min 90px) — not hard-coded, because the sidebar is `width: max-content`
 - Measured width published as **`--dynamic-sidebar-width` CSS var** (main-panel offsets by the actual width)
 
 ### Drag & snap (Framer Motion)
@@ -41,7 +41,7 @@
 - Opens via pointer-down drag OR click; `touch-action: pan-y` preserves vertical scroll while dragging
 - 9-dot grid: `grid-template: repeat(3, 4px)`, glass background, rounded right edge, shadow
 
-### 9-dot waffle → 4-dot morph  → 9-dot (`.toggled`)
+### 9-dot → 4-dot morph  → 9-dot (`.toggled`)
 - Corner dots `dot1/3/7/9` stay, center `dot5` stays
 - Mid-edge dots `dot2/4/6/8` **translate diagonally into the gaps** → reads as 4-corner diamond
 - Pure CSS transform; no DOM swap
@@ -51,15 +51,15 @@
 - **Close:** click pull-tab, drag left, or click anywhere outside — full-viewport `#bodyClick` overlay (`z-index 1040` → Park UI `zIndex.overlay` 1300, below sidebar `zIndex.modal` 1400), rendered only when `open && !wideDesktop`
 - `useReducedMotion` respected (layout page transitions)
 
-### Waffle menu (module grid)
+### Sidebar (module grid)
 - `.nav`: `grid; grid-auto-flow: column; grid-template-rows: repeat(auto-fill, 90px); grid-auto-columns: 90px; gap: 10px` → **fills top-to-bottom then wraps to a new column** (variable columns); DS: 90px cell = custom, gap → `spacing.2.5` (10px)
 - Tile: 70×70, `border-radius 16px` → `radii.2xl`, **32px icon (`sizes.8`) + 10px label (`text.2xs`)** stacked vertically
 - Active = full opacity; hover = accent glow
 - `.nav` max-height `calc(100vh - 150px)` → wraps into columns instead of scrolling
-- Admin section = separate grid block pinned bottom (`margin-top: auto`), same tile language
+- Account avatar in sidebar footer (`margin-top: auto`)
 
 ### Panel / visual
-- Glass panel (`backdrop-filter: blur`, fallback opacity), `data-active-color` theming, `border-right: 5px solid` (the visible peek edge)
+- Glass panel (`backdrop-filter: blur`, fallback opacity), `data-active-color` theming, `border-left: 5px solid` (the visible peek edge)
 
 ## iOS-style sliding panel stack (research) — verified 2026-08-08
 - **No maintained web library clones the iOS Settings menu** (npm + GitHub searched): `react-ios-settings-menu` / `ios-settings-menu` 404 on npm; GitHub "ios settings clone / iphone menu animation" hits are all native (SwiftUI, Flutter, React Native, Unity) or Ionic demos (e.g. `julescript/ios-wifi-settings-ionic`) — nothing web/React to adopt
@@ -151,7 +151,7 @@ Avatar, Badge, Card, Icon, Image, Table
 | Menu (kebab) | header-utilities kebab: Avatar + brand settings + login/account/help/settings |
 | Avatar | kebab menu item (user row) |
 | IconButton + Tooltip | header actions (search, print, share, kebab trigger) |
-| Icon / Span | sidebar waffle tiles + labels |
+| Icon / Span | sidebar tiles + labels |
 | Badge | tile notifications, status chips |
 | toolPanel (Input, Field, Button, IconButton) | expandable under header (search/filter) |
 

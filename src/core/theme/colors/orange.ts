@@ -56,7 +56,7 @@ export const orange = defineSemanticTokens.colors({
       hover: { value: { _light: '{colors.orange.a2}', _dark: '{colors.orange.a2}' } },
       active: { value: { _light: '{colors.orange.a3}', _dark: '{colors.orange.a3}' } },
     },
-    border: { DEFAULT: { value: { _light: '{colors.orange.a7}', _dark: '{colors.orange.a7}' } } },
+    border: { DEFAULT: { value: { _light: '{colors.orange.a2}', _dark: '{colors.orange.a2}' } } },
     fg: { DEFAULT: { value: { _light: '{colors.orange.a11}', _dark: '{colors.orange.a11}' } } },
   },
   plain: {

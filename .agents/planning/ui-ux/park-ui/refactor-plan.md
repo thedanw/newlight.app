@@ -1,13 +1,13 @@
 # Plan: Park UI Native Refactor
 
-**Goal:** Make the app run entirely on **native, CLI-downloaded Park UI** components + native tokens. The only custom-built components that remain are the **sidebar / waffle menu / pull tab**. Delete `SlidePanel` entirely; delete and re-download every Park UI component fresh via `npx @park-ui/cli add`; do **not** hand-edit any component file.
+**Goal:** Make the app run entirely on **native, CLI-downloaded Park UI** components + native tokens. The only custom-built components that remain are the **sidebar / pull tab**. Delete `SlidePanel` entirely; delete and re-download every Park UI component fresh via `npx @park-ui/cli add`; do **not** hand-edit any component file.
 
 **Branch:** `feat/ui-design-lab` (current)
 
 ## Scope
 
 - **In:** Re-vendor all 62 Park UI components fresh via CLI; delete `SlidePanel.tsx`; rewire `App.tsx` + `Dashboard.tsx` to native `Dialog` / `Drawer` / `Table`; verify native tokens + typecheck + build.
-- **Out (Do NOT touch):** `WaffleSidebar`, `NavTile`, `PullTab`, `NavProvider`/`useNavContext` + their recipes (`nav-tile.ts`, `pull-tab.ts`). No new custom components. No hand-edits to any `src/core/ui/*` Park UI file. No router/history work.
+- **Out (Do NOT touch):** `Sidebar`, `NavTile`, `PullTab`, `NavProvider`/`useNavContext` + their recipes (`nav-tile.ts`, `pull-tab.ts`). No new custom components. No hand-edits to any `src/core/ui/*` Park UI file. No router/history work.
 
 ## Decision Gaps & Resolutions
 
@@ -17,7 +17,7 @@
 | 2 | Are vendored Park UI components pristine? | **No guarantee** — `file-upload.tsx`, `index.ts`, `heading.ts`, `slider.ts` show as modified; memory documents hand-edits. **Re-download ALL fresh via CLI.** |
 | 3 | "Do not edit any components" | Respect: only app code (`App.tsx`, `Dashboard.tsx`) is edited. Glue files (`src/core/ui/index.ts`, `src/core/theme/recipes/index.ts`) are restored only to re-register the custom sidebar stack. |
 | 4 | Native tokens | Accept **stock CLI-generated recipes**; app must work with them (drop reliance on hand-tuned recipe hacks). |
-| 5 | Custom sidebar stack | Preserved (`waffle-sidebar.tsx`, `nav-tile.tsx`, `pull-tab.tsx`, `nav-context.tsx` + recipes). Re-export/re-register after CLI regenerates barrels. |
+| 5 | Custom sidebar stack | Preserved (`sidebar.tsx`, `nav-tile.tsx`, `pull-tab.tsx`, `nav-context.tsx` + recipes). Re-export/re-register after CLI regenerates barrels. |
 | 6 | CLI output paths | `components.json`: components → `src/core/ui`, recipes → `src/core/theme/recipes`. CLI rewrites both `index.ts` files. |
 
 ## CLI Component List (62 ids — VERIFIED against registry index `park-ui.com/registry/react/index.json`)
@@ -30,14 +30,14 @@
 
 ### Batch 1: Safe teardown
 - [ ] **1.1** Backup custom sidebar stack → `.agents/planning/ui-ux/park-ui/backup/` (files are untracked in git, no VCS safety net):
-  `src/core/ui/{waffle-sidebar,nav-tile,pull-tab,nav-context}.tsx` + `src/core/theme/recipes/{nav-tile,pull-tab}.ts`
+  `src/core/ui/{sidebar,nav-tile,pull-tab,nav-context}.tsx` + `src/core/theme/recipes/{nav-tile,pull-tab}.ts`
 - [ ] **1.2** Delete all 62 Park UI component files in `src/core/ui/*.tsx` (keep `index.ts` + the 4 custom files).
 - [ ] **1.3** Delete all Park UI recipe files in `src/core/theme/recipes/*.ts` (keep `nav-tile.ts`, `pull-tab.ts`).
 
 ### Batch 2: Fresh CLI download
 - [ ] **2.1** Run `npx @park-ui/cli add <62 ids>` (regenerates components + recipes + both `index.ts`).
 - [ ] **2.2** Restore custom glue:
-  - `src/core/ui/index.ts`: re-add `NavTile`, `PullTab`, `NavProvider`, `useNavContext`, `WaffleSidebar` exports.
+  - `src/core/ui/index.ts`: re-add `NavTile`, `PullTab`, `NavProvider`, `useNavContext`, `Sidebar` exports.
   - `src/core/theme/recipes/index.ts`: re-add `navTile` + `pullTab` imports and registry entries.
 
 ### Batch 3: Remove SlidePanel
@@ -56,7 +56,7 @@
 - Stock components are the registry versions; any LLM fixes to vendored files are intentionally discarded.
 
 ## Validation
-- [ ] No custom components remain except sidebar/waffle/pull-tab
+- [ ] No custom components remain except sidebar/pull-tab
 - [ ] `SlidePanel.tsx` gone; no `framer-motion` overlay left
 - [ ] `pnpm panda` + `pnpm typecheck` + `pnpm build` all pass
 - [ ] App renders in browser: sidebar, Dashboard, BrandForm, Dialog/Drawer overlays

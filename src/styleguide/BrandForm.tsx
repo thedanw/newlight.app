@@ -3,6 +3,12 @@ import { createListCollection } from '@ark-ui/react/collection'
 import type { FileUploadFileRejectDetails } from '@ark-ui/react/file-upload'
 import { CloudUploadIcon } from 'lucide-react'
 import { switchTheme } from '@/core/theme/theme-loader'
+import {
+  applyFont,
+  detectFont,
+  FONT_OPTIONS,
+  type FontKey,
+} from '@/core/theme/font-loader'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Box, HStack, Stack } from 'styled-system/jsx'
 import {
@@ -13,6 +19,7 @@ import {
   FileUpload,
   Heading,
   Icon,
+  RadioCardGroup,
   Select,
   Slider,
   Text,
@@ -29,11 +36,37 @@ import {
 --------------------------------------------------------------------------- */
 
 type ColorScheme = 'light' | 'dark'
-type Accent = 'orange' | 'green' | 'violet' | 'mint'
-type Gray = 'neutral'
+/** All 26 Park UI accents (25 chromatic + neutral as monochrome accent). */
+type Accent =
+  | 'amber'
+  | 'blue'
+  | 'bronze'
+  | 'brown'
+  | 'crimson'
+  | 'cyan'
+  | 'gold'
+  | 'grass'
+  | 'green'
+  | 'indigo'
+  | 'iris'
+  | 'jade'
+  | 'lime'
+  | 'mint'
+  | 'neutral'
+  | 'orange'
+  | 'pink'
+  | 'plum'
+  | 'purple'
+  | 'red'
+  | 'ruby'
+  | 'sky'
+  | 'teal'
+  | 'tomato'
+  | 'violet'
+  | 'yellow'
+type Gray = 'neutral' | 'mauve' | 'olive' | 'sage' | 'sand' | 'slate'
 type RadiusKey = 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl'
-type SidebarStyle = 'light' | 'dark' | 'brand-dark' | 'brand-light'
-type FontKey = 'inter' | 'poppins' | 'raleway' | 'dm-sans'
+type SidebarStyle = 'light' | 'dark' | 'accent-dark' | 'accent-light'
 type HeadingToken = 'bold' | 'uppercase' | 'accent'
 
 type BrandState = {
@@ -43,7 +76,8 @@ type BrandState = {
   font: FontKey
   radius: RadiusKey
   sidebarStyle: SidebarStyle
-  headingStyle: HeadingToken[]
+  /** One independent boolean per heading token (decision #46/#61). */
+  headings: Record<HeadingToken, boolean>
 }
 
 /* --- Preset catalog (tokens.md knobs table) -------------------------------- */
@@ -51,35 +85,108 @@ type BrandState = {
 const RADII: RadiusKey[] = ['none', 'xs', 'sm', 'md', 'lg', 'xl', '2xl']
 const RADIUS_MARKS = RADII.map((radius, index) => ({ value: index, label: radius }))
 
-/** Only Inter is actually loaded (B4); the others preview via font fallback. */
-const FONT_FAMILIES: Record<FontKey, string> = {
-  inter: "'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif",
-  poppins: "'Poppins', 'Inter', ui-sans-serif, system-ui, sans-serif",
-  raleway: "'Raleway', 'Inter', ui-sans-serif, system-ui, sans-serif",
-  'dm-sans': "'DM Sans', 'Inter', ui-sans-serif, system-ui, sans-serif",
+/** The six Park UI greys (all CLI-installed into src/core/theme/colors). */
+const GRAY_OPTIONS: Array<{ label: string; value: Gray }> = [
+  { label: 'neutral', value: 'neutral' },
+  { label: 'mauve', value: 'mauve' },
+  { label: 'olive', value: 'olive' },
+  { label: 'sage', value: 'sage' },
+  { label: 'sand', value: 'sand' },
+  { label: 'slate', value: 'slate' },
+]
+
+/**
+ * Step-9 swatch hexes, hard-coded on purpose: only the selected palette's
+ * compiled CSS is loaded at runtime, so token vars (--colors-mauve-9) don't
+ * exist for the inactive greys and can't paint the swatches. Values =
+ * light-mode step 9 of each Park UI package.
+ */
+const GRAY_SWATCHES: Record<Gray, string> = {
+  neutral: '#8d8d8d',
+  mauve: '#8e8c99',
+  olive: '#898e87',
+  sage: '#868e8b',
+  sand: '#8d8d86',
+  slate: '#8b8d98',
 }
 
-const FONT_OPTIONS: Array<{ label: string; value: FontKey }> = [
-  { label: 'Inter', value: 'inter' },
-  { label: 'Poppins', value: 'poppins' },
-  { label: 'Raleway', value: 'raleway' },
-  { label: 'DM Sans', value: 'dm-sans' },
-]
-
-const GRAY_OPTIONS: Array<{ label: string; value: Gray }> = [{ label: 'Neutral', value: 'neutral' }]
-
+/**
+ * All 26 Park UI accents in hue order (mirrors the Park UI docs picker).
+ * Every palette is CLI-installed into src/core/theme/colors/<name>.ts and
+ * compiled ahead of time to public/core/theme/colors/<name>.css;
+ * theme-loader.js dynamically fetches ONLY the file for the scheme in use.
+ */
 const ACCENT_OPTIONS: Array<{ label: string; value: Accent }> = [
-  { label: 'Orange', value: 'orange' },
-  { label: 'Green', value: 'green' },
-  { label: 'Violet', value: 'violet' },
-  { label: 'Mint', value: 'mint' },
+  { label: 'neutral', value: 'neutral' },
+  { label: 'tomato', value: 'tomato' },
+  { label: 'red', value: 'red' },
+  { label: 'ruby', value: 'ruby' },
+  { label: 'crimson', value: 'crimson' },
+  { label: 'pink', value: 'pink' },
+  { label: 'plum', value: 'plum' },
+  { label: 'purple', value: 'purple' },
+  { label: 'violet', value: 'violet' },
+  { label: 'iris', value: 'iris' },
+  { label: 'indigo', value: 'indigo' },
+  { label: 'blue', value: 'blue' },
+  { label: 'cyan', value: 'cyan' },
+  { label: 'teal', value: 'teal' },
+  { label: 'jade', value: 'jade' },
+  { label: 'green', value: 'green' },
+  { label: 'grass', value: 'grass' },
+  { label: 'bronze', value: 'bronze' },
+  { label: 'gold', value: 'gold' },
+  { label: 'brown', value: 'brown' },
+  { label: 'orange', value: 'orange' },
+  { label: 'amber', value: 'amber' },
+  { label: 'yellow', value: 'yellow' },
+  { label: 'lime', value: 'lime' },
+  { label: 'mint', value: 'mint' },
+  { label: 'sky', value: 'sky' },
 ]
+
+/**
+ * Step-9 swatch hexes, hard-coded on purpose (same rationale as
+ * GRAY_SWATCHES): only the selected palette's compiled CSS is loaded at
+ * runtime, so token vars (--colors-blue-9) don't exist for the inactive
+ * accents and can't paint the swatches. Values = light-mode step 9 of each
+ * Park UI accent package, extracted from the generated
+ * public/core/theme/colors/<name>.css files.
+ */
+const ACCENT_SWATCHES: Record<Accent, string> = {
+  amber: '#ffc53d',
+  blue: '#0090ff',
+  bronze: '#a18072',
+  brown: '#ad7f58',
+  crimson: '#e93d82',
+  cyan: '#00a2c7',
+  gold: '#978365',
+  grass: '#46a758',
+  green: '#30a46c',
+  indigo: '#3e63dd',
+  iris: '#5b5bd6',
+  jade: '#29a383',
+  lime: '#bdee63',
+  mint: '#86ead4',
+  neutral: '#8d8d8d',
+  orange: '#f76b15',
+  pink: '#d6409f',
+  plum: '#ab4aba',
+  purple: '#8e4ec6',
+  red: '#e5484d',
+  ruby: '#e54666',
+  sky: '#7ce2fe',
+  teal: '#12a594',
+  tomato: '#e54d2e',
+  violet: '#6e56cf',
+  yellow: '#ffe629',
+}
 
 const SIDEBAR_OPTIONS: Array<{ label: string; value: SidebarStyle }> = [
   { label: 'Light', value: 'light' },
   { label: 'Dark', value: 'dark' },
-  { label: 'Brand (dark text)', value: 'brand-dark' },
-  { label: 'Brand (light text)', value: 'brand-light' },
+  { label: 'Accent Dark', value: 'accent-dark' },
+  { label: 'Accent Light', value: 'accent-light' },
 ]
 
 const HEADING_OPTIONS: Array<{ value: HeadingToken; label: string }> = [
@@ -119,11 +226,12 @@ export function BrandForm({ logo, onApplyLogo, onClose }: BrandFormProps) {
       radius: state.radius,
       sidebarStyle: state.sidebarStyle,
       colorScheme: state.scheme,
-      headingStyle: state.headingStyle.join(' '),
+      headingStyle: activeHeadingTokens(state.headings),
       font: state.font,
     })
-    const root = document.documentElement
-    root.style.fontFamily = FONT_FAMILIES[state.font]
+    // Fetch the selected family's webfont CSS (once) and write the stack
+    // onto <html> — body text AND headings inherit it app-wide.
+    applyFont(state.font)
   }, [state])
 
   // Pending logo: revoke the draft on unmount unless it was transferred to the
@@ -156,12 +264,10 @@ export function BrandForm({ logo, onApplyLogo, onClose }: BrandFormProps) {
     }
   }
 
-  const toggleHeading = (token: HeadingToken, checked: boolean) => {
+  const setHeading = (token: HeadingToken, checked: boolean) => {
     setState((previous) => ({
       ...previous,
-      headingStyle: checked
-        ? [...previous.headingStyle, token]
-        : previous.headingStyle.filter((entry) => entry !== token),
+      headings: { ...previous.headings, [token]: checked },
     }))
   }
 
@@ -185,17 +291,8 @@ export function BrandForm({ logo, onApplyLogo, onClose }: BrandFormProps) {
 
   return (
     <Stack gap="6">
-      <Stack gap="1">
-        <Heading textStyle="md">Brand settings</Heading>
-        <Text color="fg.muted" textStyle="sm">
-          Theme knobs re-theme the whole shell live. Your logo is committed when
-          you press Apply.
-        </Text>
-      </Stack>
 
-      <Box borderTopWidth="1px" borderColor="border" />
-
-      {/* 1 — Logo (save-on-apply, decisions #40/#42/#43/#45) */}
+      {/* 1 — Logo (save-on-apply) */}
       <Field.Root invalid={logoError !== null}>
         <Field.Label>Logo</Field.Label>
         <FileUpload.Root
@@ -269,33 +366,94 @@ export function BrandForm({ logo, onApplyLogo, onClose }: BrandFormProps) {
         </HStack>
         <Field.HelperText>Flips the whole shell between light and dark.</Field.HelperText>
       </Field.Root>
-
-      {/* 3 — Font (decisions #41/#44 — Inter only loads in-lab) */}
+      
+      {/* 7 — Sidebar style (decision #45/#60) */}
       <ThemeSelect
-        label="Font"
-        items={FONT_OPTIONS}
-        value={state.font}
-        onChange={(value) => setState((s) => ({ ...s, font: value as FontKey }))}
-        helperText="Inter is the only bundled font — the others preview via fallback."
+        label="Sidebar style"
+        items={SIDEBAR_OPTIONS}
+        value={state.sidebarStyle}
+        onChange={(value) => setState((s) => ({ ...s, sidebarStyle: value as SidebarStyle }))}
+        helperText="Sidebar background / text pair (light, dark, or brand)."
       />
+      {/* 4 — Gray (radio cards; swatch hexes are hard-coded — see GRAY_SWATCHES) */}
+      <Field.Root>
+        <Field.Label>Gray</Field.Label>
+        <RadioCardGroup.Root
+          aria-label="Gray"
+          display="grid"
+          gridTemplateColumns="repeat(3, 1fr)"
+          gap="1.5"
+          value={state.gray}
+          onValueChange={(details) =>
+            setState((s) => ({ ...s, gray: (details.value ?? s.gray) as Gray }))
+          }
+        >
+          {GRAY_OPTIONS.map((option) => (
+            <RadioCardGroup.Item
+              key={option.value}
+              value={option.value}
+              height="9"
+              py="0"
+              justifyContent="flex-start"
+              css={{ _checked: { borderColor: 'gray.9', boxShadowColor: 'gray.9' } }}
+            >
+              <Box
+                flex="0 0 auto"
+                width="3.5"
+                height="3.5"
+                borderRadius="full"
+                style={{ background: GRAY_SWATCHES[option.value] }}
+              />
+              <RadioCardGroup.ItemText textTransform="capitalize">{option.label}</RadioCardGroup.ItemText>
+              <RadioCardGroup.ItemHiddenInput />
+            </RadioCardGroup.Item>
+          ))}
+        </RadioCardGroup.Root>
+        <Field.HelperText>
+          Only the selected theme file loads at runtime — swatches are hard-coded hexes.
+        </Field.HelperText>
+      </Field.Root>
 
-      {/* 4 — Gray */}
-      <ThemeSelect
-        label="Neutral (gray)"
-        items={GRAY_OPTIONS}
-        value={state.gray}
-        onChange={(value) => setState((s) => ({ ...s, gray: value as Gray }))}
-        helperText="Sand is the only installed neutral right now."
-      />
-
-      {/* 5 — Accent */}
-      <ThemeSelect
-        label="Accent color"
-        items={ACCENT_OPTIONS}
-        value={state.accent}
-        onChange={(value) => setState((s) => ({ ...s, accent: value as Accent }))}
-        helperText="Re-maps the color-palette across every recipe."
-      />
+      {/* 5 — Accent (radio cards; swatch hexes are hard-coded — see
+          ACCENT_SWATCHES). Selecting one swaps data-color-scheme and
+          theme-loader.js fetches only that palette's compiled CSS. */}
+      <Field.Root>
+        <Field.Label>Accent color</Field.Label>
+        <RadioCardGroup.Root
+          aria-label="Accent color"
+          display="grid"
+          gridTemplateColumns="repeat(3, 1fr)"
+          gap="1.5"
+          value={state.accent}
+          onValueChange={(details) =>
+            setState((s) => ({ ...s, accent: (details.value ?? s.accent) as Accent }))
+          }
+        >
+          {ACCENT_OPTIONS.map((option) => (
+            <RadioCardGroup.Item
+              key={option.value}
+              value={option.value}
+              height="9"
+              py="0"
+              justifyContent="flex-start"
+              css={{ _checked: { borderColor: 'gray.9', boxShadowColor: 'gray.9' } }}
+            >
+              <Box
+                flex="0 0 auto"
+                width="3.5"
+                height="3.5"
+                borderRadius="full"
+                style={{ background: ACCENT_SWATCHES[option.value] }}
+              />
+              <RadioCardGroup.ItemText textTransform="capitalize">{option.label}</RadioCardGroup.ItemText>
+              <RadioCardGroup.ItemHiddenInput />
+            </RadioCardGroup.Item>
+          ))}
+        </RadioCardGroup.Root>
+        <Field.HelperText>
+          Only the selected theme file loads at runtime — swatches are hard-coded hexes.
+        </Field.HelperText>
+      </Field.Root>
 
       {/* 6 — Radius (native Slider + marks, decision #49) */}
       <Field.Root>
@@ -320,15 +478,14 @@ export function BrandForm({ logo, onApplyLogo, onClose }: BrandFormProps) {
         </Field.HelperText>
       </Field.Root>
 
-      {/* 7 — Sidebar style (decision #45/#60) */}
+      {/* 3 — Font (webfont CSS fetched per selection — see font-loader.ts) */}
       <ThemeSelect
-        label="Sidebar style"
-        items={SIDEBAR_OPTIONS}
-        value={state.sidebarStyle}
-        onChange={(value) => setState((s) => ({ ...s, sidebarStyle: value as SidebarStyle }))}
-        helperText="Sidebar background / text pair (light, dark, or brand)."
+        label="Font"
+        items={FONT_OPTIONS}
+        value={state.font}
+        onChange={(value) => setState((s) => ({ ...s, font: value as FontKey }))}
+        helperText="Fetches the selected webfont and re-fonts the whole shell live."
       />
-
       {/* 8 — Heading style checkboxes (decision #46/#61) */}
       <Field.Root>
         <Field.Label>Heading style</Field.Label>
@@ -336,8 +493,15 @@ export function BrandForm({ logo, onApplyLogo, onClose }: BrandFormProps) {
           {HEADING_OPTIONS.map((option) => (
             <Checkbox.Root
               key={option.value}
-              checked={state.headingStyle.includes(option.value)}
-              onCheckedChange={(details) => toggleHeading(option.value, details.checked === true)}
+              // Unique ids per checkbox: a shared Field.Root otherwise hands the
+              // same hidden-input id to every control beneath it, so each
+              // label's click lands on the FIRST input in the DOM.
+              ids={{
+                root: `heading-style-${option.value}`,
+                hiddenInput: `heading-style-${option.value}-input`,
+              }}
+              checked={state.headings[option.value]}
+              onCheckedChange={(details) => setHeading(option.value, details.checked === true)}
             >
               <Checkbox.HiddenInput />
               <Checkbox.Control>
@@ -416,23 +580,25 @@ function ThemeSelect({
 
 function getInitialState(): BrandState {
   const root = document.documentElement
+  const headingTokens = (root.getAttribute('data-heading-style') ?? '')
+    .split(' ')
+    .filter(Boolean)
   return {
     scheme: (root.getAttribute('data-mode') as ColorScheme) ?? 'light',
     accent: (root.getAttribute('data-color-scheme') as Accent) ?? 'orange',
     gray: (root.getAttribute('data-gray-color') as Gray) ?? 'neutral',
-    font: getInitialFont(root),
+    font: detectFont(root),
     radius: (root.getAttribute('data-radius') as RadiusKey) ?? 'md',
     sidebarStyle: (root.getAttribute('data-sidebar-style') as SidebarStyle) ?? 'light',
-    headingStyle: ((root.getAttribute('data-heading-style') ?? '').split(' ').filter(
-      Boolean,
-    ) as HeadingToken[]),
+    headings: Object.fromEntries(
+      HEADING_OPTIONS.map(({ value }) => [value, headingTokens.includes(value)]),
+    ) as Record<HeadingToken, boolean>,
   }
 }
 
-function getInitialFont(root: HTMLElement): FontKey {
-  const inline = root.style.fontFamily
-  if (inline.includes('Poppins')) return 'poppins'
-  if (inline.includes('Raleway')) return 'raleway'
-  if (inline.includes('DM Sans')) return 'dm-sans'
-  return 'inter'
+/** Canonical space-separated data-heading-style value, in knob order. */
+function activeHeadingTokens(headings: Record<HeadingToken, boolean>): string {
+  return HEADING_OPTIONS.filter((option) => headings[option.value])
+    .map((option) => option.value)
+    .join(' ')
 }

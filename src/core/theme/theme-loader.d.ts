@@ -2,11 +2,38 @@
 // The loader fetches the selected color-scheme CSS (remap-only, no hex) and
 // writes the matching <html> data-* attributes at runtime.
 
-export type AccentScheme = 'orange' | 'green' | 'violet' | 'mint'
-export type GrayScheme = 'neutral'
+/** All 26 Park UI accents (25 chromatic + neutral as monochrome accent). */
+export type AccentScheme =
+  | 'amber'
+  | 'blue'
+  | 'bronze'
+  | 'brown'
+  | 'crimson'
+  | 'cyan'
+  | 'gold'
+  | 'grass'
+  | 'green'
+  | 'indigo'
+  | 'iris'
+  | 'jade'
+  | 'lime'
+  | 'mint'
+  | 'neutral'
+  | 'orange'
+  | 'pink'
+  | 'plum'
+  | 'purple'
+  | 'red'
+  | 'ruby'
+  | 'sky'
+  | 'teal'
+  | 'tomato'
+  | 'violet'
+  | 'yellow'
+export type GrayScheme = 'neutral' | 'mauve' | 'olive' | 'sage' | 'sand' | 'slate'
 export type ColorMode = 'light' | 'dark'
 export type RadiusKey = 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl'
-export type SidebarStyle = 'light' | 'dark' | 'brand-dark' | 'brand-light'
+export type SidebarStyle = 'light' | 'dark' | 'accent-dark' | 'accent-light'
 export type FontKey = 'inter' | 'poppins' | 'raleway' | 'dm-sans'
 
 export interface ThemeOptions {

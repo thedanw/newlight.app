@@ -1,58 +1,99 @@
-/* Orange color scheme — dynamically loaded (DEFAULT accent).
-   Maps the base --colors-color-palette-* vars to the Park UI orange package.
-   The raw --colors-orange-* values are emitted by Panda codegen from
-   src/core/theme/colors/orange.ts. No hard-coded color values here.
-   Because orange is the default scheme, the :root selector applies it
-   immediately; [data-color-scheme='orange'] covers explicit re-selection. */
+/* Orange palette — GENERATED FILE, DO NOT EDIT.
+   Compiled from src/core/theme/colors/orange.ts (Park UI package, installed
+   via `npx @park-ui/cli add orange`) by scripts/generate-theme-colors.mjs
+   (`pnpm theme:colors`). Self-contained light + dark values, scoped to html
+   data attributes so they override the Panda bundle defaults while this
+   scheme is selected. Loaded on demand by src/core/theme/theme-loader.js.
+   Roles: accent. */
 
-:root,
 [data-color-scheme='orange'] {
-  /* scale 1–12 */
-  --colors-color-palette-1: var(--colors-orange-1);
-  --colors-color-palette-2: var(--colors-orange-2);
-  --colors-color-palette-3: var(--colors-orange-3);
-  --colors-color-palette-4: var(--colors-orange-4);
-  --colors-color-palette-5: var(--colors-orange-5);
-  --colors-color-palette-6: var(--colors-orange-6);
-  --colors-color-palette-7: var(--colors-orange-7);
-  --colors-color-palette-8: var(--colors-orange-8);
-  --colors-color-palette-9: var(--colors-orange-9);
-  --colors-color-palette-10: var(--colors-orange-10);
-  --colors-color-palette-11: var(--colors-orange-11);
-  --colors-color-palette-12: var(--colors-orange-12);
-  /* alpha scale a1–a12 */
-  --colors-color-palette-a1: var(--colors-orange-a1);
-  --colors-color-palette-a2: var(--colors-orange-a2);
-  --colors-color-palette-a3: var(--colors-orange-a3);
-  --colors-color-palette-a4: var(--colors-orange-a4);
-  --colors-color-palette-a5: var(--colors-orange-a5);
-  --colors-color-palette-a6: var(--colors-orange-a6);
-  --colors-color-palette-a7: var(--colors-orange-a7);
-  --colors-color-palette-a8: var(--colors-orange-a8);
-  --colors-color-palette-a9: var(--colors-orange-a9);
-  --colors-color-palette-a10: var(--colors-orange-a10);
-  --colors-color-palette-a11: var(--colors-orange-a11);
-  --colors-color-palette-a12: var(--colors-orange-a12);
-  /* semantic slots */
-  --colors-color-palette-solid-bg: var(--colors-orange-solid-bg);
-  --colors-color-palette-solid-bg-hover: var(--colors-orange-solid-bg-hover);
-  --colors-color-palette-solid-bg-active: var(--colors-orange-solid-bg);
-  --colors-color-palette-solid-fg: var(--colors-orange-solid-fg);
-  --colors-color-palette-subtle-bg: var(--colors-orange-subtle-bg);
-  --colors-color-palette-subtle-bg-hover: var(--colors-orange-subtle-bg-hover);
-  --colors-color-palette-subtle-bg-active: var(--colors-orange-subtle-bg-active);
-  --colors-color-palette-subtle-fg: var(--colors-orange-subtle-fg);
-  --colors-color-palette-surface-bg: var(--colors-orange-surface-bg);
-  --colors-color-palette-surface-bg-hover: var(--colors-orange-surface-bg);
-  --colors-color-palette-surface-bg-active: var(--colors-orange-surface-bg-active);
-  --colors-color-palette-surface-border: var(--colors-orange-surface-border);
-  --colors-color-palette-surface-border-hover: var(--colors-orange-surface-border-hover);
-  --colors-color-palette-surface-fg: var(--colors-orange-surface-fg);
-  --colors-color-palette-outline-bg-hover: var(--colors-orange-outline-bg-hover);
-  --colors-color-palette-outline-bg-active: var(--colors-orange-outline-bg-active);
-  --colors-color-palette-outline-border: var(--colors-orange-outline-border);
-  --colors-color-palette-outline-fg: var(--colors-orange-outline-fg);
-  --colors-color-palette-plain-bg-hover: var(--colors-orange-plain-bg-hover);
-  --colors-color-palette-plain-bg-active: var(--colors-orange-plain-bg-active);
-  --colors-color-palette-plain-fg: var(--colors-orange-plain-fg);
+  --colors-color-palette-1: #fefcfb;
+  --colors-color-palette-2: #fff7ed;
+  --colors-color-palette-3: #ffefd6;
+  --colors-color-palette-4: #ffdfb5;
+  --colors-color-palette-5: #ffd19a;
+  --colors-color-palette-6: #ffc182;
+  --colors-color-palette-7: #f5ae73;
+  --colors-color-palette-8: #ec9455;
+  --colors-color-palette-9: #f76b15;
+  --colors-color-palette-10: #ef5f00;
+  --colors-color-palette-11: #cc4e00;
+  --colors-color-palette-12: #582d1d;
+  --colors-color-palette-a1: #c0400004;
+  --colors-color-palette-a2: #ff8e0012;
+  --colors-color-palette-a3: #ff9c0029;
+  --colors-color-palette-a4: #ff91014a;
+  --colors-color-palette-a5: #ff8b0065;
+  --colors-color-palette-a6: #ff81007d;
+  --colors-color-palette-a7: #ed6c008c;
+  --colors-color-palette-a8: #e35f00aa;
+  --colors-color-palette-a9: #f65e00ea;
+  --colors-color-palette-a10: #ef5f00;
+  --colors-color-palette-a11: #cc4e00;
+  --colors-color-palette-a12: #431200e2;
+  --colors-color-palette-solid-bg: #f76b15;
+  --colors-color-palette-solid-bg-hover: #ef5f00;
+  --colors-color-palette-solid-fg: white;
+  --colors-color-palette-subtle-bg: #ff9c0029;
+  --colors-color-palette-subtle-bg-hover: #ff91014a;
+  --colors-color-palette-subtle-bg-active: #ff8b0065;
+  --colors-color-palette-subtle-fg: #cc4e00;
+  --colors-color-palette-surface-bg: #ff8e0012;
+  --colors-color-palette-surface-bg-active: #ff9c0029;
+  --colors-color-palette-surface-border: #ff81007d;
+  --colors-color-palette-surface-border-hover: #ed6c008c;
+  --colors-color-palette-surface-fg: #cc4e00;
+  --colors-color-palette-outline-bg-hover: #ff8e0012;
+  --colors-color-palette-outline-bg-active: #ff9c0029;
+  --colors-color-palette-outline-border: #ff8e0012;
+  --colors-color-palette-outline-fg: #cc4e00;
+  --colors-color-palette-plain-bg-hover: #ff9c0029;
+  --colors-color-palette-plain-bg-active: #ff91014a;
+  --colors-color-palette-plain-fg: #cc4e00;
+}
+
+[data-color-scheme='orange'][data-mode='dark'] {
+  --colors-color-palette-1: #17120e;
+  --colors-color-palette-2: #1e160f;
+  --colors-color-palette-3: #331e0b;
+  --colors-color-palette-4: #462100;
+  --colors-color-palette-5: #562800;
+  --colors-color-palette-6: #66350c;
+  --colors-color-palette-7: #7e451d;
+  --colors-color-palette-8: #a35829;
+  --colors-color-palette-9: #f76b15;
+  --colors-color-palette-10: #ff801f;
+  --colors-color-palette-11: #ffa057;
+  --colors-color-palette-12: #ffe0c2;
+  --colors-color-palette-a1: #ec360007;
+  --colors-color-palette-a2: #fe6d000e;
+  --colors-color-palette-a3: #fb6a0025;
+  --colors-color-palette-a4: #ff590039;
+  --colors-color-palette-a5: #ff61004a;
+  --colors-color-palette-a6: #fd75045c;
+  --colors-color-palette-a7: #ff832c75;
+  --colors-color-palette-a8: #fe84389d;
+  --colors-color-palette-a9: #fe6d15f7;
+  --colors-color-palette-a10: #ff801f;
+  --colors-color-palette-a11: #ffa057;
+  --colors-color-palette-a12: #ffe0c2;
+  --colors-color-palette-solid-bg: #f76b15;
+  --colors-color-palette-solid-bg-hover: #ff801f;
+  --colors-color-palette-solid-fg: white;
+  --colors-color-palette-subtle-bg: #fb6a0025;
+  --colors-color-palette-subtle-bg-hover: #ff590039;
+  --colors-color-palette-subtle-bg-active: #ff61004a;
+  --colors-color-palette-subtle-fg: #ffa057;
+  --colors-color-palette-surface-bg: #fe6d000e;
+  --colors-color-palette-surface-bg-active: #fb6a0025;
+  --colors-color-palette-surface-border: #fd75045c;
+  --colors-color-palette-surface-border-hover: #ff832c75;
+  --colors-color-palette-surface-fg: #ffa057;
+  --colors-color-palette-outline-bg-hover: #fe6d000e;
+  --colors-color-palette-outline-bg-active: #fb6a0025;
+  --colors-color-palette-outline-border: #fe6d000e;
+  --colors-color-palette-outline-fg: #ffa057;
+  --colors-color-palette-plain-bg-hover: #fb6a0025;
+  --colors-color-palette-plain-bg-active: #ff590039;
+  --colors-color-palette-plain-fg: #ffa057;
 }

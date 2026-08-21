@@ -10,20 +10,20 @@ export const pullTab = defineRecipe({
     // pull-tab wrapper provides the modal stacking level.
     position: 'absolute',
     top: '0.5rem',
-    left: 'calc(100% - 12px)',
+    right: 'calc(100% - 12px)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingLeft: '6px',
+    paddingRight: '6px',
     width: '54px',
     height: '48px',
-    borderRadius: 'l1',
+    borderRadius: 'l2',
     background: 'var(--sidebar-bg)',
     border: 'none',
     color: 'var(--sidebar-fg)',
     cursor: 'grab',
     boxShadow:
-      '4px 2px 4px var(--colors-gray-a1), 2px 2px 1px var(--colors-gray-a1)',
+      '-1px -1px 0px 0px var(--colors-color-palette-4), -10px 0px 12px var(--colors-black-a1)',
     transition: 'transform 200ms ease, background-color 150ms ease, border-color 150ms ease',
     userSelect: 'none',
     _hover: {
@@ -41,9 +41,9 @@ export const pullTab = defineRecipe({
     _before: {
       content: '" "',
       position: 'absolute',
-      background: 'var(--colors-gray-a4)',
+      background: 'var(--colors-black-a5)',
       borderRadius: 'l2',
-      inset: '0px 3px 3px 6px',
+      inset: '0px 16px 3px 3px',
       // z-index:-1 escapes to the wrapper's stacking context (the button must
       // not create its own) so this paints behind the WHOLE button — its
       // background AND icon — yet still above the page.
@@ -51,8 +51,8 @@ export const pullTab = defineRecipe({
       pointerEvents: 'none',
       // The tab background is opaque, so a flush ::before would be fully
       // hidden. Offset it so it peeks out below/right as a cast shadow.
-      transform: 'skew(7deg, 13deg) translate(1px, 8px)',
-      filter: 'blur(3px)',
+      transform: 'skew(-7deg, -10deg) translate(1px, 8px)',
+      filter: 'blur(7px)',
     },
   },
 })

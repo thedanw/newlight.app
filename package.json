@@ -4,13 +4,15 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "prepare": "panda codegen",
-    "dev": "vite",
-    "build": "tsc -b && vite build",
+    "prepare": "panda codegen && node scripts/generate-theme-colors.mjs",
+    "dev": "node scripts/generate-theme-colors.mjs && vite",
+    "build": "node scripts/generate-theme-colors.mjs && tsc -b && vite build",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "lint:tokens": "node scripts/lint-tokens.mjs",
     "preview": "vite preview",
     "typecheck": "tsc -b",
-    "panda": "panda codegen"
+    "panda": "panda codegen",
+    "theme:colors": "node scripts/generate-theme-colors.mjs"
   },
   "dependencies": {
     "@ark-ui/react": "^5.38.1",

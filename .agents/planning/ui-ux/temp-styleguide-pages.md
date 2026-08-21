@@ -24,7 +24,7 @@ Solo developer + small-context LLM agents refining the DS; future contributors.
 ## Constraints
 - Lab-only: no router, no modules/registry/barrel, no aliases, no CI, no Supabase (ui-ux 4.1); SG lives under `src/styleguide/*` (temporary)
 - Navigation exercises the planned panel stack (ui-ux 8.1–8.4) + SlidePanel (ui-ux 9.1–9.4) so patterns are proven in-lab before Phase 1
-- Sidebar = static waffle mock with icons + labels (ui-ux 7.1–7.13); tapping a not-built module opens a 'not-built' SlidePanel; the Style Guide is NOT a sidebar tile — it is the SG button at the bottom of the brand form (decision.md 10.13)
+- Sidebar = static mock with icons + labels (ui-ux 7.1–7.13); tapping a not-built module opens a 'not-built' SlidePanel; the Style Guide is NOT a sidebar tile — it is the SG button at the bottom of the brand form (decision.md 10.13)
 - SG button (bottom of brand form) opens the SG Dashboard → always reachable via the customizer, same as the final app
 - Every Park UI component (62, from `@park-ui/cli` barrel) appears across the Dashboard + 8 category subpages, grouped by Park UI category; each appears in a natural context (overlays attached to buttons/iconButton/Clipboard; e.g. Toast on copy)
 - Layout = Dashboard (TOC hub) + 8 category subpages, NOT limited to 3; breadcrumb on EVERY page header
@@ -57,7 +57,7 @@ Solo developer + small-context LLM agents refining the DS; future contributors.
 3 Group components by Park UI category across 8 subpages (one per category) → mirrors upstream storybook; easy cross-reference
 4 Catalog ALL 62 shipped Park UI components (every component appears ≥ once) → proves vendored DS is complete + surfaces missing/edge recipes (ui-ux 3.1)
 5 Allocate: Dashboard = TOC hub (Cards per category); 8 subpages = Layout / Buttons / Typography / Forms / Feedback / Overlays / Navigation / Display → balanced panel depth; each component shown in a natural context
-6 Sidebar mock = People / Groups / Services / Calendar + Admin-Settings tiles (icons+labels); NO Style Guide tile → styleguide is a brand-form button (decision.md 10.13); waffle proven with the planned module set (ui-ux 7.1)
+6 Sidebar mock = People / Groups / Services / Calendar tiles (icons+labels) with account avatar in footer; NO Style Guide tile → styleguide is a brand-form button (decision.md 10.13); sidebar proven with the planned module set (ui-ux 7.1)
 7 Tapping a not-built module → SlidePanel 'normal' "not built yet" placeholder → reuses DS overlay; no dead UI
 8 Style Guide button at the bottom of the brand form opens SG Dashboard → styleguide always reachable via the customizer, not a user-facing nav tile (decision.md 10.13)
 9 Put SlidePanel variant demo buttons on the Dashboard (normal/fullscreen/immersive) → proves the DS trio (ui-ux 9.1–9.4) with live examples
@@ -88,7 +88,7 @@ Solo developer + small-context LLM agents refining the DS; future contributors.
 34 Use AbsoluteCenter for the empty / no-results state → natural home for the layout primitive
 35 Lock a per-subpage template: one Card per component in a responsive grid; Forms (24) grouped into Accordion sections by sub-group → consistent, scannable catalog (resolves gap #1)
 36 Add TOC search via the toolPanel filter (Input + Field) that live-filters the TOC Cards/Table → find any component by name (resolves gap #2)
-37 Use lucide icons for mock tiles: People=Users, Groups=UsersRound, Services=Wrench, Calendar=CalendarDays, Admin-Settings=Settings2 → matches Park UI examples + module semantics (resolves gap #3)
+37 Use lucide icons for mock tiles: People=Users, Groups=UsersRound, Services=Wrench, Calendar=CalendarDays → matches Park UI examples + module semantics (resolves gap #3)
 38 Structure `src/styleguide/` as: `App.tsx` (SG shell + panel stack), `pages/Dashboard.tsx` + `pages/<category>.tsx` (8), `BrandForm.tsx`, `toc.ts` (index data) → patterns port into `src/core/ui` (resolves gap #4)
 39 Keep the SG in the final app as a dev aid: mounted behind the brand form's SG button, super-admin gated → aligns with decision.md 10.13; not a user nav tile (resolves gap #5)
 40 Logo upload = Park UI FileUpload.Dropzone (drag-drop + click), 1 file, size-limited, preview in the brand slot; object URL in-lab → ports to Storage (resolves gap #6)

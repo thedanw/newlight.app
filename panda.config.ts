@@ -17,6 +17,14 @@ const { orange, neutral, red } = colorPackages
 export default defineConfig({
   preflight: true,
   hash: false,
+
+  // Typo protection: enum-like props (display, position, overflow, …) only
+  // accept valid CSS values. NOTE: `strictTokens` was evaluated and rejected
+  // for now — see scripts/lint-tokens.mjs for the token-discipline gate that
+  // replaces it (raw-value auditing without breaking pristine Park UI
+  // vendor files or hitting TS2590 union-complexity limits).
+  strictPropertyValues: true,
+
   include: ['./src/**/*.{ts,tsx}', './pages/**/*.{js,jsx,ts,tsx}'],
   exclude: [],
   outdir: 'styled-system',
@@ -62,6 +70,11 @@ export default defineConfig({
           neutral: neutral,
           orange: orange,
           red: red,
+          // NOTE: only these four palettes are bundled as Panda semantic
+          // tokens (:root defaults). Every OTHER Park UI palette stays
+          // runtime-only — compiled to public/core/theme/colors/<name>.css by
+          // scripts/generate-theme-colors.mjs and loaded on demand by
+          // theme-loader.js. Do NOT register them here.
         },
         shadows: shadows,
 

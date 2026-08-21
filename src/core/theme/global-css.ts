@@ -11,7 +11,7 @@ export const globalCss = {
       fontFamily: 'var(--font-family-base)',
     },
     body: {
-      background: 'canvas',
+      background: 'var(--canvas-bg)',
       color: 'fg.default',
     },
   },

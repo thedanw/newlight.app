@@ -12,7 +12,6 @@
 
 [data-heading-style*='uppercase'] {
   --heading-text-transform: uppercase;
-  --heading-letter-spacing: 0.03em;
 }
 
 [data-heading-style*='accent'] {

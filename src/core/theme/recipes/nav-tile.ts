@@ -9,16 +9,16 @@ export const navTile = defineRecipe({
     alignItems: 'center',
     justifyContent: 'center',
     gap: '1.5',
-    width: '90px',
-    height: '90px',
+    width: '66px',
+    height: '66px',
     padding: '0',
-    borderRadius: 'lg',
+    borderRadius: 'l2',
     background: 'transparent',
     border: 'none',
     cursor: 'pointer',
     fontWeight: 'bold',
     textAlign: 'center',
-    lineHeight: '1.2',
+    lineHeight: '1',
     transition: 'background-color 150ms ease, color 150ms ease',
     userSelect: 'none',
     _hover: {
@@ -31,6 +31,11 @@ export const navTile = defineRecipe({
     _focusVisible: {
       outline: '2px solid var(--sidebar-accent)',
       outlineOffset: '2px',
+    },
+    // Icon size
+    '& > *:first-child': {
+      width: '24px',
+      height: '24px',
     },
   },
   variants: {

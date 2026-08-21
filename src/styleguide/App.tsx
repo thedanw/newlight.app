@@ -3,12 +3,11 @@ import { useRef, useState, type ReactNode } from 'react'
 import { AnimatePresence, motion, useReducedMotion, type Variants } from 'framer-motion'
 import {
   ChevronLeftIcon,
-  SlidersHorizontalIcon,
 } from 'lucide-react'
 import { css } from 'styled-system/css'
 import { token } from 'styled-system/tokens'
 import { HStack, Stack } from 'styled-system/jsx'
-import { Avatar, Breadcrumb, CloseButton, Dialog, Drawer, Heading, IconButton, Menu, Text, Toaster, WaffleSidebar } from '@/core/ui'
+import { Breadcrumb, CloseButton, Dialog, Drawer, Heading, IconButton, Text, Toaster, Sidebar } from '@/core/ui'
 import { BrandForm } from './BrandForm'
 import { Dashboard } from './pages/Dashboard'
 import { CategoryPage } from './pages/Category'
@@ -16,7 +15,7 @@ import { type TocCategory } from './toc'
 
 /* ---------------------------------------------------------------------------
    Styleguide shell (temp-styleguide #38) — the app root while the lab runs.
-   Waffle sidebar + `#page-panel` header (breadcrumbs) + a component-level
+   Sidebar + `#page-panel` header (breadcrumbs) + a component-level
    push/pop panel stack (no router) via AnimatePresence. The Dashboard's
    overlay demos open native Park UI Dialog/Drawer overlays.
 --------------------------------------------------------------------------- */
@@ -49,7 +48,7 @@ const shellCss = css({
   display: 'flex',
   height: '100dvh',
   overflow: 'hidden',
-  bg: 'canvas',
+  bg: 'var(--canvas-bg)',
   color: 'fg.default',
 })
 
@@ -60,9 +59,9 @@ const pagePanelCss = css({
   minWidth: '0',
   height: '100%',
   overflow: 'hidden',
-  marginLeft: '5px',
+  marginRight: '5px',
   '@media (min-width: 1280px)': {
-    marginLeft: 'var(--dynamic-sidebar-width, 100px)',
+    marginRight: 'var(--dynamic-sidebar-width, 100px)',
   },
 })
 
@@ -75,9 +74,9 @@ const pageHeaderCss = css({
   py: '3',
   borderBottom: '1px solid var(--colors-border)',
   flexShrink: '0',
-  marginLeft: '44px', /* leave space for sidebar pull tab */
+  marginRight: '44px', /* leave space for sidebar pull tab */
   '@media (min-width: 1280px)': {
-    marginLeft: '0px',
+    marginRight: '0px',
   },
 })
 
@@ -155,8 +154,8 @@ export default function StyleguideApp() {
 
   return (
     <div className={shellCss}>
-      {/* Waffle sidebar */}
-      <WaffleSidebar />
+      {/* Sidebar */}
+      <Sidebar onBrandSettings={openBrandForm} />
 
       {/* #page-panel — header + push/pop stack */}
       <div id="page-panel" className={pagePanelCss}>
@@ -169,46 +168,7 @@ export default function StyleguideApp() {
             )}
           </HStack>
 
-          {/* Header kebab (decision #29/#46): avatar trigger + brand settings */}
-          <Menu.Root
-            positioning={{ placement: 'bottom-end' }}
-            onSelect={(details) => {
-              if (details.value === 'brand-settings') openBrandForm()
-            }}
-          >
-            <Menu.Trigger asChild>
-              <IconButton variant="plain" colorPalette="gray" aria-label="Account menu">
-                <Avatar.Root size="xs">
-                  <Avatar.Fallback name="Design Lab" />
-                </Avatar.Root>
-              </IconButton>
-            </Menu.Trigger>
-            <Menu.Positioner>
-              <Menu.Content minWidth="13rem">
-                <Menu.ItemGroup id="account">
-                  <Menu.ItemGroupLabel>
-                    <HStack gap="2">
-                      <Avatar.Root size="2xs">
-                        <Avatar.Fallback name="Design Lab" />
-                      </Avatar.Root>
-                      <Stack gap="0">
-                        <Text textStyle="sm" fontWeight="semibold">
-                          Design Lab
-                        </Text>
-                        <Text textStyle="xs" color="fg.muted">
-                          New Light
-                        </Text>
-                      </Stack>
-                    </HStack>
-                  </Menu.ItemGroupLabel>
-                  <Menu.Item value="brand-settings">
-                    <SlidersHorizontalIcon />
-                    <Menu.ItemText>Brand settings</Menu.ItemText>
-                  </Menu.Item>
-                </Menu.ItemGroup>
-              </Menu.Content>
-            </Menu.Positioner>
-          </Menu.Root>
+
         </header>
 
         <div className={contentCss}>

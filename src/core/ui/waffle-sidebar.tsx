@@ -65,7 +65,9 @@ const sidebarCss = css({
   borderRight: '1px solid var(--sidebar-border)',
   overflow: 'hidden',
   contain: 'layout style',
-  boxShadow: 'lg',
+  boxShadow:
+    '8px 0px 16px var(--colors-gray-a7),0px 0px 1px var(--colors-gray-a7)',
+  width: 'max-content',
 })
 
 const pullTabWrapperCss = css({
@@ -107,7 +109,7 @@ const brandHeaderCss = css({
   alignItems: 'center',
   justifyContent: 'center',
   gap: '1.5',
-  p: '2.5',
+  p: '1rem',
   borderBottom: '1px solid var(--sidebar-border)',
 })
 
@@ -124,6 +126,10 @@ const brandLogoCss = css({
 function WaffleSidebarInner() {
   const { isOpen, open, close, toggle } = useNavContext()
   const sidebarRef = useRef<HTMLDivElement>(null)
+  // The waffle grid's rendered width (NOT the sidebar's own width) is the
+  // source of truth for how wide the sidebar must be — see the measure
+  // effect below.
+  const gridRef = useRef<HTMLElement>(null)
   const [sidebarWidth, setSidebarWidth] = useState(SIDEBAR_MIN_WIDTH)
   const [isDragging, setIsDragging] = useState(false)
   const dragStartTimeRef = useRef(0)
@@ -228,21 +234,56 @@ function WaffleSidebarInner() {
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
-  // Measure sidebar width on mount and resize
+  // Measure the waffle GRID's content width and adapt the sidebar to fit it.
+  // The grid is grid-auto-flow:column with auto-fill rows, so its content
+  // width (in px) tracks how many columns it wraps into — which depends on the
+  // available height (short viewport → more columns → wider sidebar).
+  //
+  // Content width = left padding + columns × track size + right padding. We
+  // count the columns from the actual rendered tile positions (ground truth
+  // the browser always keeps correct, even after runtime resizes — unlike
+  // offsetWidth/scrollWidth of a `width:max-content` box, which can go stale
+  // or get polluted by the box width itself) and read track/padding from the
+  // computed styles so it stays in sync with waffleGridCss. The grid box is
+  // pinned to the same width (inline style in the JSX) so its overflowX:hidden
+  // can never clip the wrapped columns.
   useEffect(() => {
     const measure = () => {
-      if (sidebarRef.current) {
-        const width = Math.max(sidebarRef.current.offsetWidth, SIDEBAR_MIN_WIDTH)
+      const grid = gridRef.current ?? sidebarRef.current
+      if (grid) {
+        const cs = getComputedStyle(grid)
+        const track = parseFloat(cs.gridAutoColumns) || 90
+        const padL = parseFloat(cs.paddingLeft) || 0
+        const padR = parseFloat(cs.paddingRight) || 0
+        const gridLeft = grid.getBoundingClientRect().left
+        const cols = new Set(
+          Array.from(grid.children).map((child) =>
+            Math.round(child.getBoundingClientRect().left - gridLeft),
+          ),
+        ).size
+        const width = Math.max(padL + cols * track + padR, SIDEBAR_MIN_WIDTH)
         setSidebarWidth(width)
         // Publish CSS variable for #page-panel offset
         document.documentElement.style.setProperty('--dynamic-sidebar-width', `${width}px`)
       }
     }
-    
+
     measure()
+    // Re-measure on layout changes. The grid's size and the sidebar's height
+    // (which tracks the viewport) both change when the viewport resizes, so
+    // ResizeObserver catches the re-wrap; the window resize listener is a
+    // fallback for environments where RO delivery is throttled.
     const ro = new ResizeObserver(measure)
+    if (gridRef.current) ro.observe(gridRef.current)
     if (sidebarRef.current) ro.observe(sidebarRef.current)
-    return () => ro.disconnect()
+    window.addEventListener('resize', measure)
+    // Exposed for the design-lab automation harness (same pattern as __navDebug).
+    ;(window as any).__navMeasureNow = measure
+    return () => {
+      ro.disconnect()
+      window.removeEventListener('resize', measure)
+      delete (window as any).__navMeasureNow
+    }
   }, [])
 
   // Calculate closed position (5px peek)
@@ -332,13 +373,13 @@ function WaffleSidebarInner() {
           <div className={brandLogoCss} style={{ background: 'var(--sidebar-accent)' }}>
             <Sun className={css({ width: '20px', height: '20px', color: 'var(--sidebar-accent-fg)' })} />
           </div>
-          <Text textStyle="sm" fontWeight="bold" color="var(--sidebar-fg)" textAlign="center">
+          <Text textStyle="xs" fontWeight="bold" color="var(--sidebar-fg)" textAlign="center">
             New Light
           </Text>
         </div>
 
         {/* Waffle grid */}
-        <nav className={waffleGridCss} aria-label="Modules">
+        <nav ref={gridRef} className={waffleGridCss} style={{ width: sidebarWidth }} aria-label="Modules">
           {MODULES.slice(0, -1).map((module) => {
             const ModuleIcon = module.icon
             return (

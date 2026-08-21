@@ -11,11 +11,13 @@ import {
 
 /* ---------------------------------------------------------------------------
    TOC — category → components index for the Styleguide Dashboard.
-   Type-safe data only; no UI. Batch 7 ships the FULL catalog (63 components,
+   Type-safe data only; no UI. Batch 7 ships the FULL catalog (66 components,
    all vendored + demonstrated in `src/styleguide/pages/demos.tsx`).
-   Counts by category: Layout 3 · Buttons 5 · Typography 5 · Forms 24 ·
-   Feedback 6 · Overlays 6 · Navigation 8 · Display 6.
+   Counts by category: Layout 12 · Buttons & Navigation 7 · Typography 8 ·
+   Forms 24 · Feedback 6 · Overlays 6 · Display 3.
    `group` (Forms/Navigation) drives Accordion sections in SubpageTemplate.
+   Typography renders a bespoke specimen page (TypographyShowcase); each
+   component there is a deep-link anchor (`#component-<name>`).
 --------------------------------------------------------------------------- */
 
 export type TocComponent = {
@@ -86,13 +88,16 @@ export const tocCategories: TocCategory[] = [
     id: 'typography',
     name: 'Typography',
     icon: Type,
-    description: 'Text, headings and keyboard input affordances.',
+    description: 'The type scale and text primitives — headings, body copy and inline affordances.',
     components: [
-      { name: 'Code', description: 'Inline code snippet.', shipped: true },
-      { name: 'Heading', description: 'Section heading (textStyle xs–7xl).', shipped: true },
-      { name: 'Kbd', description: 'Keyboard key / shortcut.', shipped: true },
-      { name: 'Link', description: 'Anchor / inline link.', shipped: true },
-      { name: 'Text', description: 'Body text primitive.', shipped: true },
+      { name: 'DisplayHeading', description: 'Display scale — textStyle 4xl–7xl.', shipped: true },
+      { name: 'Heading', description: 'Semantic section headings — textStyle xs–3xl.', shipped: true },
+      { name: 'Subheading', description: 'Subheadings, labels and eyebrow overlines.', shipped: true },
+      { name: 'Text', description: 'Body copy primitive — lead, body and small.', shipped: true },
+      { name: 'Caption', description: 'Caption / meta text — textStyle xs, muted.', shipped: true },
+      { name: 'Code', description: 'Inline code — five variants across four sizes.', shipped: true },
+      { name: 'Kbd', description: 'Keyboard keys / shortcuts — five variants.', shipped: true },
+      { name: 'Link', description: 'Anchors and inline links — underline & plain.', shipped: true },
     ],
   },
   {

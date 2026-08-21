@@ -17,7 +17,6 @@ import {
   Checkbox,
   Field,
   FileUpload,
-  Heading,
   Icon,
   RadioCardGroup,
   Select,
@@ -325,9 +324,14 @@ export function BrandForm({ logo, onApplyLogo, onClose }: BrandFormProps) {
         </Field.HelperText>
       </Field.Root>
 
-      {/* Brand slot preview (Avatar or Image, decision #33) */}
+      {/* Brand slot preview (Avatar or Image, decision #33). Logo rule:
+          transparent background behind a logo — strip the Avatar recipe bg
+          whenever an image is shown; keep it for the initials fallback. */}
       <HStack gap="3">
-        <Avatar.Root size="lg">
+        <Avatar.Root
+          size="lg"
+          style={previewLogo ? { background: 'transparent' } : undefined}
+        >
           {previewLogo ? <Avatar.Image src={previewLogo} alt="Logo" /> : null}
           <Avatar.Fallback name="New Light" />
         </Avatar.Root>
@@ -366,7 +370,7 @@ export function BrandForm({ logo, onApplyLogo, onClose }: BrandFormProps) {
         </HStack>
         <Field.HelperText>Flips the whole shell between light and dark.</Field.HelperText>
       </Field.Root>
-      
+
       {/* 7 — Sidebar style (decision #45/#60) */}
       <ThemeSelect
         label="Sidebar style"

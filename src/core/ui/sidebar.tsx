@@ -410,7 +410,20 @@ function SidebarInner({ onBrandSettings, logo }: SidebarInnerProps) {
         {/* Brand header - single 66x66 tile with logo + name */}
         <div className={brandHeaderCss}>
           <div className={brandTileCss}>
-            <div style={{ background: 'var(--sidebar-accent)', borderRadius: 'var(--radii-l2)', display: 'grid', placeItems: 'center', width: '40px', height: '40px', overflow: 'hidden' }}>
+            {/* Logo rule: never paint a background behind a logo — transparent
+                PNG/SVG marks must sit directly on the sidebar surface. The
+                accent tile is reserved for the Sun fallback mark. */}
+            <div
+              style={{
+                background: logo ? 'transparent' : 'var(--sidebar-accent)',
+                borderRadius: 'var(--radii-l2)',
+                display: 'grid',
+                placeItems: 'center',
+                width: '40px',
+                height: '40px',
+                overflow: 'hidden',
+              }}
+            >
               {logo ? (
                 <img
                   src={logo}

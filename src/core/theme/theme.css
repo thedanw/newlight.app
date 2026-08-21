@@ -40,9 +40,12 @@
   --canvas-fg: var(--colors-fg-default);
 }
 
-/* Font optimization - Inter variable font with display swap */
+/* Font optimization - Inter variable font with display swap.
+   --font-family-heading is set per-brand-font by font-loader.ts (Inter
+   headings use the InterDisplay cut); this is the pre-JS default. */
 :root {
-  font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  font-family: 'InterVariable', 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-family-heading: 'InterDisplay', 'InterVariable', 'Inter', ui-sans-serif, system-ui, sans-serif;
   font-feature-settings: 'cv11', 'ss01';
   font-display: swap; /* Optimize font loading performance */
 }
@@ -159,7 +162,7 @@
 :root {
   --heading-font-weight: var(--font-weights-semibold);
   --heading-text-transform: none;
-  --heading-letter-spacing: normal;
+  --heading-letter-spacing: -0.03em;
   --heading-color: var(--colors-fg-default);
 }
 
@@ -169,7 +172,7 @@
 
 [data-heading-style*='uppercase'] {
   --heading-text-transform: uppercase;
-  --heading-letter-spacing: 0.03em;
+  --heading-letter-spacing: 0em;
 }
 
 [data-heading-style*='accent'] {
@@ -181,6 +184,7 @@
    so this only fills the gap for raw elements. */
 h1, h2, h3, h4, h5, h6 {
   color: var(--heading-color);
+  font-family: var(--font-family-heading);
   font-weight: var(--heading-font-weight);
   letter-spacing: var(--heading-letter-spacing);
   text-transform: var(--heading-text-transform);

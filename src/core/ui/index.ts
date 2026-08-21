@@ -2,6 +2,7 @@ export { AbsoluteCenter, type AbsoluteCenterProps } from "./absolute-center";
 export * as Accordion from "./accordion";
 export * as Alert from "./alert";
 export * as Avatar from "./avatar";
+export { BackButton, type BackButtonProps } from "./back-button";
 export { Badge, type BadgeProps } from "./badge";
 export * as Breadcrumb from "./breadcrumb";
 export { Button, ButtonGroup, type ButtonGroupProps, type ButtonProps } from "./button";

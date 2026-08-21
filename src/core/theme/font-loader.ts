@@ -22,6 +22,31 @@ export const FONT_FAMILIES: Record<FontKey, string> = {
   'dm-sans': "'DM Sans', 'Inter', ui-sans-serif, system-ui, sans-serif",
 }
 
+/**
+ * Heading stacks — Inter headings use the display cut (large optical size,
+ * shipped as the `InterDisplay` static family in rsms inter.css); every
+ * other brand font uses its body stack for headings too.
+ */
+export const FONT_HEADING_FAMILIES: Record<FontKey, string> = {
+  inter: "'InterDisplay', 'InterVariable', 'Inter', ui-sans-serif, system-ui, sans-serif",
+  poppins: FONT_FAMILIES.poppins,
+  raleway: FONT_FAMILIES.raleway,
+  'dm-sans': FONT_FAMILIES['dm-sans'],
+}
+
+/**
+ * OpenType character-set features applied to ALL text while the font is
+ * active (font-feature-settings inherits). Inter ships alternate glyphs for
+ * these; other fonts have none configured and fall back to the theme.css
+ * :root default.
+ */
+const FONT_FEATURES: Record<FontKey, string> = {
+  inter: "'cv06' 1, 'cv11' 1, 'cv12' 1, 'cv13' 1, 'ss07' 1, 'ss08' 1",
+  poppins: '',
+  raleway: '',
+  'dm-sans': '',
+}
+
 export const FONT_OPTIONS: Array<{ label: string; value: FontKey }> = [
   { label: 'Inter', value: 'inter' },
   { label: 'Poppins', value: 'poppins' },
@@ -87,7 +112,14 @@ export function ensureFontLoaded(font: FontKey): void {
 /** Loads the family AND applies it to <html> — body + headings inherit. */
 export function applyFont(font: FontKey): void {
   ensureFontLoaded(font)
-  document.documentElement.style.fontFamily = FONT_FAMILIES[font]
+  const root = document.documentElement
+  root.style.fontFamily = FONT_FAMILIES[font]
+  // Headings read this var (heading recipe + theme.css h1-h6 rule); the
+  // default lives in theme.css §0 so pre-JS render is sane.
+  root.style.setProperty('--font-family-heading', FONT_HEADING_FAMILIES[font])
+  // Applies to ALL text via inheritance. '' clears the inline declaration so
+  // non-Inter fonts fall back to the theme.css :root feature set.
+  root.style.fontFeatureSettings = FONT_FEATURES[font]
 }
 
 /** Reads the live inline font-family back into a FontKey (boot restore). */

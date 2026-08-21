@@ -196,9 +196,11 @@ const brandTileCss = css({
 
 interface SidebarInnerProps {
   onBrandSettings?: () => void
+  /** Committed brand logo URL — replaces the Sun mark in the brand slot. */
+  logo?: string | null
 }
 
-function SidebarInner({ onBrandSettings }: SidebarInnerProps) {
+function SidebarInner({ onBrandSettings, logo }: SidebarInnerProps) {
   const { isOpen, open, close, toggle } = useNavContext()
   const sidebarRef = useRef<HTMLDivElement>(null)
   const [isDragging, setIsDragging] = useState(false)
@@ -408,8 +410,16 @@ function SidebarInner({ onBrandSettings }: SidebarInnerProps) {
         {/* Brand header - single 66x66 tile with logo + name */}
         <div className={brandHeaderCss}>
           <div className={brandTileCss}>
-            <div style={{ background: 'var(--sidebar-accent)', borderRadius: 'var(--radii-l2)', display: 'grid', placeItems: 'center', width: '40px', height: '40px' }}>
-              <Sun className={css({ width: '24px', height: '24px', color: 'var(--sidebar-accent-fg)' })} />
+            <div style={{ background: 'var(--sidebar-accent)', borderRadius: 'var(--radii-l2)', display: 'grid', placeItems: 'center', width: '40px', height: '40px', overflow: 'hidden' }}>
+              {logo ? (
+                <img
+                  src={logo}
+                  alt="Brand logo"
+                  className={css({ width: '100%', height: '100%', objectFit: 'contain' })}
+                />
+              ) : (
+                <Sun className={css({ width: '24px', height: '24px', color: 'var(--sidebar-accent-fg)' })} />
+              )}
             </div>
           </div>
         </div>
@@ -498,12 +508,14 @@ function SidebarInner({ onBrandSettings }: SidebarInnerProps) {
 
 interface SidebarProps {
   onBrandSettings?: () => void
+  /** Committed brand logo URL — shown in the brand slot instead of the Sun. */
+  logo?: string | null
 }
 
-export function Sidebar({ onBrandSettings }: SidebarProps) {
+export function Sidebar({ onBrandSettings, logo }: SidebarProps) {
   return (
     <NavProvider>
-      <SidebarInner onBrandSettings={onBrandSettings} />
+      <SidebarInner onBrandSettings={onBrandSettings} logo={logo} />
     </NavProvider>
   )
 }

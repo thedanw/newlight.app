@@ -1,13 +1,10 @@
 'use client'
-import { useRef, useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { AnimatePresence, motion, useReducedMotion, type Variants } from 'framer-motion'
-import {
-  ChevronLeftIcon,
-} from 'lucide-react'
 import { css } from 'styled-system/css'
 import { token } from 'styled-system/tokens'
 import { HStack, Stack } from 'styled-system/jsx'
-import { Breadcrumb, CloseButton, Dialog, Drawer, Heading, IconButton, Text, Toaster, Sidebar } from '@/core/ui'
+import { BackButton, Breadcrumb, CloseButton, Dialog, Drawer, Heading, Text, Toaster, Sidebar } from '@/core/ui'
 import { BrandForm } from './BrandForm'
 import { Dashboard } from './pages/Dashboard'
 import { CategoryPage } from './pages/Category'
@@ -71,7 +68,7 @@ const pageHeaderCss = css({
   justifyContent: 'space-between',
   gap: '3',
   px: '6',
-  py: '3',
+  py: '2',
   borderBottom: '1px solid var(--colors-border)',
   flexShrink: '0',
   marginRight: '44px', /* leave space for sidebar pull tab */
@@ -136,6 +133,21 @@ export default function StyleguideApp() {
     setBrandLogo(url)
   }
 
+  // The committed logo also becomes the document favicon (browser tab).
+  // Object URLs are content-sniffed, so drop the static SVG type attr while
+  // one is active; restore the default mark when no logo is committed.
+  useEffect(() => {
+    const link = document.querySelector<HTMLLinkElement>('link[rel="icon"]')
+    if (!link) return
+    if (brandLogo) {
+      link.href = brandLogo
+      link.removeAttribute('type')
+    } else {
+      link.href = '/vite.svg'
+      link.type = 'image/svg+xml'
+    }
+  }, [brandLogo])
+
   const openBrandForm = () => {
     setBrandDrawerOpen(true)
   }
@@ -155,17 +167,13 @@ export default function StyleguideApp() {
   return (
     <div className={shellCss}>
       {/* Sidebar */}
-      <Sidebar onBrandSettings={openBrandForm} />
+      <Sidebar onBrandSettings={openBrandForm} logo={brandLogo} />
 
       {/* #page-panel — header + push/pop stack */}
       <div id="page-panel" className={pagePanelCss}>
         <header className={pageHeaderCss}>
           <HStack gap="2" flex="1" minWidth="0">
-            {stack.length > 1 && (
-              <IconButton variant="plain" colorPalette="gray" aria-label="Back" onClick={pop}>
-                <ChevronLeftIcon />
-              </IconButton>
-            )}
+            {stack.length > 1 && <BackButton onClick={pop} />}
           </HStack>
 
 

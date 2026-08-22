@@ -72,6 +72,6 @@ export const breadcrumb = defineSlotRecipe({
 
   defaultVariants: {
     variant: 'plain',
-    size: 'md',
+    size: 'sm',
   },
 })

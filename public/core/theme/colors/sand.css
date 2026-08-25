@@ -1,0 +1,101 @@
+/* Sand palette — GENERATED FILE, DO NOT EDIT.
+   Compiled from src/core/theme/colors/sand.ts (Park UI package, installed
+   via `npx @park-ui/cli add sand`) by scripts/generate-theme-colors.mjs
+   (`pnpm theme:colors`). Self-contained light + dark values, scoped to html
+   data attributes so they override the Panda bundle defaults while this
+   scheme is selected. Loaded on demand by src/core/theme/theme-loader.js.
+   Roles: gray. */
+
+[data-gray-color='sand'] {
+  --colors-gray-1: #fdfdfc;
+  --colors-gray-2: #f9f9f8;
+  --colors-gray-3: #f1f0ef;
+  --colors-gray-4: #e9e8e6;
+  --colors-gray-5: #e2e1de;
+  --colors-gray-6: #dad9d6;
+  --colors-gray-7: #cfceca;
+  --colors-gray-8: #bcbbb5;
+  --colors-gray-9: #8d8d86;
+  --colors-gray-10: #82827c;
+  --colors-gray-11: #63635e;
+  --colors-gray-12: #21201c;
+  --colors-gray-a1: #55550003;
+  --colors-gray-a2: #25250007;
+  --colors-gray-a3: #20100010;
+  --colors-gray-a4: #1f150019;
+  --colors-gray-a5: #1f180021;
+  --colors-gray-a6: #19130029;
+  --colors-gray-a7: #19140035;
+  --colors-gray-a8: #1915014a;
+  --colors-gray-a9: #0f0f0079;
+  --colors-gray-a10: #0c0c0083;
+  --colors-gray-a11: #080800a1;
+  --colors-gray-a12: #060500e3;
+  --colors-gray-solid-bg: black;
+  --colors-gray-solid-bg-hover: #21201c;
+  --colors-gray-solid-fg: white;
+  --colors-gray-subtle-bg: #20100010;
+  --colors-gray-subtle-bg-hover: #1f150019;
+  --colors-gray-subtle-bg-active: #1f180021;
+  --colors-gray-subtle-fg: #21201c;
+  --colors-gray-surface-bg: white;
+  --colors-gray-surface-bg-hover: #f9f9f8;
+  --colors-gray-surface-bg-active: #f1f0ef;
+  --colors-gray-surface-border: #dad9d6;
+  --colors-gray-surface-border-hover: #cfceca;
+  --colors-gray-surface-fg: #21201c;
+  --colors-gray-outline-bg-hover: #25250007;
+  --colors-gray-outline-bg-active: #20100010;
+  --colors-gray-outline-border: #dad9d6;
+  --colors-gray-outline-fg: #21201c;
+  --colors-gray-plain-bg-hover: #20100010;
+  --colors-gray-plain-bg-active: #1f150019;
+  --colors-gray-plain-fg: #21201c;
+}
+
+[data-gray-color='sand'][data-mode='dark'] {
+  --colors-gray-1: #111110;
+  --colors-gray-2: #191918;
+  --colors-gray-3: #222221;
+  --colors-gray-4: #2a2a28;
+  --colors-gray-5: #31312e;
+  --colors-gray-6: #3b3a37;
+  --colors-gray-7: #494844;
+  --colors-gray-8: #62605b;
+  --colors-gray-9: #6f6d66;
+  --colors-gray-10: #7c7b74;
+  --colors-gray-11: #b5b3ad;
+  --colors-gray-12: #eeeeec;
+  --colors-gray-a1: #00000000;
+  --colors-gray-a2: #f4f4f309;
+  --colors-gray-a3: #f6f6f513;
+  --colors-gray-a4: #fefef31b;
+  --colors-gray-a5: #fbfbeb23;
+  --colors-gray-a6: #fffaed2d;
+  --colors-gray-a7: #fffbed3c;
+  --colors-gray-a8: #fff9eb57;
+  --colors-gray-a9: #fffae965;
+  --colors-gray-a10: #fffdee73;
+  --colors-gray-a11: #fffcf4b0;
+  --colors-gray-a12: #fffffded;
+  --colors-gray-solid-bg: white;
+  --colors-gray-solid-bg-hover: #eeeeec;
+  --colors-gray-solid-fg: black;
+  --colors-gray-subtle-bg: #f6f6f513;
+  --colors-gray-subtle-bg-hover: #fefef31b;
+  --colors-gray-subtle-bg-active: #fbfbeb23;
+  --colors-gray-subtle-fg: #eeeeec;
+  --colors-gray-surface-bg: #111110;
+  --colors-gray-surface-bg-hover: #191918;
+  --colors-gray-surface-bg-active: #222221;
+  --colors-gray-surface-border: #3b3a37;
+  --colors-gray-surface-border-hover: #494844;
+  --colors-gray-surface-fg: #eeeeec;
+  --colors-gray-outline-bg-hover: #f4f4f309;
+  --colors-gray-outline-bg-active: #f6f6f513;
+  --colors-gray-outline-border: #3b3a37;
+  --colors-gray-outline-fg: #eeeeec;
+  --colors-gray-plain-bg-hover: #f6f6f513;
+  --colors-gray-plain-bg-active: #fefef31b;
+  --colors-gray-plain-fg: #eeeeec;
+}

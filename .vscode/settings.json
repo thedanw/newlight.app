@@ -1,3 +1,4 @@
 {
-    "scm.compactFolders": true
+    "scm.compactFolders": true,
+    "git.ignoreLimitWarning": true
 }

@@ -10,9 +10,16 @@ import { TypographyShowcase } from './TypographyShowcase'
    (`TypographyShowcase`) instead of the generic card grid.
 --------------------------------------------------------------------------- */
 
-export function CategoryPage({ category }: { category: TocCategory }) {
+export function CategoryPage({
+  category,
+  anchorComponent,
+}: {
+  category: TocCategory
+  /** Deep-linked component name — its accordion group opens automatically. */
+  anchorComponent?: string
+}) {
   if (category.id === 'typography') {
     return <TypographyShowcase />
   }
-  return <SubpageTemplate category={category} />
+  return <SubpageTemplate category={category} anchorComponent={anchorComponent} />
 }

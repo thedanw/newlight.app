@@ -40,6 +40,8 @@ export { NavProvider, useNavContext } from "./nav-context";
 export { NavTile, type NavTileProps } from "./nav-tile";
 export * as NumberInput from "./number-input";
 export * as Pagination from "./pagination";
+export { PageHeader, type PageHeaderProps } from "./page-header";
+export { PagePanel, type PagePanelProps } from "./page-panel";
 export * as PinInput from "./pin-input";
 export * as Popover from "./popover";
 export * as Progress from "./progress";

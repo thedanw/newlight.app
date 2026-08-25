@@ -36,7 +36,11 @@
 
 /* Canvas and shell colors - always the same */
 :root {
-  --canvas-bg: var(--canvas-bg);
+  /* NOTE: must NOT reference itself (--canvas-bg: var(--canvas-bg) is
+     guaranteed-invalid per spec and silently resolved to transparent).
+     Canvas = the gray palette's page step, so it follows data-mode and the
+     selected gray exactly like --sidebar-bg below. */
+  --canvas-bg: var(--colors-gray-1);
   --canvas-fg: var(--colors-fg-default);
 }
 
@@ -73,9 +77,9 @@
 }
 
 [data-radius='xs'] {
-  --radii-l1: var(--radii-xs);
-  --radii-l2: var(--radii-sm);
-  --radii-l3: var(--radii-md);
+  --radii-l1: 0;
+  --radii-l2: var(--radii-xs);
+  --radii-l3: var(--radii-sm);
 }
 
 [data-radius='sm'] {

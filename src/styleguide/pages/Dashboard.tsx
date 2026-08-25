@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import { SearchIcon, XIcon } from 'lucide-react'
 import { Box, Grid, HStack, Stack } from 'styled-system/jsx'
-import { tocCategories, type TocCategory } from '../toc'
+import { tocCategories } from '../toc'
 import {
   AbsoluteCenter,
   Badge,
@@ -29,11 +29,14 @@ import {
 --------------------------------------------------------------------------- */
 
 export type DashboardProps = {
-  onOpenCategory: (category: TocCategory) => void
+  /** Push the category page onto the panel stack. */
+  onOpenCategory: (categoryId: string) => void
+  /** Push the category page and scroll to a component's card anchor. */
+  onOpenComponent: (categoryId: string, component: string) => void
   onOpenOverlay: (kind: 'dialog' | 'drawer') => void
 }
 
-export function Dashboard({ onOpenCategory, onOpenOverlay }: DashboardProps) {
+export function Dashboard({ onOpenCategory, onOpenComponent, onOpenOverlay }: DashboardProps) {
   const [filter, setFilter] = useState('')
   const [toolPanelOpen, setToolPanelOpen] = useState(false)
 
@@ -156,14 +159,7 @@ export function Dashboard({ onOpenCategory, onOpenOverlay }: DashboardProps) {
                             color="colorPalette.outline.fg"
                             cursor="pointer"
                             _hover={{ textDecoration: 'underline' }}
-                            onClick={() => {
-                              onOpenCategory(category)
-                              // Scroll to component after navigation
-                              setTimeout(() => {
-                                const el = document.getElementById(`component-${component.name}`)
-                                el?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-                              }, 100)
-                            }}
+                            onClick={() => onOpenComponent(category.id, component.name)}
                           >
                             {component.name}
                           </Text>
@@ -171,7 +167,7 @@ export function Dashboard({ onOpenCategory, onOpenOverlay }: DashboardProps) {
                       </Stack>
                     </Card.Body>
                     <Card.Footer>
-                      <Button size="sm" onClick={() => onOpenCategory(category)}>
+                      <Button size="sm" onClick={() => onOpenCategory(category.id)}>
                         Open
                       </Button>
                     </Card.Footer>
@@ -205,17 +201,7 @@ export function Dashboard({ onOpenCategory, onOpenOverlay }: DashboardProps) {
                   <Table.Row
                     key={`${component.category}-${component.name}`}
                     cursor="pointer"
-                    onClick={() => {
-                      // Find the category for this component using categoryId
-                      const targetCategory = tocCategories.find(c => c.id === component.categoryId)
-                      if (targetCategory) {
-                        onOpenCategory(targetCategory)
-                        setTimeout(() => {
-                          const el = document.getElementById(`component-${component.name}`)
-                          el?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-                        }, 100)
-                      }
-                    }}
+                    onClick={() => onOpenComponent(component.categoryId, component.name)}
                   >
                     <Table.Cell fontWeight="semibold">{component.name}</Table.Cell>
                     <Table.Cell>{component.category}</Table.Cell>

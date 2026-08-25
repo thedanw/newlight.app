@@ -1,4 +1,5 @@
 'use client'
+import { useState } from 'react'
 import { Accordion, Card, Heading, Icon, Text } from '@/core/ui'
 import { Box, Grid, HStack, Stack } from 'styled-system/jsx'
 import { type TocCategory } from '../toc'
@@ -35,7 +36,14 @@ function ComponentCard({ name, description }: { name: string; description: strin
   )
 }
 
-export function SubpageTemplate({ category }: { category: TocCategory }) {
+export function SubpageTemplate({
+  category,
+  anchorComponent,
+}: {
+  category: TocCategory
+  /** Deep-linked component name — its accordion group opens automatically. */
+  anchorComponent?: string
+}) {
   const CategoryIcon = category.icon
   const groups = [...new Set(category.components.map((component) => component.group).filter(Boolean))] as string[]
   const ungroupedComponents = category.components.filter((c) => !c.group)
@@ -72,15 +80,33 @@ export function SubpageTemplate({ category }: { category: TocCategory }) {
       )}
 
       {groups.length > 0 && (
-        <AccordionSections category={category} groups={groups} />
+        <AccordionSections category={category} groups={groups} anchorComponent={anchorComponent} />
       )}
     </Stack>
   )
 }
 
-function AccordionSections({ category, groups }: { category: TocCategory; groups: string[] }) {
+function AccordionSections({
+  category,
+  groups,
+  anchorComponent,
+}: {
+  category: TocCategory
+  groups: string[]
+  anchorComponent?: string
+}) {
+  // Controlled so a deep link can force its group open: default to the first
+  // group (existing behavior) plus the anchored component's group.
+  const anchorGroup = anchorComponent
+    ? category.components.find((component) => component.name === anchorComponent)?.group
+    : undefined
+  const [value, setValue] = useState<string[]>(() => {
+    const initial = groups[0] ? [groups[0]] : []
+    return anchorGroup && !initial.includes(anchorGroup) ? [...initial, anchorGroup] : initial
+  })
+
   return (
-    <Accordion.Root defaultValue={[groups[0]]}>
+    <Accordion.Root value={value} onValueChange={(details) => setValue(details.value ?? [])}>
       {groups.map((group) => {
         const components = category.components.filter((component) => component.group === group)
         return (

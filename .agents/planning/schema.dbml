@@ -1,36 +1,48 @@
-// Unified Logical Schema (DBML) — New Light CRM app model + Elvanto two-way sync
-// Sources: core+people decision logs (govern) · findings.md (API shapes) · compatibility-design.md (mappings — authoritative)
+// ═══════════════════════════════════════════════════════════════════════════════
+// New Light Anglican Church — Full Application Schema (Supabase / PostgreSQL)
+// ═══════════════════════════════════════════════════════════════════════════════
+//
+// Canonical source of truth for all tables, columns, enums, and FKs.
 // Render: dbdiagram.io or DBML VS Code extension.
+//
+// Sources (in priority order):
+//   1. core/decision.md          — platform architecture, auth, RLS, settings
+//   2. people/decision.md        — people data model, journey grid, child-safety
+//   3. people/peopleFields.md    — field-level SSOT (enums, visibility, migration mapping)
+//   4. elvanto/findings.md       — Elvanto API shapes, field names, doc bugs
+//   5. elvanto/compatibility-design.md — field-level pull/push maps, value transforms, runbook
+//   6. elvanto/sync-design.md    — sync contract (watermarks, deletes, upsert order, deny-lists)
+//
 // Conventions:
-// - Partitions: APP-OWNED (decisions govern) · SYNC-SHADOW (elvanto_* prefix; sync-written, never in app UI/API) · MIRROR (Elvanto governs; future modules).
-// - Dual-key identity: app-owned synced tables carry `id uuid pk` + `elvanto_id uuid unique null` (sync joins elvanto_id ONLY;
-//   migrated rows id = elvanto_id; app-origin rows adopt elvanto_id on first push). Pure MIRROR tables: id IS the Elvanto UUID.
-// - Every synced table carries _synced_at (last poll fetch); watermarked tables add _source_modified (Elvanto date_modified).
-// - Booleans normalize to boolean; money to numeric(12,2); datetimes to timestamptz (UTC).
-// - Value maps (partner⇄Defacto, kindy_start_year⇄school_grade, demographic⇄category, access_permission⇄admin): compatibility-design.md §4.
-// - Sync NEVER SQL-DELETEs: missing upstream ⇒ deleted_at tombstone (sync-design.md §4).
+//   - Three partitions: APP-OWNED (decisions govern) · SYNC-SHADOW (`elvanto_*`; sync-written, never in UI)
+//     · MIRROR (Elvanto governs; future modules consume — groups, services, songs, calendar, financial, flows)
+//   - Dual-key identity: `id uuid pk` + `elvanto_id uuid unique null` on app-owned synced tables.
+//     Sync joins `elvanto_id` ONLY. Migrated rows: id = elvanto_id. App-origin rows: adopt on first push.
+//     Pure MIRROR tables: `id` IS the Elvanto UUID (no separate elvanto_id column).
+//   - Every synced table carries `_synced_at`; watermarked tables add `_source_modified`.
+//   - Booleans → boolean; money → numeric(12,2); datetimes → timestamptz UTC.
+//   - Value maps (partner ⇄ Defacto, kindy_start_year ⇄ school_grade, demographic ⇄ category,
+//     access_permission ⇄ admin): compatibility-design.md §4.
+//   - Sync NEVER SQL-DELETEs: missing upstream ⇒ deleted_at tombstone (sync-design.md §4).
+//   - RLS on all tables via auth.uid() (core #11). Per-table posture noted inline.
+//
+// ═══════════════════════════════════════════════════════════════════════════════
 
-Project elvanto_sync {
+Project newlight_app {
   database_type: 'PostgreSQL'
-  Note: 'Unified CRM schema: app-owned people/households/journey model + Elvanto sync shadows & future-module mirrors. FK-safe upsert order in sync-design.md §5.'
+  Note: 'New Light CRM — unified app + Elvanto sync. 44 tables. FK-safe upsert order: sync-design.md §5.'
 }
 
-// ── Enumerations ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════════
+// Enumerations
+// ═══════════════════════════════════════════════════════════════════════════════
 
-Enum person_status {
-  active
-  suspended
-}
+// ── App-domain enums ─────────────────────────────────────────
 
-Enum family_relationship {
-  primary_contact
-  spouse
-  partner
+Enum demographic {
+  adult
+  youth
   child
-  sibling
-  grandfather
-  grandmother
-  other
 }
 
 Enum gender { male female }
@@ -39,7 +51,7 @@ Enum marital_status {
   single
   engaged
   married
-  partner [note: 'app value — maps to Elvanto Defacto']
+  partner
   widowed
   divorced
   separated
@@ -62,8 +74,8 @@ Enum relationship_type {
   grandfather
   grandmother
   other
-  guardian [note: 'app-only extension']
-  carer [note: 'app-only extension']
+  guardian [note: 'app-only extension — not in Elvanto vocabulary']
+  carer [note: 'app-only extension — not in Elvanto vocabulary']
 }
 
 Enum phone_type {
@@ -95,8 +107,8 @@ Enum audit_change_reason {
   manual
   auto_progression
   gdpr_request
-  migration [note: '#48 — bulk Elvanto import seeding']
-  sync [note: '#48 — sync-driven archive/tombstone events']
+  migration
+  sync
 }
 
 Enum safe_ministry_leader_type {
@@ -116,6 +128,24 @@ Enum smt_type {
 Enum smc_result {
   age_13_17_approved
   over_18_approved
+}
+
+// ── Elvanto-mirror enums (shadow / future-module) ────────────
+
+Enum person_status {
+  active
+  suspended
+}
+
+Enum family_relationship {
+  primary_contact
+  spouse
+  partner
+  child
+  sibling
+  grandfather
+  grandmother
+  other
 }
 
 Enum group_status { active suspended }
@@ -153,36 +183,46 @@ Enum transaction_method {
 Enum custom_field_type {
   text
   select_multi
-  // Elvanto exposes more types at runtime — extend enum as observed.
+  // Elvanto exposes more types at runtime — extend as observed.
 }
 
-// ── People domain ────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════════
+// Auth & Platform
+// ═══════════════════════════════════════════════════════════════════════════════
 
-Table people_categories {
-  id uuid [pk, note: 'Elvanto UUID']
-  name varchar [not null]
-  color varchar(7) [note: 'hex #RRGGBB, nullable']
-  _synced_at timestamptz [not null]
-  _source_modified timestamptz
-  Note: 'people/categories/getAll'
+// Supabase-managed — not created by app migrations. Declared for FK documentation only.
+Table auth_users {
+  id uuid [pk, note: 'Supabase auth.users — managed externally']
 }
 
-Table custom_fields {
+Table user_roles {
   id uuid [pk]
-  name varchar [not null]
-  type custom_field_type [not null]
-  _synced_at timestamptz [not null]
-  Note: 'people/customFields/getAll — EAV definitions'
+  role access_permission [not null, unique]
+  description varchar
+  Note: 'lookup table — pending E-2 (role table vs people.access_permission column)'
 }
 
-Table custom_field_values {
+Table module_config {
+  module varchar [pk, note: 'registry key: people | groups | services | calendar | ...']
+  enabled boolean [not null, default: true]
+  config jsonb [note: '#20 per-module settings (typed core cols + JSONB hybrid)']
+  updated_at timestamptz [not null]
+}
+
+Table platform_settings {
   id uuid [pk]
-  custom_field_id uuid [not null, ref: > custom_fields.id]
-  name varchar [not null]
-  Note: 'predefined options for select_multi fields'
+  key varchar [not null]
+  environment varchar [not null, note: '#23 — settings stay DB-only, no env-var drift']
+  value jsonb [not null]
+  updated_at timestamptz [not null]
+  indexes {
+    (key, environment) [unique]
+  }
 }
 
-// ── People domain (APP-OWNED unless elvanto_-prefixed) ───────
+// ═══════════════════════════════════════════════════════════════════════════════
+// People Domain
+// ═══════════════════════════════════════════════════════════════════════════════
 
 Table households {
   id uuid [pk]
@@ -213,7 +253,7 @@ Table contact_channels {
   value varchar [not null]
   is_primary boolean [default: false]
   _synced_at timestamptz [not null]
-  Note: '#34 first-class channels. Pull: elvanto phone→home channel, mobile→mobile(primary). Push: primary mobile→people.mobile, primary home→elvanto phone'
+  Note: '#34 first-class channels. Pull: elvanto phone→home, mobile→mobile(primary). Push: primary mobile→people.mobile, primary home→elvanto phone'
 }
 
 Table people {
@@ -223,13 +263,15 @@ Table people {
   household_id uuid [ref: > households.id]
   deleted_at timestamptz [note: 'core #26 soft delete — tombstone only']
 
+  // ── Personal ──
   firstname varchar [not null]
   preferred_name varchar
   middle_name varchar
   lastname varchar [not null]
   email varchar
 
-  demographic demographic [not null, default: 'adult', note: 'pull-normalized from Elvanto People Category name; unmapped → review queue; push maps to existing category (L-4)']
+  // ── Demographics ──
+  demographic demographic [not null, default: 'adult', note: 'pull-normalized from Elvanto People Category name; unmapped → review queue']
   gender gender
   date_of_birth date [note: 'Elvanto `birthday`']
   anniversary date
@@ -238,14 +280,17 @@ Table people {
   school_name varchar [note: 'app-only — deny-list (no Elvanto counterpart)']
   school_email_permission yes_no [note: '#35 single source of truth']
 
+  // ── Contact (Adult) ──
   mobile varchar [note: 'SYNC-SHADOW mirror of primary mobile channel — feeds auth OTP (#56/#58) + Elvanto push; never hand-edited']
 
-  access_permission access_permission [not null, default: 'member_area', note: '#37 five-level roles; pull promote-only (admin=1→admin); push admin/super_admin→1']
+  // ── Roles ──
+  access_permission access_permission [not null, default: 'member_area', note: '#37 five-level roles; pull promote-only (admin=1→admin)']
 
+  // ── Journey + extensibility ──
   journey jsonb [not null, note: '{journey_track_id → journey_stage_slug}; CHECK (journey <> \'{}\') #42; GIN-indexed; APP-OWNED — never pushed']
   custom_fields jsonb [note: '#4 app extensibility — never pushed']
 
-  // Child Safety [Youth+Adult] — APP-ONLY, never synced (deny-list)
+  // ── Child Safety [Youth+Adult] — APP-ONLY, never synced ──
   safe_ministry_leader_type safe_ministry_leader_type
   safe_ministry_notes text
   safe_ministry_start_date date [note: '#36 DATE not free-text']
@@ -263,18 +308,18 @@ Table people {
   smc_result_date date
   smc_result smc_result
 
-  // Medical [Youth+Child] — APP-ONLY
+  // ── Medical [Youth+Child] — APP-ONLY ──
   medical_anaphylaxis_allergy text
   medical_other_behavioral text
   medical_regular_medication text
 
-  // Consents — APP-ONLY
+  // ── Consents — APP-ONLY ──
   consent_external_photo yes_no
   consent_internal_photo yes_no
   consent_biscuit_under5 yes_no [note: 'visible when child <5']
   consent_girl_guide_offsite yes_no
 
-  // Admin/legacy — APP-ONLY
+  // ── Admin/legacy — APP-ONLY ──
   date_professed date
   legacy_date_added timestamptz
   legacy_member_id varchar
@@ -299,7 +344,7 @@ Table people {
   elvanto_username varchar
   elvanto_last_login timestamptz
   elvanto_locations jsonb [note: 'raw locations[] pull — journey seeding input (compatibility-design §3)']
-  elvanto_custom_fields jsonb [note: 'EAV mirror custom_<uuid> — was `custom_fields` (renamed: collision with #4)']
+  elvanto_custom_fields jsonb [note: 'EAV mirror custom_<uuid> — was `custom_fields`']
 
   _synced_at timestamptz [not null]
   _source_modified timestamptz [not null]
@@ -311,8 +356,10 @@ Table people {
     household_id
     journey [type: gin, note: 'track→stage containment queries (#43)']
   }
-  Note: 'dual-key identity per compatibility-design §1; pull/push rules per §4 matrix'
+  Note: 'RLS: household reads own; admins manage all. Dual-key per compatibility-design §1.'
 }
+
+Ref people.auth_user_id > auth_users.id
 
 Table people_relationships {
   id uuid [pk]
@@ -324,14 +371,14 @@ Table people_relationships {
   indexes {
     (person_id, related_person_id, relationship_type) [unique, note: '#10 uniqueness rule']
   }
-  Note: 'guardian links derived at migration from family composition; non-resident/contact-only guardians are app-only (L-3)'
+  Note: 'guardian links derived at migration from family composition; non-resident/contact-only guardians app-only (L-3)'
 }
 
 Table tags {
   id uuid [pk]
   name varchar [not null]
   category tag_category [not null, default: 'custom']
-  Note: 'APP-ONLY — no Elvanto counterpart (#11/#13)'
+  Note: 'APP-ONLY — no Elvanto counterpart (#11/#13). RLS: journey_tracks/stages readable by all authenticated.'
 }
 
 Table people_tags {
@@ -340,13 +387,6 @@ Table people_tags {
   indexes {
     (person_id, tag_id) [pk]
   }
-}
-
-Table user_roles {
-  id uuid [pk]
-  role access_permission [not null, unique]
-  description varchar
-  Note: 'lookup table — pending open question E-2 (role table vs people.access_permission column)'
 }
 
 // ── Journey grid (APP-OWNED — replaces people_category + locations[]) ──
@@ -364,12 +404,12 @@ Table journey_tracks {
   name varchar [not null]
   sort_order integer
   elvanto_location_id uuid [unique, note: 'links track ↔ Elvanto location for seeding + optional follow']
-  follow_elvanto boolean [default: false, note: 'when on, upstream membership add/remove toggles stage=contact on this track']
-  deleted_at timestamptz [note: '#44 — delete requires a migration target track (organizer blocks until chosen)']
+  follow_elvanto boolean [default: false, note: 'when on, upstream membership add/remove toggles stage=contact']
+  deleted_at timestamptz [note: '#44 — delete requires a migration target track']
 }
 
 Table journey_stages {
-  slug varchar [pk, note: 'seeded: contact|guest|linked|regular|archived|deleted_privacy_data (colors per peopleFields.md)']
+  slug varchar [pk, note: 'seeded: contact|guest|linked|regular|archived|deleted_privacy_data']
   label varchar [not null]
   color varchar(7)
   sort_order integer
@@ -388,27 +428,37 @@ Table people_audit {
   Note: '#18/#28 unified audit — admin-only RLS'
 }
 
-// ── Platform config (core #14/#20/#21/#23) ──────────────────
+// ═══════════════════════════════════════════════════════════════════════════════
+// Elvanto Mirrors (MIRROR partition — id IS Elvanto UUID; future modules consume)
+// ═══════════════════════════════════════════════════════════════════════════════
 
-Table module_config {
-  module varchar [pk, note: 'registry key: people | groups | services | calendar | ...']
-  enabled boolean [not null, default: true]
-  config jsonb [note: '#20 per-module settings (typed core cols + JSONB hybrid)']
-  updated_at timestamptz [not null]
+Table people_categories {
+  id uuid [pk, note: 'Elvanto UUID']
+  name varchar [not null]
+  color varchar(7) [note: 'hex #RRGGBB, nullable']
+  _synced_at timestamptz [not null]
+  _source_modified timestamptz
+  Note: 'people/categories/getAll — legacy People Category; app uses demographic enum instead'
 }
 
-Table platform_settings {
+Table custom_fields {
   id uuid [pk]
-  key varchar [not null]
-  environment varchar [not null, note: '#23 — settings stay DB-only, no env-var drift']
-  value jsonb [not null]
-  updated_at timestamptz [not null]
-  indexes {
-    (key, environment) [unique]
-  }
+  name varchar [not null]
+  type custom_field_type [not null]
+  _synced_at timestamptz [not null]
+  Note: 'people/customFields/getAll — EAV definitions (0 fields at 2026-08-25 probe)'
 }
 
-// ── Groups domain ────────────────────────────────────────────
+Table custom_field_values {
+  id uuid [pk]
+  custom_field_id uuid [not null, ref: > custom_fields.id]
+  name varchar [not null]
+  Note: 'predefined options for select_multi fields'
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Groups Domain
+// ═══════════════════════════════════════════════════════════════════════════════
 
 Table groups {
   id uuid [pk]
@@ -430,7 +480,7 @@ Table groups {
   meeting_end_time time
   meeting_day varchar [note: 'deprecated for writes since API 2.2 — prefer meeting_frequency']
   meeting_time varchar [note: 'read-side summary ("6:30 PM"); deprecated for writes']
-  meeting_frequency jsonb [note: 'WRITE shape {type,count,day,occurrence[]}; getAll returns display STRING ("Every 2 Weeks") — transform accepts both (audit F-1)']
+  meeting_frequency jsonb [note: 'WRITE shape {type,count,day,occurrence[]}; getAll returns display STRING — transform accepts both (F-1)']
   _synced_at timestamptz [not null]
   _source_modified timestamptz [not null]
   Note: 'groups/getAll|getInfo|create|edit|remove'
@@ -439,7 +489,7 @@ Table groups {
 Table group_members {
   group_id uuid [ref: > groups.id]
   person_id uuid [ref: > people.id]
-  position varchar [note: 'Leader | Assistant Leader | member']
+  position varchar [note: 'Leader | Assistant Leader | "" (regular member)']
   _synced_at timestamptz [not null]
   indexes {
     (group_id, person_id) [pk]
@@ -447,7 +497,9 @@ Table group_members {
   Note: 'M2M via groups.getAll nested people + groups/addPerson|removePerson'
 }
 
-// ── People Flows domain ──────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════════
+// People Flows Domain
+// ═══════════════════════════════════════════════════════════════════════════════
 
 Table people_flows {
   id uuid [pk]
@@ -458,7 +510,7 @@ Table people_flows {
   locations jsonb
   demographics jsonb
   _synced_at timestamptz [not null]
-  Note: 'peopleFlows/getAll'
+  Note: 'peopleFlows/getAll — workflow pipelines (NOT journey tracks) '
 }
 
 Table people_flow_steps {
@@ -478,7 +530,7 @@ Table people_flow_steps {
 }
 
 Table people_flow_step_members {
-  id uuid [pk, note: 'API `id`; flow_step_member_id also exists — verify stability before using as PK']
+  id uuid [pk, note: 'verify stability of API `id` before using as PK']
   step_id uuid [ref: > people_flow_steps.id]
   person_id uuid [ref: > people.id, note: 'resolved from denormalized member_* names']
   date_added timestamptz
@@ -490,7 +542,9 @@ Table people_flow_step_members {
   Note: 'peopleFlows/steps/people|addPerson — no pagination on read'
 }
 
-// ── Services domain ──────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════════
+// Services Domain
+// ═══════════════════════════════════════════════════════════════════════════════
 
 Table service_types {
   id uuid [pk]
@@ -506,7 +560,7 @@ Table locations {
 
 Table services {
   id uuid [pk]
-  status integer [note: 'opaque int — live sample shows 1=published (verify via probe); request filter uses strings published|draft']
+  status integer [note: 'opaque int — live sample shows 1=published; request filter uses strings published|draft']
   date_added timestamptz
   date_modified timestamptz [not null]
   name varchar [not null]
@@ -517,7 +571,7 @@ Table services {
   location_id uuid [ref: > locations.id]
   _synced_at timestamptz [not null]
   _source_modified timestamptz [not null]
-  Note: 'services/getAll|getInfo'
+  Note: 'services/getAll|getInfo — READ-ONLY mirror (no write endpoints)'
 }
 
 Table service_times {
@@ -576,11 +630,13 @@ Table service_notes {
   _synced_at timestamptz [not null]
 }
 
-// ── Songs domain ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════════
+// Songs Domain
+// ═══════════════════════════════════════════════════════════════════════════════
 
 Table songs {
   id uuid [pk]
-  status integer [not null, default: 0, note: '0=published,1=archived']
+  status integer [not null, default: 0, note: '0=published,1=archived — no delete endpoints (L-6)']
   date_added timestamptz
   date_modified timestamptz [not null]
   title varchar [not null]
@@ -594,7 +650,13 @@ Table songs {
   notes text
   _synced_at timestamptz [not null]
   _source_modified timestamptz [not null]
-  Note: 'songs/getAll|getInfo|create|edit'
+  Note: 'songs/getAll|getInfo|create|edit — no delete endpoint (L-6)'
+}
+
+Table song_categories {
+  id uuid [pk]
+  name varchar [not null]
+  Note: 'songs/categories/getAll'
 }
 
 Table song_category_memberships {
@@ -603,12 +665,6 @@ Table song_category_memberships {
   indexes {
     (song_id, song_category_id) [pk]
   }
-}
-
-Table song_categories {
-  id uuid [pk]
-  name varchar [not null]
-  Note: 'songs/categories/getAll'
 }
 
 Table arrangements {
@@ -639,12 +695,14 @@ Table song_keys {
   name varchar [not null]
   key_starting varchar [not null]
   key_ending varchar
-  keys_alternate jsonb [note: '[{key_starting,name}] capo keys']
+  keys_alternate jsonb [note: '[{key_starting,name}] capo keys — NOTE: edit uses `key` not `key_starting`']
   _synced_at timestamptz [not null]
   Note: 'songs/keys/*'
 }
 
-// ── Calendar domain ──────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════════
+// Calendar Domain
+// ═══════════════════════════════════════════════════════════════════════════════
 
 Table calendars {
   id uuid [pk]
@@ -653,12 +711,12 @@ Table calendars {
   members boolean [note: 'API returns string "true"/"false" — normalize']
   published boolean
   _synced_at timestamptz [not null]
-  Note: 'calendar/getAll'
+  Note: 'calendar/getAll — "services" pseudo-calendar excluded from sync'
 }
 
 Table calendar_events {
   id uuid [pk]
-  calendar_id uuid [ref: > calendars.id, note: 'NULLABLE — probe found 199 events with 0 calendar rows (services pseudo-calendar / restricted calendars); "services" pseudo-calendar excluded from sync']
+  calendar_id uuid [ref: > calendars.id, note: 'NULLABLE — probe: 199 events with 0 calendar rows (services pseudo-calendar / restricted)']
   name varchar [not null]
   status event_status [not null, default: 'public']
   start_date timestamptz [not null]
@@ -685,6 +743,7 @@ Table calendar_events {
   _synced_at timestamptz [not null]
   _source_modified timestamptz
   indexes {
+    calendar_id
     (start_date, end_date)
   }
   Note: 'calendar/events/*'
@@ -699,7 +758,9 @@ Table calendar_event_locations {
   Note: 'edit via locations_replace/locations_remove'
 }
 
-// ── Financial domain ─────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════════
+// Financial Domain (future Giving module)
+// ═══════════════════════════════════════════════════════════════════════════════
 
 Table financial_categories {
   id uuid [pk]
@@ -707,7 +768,7 @@ Table financial_categories {
   status integer [not null, default: 1, note: '0=archived,1=active']
   tax_deductible boolean [default: false]
   _synced_at timestamptz [not null]
-  Note: 'financial/categories/* — chart of accounts'
+  Note: 'financial/categories/* — chart of accounts; create-only upstream (L-7)'
 }
 
 Table batches {
@@ -730,8 +791,8 @@ Table transactions {
   _synced_at timestamptz [not null]
   _source_modified timestamptz
   indexes {
-    (transaction_date)
-    (person_id)
+    transaction_date
+    person_id
   }
   Note: 'person_first_name/last_name/email are denormalized in API — NOT stored here'
 }
@@ -745,4 +806,46 @@ Table transaction_amounts {
   memo text
   external_notes text [note: 'immutable once set — never overwrite']
   Note: 'line items; edit via amounts_add/amounts_edit/amounts_remove'
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Sync Infrastructure (APP-OWNED — not synced to/from Elvanto)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+Table sync_errors {
+  id uuid [pk]
+  entity varchar [not null, note: 'table name e.g. people, groups, services']
+  elvanto_id uuid [note: 'Elvanto ID of the failing record']
+  endpoint varchar [not null, note: 'e.g. people/edit, services/getInfo']
+  error_code varchar [not null]
+  error_message text
+  request_payload jsonb
+  attempt_count integer [not null, default: 1]
+  next_retry_at timestamptz [note: 'exponential backoff ×3 then dead-letter']
+  created_at timestamptz [not null, default: `now()`]
+  resolved_at timestamptz
+  Note: 'sync-design.md §8 — every failed item logged; sync continues past failures'
+}
+
+Table sync_watermarks {
+  entity varchar [pk, note: 'table name — one row per entity type']
+  last_full_sync_at timestamptz [note: 'completion time of last full reconciliation sweep']
+  last_poll_at timestamptz [note: 'completion time of last date-filtered poll']
+  total_synced integer [default: 0]
+  notes text
+  Note: 'scheduling + observability; per-row _synced_at is the per-record watermark'
+}
+
+Table sync_conflicts {
+  id uuid [pk]
+  entity varchar [not null]
+  elvanto_id uuid [not null]
+  field varchar [not null]
+  app_value jsonb
+  elvanto_value jsonb
+  resolution varchar [note: 'pending | app_wins | elvanto_wins | merged']
+  resolved_by uuid [note: 'person who resolved; null = system']
+  resolved_at timestamptz
+  created_at timestamptz [not null, default: `now()`]
+  Note: 'admin-facing queue for values that diverge beyond auto-merge rules'
 }

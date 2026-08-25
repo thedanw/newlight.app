@@ -1,0 +1,494 @@
+// Elvanto → Supabase Logical Schema (DBML)
+// Source: findings.md (API research 2026-08-24). Render: dbdiagram.io or DBML VS Code extension.
+// Conventions:
+// - PKs mirror Elvanto IDs verbatim (uuid, except families.id = int) → idempotent upserts, no ID mapping table.
+// - Every synced table carries sync metadata: _synced_at (last poll fetch), _source_modified (Elvanto date_modified).
+// - Elvanto booleans normalize to boolean; money to numeric(12,2); datetimes to timestamptz (UTC).
+// - Read-only/denormalized API fields are NOT stored (recompute via joins) unless noted.
+
+Project elvanto_sync {
+  database_type: 'PostgreSQL'
+  Note: '2-way sync mirror of Elvanto CMS. 17 entities. FK-safe upsert order in sync-design.md §5.'
+}
+
+// ── Enumerations ─────────────────────────────────────────────
+
+Enum person_status {
+  active
+  suspended
+}
+
+Enum family_relationship {
+  primary_contact
+  spouse
+  partner
+  child
+  sibling
+  grandfather
+  grandmother
+  other
+}
+
+Enum gender { male female }
+
+Enum marital_status {
+  single
+  engaged
+  married
+  widowed
+  divorced
+  separated
+  defacto
+}
+
+Enum group_status { active suspended }
+
+Enum flow_step_member_status {
+  complete
+  notstarted
+  pending
+  inprogress
+}
+
+Enum event_status { public private draft }
+
+Enum event_repeat {
+  daily
+  weekdays
+  mon_wed_fri
+  tue_thu
+  weekly
+  fortnightly
+  monthly
+  yearly
+}
+
+Enum transaction_method {
+  cash
+  check
+  credit_card
+  bank_transfer
+  automatic_direct_debit
+  online
+  other
+}
+
+Enum custom_field_type {
+  text
+  select_multi
+  // Elvanto exposes more types at runtime — extend enum as observed.
+}
+
+// ── People domain ────────────────────────────────────────────
+
+Table people_categories {
+  id uuid [pk, note: 'Elvanto UUID']
+  name varchar [not null]
+  color varchar(7) [note: 'hex #RRGGBB, nullable']
+  _synced_at timestamptz [not null]
+  _source_modified timestamptz
+  Note: 'people/categories/getAll'
+}
+
+Table custom_fields {
+  id uuid [pk]
+  name varchar [not null]
+  type custom_field_type [not null]
+  _synced_at timestamptz [not null]
+  Note: 'people/customFields/getAll — EAV definitions'
+}
+
+Table custom_field_values {
+  id uuid [pk]
+  custom_field_id uuid [not null, ref: > custom_fields.id]
+  name varchar [not null]
+  Note: 'predefined options for select_multi fields'
+}
+
+Table families {
+  id integer [pk, note: '⚠️ Elvanto family_id is INT not UUID']
+  Note: 'No direct Elvanto endpoint — derived from people.family_id'
+}
+
+Table people {
+  id uuid [pk]
+  date_added timestamptz
+  date_modified timestamptz [not null]
+  category_id uuid [ref: > people_categories.id]
+  firstname varchar [not null]
+  preferred_name varchar
+  middle_name varchar
+  lastname varchar [not null]
+  email varchar
+  phone varchar
+  mobile varchar
+  is_admin boolean [default: false]
+  archived boolean [default: false, note: 'soft-delete signal']
+  is_contact boolean [default: false]
+  volunteer boolean [default: false]
+  status person_status [note: 'meaningful only when username set']
+  username varchar
+  last_login timestamptz
+  country varchar
+  timezone varchar
+  picture_url text
+  family_id integer [ref: > families.id]
+  family_relationship family_relationship
+  birthday date
+  anniversary date
+  gender gender
+  marital_status marital_status
+  school_grade varchar
+  deceased boolean [default: false]
+  security_code varchar
+  receipt_name varchar
+  giving_number varchar
+  locations jsonb [note: '[{id,name}] — opt-in via fields param']
+  custom_fields jsonb [note: 'EAV mirror keyed by custom-field UUID']
+  _synced_at timestamptz [not null]
+  _source_modified timestamptz [not null]
+  indexes {
+    email
+    (lastname, firstname)
+    date_modified [note: 'sync watermark scan']
+  }
+  Note: 'people/getAll|getInfo|search|create|edit|remove'
+}
+
+// ── Groups domain ────────────────────────────────────────────
+
+Table groups {
+  id uuid [pk]
+  date_added timestamptz
+  date_modified timestamptz [not null]
+  name varchar [not null]
+  status group_status [not null, default: 'active']
+  description text [note: 'HTML']
+  logo_url text
+  picture_url text
+  meeting_address varchar
+  meeting_city varchar
+  meeting_state varchar
+  meeting_postcode varchar
+  meeting_country varchar
+  meeting_start_date date
+  meeting_end_date date
+  meeting_start_time time
+  meeting_end_time time
+  meeting_day varchar
+  meeting_frequency jsonb [note: '{type,count,day,occurrence[]}']
+  _synced_at timestamptz [not null]
+  _source_modified timestamptz [not null]
+  Note: 'groups/getAll|getInfo|create|edit|remove'
+}
+
+Table group_members {
+  group_id uuid [ref: > groups.id]
+  person_id uuid [ref: > people.id]
+  position varchar [note: 'Leader | Assistant Leader | member']
+  _synced_at timestamptz [not null]
+  indexes {
+    (group_id, person_id) [pk]
+  }
+  Note: 'M2M via groups.getAll nested people + groups/addPerson|removePerson'
+}
+
+// ── People Flows domain ──────────────────────────────────────
+
+Table people_flows {
+  id uuid [pk]
+  name varchar [not null]
+  status varchar
+  access varchar
+  admins uuid[] [note: 'person UUIDs']
+  locations jsonb
+  demographics jsonb
+  _synced_at timestamptz [not null]
+  Note: 'peopleFlows/getAll'
+}
+
+Table people_flow_steps {
+  id uuid [pk]
+  flow_id uuid [ref: > people_flows.id]
+  parent_step_id uuid [ref: > people_flow_steps.id, note: 'flattens recursive API tree']
+  priority integer
+  name varchar [not null]
+  description text
+  instructions text
+  notifications boolean [default: false]
+  entry_point varchar
+  step_due jsonb [note: '{type,days} | null']
+  admins jsonb [note: '[{id,role}]']
+  _synced_at timestamptz [not null]
+  Note: 'peopleFlows/steps/getAll — recursive in API, adjacency list here'
+}
+
+Table people_flow_step_members {
+  id uuid [pk, note: 'API `id`; flow_step_member_id also exists — verify stability before using as PK']
+  step_id uuid [ref: > people_flow_steps.id]
+  person_id uuid [ref: > people.id, note: 'resolved from denormalized member_* names']
+  date_added timestamptz
+  assigned_admin_id uuid [ref: > people.id]
+  status flow_step_member_status [not null]
+  completed_date timestamptz
+  due_date date
+  _synced_at timestamptz [not null]
+  Note: 'peopleFlows/steps/people|addPerson — no pagination on read'
+}
+
+// ── Services domain ──────────────────────────────────────────
+
+Table service_types {
+  id uuid [pk]
+  name varchar [not null]
+  Note: 'embedded in services responses as obj{id,name}'
+}
+
+Table locations {
+  id uuid [pk]
+  name varchar [not null]
+  Note: 'shared by services, songs, events, flows'
+}
+
+Table services {
+  id uuid [pk]
+  status integer [note: '0=published,1=draft (verify mapping)']
+  date_added timestamptz
+  date_modified timestamptz [not null]
+  name varchar [not null]
+  series_name varchar
+  date timestamptz
+  description text
+  service_type_id uuid [ref: > service_types.id]
+  location_id uuid [ref: > locations.id]
+  _synced_at timestamptz [not null]
+  _source_modified timestamptz [not null]
+  Note: 'services/getAll|getInfo'
+}
+
+Table service_times {
+  id uuid [pk]
+  service_id uuid [not null, ref: > services.id]
+  name varchar
+  starts timestamptz [not null]
+  ends timestamptz
+  _synced_at timestamptz [not null]
+}
+
+Table service_plan_items {
+  id uuid [pk]
+  service_time_id uuid [not null, ref: > service_times.id]
+  heading boolean [default: false]
+  duration interval [note: 'mm:ss from API']
+  when_label varchar [note: 'API field `when` — reserved word avoided']
+  title varchar
+  description text
+  song_id uuid [ref: > songs.id, note: 'null when item is not a song']
+  sort_order integer
+  _synced_at timestamptz [not null]
+}
+
+Table service_volunteers {
+  position_id uuid [note: 'composite natural key — see note']
+  service_time_id uuid [ref: > service_times.id]
+  department_id uuid
+  department_name varchar
+  sub_department_id uuid
+  sub_department_name varchar
+  position_name varchar
+  person_id uuid [ref: > people.id]
+  volunteer_status varchar [note: 'Confirmed | Unconfirmed']
+  _synced_at timestamptz [not null]
+  indexes {
+    (service_time_id, position_id, person_id) [unique]
+  }
+  Note: 'no stable PK in API payload — use composite unique'
+}
+
+Table service_files {
+  id uuid [pk]
+  service_id uuid [not null, ref: > services.id]
+  title varchar
+  content_url text
+  _synced_at timestamptz [not null]
+}
+
+Table service_notes {
+  id uuid [pk]
+  service_id uuid [not null, ref: > services.id]
+  note text [note: 'HTML']
+  date_added timestamptz
+  date_modified timestamptz
+  _synced_at timestamptz [not null]
+}
+
+// ── Songs domain ─────────────────────────────────────────────
+
+Table songs {
+  id uuid [pk]
+  status integer [not null, default: 0, note: '0=published,1=archived']
+  date_added timestamptz
+  date_modified timestamptz [not null]
+  title varchar [not null]
+  permalink varchar
+  ccli_number varchar [note: 'API field `number`']
+  is_item boolean [default: false, note: 'true = item not song']
+  learn boolean [default: false]
+  allow_downloads boolean [default: false]
+  artist varchar
+  album varchar
+  notes text
+  _synced_at timestamptz [not null]
+  _source_modified timestamptz [not null]
+  Note: 'songs/getAll|getInfo|create|edit'
+}
+
+Table song_category_memberships {
+  song_id uuid [ref: > songs.id]
+  song_category_id uuid [ref: > song_categories.id]
+  indexes {
+    (song_id, song_category_id) [pk]
+  }
+}
+
+Table song_categories {
+  id uuid [pk]
+  name varchar [not null]
+  Note: 'songs/categories/getAll'
+}
+
+Table arrangements {
+  id uuid [pk]
+  song_id uuid [not null, ref: > songs.id]
+  date_added timestamptz
+  date_modified timestamptz
+  name varchar [not null]
+  copyright varchar
+  sequence jsonb [note: 'string[] section order']
+  minutes numeric(3)
+  seconds numeric(2)
+  bpm numeric(4,1)
+  key_male varchar
+  key_female varchar
+  lyrics text
+  chord_chart_key varchar
+  chord_chart text [note: 'ChordPro format']
+  _synced_at timestamptz [not null]
+  Note: 'songs/arrangements/*'
+}
+
+Table song_keys {
+  id uuid [pk]
+  arrangement_id uuid [not null, ref: > arrangements.id]
+  date_added timestamptz
+  date_modified timestamptz
+  name varchar [not null]
+  key_starting varchar [not null]
+  key_ending varchar
+  keys_alternate jsonb [note: '[{key_starting,name}] capo keys']
+  _synced_at timestamptz [not null]
+  Note: 'songs/keys/*'
+}
+
+// ── Calendar domain ──────────────────────────────────────────
+
+Table calendars {
+  id uuid [pk]
+  name varchar [not null]
+  color varchar(7)
+  members boolean [note: 'API returns string "true"/"false" — normalize']
+  published boolean
+  _synced_at timestamptz [not null]
+  Note: 'calendar/getAll'
+}
+
+Table calendar_events {
+  id uuid [pk]
+  calendar_id uuid [not null, ref: > calendars.id, note: '"services" pseudo-calendar excluded from sync']
+  name varchar [not null]
+  status event_status [not null, default: 'public']
+  start_date timestamptz [not null]
+  end_date timestamptz [not null]
+  all_day boolean [default: false]
+  where_label varchar [note: 'API field `where` — reserved word avoided']
+  description text
+  admin_notes text [note: 'read-only — never write back']
+  url text
+  color varchar(7)
+  picture_url text
+  interval_summary varchar [note: 'API `interval` — read-only recurrence summary']
+  organizer_person_id uuid [ref: > people.id]
+  register_url text
+  register_form_id varchar
+  who_can_attend varchar [note: '"" = invited-only, "all"']
+  show_guest_list boolean [default: false]
+  repeat event_repeat
+  repeat_frequency integer
+  repeat_on varchar [note: 'day names | weekday|monthday']
+  repeat_occurrences integer
+  repeat_end_date timestamptz
+  assets jsonb
+  _synced_at timestamptz [not null]
+  _source_modified timestamptz
+  indexes {
+    (start_date, end_date)
+  }
+  Note: 'calendar/events/*'
+}
+
+Table calendar_event_locations {
+  event_id uuid [ref: > calendar_events.id]
+  location_id uuid [ref: > locations.id]
+  indexes {
+    (event_id, location_id) [pk]
+  }
+  Note: 'edit via locations_replace/locations_remove'
+}
+
+// ── Financial domain ─────────────────────────────────────────
+
+Table financial_categories {
+  id uuid [pk]
+  name varchar [not null]
+  status integer [not null, default: 1, note: '0=archived,1=active']
+  tax_deductible boolean [default: false]
+  _synced_at timestamptz [not null]
+  Note: 'financial/categories/* — chart of accounts'
+}
+
+Table batches {
+  id uuid [pk]
+  number integer [unique]
+  name varchar
+  _synced_at timestamptz [not null]
+  Note: 'no dedicated endpoint — derived from transaction payloads'
+}
+
+Table transactions {
+  id uuid [pk]
+  person_id uuid [not null, ref: > people.id]
+  batch_id uuid [ref: > batches.id]
+  transaction_date date [not null]
+  transaction_datetime timestamptz
+  method transaction_method [not null]
+  check_number varchar
+  total numeric(12,2) [note: 'sum of amounts; API `transaction_total` arrives as decimal-string']
+  _synced_at timestamptz [not null]
+  _source_modified timestamptz
+  indexes {
+    (transaction_date)
+    (person_id)
+  }
+  Note: 'person_first_name/last_name/email are denormalized in API — NOT stored here'
+}
+
+Table transaction_amounts {
+  id uuid [pk]
+  transaction_id uuid [not null, ref: > transactions.id]
+  category_id uuid [not null, ref: > financial_categories.id]
+  total numeric(12,2) [not null]
+  tax_deductible boolean [default: false]
+  memo text
+  external_notes text [note: 'immutable once set — never overwrite']
+  Note: 'line items; edit via amounts_add/amounts_edit/amounts_remove'
+}

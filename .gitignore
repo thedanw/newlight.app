@@ -1,3 +1,21 @@
 # Ignore the boss skill junction
 .agents/skills/boss
 .agents/planning/.referenceFiles/churchcrm
+
+# Logs
+logs
+*.log
+pnpm-debug.log*
+
+# Dependencies
+node_modules
+
+# Build output
+dist
+dist-ssr
+*.local
+
+# Panda CSS generated
+styled-system
+# Elvanto live-probe output (contains production PII samples)
+scripts/elvanto-probe/

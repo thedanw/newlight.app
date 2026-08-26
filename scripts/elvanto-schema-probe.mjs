@@ -6,8 +6,8 @@
  * against the production account, incl. custom-field UUIDs, enum values, and
  * list-vs-detail field drift. WRITE ENDPOINTS ARE NEVER CALLED (getAll/getInfo/search only).
  *
- * Credentials: env ELVANTO_API_KEY wins; else parsed from runsheets api.php
- * (never copied into this repo). Auth = Basic `API_KEY:` per api.php.
+ * Credentials: env ELVANTO_API_KEY wins; else loaded from repo-root `.env`
+ * (gitignored — copy `.env.example` and fill in). Auth = Basic `API_KEY:`.
  *
  * Output → scripts/elvanto-probe/
  *   report.json         raw observed shapes (field paths + types + truncated samples)
@@ -19,28 +19,39 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-const RUNSHEETS_API_PHP =
-  process.env.ELVANTO_API_PHP || 'C:\\laragon\\www\\runsheets\\public\\api.php';
 const OUT_DIR = path.resolve('scripts/elvanto-probe');
 const DELAY_MS = 350;
 const SAMPLE_MAX = 40;
 
 // ── credentials ──────────────────────────────────────────────────────────────
+// Native .env loader (Node ≥20.12); silent if file absent — env var may suffice.
+try {
+  process.loadEnvFile(path.resolve('.env'));
+} catch { /* no .env — fall through to process.env */ }
+
 function loadApiKey() {
-  if (process.env.ELVANTO_API_KEY) return process.env.ELVANTO_API_KEY;
-  const php = fs.readFileSync(RUNSHEETS_API_PHP, 'utf8');
-  const m = php.match(/ELVANTO_API_KEY['"],\s*'([^']+)'/);
-  if (!m) throw new Error(`Set ELVANTO_API_KEY or check ${RUNSHEETS_API_PHP}`);
-  return m[1];
+  const key = process.env.ELVANTO_API_KEY;
+  if (!key) {
+    throw new Error(
+      'ELVANTO_API_KEY not set.\n' +
+      'Fix: cp .env.example .env  → paste key into .env (gitignored), or export ELVANTO_API_KEY.',
+    );
+  }
+  return key.trim();
 }
-const AUTH = 'Basic ' + Buffer.from(loadApiKey() + ':').toString('base64');
+// Lazy: only resolved when an API call is actually made (--report-only needs no key).
+let AUTH = null;
+function authHeader() {
+  AUTH ??= 'Basic ' + Buffer.from(loadApiKey() + ':').toString('base64');
+  return AUTH;
+}
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 async function call(endpoint, params = {}, attempt = 1) {
   const res = await fetch(`https://api.elvanto.com/v1/${endpoint}.json`, {
     method: 'POST',
-    headers: { Authorization: AUTH, 'Content-Type': 'application/json' },
+    headers: { Authorization: authHeader(), 'Content-Type': 'application/json' },
     body: JSON.stringify(params),
   });
   if ((res.status === 429 || res.status >= 500) && attempt < 4) {

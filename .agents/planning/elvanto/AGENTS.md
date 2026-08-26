@@ -7,7 +7,7 @@ Entry point for LLM agents working on the Elvanto ↔ Supabase sync. Read this f
 | `findings.md` | Raw API research: 47 endpoints, request/response fields, enums, doc bugs | Consuming an Elvanto endpoint; checking a field's API shape |
 | `schema.dbml` | Logical DB model: 24 tables, columns, types, FKs, enums, indexes | Creating/migrating Supabase tables; checking where a field lives |
 | `sync-design.md` | Binding sync contract: watermarks, deletes, upsert order, type maps, write-back rules | Writing/modifying sync code |
-| `scripts/elvanto-schema-probe.mjs` | Read-only live schema probe (`node scripts/elvanto-schema-probe.mjs`, `--report-only` reuses cache) | Re-verifying schema after Elvanto changes; output in `scripts/elvanto-probe/` (gitignored, PII) |
+| `scripts/elvanto-schema-probe.mjs` | Read-only live schema probe (`node scripts/elvanto-schema-probe.mjs`, `--report-only` reuses cache) | Re-verifying schema after Elvanto changes; output in `scripts/elvanto-probe/` (gitignored, PII). Auth: `ELVANTO_API_KEY` env var or repo-root `.env` (see `.env.example`) |
 
 ## Hard Rules (all agents)
 1. `sync-design.md` is normative — if code contradicts it, fix the code or update the doc first.

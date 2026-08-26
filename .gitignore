@@ -15,6 +15,11 @@ dist
 dist-ssr
 *.local
 
+# Secrets — never commit (see .env.example)
+.env
+.env.*
+!.env.example
+
 # Panda CSS generated
 styled-system
 # Elvanto live-probe output (contains production PII samples)

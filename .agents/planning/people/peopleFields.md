@@ -1,4 +1,5 @@
 > Single source of truth for PEOPLE field-level data (names, enums, visibility, journey-grid mapping). Decisions/rationale → `decision.md` (governs on conflict).
+> **UI/UX Guidelines:** All UI implementation MUST strictly follow `.agents/planning/ui-ux/decision.md` and `.agents/planning/module-design/decision.md`. See plan.md §UI/UX Guidelines for full details.
 
 # Journey Grid Overview (replaces Locations, status, People Category)
 = journey tracks (rows) × universal stages (columns); 1 stage/track/person in `people.journey` JSONB `{track_id → stage}`. Decisions #38–43.

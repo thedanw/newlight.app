@@ -1,5 +1,7 @@
 # Decision: People Module — Data Model & Journey Grid
 
+> **UI/UX Guidelines:** All UI implementation MUST strictly follow `.agents/planning/ui-ux/decision.md` and `.agents/planning/module-design/decision.md`. See plan.md §UI/UX Guidelines for full details.
+
 ## Aliases
 - Journey grid = journey tracks (rows) × universal stages (columns); one stage per journey track per person; categories/subcategories = structural headings only (never journey rows)
 - Stage = journey_stage_slug — values & colors in peopleFields.md journey grid

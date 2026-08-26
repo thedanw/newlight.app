@@ -19,3 +19,8 @@ dist-ssr
 styled-system
 # Elvanto live-probe output (contains production PII samples)
 scripts/elvanto-probe/
+
+# Environment secrets (never commit)
+.env
+.env.*
+!.env.example

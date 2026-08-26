@@ -12,6 +12,7 @@ Entry point for LLM agents working on the Elvanto ↔ Supabase sync. Read this f
 | `compatibility-design.md` | Migration-first compatibility plan: dual-key IDs, households⇄families, journey seeding, field ownership matrix, runbook, limitations L-1..L-8 | Building the DB or migration; implementing sync transforms |
 | `api-audit-2026-08-25.md` | Live-API audit vs findings/schema: gaps, doc bugs, fixes | Verifying API assumptions; before schema changes |
 | `scripts/elvanto-schema-probe.mjs` | Read-only live schema probe (`node scripts/elvanto-schema-probe.mjs`, `--report-only` reuses cache) | Re-verifying schema after Elvanto changes; output in `scripts/elvanto-probe/` (gitignored, PII) |
+| [`../database-setup/plan.md`](../database-setup/plan.md) | **Supabase DB setup plan** — 9 batches: CLI init → schema (44 tables + 3 sync infra) → RLS → seeds → TypeScript types → push | Starting database provisioning; creating migrations |
 
 ## Hard Rules (all agents)
 1. `sync-design.md` is normative — if code contradicts it, fix the code or update the doc first.

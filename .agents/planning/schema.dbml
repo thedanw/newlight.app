@@ -15,7 +15,7 @@
 //
 // Conventions:
 //   - Three partitions: APP-OWNED (decisions govern) · SYNC-SHADOW (`elvanto_*`; sync-written, never in UI)
-//     · MIRROR (Elvanto governs; future modules consume — groups, services, songs, calendar, financial, flows)
+//     · MIRROR (Elvanto governs; future modules consume — groups, services, songs, calendar, flows)
 //   - Dual-key identity: `id uuid pk` + `elvanto_id uuid unique null` on app-owned synced tables.
 //     Sync joins `elvanto_id` ONLY. Migrated rows: id = elvanto_id. App-origin rows: adopt on first push.
 //     Pure MIRROR tables: `id` IS the Elvanto UUID (no separate elvanto_id column).
@@ -30,7 +30,7 @@
 
 Project newlight_app {
   database_type: 'PostgreSQL'
-  Note: 'New Light CRM — unified app + Elvanto sync. 44 tables. FK-safe upsert order: sync-design.md §5.'
+  Note: 'New Light CRM — unified app + Elvanto sync. 40 tables. FK-safe upsert order: sync-design.md §5.'
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -168,16 +168,6 @@ Enum event_repeat {
   fortnightly
   monthly
   yearly
-}
-
-Enum transaction_method {
-  cash
-  check
-  credit_card
-  bank_transfer
-  automatic_direct_debit
-  online
-  other
 }
 
 Enum custom_field_type {
@@ -756,56 +746,6 @@ Table calendar_event_locations {
     (event_id, location_id) [pk]
   }
   Note: 'edit via locations_replace/locations_remove'
-}
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// Financial Domain (future Giving module)
-// ═══════════════════════════════════════════════════════════════════════════════
-
-Table financial_categories {
-  id uuid [pk]
-  name varchar [not null]
-  status integer [not null, default: 1, note: '0=archived,1=active']
-  tax_deductible boolean [default: false]
-  _synced_at timestamptz [not null]
-  Note: 'financial/categories/* — chart of accounts; create-only upstream (L-7)'
-}
-
-Table batches {
-  id uuid [pk]
-  number integer [unique]
-  name varchar
-  _synced_at timestamptz [not null]
-  Note: 'no dedicated endpoint — derived from transaction payloads'
-}
-
-Table transactions {
-  id uuid [pk]
-  person_id uuid [not null, ref: > people.id]
-  batch_id uuid [ref: > batches.id]
-  transaction_date date [not null]
-  transaction_datetime timestamptz
-  method transaction_method [not null]
-  check_number varchar
-  total numeric(12,2) [note: 'sum of amounts; API `transaction_total` arrives as decimal-string']
-  _synced_at timestamptz [not null]
-  _source_modified timestamptz
-  indexes {
-    transaction_date
-    person_id
-  }
-  Note: 'person_first_name/last_name/email are denormalized in API — NOT stored here'
-}
-
-Table transaction_amounts {
-  id uuid [pk]
-  transaction_id uuid [not null, ref: > transactions.id]
-  category_id uuid [not null, ref: > financial_categories.id]
-  total numeric(12,2) [not null]
-  tax_deductible boolean [default: false]
-  memo text
-  external_notes text [note: 'immutable once set — never overwrite']
-  Note: 'line items; edit via amounts_add/amounts_edit/amounts_remove'
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════

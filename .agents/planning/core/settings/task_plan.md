@@ -6,7 +6,7 @@
 |-------|--------|-------|
 | Brainstorm | complete | decision.md written |
 | Plan | complete | plan.md written (small-context optimized: sub-batches + per-batch context blocks) |
-| Execute & Review | in_progress | Batches 1–2 complete |
+| Execute & Review | in_progress | Batches 1–3 complete |
 | Review | pending | |
 
 ## Execution Ritual (every batch)
@@ -27,11 +27,11 @@
 | 2b | SettingsPage shell | complete |
 | 2c | Church Information stub + register | complete |
 | 2d | Verify | complete |
-| 3 | Church Information section — migrate BrandForm + new fields + persistence | not-started |
-| 3a | Migrate 8 BrandForm fields | not-started |
-| 3b | Add 4 new fields | not-started |
-| 3c | Logo upload + persistence | not-started |
-| 3d | Verify | not-started |
+| 3 | Church Information section — migrate BrandForm + new fields + persistence | complete |
+| 3a | Migrate 8 BrandForm fields | complete |
+| 3b | Add 4 new fields | complete |
+| 3c | Logo upload + persistence | complete |
+| 3d | Verify | complete |
 | 4 | Sidebar settings nav-tile | not-started |
 | 4a | Sidebar tile + prop rename | not-started |
 | 4b | Account menu item | not-started |

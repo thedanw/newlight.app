@@ -72,3 +72,40 @@ Session log — errors, test results, discoveries. Updated per batch.
 | TS6133 `showSectionList` unused | Removed the unused variable |
 
 **Commit:** `feat(settings): add dashboard shell with section/page registry`
+
+## Batch 3 Complete — 2026-08-29
+
+- ✅ **3a** Migrated all 8 BrandForm fields into `src/core/settings/sections/ChurchInformationSection.tsx` (full implementation replacing Batch 2 stub): Color scheme (Light/Dark buttons), Sidebar style (Select), Gray (RadioCardGroup 6), Accent (RadioCardGroup 26), Corner radius (Slider 7 marks), Font (Select), Heading style (3 Checkboxes), Logo (FileUpload, save-on-apply). Copied types verbatim from BrandForm: `BrandState`, `ThemeSelect`, `getInitialState`, `activeHeadingTokens`, `RADII`, `RADIUS_MARKS`, `GRAY_OPTIONS`, `GRAY_SWATCHES`, `ACCENT_OPTIONS`, `ACCENT_SWATCHES`, `SIDEBAR_OPTIONS`, `HEADING_OPTIONS`.
+- ✅ **3b** Added 4 new fields: Church Name, App Name, Church Email, Website (Field+Input). New `ChurchInfo` type + `EMPTY_CHURCH_INFO`.
+- ✅ **3c** Logo upload + persistence:
+  - `uploadLogo(file)` → `supabase.storage.from('brand-assets').upload(path, file)` → `getPublicUrl`
+  - `SettingsProvider` extended with `getAppSettings()`/`saveAppSettings()` (upsert on `platform_settings`, `onConflict: 'key,environment'`, `APP_SETTINGS_KEY='app-settings'`, `APP_SETTINGS_ENV=import.meta.env.MODE ?? 'development'`)
+  - Hydrates on mount from `platform_settings`; live re-theme via `switchTheme`+`applyFont` useEffect on `[theme]`
+  - Apply → upload draft + `saveAppSettings({theme, churchInfo, logoUrl})` + toast; Cancel → revoke draft
+  - `src/core/lib/database.types.ts`: added `PlatformSettingsRow` + registered `platform_settings` in Tables
+  - `src/App.tsx`: wrapped in `<SettingsProvider>` + added `<Toaster />` at root (moved from StyleguideApp so toasts work on all routes)
+  - `src/styleguide/App.tsx`: removed `<Toaster />` mount + import
+  - `supabase/migrations/20260829000001_grant_anon_settings_write.sql`: grant anon INSERT/UPDATE on `platform_settings` (for lab persistence)
+- ✅ **3d** Verify:
+  - `npx tsc -b tsconfig.app.json --force` → clean
+  - Browser (:5174): all 12 fields render on `/settings/church-info` ✅; live re-theme works (clicking Dark sets `data-mode="dark"`) ✅; Apply reaches DB and handles errors gracefully ✅; Toaster mounted at root (region "Notifications, bottom-end" present on /settings) ✅; error toast "Failed to save settings" shows when DB write fails ✅
+
+**Errors**
+| Error | Resolution |
+|-------|-----------|
+| `saveAppSettings` swallowed DB error → success toast shown on failure | Changed to `throw error` so `handleApply` catch shows the error toast |
+| Apply persistence gets 42501 permission denied (anon only has SELECT) | Added grant migration `20260829000001_grant_anon_settings_write.sql` |
+| `supabase db push` fails: "relation calendars already exists (SQLSTATE 42P07)" | Pre-existing migration state mismatch (remote DB out of sync with local migrations). **Deployment task** — not resolved in this batch. |
+
+**Commit:** `feat(settings): add Church Information section with persistence`
+
+## Batch 4 start — 2026-08-29
+
+**Task:** Replace the `brand` nav-tile with a `settings` nav-tile in the sidebar.
+
+**Key context:**
+- `src/core/ui/sidebar.tsx` — `onBrandSettings` prop, `FOOTER_TILES = 2`, Brand tile (SlidersHorizontal icon), Account menu item `value="brand-settings"` label "Brand settings"
+- `src/styleguide/App.tsx` — passes `onBrandSettings` (opens BrandForm drawer), has brand overlay + BrandForm drawer wiring + `brandLogo`/`brandLogoRef` state
+- Rename `onBrandSettings` → `onSettingsNavigate`; replace Brand tile with Settings tile (Settings icon, label "Settings", keep `FOOTER_TILES=2`); rename Account menu item `value="brand-settings"` → `"settings"` label "Settings"; rewire App.tsx to navigate to `/settings`; remove brand overlay + BrandForm drawer wiring + `brandLogo`/`brandLogoRef` state
+
+**Next:** Execute sub-batches 4a → 4b → 4c → 4d in order.

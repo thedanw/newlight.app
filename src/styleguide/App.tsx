@@ -15,7 +15,6 @@ import {
   PageHeader,
   PagePanel,
   Text,
-  Toaster,
   Sidebar,
 } from '@/core/ui'
 import { BrandForm } from './BrandForm'
@@ -443,9 +442,6 @@ export default function StyleguideApp() {
           </Drawer.Content>
         </Drawer.Positioner>
       </Drawer.Root>
-
-      {/* Toaster — mounted once so Toast demos (Batch 7) have a surface */}
-      <Toaster />
     </div>
   )
 }

@@ -145,6 +145,14 @@ type FormSubmissionRow = {
   created_at: string
 }
 
+type PlatformSettingsRow = {
+  id: string
+  key: string
+  environment: string
+  value: Json
+  updated_at: string
+}
+
 export type Database = {
   public: {
     Tables: {
@@ -162,6 +170,7 @@ export type Database = {
       forms: TableDefinition<FormRow>
       form_fields: TableDefinition<FormFieldRow>
       form_submissions: TableDefinition<FormSubmissionRow>
+      platform_settings: TableDefinition<PlatformSettingsRow>
     }
     Views: Record<string, never>
     Functions: Record<string, never>

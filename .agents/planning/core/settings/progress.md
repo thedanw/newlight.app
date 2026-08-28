@@ -99,13 +99,29 @@ Session log — errors, test results, discoveries. Updated per batch.
 
 **Commit:** `feat(settings): add Church Information section with persistence`
 
-## Batch 4 start — 2026-08-29
+## Batch 4 Complete — 2026-08-29
 
-**Task:** Replace the `brand` nav-tile with a `settings` nav-tile in the sidebar.
+- ✅ **4a** `src/core/ui/sidebar.tsx` — renamed `onBrandSettings` → `onSettingsNavigate` (SidebarInnerProps, SidebarInner, SidebarProps, Sidebar). Replaced Brand footer tile with Settings tile (`Settings` icon from lucide-react, label "Settings", kept `FOOTER_TILES = 2`). Updated comment `// Account + Settings`.
+- ✅ **4b** Account menu item — renamed `value="brand-settings"` → `"settings"`, label "Brand settings" → "Settings", icon `SlidersHorizontal` → `Settings`.
+- ✅ **4c** `src/styleguide/App.tsx` — rewired `<Sidebar onSettingsNavigate={() => navigate('/settings')}>`; removed `logo={brandLogo}` prop; removed `brandLogo`/`brandLogoRef` state, `commitLogo`, favicon useEffect, `openBrandForm`, `brandDrawerOpen`, and the entire Brand settings Drawer block; removed `BrandForm` import; removed now-unused `useState` import.
+- ✅ **4d** Verify:
+  - `npx tsc -b tsconfig.app.json --force` → clean
+  - Browser (:5174): footer tiles = Account + Settings ✅; clicking Settings tile navigates to `/settings` ✅; Account menu shows "Settings" item ✅; clicking it navigates to `/settings` ✅
+
+**Errors**
+| Error | Resolution |
+|-------|-----------|
+| None | — |
+
+**Commit:** `feat(settings): replace brand nav-tile with settings nav-tile`
+
+## Batch 5 start — 2026-08-29
+
+**Task:** Remove the legacy `src/styleguide/BrandForm.tsx`.
 
 **Key context:**
-- `src/core/ui/sidebar.tsx` — `onBrandSettings` prop, `FOOTER_TILES = 2`, Brand tile (SlidersHorizontal icon), Account menu item `value="brand-settings"` label "Brand settings"
-- `src/styleguide/App.tsx` — passes `onBrandSettings` (opens BrandForm drawer), has brand overlay + BrandForm drawer wiring + `brandLogo`/`brandLogoRef` state
-- Rename `onBrandSettings` → `onSettingsNavigate`; replace Brand tile with Settings tile (Settings icon, label "Settings", keep `FOOTER_TILES=2`); rename Account menu item `value="brand-settings"` → `"settings"` label "Settings"; rewire App.tsx to navigate to `/settings`; remove brand overlay + BrandForm drawer wiring + `brandLogo`/`brandLogoRef` state
+- `src/styleguide/BrandForm.tsx` — legacy brand settings form (source of the Batch 3 migration). No longer referenced after Batch 4 removed the import from App.tsx.
+- `src/styleguide/router.ts` — check `OverlayKey` type for `'brand'`; remove if unused.
+- Verify no remaining references to `BrandForm` anywhere.
 
-**Next:** Execute sub-batches 4a → 4b → 4c → 4d in order.
+**Next:** Execute sub-batches 5a → 5b in order.

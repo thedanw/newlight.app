@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { useEffect, useRef, type ReactNode } from 'react'
 import { AnimatePresence, motion, useReducedMotion, type Variants } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { css } from 'styled-system/css'
@@ -17,7 +17,6 @@ import {
   Text,
   Sidebar,
 } from '@/core/ui'
-import { BrandForm } from './BrandForm'
 import {
   hrefForCategory,
   hrefForDashboard,
@@ -137,8 +136,6 @@ export default function StyleguideApp() {
     openOverlay,
     closeOverlay,
   } = useHashNavigation()
-  const [brandLogo, setBrandLogo] = useState<string | null>(null)
-  const brandLogoRef = useRef<string | null>(null)
   const reduceMotion = useReducedMotion()
 
   // Resolve the routed category id against the TOC; unknown ids fall back to
@@ -225,38 +222,9 @@ export default function StyleguideApp() {
     </Stack>
   )
 
-  // BrandForm — opens from the header kebab as a Drawer (decision
-  // #46). The logo commits to the sidebar brand slot on Apply (decision #45);
-  // old committed URLs are revoked so object URLs never leak.
-  const commitLogo = (url: string) => {
-    if (brandLogoRef.current) URL.revokeObjectURL(brandLogoRef.current)
-    brandLogoRef.current = url
-    setBrandLogo(url)
-  }
-
-  // The committed logo also becomes the document favicon (browser tab).
-  // Object URLs are content-sniffed, so drop the static SVG type attr while
-  // one is active; restore the default mark when no logo is committed.
-  useEffect(() => {
-    const link = document.querySelector<HTMLLinkElement>('link[rel="icon"]')
-    if (!link) return
-    if (brandLogo) {
-      link.href = brandLogo
-      link.removeAttribute('type')
-    } else {
-      link.href = '/vite.svg'
-      link.type = 'image/svg+xml'
-    }
-  }, [brandLogo])
-
-  const openBrandForm = () => {
-    openOverlay('brand')
-  }
-
   // Overlays are keyed in history.state so Back closes them first.
   const demoDialogOpen = overlay === 'demo-dialog'
   const demoDrawerOpen = overlay === 'demo-drawer'
-  const brandDrawerOpen = overlay === 'brand'
 
   const renderPanel = (panel: Panel) => {
     if (panel.kind === 'category') {
@@ -277,9 +245,8 @@ export default function StyleguideApp() {
     <div className={shellCss}>
       {/* Sidebar */}
       <Sidebar
-        onBrandSettings={openBrandForm}
+        onSettingsNavigate={() => navigate('/settings')}
         onModuleNavigate={(moduleId) => navigate(`/${moduleId}`)}
-        logo={brandLogo}
       />
 
       {/* #page-panel — header + push/pop stack */}
@@ -408,37 +375,6 @@ export default function StyleguideApp() {
               <Drawer.Title>Drawer demo</Drawer.Title>
             </Drawer.Header>
             <Drawer.Body>{renderOverlayDemoBody('drawer')}</Drawer.Body>
-          </Drawer.Content>
-        </Drawer.Positioner>
-      </Drawer.Root>
-
-      {/* Brand settings Drawer (decision #46) — form body + pinned footer */}
-      <Drawer.Root
-        open={brandDrawerOpen}
-        onOpenChange={(details) => {
-          if (!details.open) closeOverlay()
-        }}
-      >
-        <Drawer.Backdrop />
-        <Drawer.Positioner>
-          <Drawer.Content>
-            <Drawer.CloseTrigger asChild>
-                <CloseButton />
-              </Drawer.CloseTrigger>
-            <Drawer.Header>
-              <Drawer.Title>Brand settings</Drawer.Title>
-              <Drawer.Description>
-                Theme knobs re-theme the whole shell live. Your logo is committed when you press
-                Apply.
-              </Drawer.Description>
-            </Drawer.Header>
-            <Drawer.Body>
-              <BrandForm
-                logo={brandLogo}
-                onApplyLogo={commitLogo}
-                onClose={closeOverlay}
-              />
-            </Drawer.Body>
           </Drawer.Content>
         </Drawer.Positioner>
       </Drawer.Root>

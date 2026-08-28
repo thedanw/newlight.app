@@ -6,7 +6,7 @@
 |-------|--------|-------|
 | Brainstorm | complete | decision.md written |
 | Plan | complete | plan.md written (small-context optimized: sub-batches + per-batch context blocks) |
-| Execute & Review | in_progress | Batches 1–3 complete |
+| Execute & Review | in_progress | Batches 1–4 complete |
 | Review | pending | |
 
 ## Execution Ritual (every batch)
@@ -32,11 +32,11 @@
 | 3b | Add 4 new fields | complete |
 | 3c | Logo upload + persistence | complete |
 | 3d | Verify | complete |
-| 4 | Sidebar settings nav-tile | not-started |
-| 4a | Sidebar tile + prop rename | not-started |
-| 4b | Account menu item | not-started |
-| 4c | Styleguide App rewiring | not-started |
-| 4d | Verify | not-started |
+| 4 | Sidebar settings nav-tile | complete |
+| 4a | Sidebar tile + prop rename | complete |
+| 4b | Account menu item | complete |
+| 4c | Styleguide App rewiring | complete |
+| 4d | Verify | complete |
 | 5 | Remove legacy BrandForm | not-started |
 | 5a | Delete + remove references | not-started |
 | 5b | Verify | not-started |

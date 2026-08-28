@@ -4,7 +4,7 @@ import { useDrag } from '@use-gesture/react'
 import { css } from 'styled-system/css'
 import { HStack, Stack } from 'styled-system/jsx'
 import { Avatar, Menu, NavTile, PullTab, NavProvider, useNavContext, Text } from '@/core/ui'
-import { Users, UsersRound, Wrench, CalendarDays, Sun, SlidersHorizontal } from 'lucide-react'
+import { Users, UsersRound, Wrench, CalendarDays, Sun, Settings } from 'lucide-react'
 
 /* ---------------------------------------------------------------------------
    Sidebar — mobile-first right-side module menu (ui-ux #7):
@@ -27,7 +27,7 @@ const MODULES = [
   { id: 'calendar', label: 'Calendar', icon: CalendarDays },
 ] as const
 
-const FOOTER_TILES = 2 // Account + Brand
+const FOOTER_TILES = 2 // Account + Settings
 const TILE_SIZE = 66 // px
 const TILE_GAP = 12 // px
 const SIDEBAR_PADDING = 12 // px
@@ -195,13 +195,13 @@ const brandTileCss = css({
 })
 
 interface SidebarInnerProps {
-  onBrandSettings?: () => void
+  onSettingsNavigate?: () => void
   onModuleNavigate?: (moduleId: string) => void
   /** Committed brand logo URL — replaces the Sun mark in the brand slot. */
   logo?: string | null
 }
 
-function SidebarInner({ onBrandSettings, onModuleNavigate, logo }: SidebarInnerProps) {
+function SidebarInner({ onSettingsNavigate, onModuleNavigate, logo }: SidebarInnerProps) {
   const { isOpen, open, close, toggle } = useNavContext()
   const sidebarRef = useRef<HTMLDivElement>(null)
   const [isDragging, setIsDragging] = useState(false)
@@ -480,9 +480,9 @@ function SidebarInner({ onBrandSettings, onModuleNavigate, logo }: SidebarInnerP
                       </Stack>
                     </HStack>
                   </Menu.ItemGroupLabel>
-                  <Menu.Item value="brand-settings" onSelect={onBrandSettings}>
-                    <SlidersHorizontal />
-                    <Menu.ItemText>Brand settings</Menu.ItemText>
+                  <Menu.Item value="settings" onSelect={onSettingsNavigate}>
+                    <Settings />
+                    <Menu.ItemText>Settings</Menu.ItemText>
                   </Menu.Item>
                 </Menu.ItemGroup>
               </Menu.Content>
@@ -490,9 +490,9 @@ function SidebarInner({ onBrandSettings, onModuleNavigate, logo }: SidebarInnerP
           </Menu.Root>
 
           <NavTile
-            icon={<SlidersHorizontal className={css({ width: '24px', height: '24px' })} />}
-            label="Brand"
-            onClick={onBrandSettings}
+            icon={<Settings className={css({ width: '24px', height: '24px' })} />}
+            label="Settings"
+            onClick={onSettingsNavigate}
           />
         </nav>
       </div>
@@ -521,16 +521,16 @@ function SidebarInner({ onBrandSettings, onModuleNavigate, logo }: SidebarInnerP
 }
 
 interface SidebarProps {
-  onBrandSettings?: () => void
+  onSettingsNavigate?: () => void
   onModuleNavigate?: (moduleId: string) => void
   /** Committed brand logo URL — shown in the brand slot instead of the Sun. */
   logo?: string | null
 }
 
-export function Sidebar({ onBrandSettings, onModuleNavigate, logo }: SidebarProps) {
+export function Sidebar({ onSettingsNavigate, onModuleNavigate, logo }: SidebarProps) {
   return (
     <NavProvider>
-      <SidebarInner onBrandSettings={onBrandSettings} onModuleNavigate={onModuleNavigate} logo={logo} />
+      <SidebarInner onSettingsNavigate={onSettingsNavigate} onModuleNavigate={onModuleNavigate} logo={logo} />
     </NavProvider>
   )
 }

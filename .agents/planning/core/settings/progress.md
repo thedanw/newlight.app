@@ -130,6 +130,21 @@ Session log — errors, test results, discoveries. Updated per batch.
 
 **Commit:** `refactor(settings): remove legacy styleguide BrandForm`
 
+## Final Complete — 2026-08-29
+
+- ✅ **Pushed** `feature/settings-dashboard` to origin (after resolving a push-protection block).
+- ⚠️ **Security issue resolved:** GitHub push protection blocked the push — `.vscode/mcp.json` contained a hardcoded **Supabase Personal Access Token** (`sbp_...`). This was a **pre-existing** exposure (the file was committed on `main` in `a7009fb` and modified by Batch 1's `0da6a72`).
+  - Sanitized `.vscode/mcp.json` → `"Authorization": "Bearer ${env:SUPABASE_ACCESS_TOKEN}"` (VS Code MCP env-var substitution).
+  - Added `.vscode/mcp.json` to `.gitignore` (machine-specific credentials config).
+  - Rewrote the feature branch history (`git filter-branch` + reset to `feat/people-module` base + cherry-pick) to remove the file from all commits. Verified `git grep` finds no token in branch history.
+  - **User action required:** ⚠️ **Revoke/rotate the Supabase token** — it remains exposed in `main`'s history (`a7009fb`) and `feat/people-module`'s history. Set `SUPABASE_ACCESS_TOKEN` env var for the MCP server to work.
+- ✅ Final branch state: `895eaa6` (base) → `42f0fe6` (B1) → `deac3f9` (B2) → `1aaf2fd` (B3) → `4e076f7` (B4) → `73143b2` (B5) → `791134d` (B6) → `d797113` (gitignore mcp.json).
+
+## Deployment tasks (not part of this plan)
+- Push Supabase migrations to remote DB — blocked by pre-existing migration state mismatch (`relation calendars already exists`).
+- Add `@types/node` to `pnpm-lock.yaml` with the correct pnpm version (local pnpm 8.15.4 rewrites the v9 lockfile; `pnpm-workspace.yaml` `allowBuilds` is a pnpm 10 feature).
+- Revoke/rotate the exposed Supabase token (see above).
+
 ## Batch 6 Complete — 2026-08-29
 
 - ✅ **6a** Demo module registration — created `src/modules/people/settings/PeopleSettingsPage.tsx` (demo page) + `src/modules/people/settings.ts` (registers page under `church-info` section via `registerSettingsPage`, id `people`, title "People Settings"). Wired via `import './settings'` in `src/modules/people/routes.tsx` (runs at module load). Deep-link `/settings/church-info/people` verified in browser (breadcrumb "Settings › Church Information › People Settings"; section page shows "Pages" card).

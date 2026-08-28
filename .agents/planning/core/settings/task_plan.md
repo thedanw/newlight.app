@@ -6,7 +6,7 @@
 |-------|--------|-------|
 | Brainstorm | complete | decision.md written |
 | Plan | complete | plan.md written (small-context optimized: sub-batches + per-batch context blocks) |
-| Execute & Review | in_progress | Batches 1–6 complete |
+| Execute & Review | complete | Batches 1–6 complete, branch pushed |
 | Review | pending | |
 
 ## Execution Ritual (every batch)
@@ -44,4 +44,4 @@
 | 6a | Demo module registration | complete |
 | 6b | Full verification | complete |
 | 6c | Cleanup | complete |
-| Final | Push branch | not-started |
+| Final | Push branch | complete |

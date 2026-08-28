@@ -2,7 +2,10 @@
 	"servers": {
 		"supabase": {
 			"type": "http",
-			"url": "https://mcp.supabase.com/mcp?project_ref=rupujdsalfekudambviu&features=docs,account,database,debugging,development,functions,branching"
+			      "url": "https://mcp.supabase.com/mcp?project_ref=rupujdsalfekudambviu&features=docs,account,database,debugging,development,functions,branching",
+      				"headers": {
+        				"Authorization": "Bearer ${env:SUPABASE_ACCESS_TOKEN}"
+      				}
 		}
 	},
 	"inputs": []

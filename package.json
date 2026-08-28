@@ -21,7 +21,9 @@
     "framer-motion": "^13.0.0",
     "lucide-react": "^1.30.0",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "react-router-dom": "^7.18.2",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@pandacss/dev": "^1.12.0",

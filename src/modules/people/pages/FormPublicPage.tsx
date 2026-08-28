@@ -1,0 +1,106 @@
+import { useEffect, useState } from 'react'
+import { useParams } from 'react-router-dom'
+import { Button, Field, Heading, Input, Text, Textarea } from '@/core/ui'
+import { getFormById, submitForm } from '../lib/form-queries'
+import { PageSkeleton } from '../components/PageSkeleton'
+import type { FormWithFields } from '../lib/types'
+
+export default function FormPublicPage() {
+  const { formId } = useParams()
+  const [form, setForm] = useState<FormWithFields | null>(null)
+  const [answers, setAnswers] = useState<Record<string, unknown>>({})
+  const [submitted, setSubmitted] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    if (!formId) return
+    getFormById(formId)
+      .then((loaded) => { setForm(loaded); setLoading(false) })
+      .catch((reason: unknown) => {
+        setError(reason instanceof Error ? reason.message : 'Unable to load form.')
+        setLoading(false)
+      })
+  }, [formId])
+
+  if (loading) return <main><PageSkeleton /></main>
+  if (error) return <Text>{error}</Text>
+  if (!form) return <Text>Form not found.</Text>
+  if (!form.is_public) return <Text>This form is not accepting submissions.</Text>
+
+  const setAnswer = (fieldId: string, value: unknown) => setAnswers((current) => ({ ...current, [fieldId]: value }))
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault()
+    setError(null)
+    try {
+      await submitForm(form.id, answers)
+      setSubmitted(true)
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : 'Unable to submit form.')
+    }
+  }
+
+  if (submitted) {
+    return (
+      <main>
+        <Heading>{(form.settings as { thank_you_message?: string } | null)?.thank_you_message ?? 'Thanks for submitting!'}</Heading>
+      </main>
+    )
+  }
+
+  return (
+    <main>
+      <Heading>{form.name}</Heading>
+      {form.description && <Text color="fg.muted">{form.description}</Text>}
+      <form onSubmit={handleSubmit}>
+        {form.fields.map((field) => {
+          const value = answers[field.id]
+          return (
+            <Field.Root key={field.id}>
+              <Field.Label>{field.label}{field.required ? ' *' : ''}</Field.Label>
+              {field.field_type === 'textarea' && (
+                <Textarea value={String(value ?? '')} onChange={(event) => setAnswer(field.id, event.target.value)} placeholder={field.placeholder ?? undefined} />
+              )}
+              {field.field_type === 'select' && (
+                <select value={String(value ?? '')} onChange={(event) => setAnswer(field.id, event.target.value)}>
+                  <option value="">Select...</option>
+                  {(field.options as { label: string; value: string }[] | null)?.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+                </select>
+              )}
+              {field.field_type === 'multi_select' && (
+                <div>
+                  {(field.options as { label: string; value: string }[] | null)?.map((option) => {
+                    const selected = Array.isArray(value) ? value.includes(option.value) : false
+                    return (
+                      <label key={option.value}>
+                        <input type="checkbox" checked={selected} onChange={(event) => {
+                          const current = Array.isArray(value) ? value as string[] : []
+                          setAnswer(field.id, event.target.checked ? [...current, option.value] : current.filter((item) => item !== option.value))
+                        }} />
+                        {option.label}
+                      </label>
+                    )
+                  })}
+                </div>
+              )}
+              {field.field_type === 'checkbox' && (
+                <label>
+                  <input type="checkbox" checked={value === true} onChange={(event) => setAnswer(field.id, event.target.checked)} />
+                  {field.label}
+                </label>
+              )}
+              {field.field_type === 'email' && <Input type="email" value={String(value ?? '')} onChange={(event) => setAnswer(field.id, event.target.value)} placeholder={field.placeholder ?? undefined} />}
+              {field.field_type === 'phone' && <Input type="tel" value={String(value ?? '')} onChange={(event) => setAnswer(field.id, event.target.value)} placeholder={field.placeholder ?? undefined} />}
+              {field.field_type === 'number' && <Input type="number" value={String(value ?? '')} onChange={(event) => setAnswer(field.id, event.target.value)} placeholder={field.placeholder ?? undefined} />}
+              {field.field_type === 'date' && <Input type="date" value={String(value ?? '')} onChange={(event) => setAnswer(field.id, event.target.value)} />}
+              {field.field_type === 'text' && <Input value={String(value ?? '')} onChange={(event) => setAnswer(field.id, event.target.value)} placeholder={field.placeholder ?? undefined} />}
+            </Field.Root>
+          )
+        })}
+        {error && <Text>{error}</Text>}
+        <Button type="submit">Submit</Button>
+      </form>
+    </main>
+  )
+}

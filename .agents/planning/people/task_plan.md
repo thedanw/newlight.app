@@ -8,23 +8,23 @@
 
 | Batch | Title | Status | Tasks | Notes |
 |-------|-------|--------|-------|-------|
-| 1 | Module Skeleton + Navigation | 🔲 not-started | 6 | Depends on core module infra |
-| 2 | Supabase Queries + Types | 🔲 not-started | 4 | |
-| 3 | People List Page | 🔲 not-started | 6 | |
-| 4 | Person Profile Page | 🔲 not-started | 13 | Largest batch |
-| 5 | Create / Edit Person | 🔲 not-started | 7 | |
-| 6 | Household View | 🔲 not-started | 4 | |
-| 7 | Journey Grid | 🔲 not-started | 6 | Complex UI |
-| 8 | Journey Grid Settings | 🔲 not-started | 6 | Admin-only |
-| 9 | Tags | 🔲 not-started | 5 | |
-| 10 | Saved Lists | 🔲 not-started | 6 | **NEW** — persisted filter views |
-| 11 | Basic Forms | 🔲 not-started | 10 | **NEW** — admin forms + public submission |
-| 12 | Email Integration | 🔲 not-started | 6 | **NEW** — bulk list + individual email via core service |
-| 13 | Polish + Integration | 🔲 not-started | 6 | |
+| 1 | Module Skeleton + Navigation | ✅ complete | 6 | Router prerequisite added locally; lint unavailable |
+| 2 | Supabase Queries + Types | ✅ complete | 4 | Manual schema-aligned types until migrations are applied |
+| 3 | People List Page | ✅ complete | 6 | Search, filters, table, and offset pagination implemented |
+| 4 | Person Profile Page | 🟡 partial | 13 | Shell and demographic gating implemented; tabs, contact channels/address, relationships, tags, and full child-safety fields remain |
+| 5 | Create / Edit Person | ✅ complete | 7 | Shared form, routes, mutations, household flow, track assignment, Zod validation, operator-aware admin fields, and journey/demographic audit implemented |
+| 6 | Household View | ✅ complete | 4 | Household page, editable home address, member list, and profile link implemented |
+| 7 | Journey Grid | ✅ complete | 6 | Tracks-by-stages matrix, inline stage editing, row/column totals, demographic filtering, and tag filtering implemented |
+| 8 | Journey Grid Settings | ✅ complete | 6 | Admin-gated tabs, CRUD edits/creation, drag-and-drop sort ordering, category tree/parent selection, seeded-stage protection, and track-delete safeguards implemented |
+| 9 | Tags | ✅ complete | 5 | Tag CRUD, reusable badges, profile assignment, and directory filtering implemented |
+| 10 | Saved Lists | ✅ complete | 6 | Migration, ownership-aware CRUD (incl. rename + share toggle), filter loading, save dialog, sidebar management, and refresh-after-mutation implemented |
+| 11 | Basic Forms | ✅ complete | 10 | Migration, CRUD, builder, public submission, submissions table, and public route implemented |
+| 12 | Email Integration | ✅ complete | 6 | Core email contract, recipients resolution, SendEmailDialog, saved-list + profile email actions, audit logging, and chat hook implemented; provider wiring deferred to core |
+| 13 | Polish + Integration | ✅ complete | 6 | PageSkeleton loading states, ErrorBoundary, breadcrumbs, keyboard nav on table rows, and empty states implemented |
 
-## Current: Batch 1 — Module Skeleton + Navigation
+## Current: All Batches Complete
 
-_No batches started yet._
+Batches 1–13 are complete. Batch 4 remains partial against its full profile contract (tabs, first-class contact channels, household address on profile, registered/contact-only guardians, full child-safety display, role-aware edit permissions).
 
 ## Dependency Graph
 

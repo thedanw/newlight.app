@@ -196,11 +196,12 @@ const brandTileCss = css({
 
 interface SidebarInnerProps {
   onBrandSettings?: () => void
+  onModuleNavigate?: (moduleId: string) => void
   /** Committed brand logo URL — replaces the Sun mark in the brand slot. */
   logo?: string | null
 }
 
-function SidebarInner({ onBrandSettings, logo }: SidebarInnerProps) {
+function SidebarInner({ onBrandSettings, onModuleNavigate, logo }: SidebarInnerProps) {
   const { isOpen, open, close, toggle } = useNavContext()
   const sidebarRef = useRef<HTMLDivElement>(null)
   const [isDragging, setIsDragging] = useState(false)
@@ -375,13 +376,13 @@ function SidebarInner({ onBrandSettings, logo }: SidebarInnerProps) {
   }, [toggle])
 
   // Handle module click - close sidebar on narrow screens
-  const handleModuleClick = useCallback(() => {
+  const handleModuleClick = useCallback((moduleId: string) => {
     // On narrow screens, close the overlay when a tile is clicked
     if (window.innerWidth < 1280) { // xl breakpoint
       close()
     }
-    // TODO: Navigate to module route
-  }, [close])
+    onModuleNavigate?.(moduleId)
+  }, [close, onModuleNavigate])
 
   // On wide desktop, sidebar is always pinned (ignore open state)
   const displayX = isWide ? 0 : x
@@ -446,7 +447,7 @@ function SidebarInner({ onBrandSettings, logo }: SidebarInnerProps) {
                 key={module.id}
                 icon={<ModuleIcon className={css({ width: '24px', height: '24px' })} />}
                 label={module.label}
-                onClick={handleModuleClick}
+                onClick={() => handleModuleClick(module.id)}
               />
             )
           })}
@@ -521,14 +522,15 @@ function SidebarInner({ onBrandSettings, logo }: SidebarInnerProps) {
 
 interface SidebarProps {
   onBrandSettings?: () => void
+  onModuleNavigate?: (moduleId: string) => void
   /** Committed brand logo URL — shown in the brand slot instead of the Sun. */
   logo?: string | null
 }
 
-export function Sidebar({ onBrandSettings, logo }: SidebarProps) {
+export function Sidebar({ onBrandSettings, onModuleNavigate, logo }: SidebarProps) {
   return (
     <NavProvider>
-      <SidebarInner onBrandSettings={onBrandSettings} logo={logo} />
+      <SidebarInner onBrandSettings={onBrandSettings} onModuleNavigate={onModuleNavigate} logo={logo} />
     </NavProvider>
   )
 }

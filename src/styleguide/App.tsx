@@ -1,6 +1,7 @@
 'use client'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { AnimatePresence, motion, useReducedMotion, type Variants } from 'framer-motion'
+import { useNavigate } from 'react-router-dom'
 import { css } from 'styled-system/css'
 import { token } from 'styled-system/tokens'
 import { HStack, Stack } from 'styled-system/jsx'
@@ -125,6 +126,7 @@ const panelScrollerCss = css({
 const panelInnerCss = css({ px: '6', pb: '6', minHeight: '100%' })
 
 export default function StyleguideApp() {
+  const navigate = useNavigate()
   const {
     route,
     direction,
@@ -275,7 +277,11 @@ export default function StyleguideApp() {
   return (
     <div className={shellCss}>
       {/* Sidebar */}
-      <Sidebar onBrandSettings={openBrandForm} logo={brandLogo} />
+      <Sidebar
+        onBrandSettings={openBrandForm}
+        onModuleNavigate={(moduleId) => navigate(`/${moduleId}`)}
+        logo={brandLogo}
+      />
 
       {/* #page-panel — header + push/pop stack */}
       <PagePanel id="page-panel">

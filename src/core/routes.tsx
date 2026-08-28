@@ -10,7 +10,7 @@ const SettingsPage = lazy(() => import('./settings/SettingsPage'))
  */
 export const coreRoutes: RouteObject[] = [
   {
-    path: '/settings/:section?',
+    path: '/settings/:section?/:page?',
     element: <SettingsPage />,
   },
 ]

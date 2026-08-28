@@ -6,7 +6,7 @@
 |-------|--------|-------|
 | Brainstorm | complete | decision.md written |
 | Plan | complete | plan.md written (small-context optimized: sub-batches + per-batch context blocks) |
-| Execute & Review | in_progress | Batch 1 complete |
+| Execute & Review | in_progress | Batches 1–2 complete |
 | Review | pending | |
 
 ## Execution Ritual (every batch)
@@ -22,11 +22,11 @@
 | 1b | Core route slice + router wiring | complete |
 | 1c | Storage bucket migration | complete |
 | 1d | Verify | complete |
-| 2 | Settings dashboard shell (section/page registry) | not-started |
-| 2a | settings-schema.ts (registry + API) | not-started |
-| 2b | SettingsPage shell | not-started |
-| 2c | Church Information stub + register | not-started |
-| 2d | Verify | not-started |
+| 2 | Settings dashboard shell (section/page registry) | complete |
+| 2a | settings-schema.ts (registry + API) | complete |
+| 2b | SettingsPage shell | complete |
+| 2c | Church Information stub + register | complete |
+| 2d | Verify | complete |
 | 3 | Church Information section — migrate BrandForm + new fields + persistence | not-started |
 | 3a | Migrate 8 BrandForm fields | not-started |
 | 3b | Add 4 new fields | not-started |

@@ -56,3 +56,19 @@ Session log — errors, test results, discoveries. Updated per batch.
 | `eslint` not recognized | Not installed in devDependencies (pre-existing). Plan Batch 1 gate is typecheck only. |
 
 **Commit:** `feat(settings): scaffold core settings route + provider + storage bucket`
+
+## Batch 2 Complete — 2026-08-29
+
+- ✅ **2a** `src/core/settings/settings-schema.ts` — typed `SettingsSection`/`SettingsPage` registries + API (`registerSettingsSection`, `registerSettingsPage`, `getSettingsSections`, `getSettingsPages`, `getSettingsSection`, `getSettingsPage`). Seed of core #41 `settings-schema` extension point.
+- ✅ **2b** `src/core/settings/SettingsPage.tsx` — full dashboard shell: `PagePanel` + `PageHeader` (BackButton + Breadcrumb "Settings"), reads `:section`/`:page` via `useParams`. No params → section list (clickable cards); `:section` → section component + its pages; `:section/:page` → page component. Unknown ids fall back to section list. Updated route to `/settings/:section?/:page?` (Batch 6 needs page deep-linking).
+- ✅ **2c** `src/core/settings/sections/ChurchInformationSection.tsx` — stub (full form in Batch 3). Registered in `settings-schema.ts` (id `church-info`, order 0).
+- ✅ **2d** Verify:
+  - `npx tsc -b tsconfig.app.json --force` → clean (fixed unused `showSectionList` var)
+  - Browser (:5174): `/settings` renders shell + Church Information card ✅; clicking card navigates to `/settings/church-info` ✅; deep link renders section component + breadcrumb "Settings › Church Information" ✅
+
+**Errors**
+| Error | Resolution |
+|-------|-----------|
+| TS6133 `showSectionList` unused | Removed the unused variable |
+
+**Commit:** `feat(settings): add dashboard shell with section/page registry`

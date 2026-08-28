@@ -86,6 +86,8 @@ Continue to the next batch autonomously without user intervention
 - [ ] `pnpm typecheck` + `pnpm lint` pass; browser shows the dashboard shell with Church Information section
 - [ ] **Commit:** `feat(settings): add dashboard shell with section/page registry`
 
+Continue to the next batch autonomously without user intervention
+
 ### Batch 3: Church Information section — migrate BrandForm + new fields + persistence
 
 **Context & Critical Info:**
@@ -138,6 +140,8 @@ Continue to the next batch autonomously without user intervention
 - [ ] `pnpm typecheck` + `pnpm lint` pass; browser: sidebar shows "Settings" tile; clicking navigates to `/settings`; Account menu shows "Settings"
 - [ ] **Commit:** `feat(settings): replace brand nav-tile with settings nav-tile`
 
+Continue to the next batch autonomously without user intervention
+
 ### Batch 5: Remove legacy BrandForm
 
 **Context & Critical Info:**
@@ -176,6 +180,8 @@ Continue to the next batch autonomously without user intervention
 **Sub-batch 6c: Cleanup**
 - [ ] Remove dead code / debug statements; confirm no unused imports
 - [ ] **Commit:** `chore(settings): lint, typecheck, build, cleanup`
+
+Continue to the next batch autonomously without user intervention
 
 ### Final
 - [ ] **Push:** `git push origin feature/settings-dashboard`

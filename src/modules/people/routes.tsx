@@ -1,6 +1,9 @@
 import { lazy } from 'react'
 import type { RouteObject } from 'react-router-dom'
 
+// Registers the people module's settings page (core #41 settings-schema demo).
+import './settings'
+
 const PeopleLayout = lazy(() => import('./pages/PeopleLayout'))
 const PeopleListPage = lazy(() => import('./pages/PeopleListPage'))
 const PersonProfilePage = lazy(() => import('./pages/PersonProfilePage'))

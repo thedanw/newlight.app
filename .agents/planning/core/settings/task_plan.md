@@ -6,7 +6,7 @@
 |-------|--------|-------|
 | Brainstorm | complete | decision.md written |
 | Plan | complete | plan.md written (small-context optimized: sub-batches + per-batch context blocks) |
-| Execute & Review | in_progress | Batches 1–5 complete |
+| Execute & Review | in_progress | Batches 1–6 complete |
 | Review | pending | |
 
 ## Execution Ritual (every batch)
@@ -40,8 +40,8 @@
 | 5 | Remove legacy BrandForm | complete |
 | 5a | Delete + remove references | complete |
 | 5b | Verify | complete |
-| 6 | Module deep-linking demo + test & polish | not-started |
-| 6a | Demo module registration | not-started |
-| 6b | Full verification | not-started |
-| 6c | Cleanup | not-started |
+| 6 | Module deep-linking demo + test & polish | complete |
+| 6a | Demo module registration | complete |
+| 6b | Full verification | complete |
+| 6c | Cleanup | complete |
 | Final | Push branch | not-started |

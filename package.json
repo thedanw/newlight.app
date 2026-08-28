@@ -28,6 +28,7 @@
   "devDependencies": {
     "@pandacss/dev": "^1.12.0",
     "@park-ui/cli": "^1.0.1",
+    "@types/node": "^24.0.0",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
     "@vitejs/plugin-react": "^5.0.0",

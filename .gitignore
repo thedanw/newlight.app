@@ -24,3 +24,5 @@ scripts/elvanto-probe/
 .env
 .env.*
 !.env.example
+# VS Code MCP config (contains personal access tokens — use ${env:VAR} refs)
+.vscode/mcp.json

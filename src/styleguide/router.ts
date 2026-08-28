@@ -27,7 +27,7 @@ export type Route =
   | { view: 'category'; categoryId: string; component?: string }
 
 /** Overlay keys tracked in history.state so Back closes them first. */
-export type OverlayKey = 'demo-dialog' | 'demo-drawer' | 'brand'
+export type OverlayKey = 'demo-dialog' | 'demo-drawer'
 
 const CATEGORY_SEGMENT = 'category'
 const COMPONENT_SEGMENT = 'component'

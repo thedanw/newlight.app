@@ -6,7 +6,7 @@
 |-------|--------|-------|
 | Brainstorm | complete | decision.md written |
 | Plan | complete | plan.md written (small-context optimized: sub-batches + per-batch context blocks) |
-| Execute & Review | in_progress | Batches 1–4 complete |
+| Execute & Review | in_progress | Batches 1–5 complete |
 | Review | pending | |
 
 ## Execution Ritual (every batch)
@@ -37,9 +37,9 @@
 | 4b | Account menu item | complete |
 | 4c | Styleguide App rewiring | complete |
 | 4d | Verify | complete |
-| 5 | Remove legacy BrandForm | not-started |
-| 5a | Delete + remove references | not-started |
-| 5b | Verify | not-started |
+| 5 | Remove legacy BrandForm | complete |
+| 5a | Delete + remove references | complete |
+| 5b | Verify | complete |
 | 6 | Module deep-linking demo + test & polish | not-started |
 | 6a | Demo module registration | not-started |
 | 6b | Full verification | not-started |

@@ -115,13 +115,27 @@ Session log — errors, test results, discoveries. Updated per batch.
 
 **Commit:** `feat(settings): replace brand nav-tile with settings nav-tile`
 
-## Batch 5 start — 2026-08-29
+## Batch 5 Complete — 2026-08-29
 
-**Task:** Remove the legacy `src/styleguide/BrandForm.tsx`.
+- ✅ **5a** Deleted `src/styleguide/BrandForm.tsx` (fully superseded by `ChurchInformationSection`). Removed `'brand'` from `OverlayKey` in `src/styleguide/router.ts` (`'demo-dialog' | 'demo-drawer'`). No `BrandForm` import/references remained in App.tsx (removed in Batch 4).
+- ✅ **5b** Verify:
+  - `npx tsc -b tsconfig.app.json --force` → clean
+  - Grep: no `BrandForm` / `onBrandSettings` / `brand-settings` code references remain (only historical comments in font-loader.ts, heading.ts, ChurchInformationSection.tsx)
+  - Browser (:5174): footer tiles = Account + Settings ✅; Settings tile navigates to `/settings` ✅
+
+**Errors**
+| Error | Resolution |
+|-------|-----------|
+| None | — |
+
+**Commit:** `refactor(settings): remove legacy styleguide BrandForm`
+
+## Batch 6 start — 2026-08-29
+
+**Task:** Module deep-linking demo + test & polish.
 
 **Key context:**
-- `src/styleguide/BrandForm.tsx` — legacy brand settings form (source of the Batch 3 migration). No longer referenced after Batch 4 removed the import from App.tsx.
-- `src/styleguide/router.ts` — check `OverlayKey` type for `'brand'`; remove if unused.
-- Verify no remaining references to `BrandForm` anywhere.
+- The settings registry (`registerSettingsSection`/`registerSettingsPage`) is the core #41 `settings-schema` extension point. Batch 6 demonstrates a module registering its own settings page and deep-linking to it.
+- Full verification: typecheck + build. Cleanup any dead code.
 
-**Next:** Execute sub-batches 5a → 5b in order.
+**Next:** Execute sub-batches 6a → 6b → 6c in order.

@@ -339,6 +339,8 @@ export default function ChurchInformationSection() {
         logoUrl: finalLogoUrl,
       })
       toaster.create({ title: 'Settings saved', type: 'success' })
+      // Notify AppTitleSync to update document.title
+      window.dispatchEvent(new CustomEvent('app-settings-changed'))
     } catch (error) {
       console.error('Failed to save settings:', error)
       toaster.create({ title: 'Failed to save settings', type: 'error' })

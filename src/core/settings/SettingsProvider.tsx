@@ -152,3 +152,5 @@ export function useSettings() {
   }
   return context
 }
+
+export { AppTitleSync } from './AppTitleSync'

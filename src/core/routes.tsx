@@ -1,6 +1,7 @@
 import { lazy } from 'react'
 import type { RouteObject } from 'react-router-dom'
 
+const SettingsLayout = lazy(() => import('./settings/SettingsLayout'))
 const SettingsPage = lazy(() => import('./settings/SettingsPage'))
 
 /**
@@ -10,7 +11,12 @@ const SettingsPage = lazy(() => import('./settings/SettingsPage'))
  */
 export const coreRoutes: RouteObject[] = [
   {
-    path: '/settings/:section?/:page?',
-    element: <SettingsPage />,
+    path: '/settings',
+    element: <SettingsLayout />,
+    children: [
+      // `/settings` → section list, `/settings/:section` → section panel,
+      // `/settings/:section/:page` → page panel (push/pop panel stack).
+      { path: ':section?/:page?', element: <SettingsPage /> },
+    ],
   },
 ]

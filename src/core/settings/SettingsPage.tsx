@@ -9,7 +9,6 @@ import {
   Card,
   Heading,
   PageHeader,
-  PagePanel,
   Text,
 } from '@/core/ui'
 import {
@@ -22,7 +21,8 @@ import {
 /* ---------------------------------------------------------------------------
    SettingsPage — dashboard shell for `/settings/:section?/:page?`.
 
-   Structured like any module dashboard (push/pop panel stack):
+   Rendered inside `SettingsLayout` (the app shell with the Sidebar + page
+   chrome), structured like any module dashboard (push/pop panel stack):
    - `/settings`                → section list (root dashboard)
    - `/settings/:section`       → section panel (slides in from the right)
    - `/settings/:section/:page` → page panel (slides in from the right)
@@ -249,7 +249,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <PagePanel>
+    <>
       <PageHeader>
         <HStack gap="2" flex="1" minWidth="0">
           <BackButton onClick={goBack} />
@@ -265,6 +265,6 @@ export default function SettingsPage() {
           <div className={panelInnerCss}>{renderPanel(current)}</div>
         </div>
       </div>
-    </PagePanel>
+    </>
   )
 }

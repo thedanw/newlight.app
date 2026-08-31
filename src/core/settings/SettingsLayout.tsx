@@ -1,6 +1,7 @@
 import { Suspense } from 'react'
 import { Outlet, useNavigate } from 'react-router-dom'
 import { Loader, PagePanel, Sidebar } from '@/core/ui'
+import { useSettings } from './SettingsProvider'
 
 /* ---------------------------------------------------------------------------
    SettingsLayout — app shell for the settings dashboard (`/settings/*`).
@@ -15,12 +16,14 @@ import { Loader, PagePanel, Sidebar } from '@/core/ui'
 
 export default function SettingsLayout() {
   const navigate = useNavigate()
+  const { logoUrl } = useSettings()
 
   return (
     <div style={{ display: 'flex', height: '100dvh' }}>
       <Sidebar
         onSettingsNavigate={() => navigate('/settings')}
         onModuleNavigate={(moduleId) => navigate(`/${moduleId}`)}
+        logo={logoUrl}
       />
       <PagePanel id="page-panel">
         <Suspense fallback={<Loader />}>

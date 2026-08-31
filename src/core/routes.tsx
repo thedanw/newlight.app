@@ -1,5 +1,6 @@
 import { lazy } from 'react'
 import type { RouteObject } from 'react-router-dom'
+import ErrorPage from '@/core/errors/ErrorPage'
 
 const SettingsLayout = lazy(() => import('./settings/SettingsLayout'))
 const SettingsPage = lazy(() => import('./settings/SettingsPage'))
@@ -13,6 +14,7 @@ export const coreRoutes: RouteObject[] = [
   {
     path: '/settings',
     element: <SettingsLayout />,
+    errorElement: <ErrorPage />,
     children: [
       // `/settings` → section list, `/settings/:section` → section panel,
       // `/settings/:section/:page` → page panel (push/pop panel stack).

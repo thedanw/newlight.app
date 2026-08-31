@@ -77,20 +77,63 @@ Family-role vocabulary: adopted verbatim from Elvanto (`Primary Contact|Spouse|P
 
 ```
 for each migrated person:
+  # 1. Demographic from People Category
   demographic ← normalize(people_category.name)     # adult/youth/child; unmapped → 'adult' + review queue
+
+  # 2. Sunday Services track from People Category + status flags
+  sunday_track ← journey_tracks WHERE name = 'Sunday Services' AND elvanto_location_id IS NULL
+  if sunday_track exists:
+    stage ← compute_sunday_stage(person)
+    people.journey[sunday_track.id] = stage
+
+  # 3. Campus tracks from Elvanto locations[]
   for each location L in person.locations[]:
     track ← journey_tracks WHERE elvanto_location_id = L.id
-            (auto-create track under seeded category if new)
-    stage ← 'archived' if person.elvanto_archived or deceased
-            else 'regular' if person.volunteer=1 or person ∈ any group
-            else 'contact'
+            (auto-create track under "Campus" category if new: name = L.name, elvanto_location_id = L.id)
+    stage ← compute_location_stage(person, L)
     people.journey[track.id] = stage
+
   audit(person, field='journey_track', change_reason='migration')
 ```
 
-Every seeded value is logged with a new `change_reason = 'migration'` so admins can filter the whole batch in the grid and correct en masse. Conservative default (`contact`) understates engagement rather than fabricating it.
+**Stage computation functions:**
 
-**Ongoing ownership:** `journey` is **app-owned** after cutover. Elvanto `locations[]` continues to be pulled into `people.elvanto_locations jsonb` (shadow) for reference/re-seeding, but never writes `journey` automatically. Optional per-track switch `follow_elvanto boolean` (default off): when on, membership add/remove upstream toggles the person on/off that track at stage `contact`. Stages themselves have **no upstream destination — never pushed** (deny-list).
+```
+function compute_sunday_stage(person):
+  # Status overrides (priority order)
+  if person.contact == 1 or person.suspended == 1:
+    return 'archived'
+  if person.archived == 1 or person.deceased == 1:
+    return 'deleted_privacy_data'
+  # Category mapping
+  cat_name ← normalize_category_name(person.category.name)  # trim *, _ suffixes
+  match cat_name:
+    'Sunday Guest'    → 'guest'
+    'Sunday Linked'   → 'linked'
+    'Sunday Regular'  → 'regular'
+    default           → 'contact'  # Community Connection*, etc.
+
+function compute_location_stage(person, location):
+  # Same status overrides apply
+  if person.contact == 1 or person.suspended == 1:
+    return 'archived'
+  if person.archived == 1 or person.deceased == 1:
+    return 'deleted_privacy_data'
+  return 'contact'  # Conservative default; admin promotes to guest/linked/regular
+```
+
+**Seeded journey tracks at migration (P0/P1):**
+
+| Track Name | Category | `elvanto_location_id` | Purpose |
+|---|---|---|---|
+| Sunday Services | Sunday Services | `NULL` | Category-derived (People Category mapping) |
+| Central Campus | Campus | `8a631195-8914-4136-858c-f160885ab60d` | Location-derived |
+| North Campus | Campus | `9f3aec97-3d61-471d-ab50-5f28070d970d` | Location-derived |
+| *Other locations* | Campus | (auto-created) | Location-derived |
+
+Every seeded value is logged with `change_reason = 'migration'` so admins can filter the whole batch in the grid and correct en masse. Conservative default (`contact`) understates engagement rather than fabricating it.
+
+**Ongoing ownership:** `journey` is **app-owned** after cutover. Elvanto `locations[]` continues to be pulled into `people.elvanto_locations jsonb` (shadow) for reference/re-seeding, but never writes `journey` automatically. Optional per-track switch `journey_tracks.follow_elvanto boolean` (default off): when on, membership add/remove upstream toggles the person on/off that track at stage `contact`. Stages themselves have **no upstream destination — never pushed** (deny-list).
 
 Demographic ⇄ People Category: pull normalizes name→enum. Push maps enum→existing Elvanto category by name; if no matching category exists upstream it **cannot be created** (no category write endpoints) → surfaced as a sync error, not a silent skip (L-4).
 

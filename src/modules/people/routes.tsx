@@ -1,5 +1,6 @@
 import { lazy } from 'react'
 import type { RouteObject } from 'react-router-dom'
+import ErrorPage from '@/core/errors/ErrorPage'
 
 // Registers the people module's settings page (core #41 settings-schema demo).
 import './settings'
@@ -20,6 +21,7 @@ const FormSubmissionsPage = lazy(() => import('./pages/FormSubmissionsPage'))
 export const peopleRoutes: RouteObject[] = [
   {
     element: <PeopleLayout />,
+    errorElement: <ErrorPage />,
     children: [
       { index: true, element: <PeopleListPage /> },
       { path: 'new', element: <CreatePersonPage /> },

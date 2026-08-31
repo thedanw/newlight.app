@@ -92,7 +92,7 @@ type ContactChannelRow = {
 
 type TagRow = { id: string; name: string; category: Database['public']['Enums']['tag_category'] }
 type PeopleTagRow = { person_id: string; tag_id: string }
-type JourneyTrackRow = { id: string; category_id: string | null; name: string; sort_order: number; deleted_at: string | null }
+type JourneyTrackRow = { id: string; category_id: string | null; name: string; sort_order: number; elvanto_location_id: string | null; follow_elvanto: boolean; deleted_at: string | null }
 type JourneyTrackCategoryRow = { id: string; parent_id: string | null; name: string; sort_order: number }
 type JourneyStageRow = { slug: string; label: string; color: string | null; sort_order: number; is_terminal: boolean }
 type PeopleAuditRow = {
@@ -153,6 +153,13 @@ type PlatformSettingsRow = {
   updated_at: string
 }
 
+type PluginRow = {
+  id: string
+  enabled: boolean
+  updated_at: string
+  updated_by: string | null
+}
+
 export type Database = {
   public: {
     Tables: {
@@ -171,6 +178,7 @@ export type Database = {
       form_fields: TableDefinition<FormFieldRow>
       form_submissions: TableDefinition<FormSubmissionRow>
       platform_settings: TableDefinition<PlatformSettingsRow>
+      plugins: TableDefinition<PluginRow>
     }
     Views: Record<string, never>
     Functions: Record<string, never>

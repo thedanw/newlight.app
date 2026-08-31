@@ -11,6 +11,7 @@ Entry point for LLM agents working on the Elvanto ↔ Supabase sync. Read this f
 | `../schema.dbml` | **Canonical app schema** — superset of elvanto `schema.dbml` + auth ref + sync infra (sync_errors, sync_watermarks, sync_conflicts) | Building the full Supabase DB; migration authoring |
 | `ELVANTO_SYNC_CONTRACT.md` | **Binding sync contract:** watermarks, deletes, upsert order, type maps, write-back rules, field ownership matrix, limitations | Writing/modifying sync code; checking push/pull eligibility |
 | `ELVANTO_MIGRATION_PLAN.md` | **One-time migration plan:** dual-key IDs, households⇄families, journey seeding, field ownership matrix, runbook, limitations L-1..L-8 | Building the DB or migration; implementing sync transforms for initial import |
+| `SYNC_PLUGIN_FIELD_MAPPING_UI.md` | **Sync plugin UI design:** two-column field mapping table, conditional logic, transform functions, journey track pairing UI, validation rules | Building the admin mapping configuration UI; implementing sync worker mapping engine |
 | `../database-setup/plan.md` | **Supabase DB setup plan** — 9 batches: CLI init → schema (44 tables + 3 sync infra) → RLS → seeds → TypeScript types → push | Starting database provisioning; creating migrations |
 | `scripts/elvanto-schema-probe.mjs` | Read-only live schema probe (`node scripts/elvanto-schema-probe.mjs`, `--report-only` reuses cache) | Re-verifying schema after Elvanto changes; output in `scripts/elvanto-probe/` (gitignored, PII) |
 
@@ -32,3 +33,5 @@ Entry point for LLM agents working on the Elvanto ↔ Supabase sync. Read this f
 - **"Write back field Y"** → verify Y in create/edit params (`ELVANTO_API_REFERENCE.md`) AND not in deny-list (`ELVANTO_SYNC_CONTRACT.md` §7).
 - **"Debug missing record"** → sync_errors table → `ELVANTO_SYNC_CONTRACT.md` §8 retry matrix → watermark state for that entity.
 - **"Migrate data"** → `ELVANTO_MIGRATION_PLAN.md` runbook (§5) + identity rules (§1) + household/journey logic (§2–§3).
+- **"Configure field mappings"** → `SYNC_PLUGIN_FIELD_MAPPING_UI.md` — mapping table, conditions, transforms, journey track pairing.
+- **"Implement sync worker mapping engine"** → `SYNC_PLUGIN_FIELD_MAPPING_UI.md` §8 (integration pseudocode) + `ELVANTO_SYNC_CONTRACT.md` §4.1–§4.3.

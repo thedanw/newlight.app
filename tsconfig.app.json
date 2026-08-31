@@ -23,5 +23,6 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src", "styled-system"]
+  "include": ["src", "styled-system"],
+  "exclude": ["src/content/plugins/elvanto-sync/sync/edge-function.ts"]
 }

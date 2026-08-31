@@ -254,6 +254,44 @@ Guardrails protect Dual typeface system, Layered elevation without adding unsupp
 | Do use the primary color only for the single most important action per screen |  |
 | Do verify evidence before writing new design-system guidance |  |
 
+## Data Display (Cards)
+
+Cards = grouping container, NOT padding. Goal = 2 consistent alignment lines, not 1 text edge.
+
+### Alignment lines
+- **L1** = page gutter (24px): titles, descriptions, alerts, toolbars, card outer edges
+- **L2** = card inset (24px, `p:6`): all card-internal text
+- Never mix carded + uncarded content at the same hierarchy level
+
+### Chrome vs content
+| Never card (page chrome) | Card (content) |
+|---|---|
+| Page title | Settings sections (1 logical group = 1 card) |
+| Page description (1–2 lines, muted) | Data tables (header+body, or standalone surface) |
+| Alerts / notices | Forms (grouped by section) |
+| Page-level toolbars / action rows | Dashboard widgets (grid) |
+| Empty states | Table + its controls |
+
+### Rules
+1. One page gutter for chrome + card outer edges
+2. One card inset for card content
+3. No canvas-level text directly above a card → fold into `Card.Description` if it describes that card
+4. Cards span full content width (except grids)
+5. One action location per card: `Card.Footer` (right, primary last) OR page toolbar — never both
+6. No nested cards → use divider / sub-section instead
+
+### When cards are WRONG
+- Single continuous form (no sections) → canvas
+- Full-page table / data grid → standalone surface
+- Modal / drawer content → container already exists
+- Already-surfaced content (code blocks, previews)
+
+### Codebase findings (Elvanto settings)
+- Duplicate title: `FieldMappingTab.tsx` + `FieldMappingTable.tsx` both render "Field Mappings" → table drops its heading
+- Double save: `FieldMappingTable` top-toolbar "Save Mappings" + footer "Save All" → keep footer only
+- Correct as-is: canvas Alert (transient), canvas toolbar (chrome), table-in-card (groups rules + controls)
+- Model to copy: `ConnectionTab.tsx` — title + description as chrome, all sections carded uniformly
+
 ## Responsive Evidence
 
 ### Breakpoints

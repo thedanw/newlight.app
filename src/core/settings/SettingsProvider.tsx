@@ -50,6 +50,7 @@ interface SettingsContextValue {
   session: Session | null
   user: User | null
   isLoading: boolean
+  logoUrl: string | null
   /** Read the persisted `app-settings` row (null if none). */
   getAppSettings: () => Promise<AppSettings | null>
   /** Upsert the `app-settings` row. */
@@ -62,6 +63,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null)
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [logoUrl, setLogoUrl] = useState<string | null>(null)
 
   useEffect(() => {
     // In the lab, we don't have real auth — provide a mock session
@@ -108,6 +110,19 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
+  // Load logo URL at startup
+  useEffect(() => {
+    let mounted = true
+    async function loadLogo() {
+      const settings = await getAppSettings()
+      if (mounted && settings?.logoUrl) {
+        setLogoUrl(settings.logoUrl)
+      }
+    }
+    loadLogo()
+    return () => { mounted = false }
+  }, [])
+
   const getAppSettings = async (): Promise<AppSettings | null> => {
     const { data, error } = await supabase
       .from('platform_settings')
@@ -138,7 +153,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
 
   return (
     <SettingsContext.Provider
-      value={{ supabase, session, user, isLoading, getAppSettings, saveAppSettings }}
+      value={{ supabase, session, user, isLoading, logoUrl, getAppSettings, saveAppSettings }}
     >
       {children}
     </SettingsContext.Provider>

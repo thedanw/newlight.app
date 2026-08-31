@@ -13,7 +13,6 @@ import {
 } from '@/core/ui'
 import {
   getSettingsPage,
-  getSettingsPages,
   getSettingsSection,
   getSettingsSections,
 } from './settings-schema'
@@ -143,29 +142,12 @@ export default function SettingsPage() {
       return PageComponent ? <PageComponent /> : null
     }
     if (panel.kind === 'section') {
+      // The section component owns its panel content — including any page
+      // links. (e.g. `IntegrationsSection` lists its registered pages.) This
+      // avoids a generic "Pages" block duplicating what the section already
+      // renders.
       const SectionComponent = getSettingsSection(panel.sectionId)?.component
-      const sectionPages = getSettingsPages(panel.sectionId)
-      return (
-        <Stack gap="6">
-          {SectionComponent && <SectionComponent />}
-          {sectionPages.length > 0 && (
-            <Stack gap="3">
-              <Heading textStyle="md">Pages</Heading>
-              {sectionPages.map((p) => (
-                <Card.Root
-                  key={p.id}
-                  onClick={() => navigate(`/settings/${panel.sectionId}/${p.id}`)}
-                  css={{ cursor: 'pointer' }}
-                >
-                  <Card.Body>
-                    <Heading textStyle="sm">{p.title}</Heading>
-                  </Card.Body>
-                </Card.Root>
-              ))}
-            </Stack>
-          )}
-        </Stack>
-      )
+      return SectionComponent ? <SectionComponent /> : null
     }
     // Section list (root dashboard)
     const sections = getSettingsSections()

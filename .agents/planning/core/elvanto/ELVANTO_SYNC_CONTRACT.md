@@ -64,6 +64,8 @@ Field-level pull/push rules: **§4 matrix is authoritative**.
 | `people.mobile` mirror (auth) | `mobile` | shadow | — | maintained by trigger/sync from channels; OTP resolution reads it |
 | `journey` JSONB | `locations[]` (+ legacy category) | app | seed per migration plan; then shadow-only | **never** (deny-list) |
 | `demographic` | People Category name | app | normalize; unmapped→review queue | map to existing category; missing→sync error (L-4) |
+| `journey` JSONB (Sunday Services track) | People Category + `contact`/`archived`/`deceased`/`suspended` flags | app | **People Category mapping (see §4.1):**<br>• `Sunday Guest` → `guest`<br>• `Sunday Linked` → `linked`<br>• `Sunday Regular` → `regular`<br>• `Community Connection*` → `contact`<br>**Status overrides (applied in order):**<br>1. If `contact=1` OR `suspended=1` → `archived`<br>2. Else if `archived=1` OR `deceased=1` → `deleted_privacy_data`<br>3. Else apply category mapping above | **never** (deny-list — journey is app-owned) |
+| `journey` JSONB (Campus tracks) | `locations[]` array | app | **Location → Track pairing (see §4.2):**<br>Each Elvanto location maps to a journey track via `journey_tracks.elvanto_location_id`.<br>If person has location L → set stage `contact` on that track (or `archived`/`deleted_privacy_data` per status overrides above).<br>If location not yet mapped → auto-create track under "Campus" category + review queue. | **never** (deny-list) |
 | `marital_status` (incl. `partner`) | enum incl. `Defacto` | app | `Defacto`→`partner` | `partner`→`Defacto`; others identity |
 | `kindy_start_year` | `school_grade` string | app | parse "Kindy"/"Year N" → `k = CURRENT_YEAR − N`; unparseable→null+review | derive at write: 0→"Kindy", N→"Year N"; only when Youth/Child |
 | `school_name` | *(none)* | app | — | **never** (deny-list) |
@@ -75,6 +77,67 @@ Field-level pull/push rules: **§4 matrix is authoritative**.
 | GDPR `deleted_privacy_data` | *(none)* | app | row excluded from all sync once staged | upstream erase = manual admin checklist (L-5) |
 | `gender` (blank) | Male/Female/'' | app | ''→null | null→'' |
 | giving shadows (`receipt_name`, `giving_number`, `security_code`, `deceased`) | same-name fields | shadow | pull always | future Giving module decides |
+
+---
+
+## 4.1 People Category → Journey Grid Mapping (Sunday Services Track)
+
+**Source:** Elvanto `people.category_id` → `people_categories.name`  
+**Target:** `people.journey[<sunday_services_track_id>]` = stage slug
+
+| Elvanto People Category | Mapped Journey Stage | Notes |
+|---|---|---|
+| `Sunday Guest` | `guest` | |
+| `Sunday Linked` | `linked` | |
+| `Sunday Regular` | `regular` | |
+| `Community Connection*` (or any non-Sunday category) | `contact` | Default fallback |
+
+**Status Overrides (applied in priority order, override category mapping):**
+
+1. **If `contact=1` OR `suspended=1`** → stage = `archived` (person is contact-only or login-suspended)
+2. **Else if `archived=1` OR `deceased=1`** → stage = `deleted_privacy_data` (terminal; PII scrubbed after 5 years)
+3. **Else** → apply category mapping above
+
+**Implementation notes:**
+- The "Sunday Services" journey track must be seeded at migration (see `ELVANTO_MIGRATION_PLAN.md` §3) with a known `elvanto_location_id` = null (it's a category-derived track, not a location-derived track).
+- Category names are matched case-insensitively after trimming `*` and `_` suffixes (Elvanto data has `Community Connection*`, `Sunday Regular_`).
+- Unmapped categories → `contact` + review queue entry.
+
+---
+
+## 4.2 Elvanto Locations → Journey Tracks (Campus Tracks)
+
+**Source:** Elvanto `person.locations.location[]` (array of `{id, name}`)  
+**Target:** `people.journey[<track_id>]` = stage slug per track
+
+**Pairing mechanism:** `journey_tracks.elvanto_location_id` (uuid, nullable, unique) stores the Elvanto location UUID.
+
+| Elvanto Location | Journey Track | Stage Logic |
+|---|---|---|
+| `Central Campus` (uuid) | Track with `elvanto_location_id = Central Campus uuid` | If person has this location → `contact` (or `archived`/`deleted_privacy_data` per status overrides in §4.1) |
+| `North Campus` (uuid) | Track with `elvanto_location_id = North Campus uuid` | Same |
+| *Any other location* | Auto-create track under "Campus" category | Stage = `contact` + review queue |
+
+**Sync behavior (ongoing, post-migration):**
+- Pull: `people.elvanto_locations` (shadow JSONB) updated from `locations[]` for reference.
+- Optional per-track switch `journey_tracks.follow_elvanto` (boolean, default `false`):
+  - When `true`: location add/remove upstream toggles person on/off that track at stage `contact`.
+  - When `false` (default): journey stages never auto-written from locations; admin manages manually.
+- Stage overrides from §4.1 (contact/suspended → archived; archived/deceased → deleted_privacy_data) apply to location-derived tracks too.
+- Never push journey stages to Elvanto (deny-list).
+
+---
+
+## 4.3 Elvanto Custom Fields → App Custom Fields
+
+**Source:** Elvanto `custom_<uuid>` keys on person object (EAV pattern)  
+**Target:** `people.elvanto_custom_fields` (shadow JSONB) + optional mapping to `people.custom_fields` (app-owned JSONB)
+
+**Configuration:** Admin-configurable field mapping UI (see Sync Plugin UI Design) with:
+- Column 1: App field (from `peopleFields.md` — all person profile fields)
+- Column 2: Elvanto field dropdown (all `people/getInfo` fields + `custom_<uuid>` keys)
+- Pre-populated from migration mappings (§4.1, §4.2, and standard field mappings in §4 matrix)
+- Conditional logic support for complex mappings (e.g., "if category=Sunday Guest AND contact=0 → guest")
 
 ---
 

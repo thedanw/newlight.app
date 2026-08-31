@@ -17,6 +17,7 @@
 - Wide desktop = viewport ≥ `xl` (1280px, Park UI breakpoint token) — sidebar pinned
 - toolPanel = vertically-expanding region directly under the panel-header that pushes page content down when open (e.g. search/filter fields)
 - brand settings = super-admin brand surface: logo + 5 theme knobs (colorScheme/accent/gray/font/radius) + sidebar style + heading style; opened via header kebab → normal SlidePanel; SG dashboard is its lab prototype; Style Guide = button at its bottom (10.13)
+- Card = grouping container for data, NOT a padding mechanism; L1 = page gutter (24px) for chrome + card outer edges; L2 = card inset (24px) for card content (12.x)
 
 ## What & Why
 Zero-runtime UI architecture for the CRM: every component/div carries a human-friendly BEM class (Goal 1), 99% consistent app-wide (Goal 2), via Panda config recipes compiled to a single cached `global.css`. Enforced by typed tokens + recipe-only CSS + lint so small-context agents can't escape the framework (Goal 3 → `module-design/decision.md`).
@@ -41,12 +42,14 @@ Solo developer; small-context LLM agents building bolt-on modules; future contri
 - Theme customizer = Park UI's exact theme drawer: accent + gray + font + radius (preset catalogs only); color scheme (light/dark) is the FIRST choice, super-admin locked platform-wide, NOT per-user
 - brand settings surface = logo + 5 theme knobs + sidebar style dropdown + heading-style checkboxes (pattern choices, no new tokens — 10.14–10.15; extends 10.5); logo = brand ASSET (image URL), not a token knob; radius control = native Slider + discrete Marks over the 7 preset sizes (10.1, 10.8)
 - Brand settings opens as SlidePanel 'normal' (sizes.3xl) from the header kebab; super-admin gated in the final app, always visible in the lab (10.10–10.12); Style Guide = button at the bottom of the brand form (10.13)
+- Cards: grouping container, never padding; 2 alignment lines (L1 page gutter 24px / L2 card inset 24px); never card page chrome; no nested cards; one action location per card (12.x)
 
 ## Non-Goals
 - No hamburger-icon toggle — pull-tab replaces it
 - No auto-collapse to icon-only rail on medium screens — 5px peek + overlay instead
 - No user-specific theme preference (scheme locked by super admin)
 - No arbitrary/custom accent hex (Park UI preset catalog only — avoids palette-generation + WCAG contrast handling)
+- No nested cards; no carded page chrome (title, alerts, toolbars, empty states); no carded + uncarded mix at same hierarchy level (12.3/12.4/12.9)
 
 ## Assumptions
 - Sidebar width measured at runtime (min 90px) — sidebar is `width: max-content`
@@ -135,10 +138,22 @@ Solo developer; small-context LLM agents building bolt-on modules; future contri
   11.8 Coexists with existing Framer Motion (no conflict)
   11.9 Enables immersive mode drag-to-close (SlidePanel 9.4)
   11.10 Enables sidebar drag (7.6) with better mobile UX
+12 Data display: cards → grouping container, NOT padding; 2 alignment lines (L1 page gutter / L2 card inset)
+  12.1 Card = grouping mechanism, never a padding mechanism → consistent inset from recipe (`p:6`), not per-instance
+  12.2 Two alignment lines: L1 = page gutter (24px) for chrome + card outer edges; L2 = card inset (24px) for card content → consistent look, no double-gutter
+  12.3 Never mix carded + uncarded content at same hierarchy level → uniform section rhythm
+  12.4 Never card page chrome: title, description, alerts, page toolbars, empty states → cards are for data
+  12.5 Card content: settings sections (1 logical group = 1 card), data tables, forms (grouped), dashboard widgets → consistent grouping
+  12.6 No canvas-level text directly above a card → fold into `Card.Description` if it describes that card
+  12.7 Cards span full content width (except grids) → no stray alignment lines
+  12.8 One action location per card: `Card.Footer` (right, primary last) OR page toolbar — never both → single primary action
+  12.9 No nested cards → divider / sub-section instead
+  12.10 Anti-patterns: single continuous form, full-page table, modal/drawer content, already-surfaced content → no redundant chrome
 
 ## Findings (verified)
 - Park UI's own website ships a `BorderRadiusSlider` (website/src/components/docs/border-radius-slider.tsx): `Slider.Root min={0} max={radii.length-1}` + `Slider.Marks marks={radii.map(...)}` with `radii = ['none','xs','sm','md','lg','xl','2xl']` → a DISCRETE 7-stop radius slider is a native Park UI Slider pattern (verified 2026-08-09). Implementation = 10.8
 - Whole-theme live re-theme is FREE by design: every DS component consumes semantic tokens → CSS vars, so flipping <html> data-* (10.3) re-resolves ALL vars app-wide instantly (sidebar/header/components) — no per-component work. SG page IS the app shell, so the shell itself is the live preview (no separate preview pane needed)
+- Card recipe (src/core/theme/recipes/card.ts) verified: root `p:6` (24px inset), footer `justify-content:flex-end` (primary action right), slots root/header/body/footer/title/description, variants elevated/outline/subtle → matches 12.1/12.6/12.8
 - Panda config recipes (defineRecipe/defineSlotRecipe) emit NAMED BEM classes under `@layer recipes` (`.button`, `.button--size-lg`, `.checkbox__control--size-sm`); `hash:false` (default) keeps readable
 - `cva`/`sva` (atomic recipes) emit ATOMIC utility classes (`.d_flex`, `.bg_red_200`) — NOT BEM; compound-variant css atomizes into `@layer utilities` (e.g. `.px_2`) alongside named classes
 - Dynamic variant props need `staticCss` pre-generation (JIT)

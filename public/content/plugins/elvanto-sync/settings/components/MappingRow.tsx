@@ -1,6 +1,8 @@
-import { Text, Input, Button, Badge, Card } from '@/core/ui'
-import { useState, useEffect } from 'react'
+import { Text, Input, Button, Badge, Card, Select } from '@/core/ui'
+import { useState, useEffect, useMemo } from 'react'
 import { HStack, Stack } from 'styled-system/jsx'
+import { createListCollection } from '@ark-ui/react'
+import { ChevronsUpDownIcon, CheckIcon } from 'lucide-react'
 
 interface MappingRule {
   appField: string
@@ -34,29 +36,69 @@ export function MappingRow({ rule, index, appFields, elvantoFields, dynamicElvan
     }
   }, [rule.transform])
 
+  const appFieldCollection = useMemo(() => createListCollection({
+    items: [{ label: 'Select app field...', value: '' }, ...appFields.map((f) => ({ label: f, value: f }))]
+  }), [appFields])
+
+  const elvantoFieldCollection = useMemo(() => createListCollection({
+    items: [{ label: 'Select Elvanto field...', value: '' }, ...elvantoFields.map((f) => ({ label: f, value: f })), ...dynamicElvantoFieldOptions]
+  }), [elvantoFields, dynamicElvantoFieldOptions])
+
+  const transformCollection = useMemo(() => createListCollection({
+    items: [
+      { label: '— None (Identity) —', value: '' },
+      { label: 'category_to_journey_stage', value: 'category_to_journey_stage' },
+      { label: 'location_to_journey_tracks', value: 'location_to_journey_tracks' },
+      { label: 'defacto_to_partner', value: 'defacto_to_partner' },
+      { label: 'school_grade_to_kindy_year', value: 'school_grade_to_kindy_year' },
+      { label: 'kindy_year_to_school_grade', value: 'kindy_year_to_school_grade' },
+      { label: 'admin_to_access_permission', value: 'admin_to_access_permission' },
+      { label: 'access_permission_to_admin', value: 'access_permission_to_admin' },
+      { label: 'bool_to_yes_no', value: 'bool_to_yes_no' },
+      { label: 'yes_no_to_bool', value: 'yes_no_to_bool' },
+      { label: 'int_flag_to_bool', value: 'int_flag_to_bool' },
+      { label: 'bool_to_int_flag', value: 'bool_to_int_flag' },
+      { label: 'capitalize_enum', value: 'capitalize_enum' },
+      { label: 'lowercase_enum', value: 'lowercase_enum' },
+      { label: 'trim_suffix', value: 'trim_suffix' },
+    ]
+  }), [])
+
+  const appFieldValue = rule.appField ? [rule.appField] : []
+  const elvantoFieldValue = rule.elvantoField ? [rule.elvantoField] : []
+  const transformValue = rule.transform ? [rule.transform] : []
+
   return (
     <Card.Root>
       <Card.Body>
         <HStack gap="3" alignItems="flex-start">
-          <Text textStyle="sm" color="fg.muted" style={{ minWidth: '40px', textAlign: 'center' }}>
+          <Text textStyle="sm" color="fg.muted" minWidth="40px" textAlign="center">
             {index + 1}
           </Text>
-          
+
           <Stack gap="1" flex="1" minWidth="0">
             <Text textStyle="xs" color="fg.muted">App Field</Text>
-            <select
-              value={rule.appField}
-              onChange={e => onUpdate(index, { appField: e.target.value })}
-              style={{ minWidth: '200px' }}
-            >
-              <option value="">Select app field...</option>
-              {appFields.map(field => (
-                <option key={field} value={field}>{field}</option>
-              ))}
-            </select>
+            <Select.Root collection={appFieldCollection} value={appFieldValue} onValueChange={(details) => onUpdate(index, { appField: details.value[0] || '' })}>
+              <Select.Control>
+                <Select.Trigger minWidth="200px">
+                  <Select.ValueText placeholder="Select app field..." />
+                  <Select.Indicator><ChevronsUpDownIcon /></Select.Indicator>
+                </Select.Trigger>
+              </Select.Control>
+              <Select.Positioner>
+                <Select.Content>
+                  {appFieldCollection.items.map((item) => (
+                    <Select.Item key={item.value} item={item}>
+                      <Select.ItemText>{item.label}</Select.ItemText>
+                      <Select.ItemIndicator><CheckIcon /></Select.ItemIndicator>
+                    </Select.Item>
+                  ))}
+                </Select.Content>
+              </Select.Positioner>
+            </Select.Root>
           </Stack>
-          
-          <Stack gap="1" alignItems="center" style={{ minWidth: '80px' }}>
+
+          <Stack gap="1" alignItems="center" minWidth="80px">
             <Text textStyle="xs" color="fg.muted">Direction</Text>
             <Badge variant="solid" color={
               rule.direction === 'pull' ? 'blue' :
@@ -65,64 +107,66 @@ export function MappingRow({ rule, index, appFields, elvantoFields, dynamicElvan
               {rule.direction}
             </Badge>
           </Stack>
-          
+
           <Stack gap="1" flex="1" minWidth="0">
             <Text textStyle="xs" color="fg.muted">Elvanto Field</Text>
-            <select
-              value={rule.elvantoField}
-              onChange={e => onUpdate(index, { elvantoField: e.target.value })}
-              style={{ minWidth: '200px' }}
-            >
-              <option value="">Select Elvanto field...</option>
-              {elvantoFields.map(field => (
-                <option key={field} value={field}>{field}</option>
-              ))}
-              {dynamicElvantoFieldOptions.map(option => (
-                <option key={option.value} value={option.value}>{option.label}</option>
-              ))}
-            </select>
+            <Select.Root collection={elvantoFieldCollection} value={elvantoFieldValue} onValueChange={(details) => onUpdate(index, { elvantoField: details.value[0] || '' })}>
+              <Select.Control>
+                <Select.Trigger minWidth="200px">
+                  <Select.ValueText placeholder="Select Elvanto field..." />
+                  <Select.Indicator><ChevronsUpDownIcon /></Select.Indicator>
+                </Select.Trigger>
+              </Select.Control>
+              <Select.Positioner>
+                <Select.Content>
+                  {elvantoFieldCollection.items.map((item) => (
+                    <Select.Item key={item.value} item={item}>
+                      <Select.ItemText>{item.label}</Select.ItemText>
+                      <Select.ItemIndicator><CheckIcon /></Select.ItemIndicator>
+                    </Select.Item>
+                  ))}
+                </Select.Content>
+              </Select.Positioner>
+            </Select.Root>
           </Stack>
-          
+
           <Stack gap="1" flex="1" minWidth="0">
             <Text textStyle="xs" color="fg.muted">Transform</Text>
-            <select
-              value={rule.transform || ''}
-              onChange={e => onUpdate(index, { transform: e.target.value || undefined })}
-              style={{ minWidth: '200px' }}
-            >
-              <option value="">— None (Identity) —</option>
-              <option value="category_to_journey_stage">category_to_journey_stage</option>
-              <option value="location_to_journey_tracks">location_to_journey_tracks</option>
-              <option value="defacto_to_partner">defacto_to_partner</option>
-              <option value="school_grade_to_kindy_year">school_grade_to_kindy_year</option>
-              <option value="kindy_year_to_school_grade">kindy_year_to_school_grade</option>
-              <option value="admin_to_access_permission">admin_to_access_permission</option>
-              <option value="access_permission_to_admin">access_permission_to_admin</option>
-              <option value="bool_to_yes_no">bool_to_yes_no</option>
-              <option value="yes_no_to_bool">yes_no_to_bool</option>
-              <option value="int_flag_to_bool">int_flag_to_bool</option>
-              <option value="bool_to_int_flag">bool_to_int_flag</option>
-              <option value="capitalize_enum">capitalize_enum</option>
-              <option value="lowercase_enum">lowercase_enum</option>
-              <option value="trim_suffix">trim_suffix</option>
-            </select>
+            <Select.Root collection={transformCollection} value={transformValue} onValueChange={(details) => onUpdate(index, { transform: details.value[0] || undefined })}>
+              <Select.Control>
+                <Select.Trigger minWidth="200px">
+                  <Select.ValueText placeholder="— None (Identity) —" />
+                  <Select.Indicator><ChevronsUpDownIcon /></Select.Indicator>
+                </Select.Trigger>
+              </Select.Control>
+              <Select.Positioner>
+                <Select.Content>
+                  {transformCollection.items.map((item) => (
+                    <Select.Item key={item.value} item={item}>
+                      <Select.ItemText>{item.label}</Select.ItemText>
+                      <Select.ItemIndicator><CheckIcon /></Select.ItemIndicator>
+                    </Select.Item>
+                  ))}
+                </Select.Content>
+              </Select.Positioner>
+            </Select.Root>
             {transformDesc && <Text textStyle="xs" color="fg.muted">{transformDesc}</Text>}
           </Stack>
-          
-          <Stack gap="1" alignItems="center" style={{ minWidth: '70px' }}>
+
+          <Stack gap="1" alignItems="center" minWidth="70px">
             <Text textStyle="xs" color="fg.muted">Priority</Text>
             <Input
               type="number"
               value={rule.priority}
               onChange={e => onUpdate(index, { priority: parseInt(e.target.value) || 0 })}
-              style={{ width: '60px' }}
+              width="60px"
             />
           </Stack>
-          
+
           <Button variant="outline" size="sm" onClick={() => setExpanded(!expanded)}>
             {expanded ? '▲' : '▼'}
           </Button>
-          
+
           <HStack gap="1">
             <Button variant="outline" size="sm" onClick={() => onDuplicate(index)} title="Duplicate">
               📋
@@ -131,15 +175,15 @@ export function MappingRow({ rule, index, appFields, elvantoFields, dynamicElvan
               🗑
             </Button>
           </HStack>
-        
+
         {expanded && (
-          <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid var(--border)' }}>
-            <ConditionEditor 
-              condition={rule.condition} 
+          <Stack mt="3" pt="3" borderTopWidth="1px" borderColor="border">
+            <ConditionEditor
+              condition={rule.condition}
               onChange={cond => onUpdate(index, { condition: cond })}
               availableFields={[...appFields, ...elvantoFields]}
             />
-          </div>
+          </Stack>
         )}
       </HStack>
       </Card.Body>
@@ -147,13 +191,33 @@ export function MappingRow({ rule, index, appFields, elvantoFields, dynamicElvan
   )
 }
 
-function ConditionEditor({ condition, onChange, availableFields }: { 
+function ConditionEditor({ condition, onChange, availableFields }: {
   condition: any
   onChange: (cond: any) => void
   availableFields: string[]
 }) {
   const [editMode, setEditMode] = useState<'simple' | 'advanced'>('simple')
-  
+
+  const fieldCollection = useMemo(() => createListCollection({
+    items: [{ label: 'Field', value: '' }, ...availableFields.map(f => ({ label: f, value: f }))]
+  }), [availableFields])
+
+  const operatorCollection = useMemo(() => createListCollection({
+    items: [
+      { label: 'Equals', value: 'equals' },
+      { label: 'Not Equals', value: 'not_equals' },
+      { label: 'In List', value: 'in' },
+      { label: 'Exists', value: 'exists' },
+    ]
+  }), [])
+
+  const typeCollection = useMemo(() => createListCollection({
+    items: [
+      { label: 'AND (all)', value: 'and' },
+      { label: 'OR (any)', value: 'or' },
+    ]
+  }), [])
+
   if (!condition) {
     return (
       <Stack gap="3">
@@ -164,44 +228,66 @@ function ConditionEditor({ condition, onChange, availableFields }: {
       </Stack>
     )
   }
-  
+
+  const fieldValue = condition.field ? [condition.field] : []
+  const operatorValue = condition.operator ? [condition.operator] : []
+  const typeValue = condition.type ? [condition.type] : []
+
   if (editMode === 'simple') {
     return (
       <Stack gap="3">
         <HStack gap="3" flexWrap="wrap">
-          <select
-            value={condition.field || ''}
-            onChange={e => onChange({ ...condition, field: e.target.value })}
-            style={{ minWidth: '200px' }}
-          >
-            <option value="">Field</option>
-            {availableFields.map(f => <option key={f} value={f}>{f}</option>)}
-          </select>
-          
-          <select
-            value={condition.operator || 'equals'}
-            onChange={e => onChange({ ...condition, operator: e.target.value })}
-            style={{ minWidth: '140px' }}
-          >
-            <option value="equals">Equals</option>
-            <option value="not_equals">Not Equals</option>
-            <option value="in">In List</option>
-            <option value="exists">Exists</option>
-          </select>
-          
+          <Select.Root collection={fieldCollection} value={fieldValue} onValueChange={(details) => onChange({ ...condition, field: details.value[0] || '' })}>
+            <Select.Control>
+              <Select.Trigger minWidth="200px">
+                <Select.ValueText placeholder="Field" />
+                <Select.Indicator><ChevronsUpDownIcon /></Select.Indicator>
+              </Select.Trigger>
+            </Select.Control>
+            <Select.Positioner>
+              <Select.Content>
+                {fieldCollection.items.map((item) => (
+                  <Select.Item key={item.value} item={item}>
+                    <Select.ItemText>{item.label}</Select.ItemText>
+                    <Select.ItemIndicator><CheckIcon /></Select.ItemIndicator>
+                  </Select.Item>
+                ))}
+              </Select.Content>
+            </Select.Positioner>
+          </Select.Root>
+
+          <Select.Root collection={operatorCollection} value={operatorValue} onValueChange={(details) => onChange({ ...condition, operator: details.value[0] || 'equals' })}>
+            <Select.Control>
+              <Select.Trigger minWidth="140px">
+                <Select.ValueText placeholder="Operator" />
+                <Select.Indicator><ChevronsUpDownIcon /></Select.Indicator>
+              </Select.Trigger>
+            </Select.Control>
+            <Select.Positioner>
+              <Select.Content>
+                {operatorCollection.items.map((item) => (
+                  <Select.Item key={item.value} item={item}>
+                    <Select.ItemText>{item.label}</Select.ItemText>
+                    <Select.ItemIndicator><CheckIcon /></Select.ItemIndicator>
+                  </Select.Item>
+                ))}
+              </Select.Content>
+            </Select.Positioner>
+          </Select.Root>
+
           {condition.operator !== 'exists' && (
             <Input
               value={condition.value || ''}
               onChange={e => onChange({ ...condition, value: e.target.value })}
               placeholder="Value"
-              style={{ minWidth: '150px' }}
+              minWidth="150px"
             />
           )}
-          
+
           <Button variant="outline" size="sm" onClick={() => setEditMode('advanced')}>
             Advanced (AND/OR)
           </Button>
-          
+
           <Button variant="solid" size="sm" color="red" onClick={() => onChange(null)}>
             Remove Condition
           </Button>
@@ -209,29 +295,39 @@ function ConditionEditor({ condition, onChange, availableFields }: {
       </Stack>
     )
   }
-  
+
   return (
     <Stack gap="3">
       <HStack gap="3">
         <Badge variant="outline">Advanced Mode</Badge>
-        <select
-          value={condition.type || 'and'}
-          onChange={e => onChange({ ...condition, type: e.target.value })}
-          style={{ width: '100px' }}
-        >
-          <option value="and">AND (all)</option>
-          <option value="or">OR (any)</option>
-        </select>
+        <Select.Root collection={typeCollection} value={typeValue} onValueChange={(details) => onChange({ ...condition, type: details.value[0] || 'and' })}>
+          <Select.Control>
+            <Select.Trigger width="100px">
+              <Select.ValueText placeholder="Type" />
+              <Select.Indicator><ChevronsUpDownIcon /></Select.Indicator>
+            </Select.Trigger>
+          </Select.Control>
+          <Select.Positioner>
+            <Select.Content>
+              {typeCollection.items.map((item) => (
+                <Select.Item key={item.value} item={item}>
+                  <Select.ItemText>{item.label}</Select.ItemText>
+                  <Select.ItemIndicator><CheckIcon /></Select.ItemIndicator>
+                </Select.Item>
+              ))}
+            </Select.Content>
+          </Select.Positioner>
+        </Select.Root>
         <Button variant="outline" size="sm" onClick={() => setEditMode('simple')}>
           Simple Mode
         </Button>
       </HStack>
-      
+
       <Stack gap="2">
         {(condition.conditions || []).map((cond: any, i: number) => (
           <HStack key={i} gap="2">
-            <ConditionEditor 
-              condition={cond} 
+            <ConditionEditor
+              condition={cond}
               onChange={newCond => {
                 const newConditions = [...(condition.conditions || [])]
                 newConditions[i] = newCond
@@ -248,10 +344,10 @@ function ConditionEditor({ condition, onChange, availableFields }: {
             </Button>
           </HStack>
         ))}
-        
-        <Button variant="outline" size="sm" onClick={() => onChange({ 
-          ...condition, 
-          conditions: [...(condition.conditions || []), { type: 'field_equals', field: '', operator: 'equals', value: '' }] 
+
+        <Button variant="outline" size="sm" onClick={() => onChange({
+          ...condition,
+          conditions: [...(condition.conditions || []), { type: 'field_equals', field: '', operator: 'equals', value: '' }]
         })}>
           + Add Condition
         </Button>

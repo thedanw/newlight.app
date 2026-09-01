@@ -2,17 +2,17 @@ import { useCallback, useState } from 'react'
 import { ChevronLeft, ChevronRight, Plus, Search } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { Button, Dialog, Heading, Icon, Input, PageHeader, Pagination, Text } from '@/core/ui'
-import type { PeopleListOptions, Person, PersonWithJourney } from '../lib/types'
-import { usePeopleList } from '../lib/hooks'
-import { PeopleFilters } from '../components/PeopleFilters'
-import { PeopleSearch } from '../components/PeopleSearch'
-import { PeopleTable } from '../components/PeopleTable'
-import { createSavedList } from '../lib/queries'
-import { SavedListSidebar } from '../components/SavedListSidebar'
+import type { PeopleListOptions, Person, PersonWithJourney } from './lib/types'
+import { usePeopleList } from './lib/hooks'
+import { PeopleFilters } from './components/PeopleFilters'
+import { PeopleSearch } from './components/PeopleSearch'
+import { PeopleTable } from './components/PeopleTable'
+import { createSavedList } from './lib/queries'
+import { SavedListSidebar } from './components/SavedListSidebar'
 
 const PAGE_SIZE = 50
 
-export default function PeopleListPage() {
+export default function PeopleDashboardPage() {
   const navigate = useNavigate()
   const [filters, setFilters] = useState<PeopleListOptions>({ limit: PAGE_SIZE, offset: 0 })
   const [searchResults, setSearchResults] = useState<Person[] | null>(null)

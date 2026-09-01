@@ -20,7 +20,7 @@ import {
 /* ---------------------------------------------------------------------------
    SettingsPage — dashboard shell for `/settings/:section?/:page?`.
 
-   Rendered inside `SettingsLayout` (the app shell with the Sidebar + page
+   Rendered inside the shared `AppShell` (the app shell with the Sidebar + page
    chrome), structured like any module dashboard (push/pop panel stack):
    - `/settings`                → section list (root dashboard)
    - `/settings/:section`       → section panel (slides in from the right)

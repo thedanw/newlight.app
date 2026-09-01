@@ -31,8 +31,8 @@
 }
 
 [data-sidebar-style='accent-light'] {
-  --sidebar-bg: var(--colors-color-palette-2);
-  --sidebar-fg: var(--colors-color-palette-9);
+  --sidebar-bg: var(--colors-color-palette-3);
+  --sidebar-fg: var(--colors-color-palette-11);
   --sidebar-muted: var(--colors-color-palette-10);
   --sidebar-subtle: var(--colors-color-palette-9);
   --sidebar-border: var(--colors-color-palette-7);

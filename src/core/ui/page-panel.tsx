@@ -11,9 +11,9 @@ const pagePanel = cva({
     minWidth: '0',
     height: '100%',
     overflow: 'hidden',
-    marginRight: '5px',
+    marginLeft: '5px',
     '@media (min-width: 1280px)': {
-      marginRight: 'var(--dynamic-sidebar-width, 100px)',
+      marginLeft: 'var(--dynamic-sidebar-width, 100px)',
     },
   },
 })

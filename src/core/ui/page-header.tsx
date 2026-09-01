@@ -14,9 +14,10 @@ const pageHeader = cva({
     borderBottom: '1px solid var(--colors-border)',
     flexShrink: '0',
     /* leave space for sidebar pull tab */
-    marginRight: '44px',
+    marginLeft: '38px',
+    marginBottom: '6',
     '@media (min-width: 1280px)': {
-      marginRight: '0px',
+      marginLeft: '0px',
     },
   },
 })

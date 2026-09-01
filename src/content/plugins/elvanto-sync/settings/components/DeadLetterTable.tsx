@@ -1,7 +1,9 @@
-import { Heading, Text, Card, Table, Badge, Button, Dialog } from '@/core/ui'
+import { Heading, Text, Card, Table, Badge, Button, Dialog, Select } from '@/core/ui'
 import { usePluginAPIContext } from '@/core/plugins/PluginAPI'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { HStack, Stack } from 'styled-system/jsx'
+import { createListCollection } from '@ark-ui/react'
+import { ChevronsUpDownIcon, CheckIcon } from 'lucide-react'
 
 interface DeadLetterItem {
   id: string
@@ -102,19 +104,62 @@ export function DeadLetterTable() {
     }
   }
 
+  const pageSizeCollection = useMemo(() => createListCollection({
+    items: [
+      { label: '10', value: '10' },
+      { label: '20', value: '20' },
+      { label: '50', value: '50' },
+      { label: '100', value: '100' },
+    ]
+  }), [])
+
+  const entityCollection = useMemo(() => createListCollection({
+    items: [
+      { label: 'All', value: '' },
+      { label: 'People', value: 'people' },
+      { label: 'Households', value: 'households' },
+      { label: 'Journey', value: 'journey' },
+      { label: 'Groups', value: 'groups' },
+      { label: 'Services', value: 'services' },
+      { label: 'Songs', value: 'songs' },
+      { label: 'Calendar Events', value: 'calendar_events' },
+      { label: 'Transactions', value: 'transactions' },
+    ]
+  }), [])
+
+  const statusCollection = useMemo(() => createListCollection({
+    items: [
+      { label: 'All', value: '' },
+      { label: 'Pending', value: 'pending' },
+      { label: 'Resolved', value: 'resolved' },
+    ]
+  }), [])
+
   const totalPages = Math.ceil(total / pageSize)
 
   return (
     <Stack gap="6">
-      <HStack justify="space-between" style={{ alignItems: 'center' }}>
+      <HStack justify="space-between" alignItems="center">
         <Heading textStyle="md">Dead Letter Queue</Heading>
         <HStack gap="2">
-          <select value={String(pageSize)} onChange={e => { setPageSize(Number(e.target.value)); setPage(1); }} style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid var(--border)' }}>
-            <option value="10">10</option>
-            <option value="20">20</option>
-            <option value="50">50</option>
-            <option value="100">100</option>
-          </select>
+          <Select.Root collection={pageSizeCollection} value={[String(pageSize)]} onValueChange={(details) => { setPageSize(Number(details.value[0])); setPage(1); }}>
+            <Select.Control>
+              <Select.Trigger minWidth="80px">
+                <Select.ValueText />
+                <Select.Indicator><ChevronsUpDownIcon /></Select.Indicator>
+              </Select.Trigger>
+            </Select.Control>
+            <Select.Positioner>
+              <Select.Content>
+                {pageSizeCollection.items.map((item) => (
+                  <Select.Item key={item.value} item={item}>
+                    <Select.ItemText>{item.label}</Select.ItemText>
+                    <Select.ItemIndicator><CheckIcon /></Select.ItemIndicator>
+                  </Select.Item>
+                ))}
+              </Select.Content>
+            </Select.Positioner>
+          </Select.Root>
         </HStack>
       </HStack>
 
@@ -124,27 +169,47 @@ export function DeadLetterTable() {
         </Card.Header>
         <Card.Body>
           <HStack gap="3" flexWrap="wrap">
-            <Stack gap="1" style={{ minWidth: '150px' }}>
+            <Stack gap="1" minWidth="150px">
               <Text textStyle="xs" color="fg.muted">Entity</Text>
-              <select value={filters.entity} onChange={e => setFilters({ ...filters, entity: e.target.value })} style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid var(--border)', backgroundColor: 'var(--bg-default)', color: 'var(--fg-default)' }}>
-                <option value="">All</option>
-                <option value="people">People</option>
-                <option value="households">Households</option>
-                <option value="journey">Journey</option>
-                <option value="groups">Groups</option>
-                <option value="services">Services</option>
-                <option value="songs">Songs</option>
-                <option value="calendar_events">Calendar Events</option>
-                <option value="transactions">Transactions</option>
-              </select>
+              <Select.Root collection={entityCollection} value={[filters.entity]} onValueChange={(details) => setFilters({ ...filters, entity: details.value[0] })}>
+                <Select.Control>
+                  <Select.Trigger width="100%">
+                    <Select.ValueText placeholder="All" />
+                    <Select.Indicator><ChevronsUpDownIcon /></Select.Indicator>
+                  </Select.Trigger>
+                </Select.Control>
+                <Select.Positioner>
+                  <Select.Content>
+                    {entityCollection.items.map((item) => (
+                      <Select.Item key={item.value} item={item}>
+                        <Select.ItemText>{item.label}</Select.ItemText>
+                        <Select.ItemIndicator><CheckIcon /></Select.ItemIndicator>
+                      </Select.Item>
+                    ))}
+                  </Select.Content>
+                </Select.Positioner>
+              </Select.Root>
             </Stack>
-            <Stack gap="1" style={{ minWidth: '150px' }}>
+            <Stack gap="1" minWidth="150px">
               <Text textStyle="xs" color="fg.muted">Status</Text>
-              <select value={filters.resolved} onChange={e => setFilters({ ...filters, resolved: e.target.value })} style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid var(--border)', backgroundColor: 'var(--bg-default)', color: 'var(--fg-default)' }}>
-                <option value="">All</option>
-                <option value="pending">Pending</option>
-                <option value="resolved">Resolved</option>
-              </select>
+              <Select.Root collection={statusCollection} value={[filters.resolved]} onValueChange={(details) => setFilters({ ...filters, resolved: details.value[0] })}>
+                <Select.Control>
+                  <Select.Trigger width="100%">
+                    <Select.ValueText placeholder="All" />
+                    <Select.Indicator><ChevronsUpDownIcon /></Select.Indicator>
+                  </Select.Trigger>
+                </Select.Control>
+                <Select.Positioner>
+                  <Select.Content>
+                    {statusCollection.items.map((item) => (
+                      <Select.Item key={item.value} item={item}>
+                        <Select.ItemText>{item.label}</Select.ItemText>
+                        <Select.ItemIndicator><CheckIcon /></Select.ItemIndicator>
+                      </Select.Item>
+                    ))}
+                  </Select.Content>
+                </Select.Positioner>
+              </Select.Root>
             </Stack>
             <Button variant="outline" onClick={() => setFilters({ entity: '', resolved: '' })}>
               Clear Filters
@@ -155,7 +220,7 @@ export function DeadLetterTable() {
 
       <Card.Root>
         <Card.Header>
-          <HStack justify="space-between" style={{ alignItems: 'center' }}>
+          <HStack justify="space-between" alignItems="center">
             <Card.Title>Failed Items</Card.Title>
             <Text textStyle="sm" color="fg.muted">
               Showing {deadLetters.length} of {total} items
@@ -164,9 +229,9 @@ export function DeadLetterTable() {
         </Card.Header>
         <Card.Body>
           {loading ? (
-            <Text color="fg.muted" style={{ padding: '24px', textAlign: 'center' }}>Loading dead letter queue...</Text>
+            <Text color="fg.muted" p="6" textAlign="center">Loading dead letter queue...</Text>
           ) : deadLetters.length === 0 ? (
-            <Text color="fg.muted" style={{ padding: '24px', textAlign: 'center' }}>No failed items. Great job!</Text>
+            <Text color="fg.muted" p="6" textAlign="center">No failed items. Great job!</Text>
           ) : (
             <>
               <Table.Root>
@@ -185,7 +250,7 @@ export function DeadLetterTable() {
                     <Table.Row key={item.id}>
                       <Table.Cell>{item.entity}</Table.Cell>
                       <Table.Cell>
-                        <Text textStyle="sm" style={{ maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        <Text textStyle="sm" maxWidth="300px" overflow="hidden" textOverflow="ellipsis" whiteSpace="nowrap">
                           {item.error}
                         </Text>
                       </Table.Cell>
@@ -221,7 +286,7 @@ export function DeadLetterTable() {
               </Table.Root>
 
               {totalPages > 1 && (
-                <HStack gap="2" justify="center" style={{ marginTop: '16px' }}>
+                <HStack gap="2" justify="center" mt="4">
                   <Button variant="outline" size="sm" onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}>
                     Previous
                   </Button>
@@ -263,12 +328,12 @@ export function DeadLetterTable() {
         <Dialog.Trigger asChild>
           <Button variant="outline" size="sm">View Payload</Button>
         </Dialog.Trigger>
-        <Dialog.Content style={{ maxWidth: '800px' }}>
+        <Dialog.Content maxWidth="800px">
           <Dialog.Header>
             <Dialog.Title>Payload Details</Dialog.Title>
           </Dialog.Header>
           <Stack gap="4">
-            <Text textStyle="sm" fontFamily="monospace" style={{ whiteSpace: 'pre-wrap', maxHeight: '400px', overflow: 'auto' }}>
+            <Text textStyle="sm" fontFamily="monospace" whiteSpace="pre-wrap" maxHeight="400px" overflow="auto">
               {selectedItem ? JSON.stringify(selectedItem.payload, null, 2) : ''}
             </Text>
             <HStack gap="2" justify="end">

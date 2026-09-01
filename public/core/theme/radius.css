@@ -6,9 +6,9 @@
 }
 
 [data-radius='xs'] {
-  --radii-l1: var(--radii-xs);
-  --radii-l2: var(--radii-sm);
-  --radii-l3: var(--radii-md);
+  --radii-l1: 0;
+  --radii-l2: var(--radii-xs);
+  --radii-l3: var(--radii-sm);
 }
 
 [data-radius='sm'] {

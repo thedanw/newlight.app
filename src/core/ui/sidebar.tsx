@@ -7,11 +7,11 @@ import { Avatar, Menu, NavTile, PullTab, NavProvider, useNavContext, Text } from
 import { Users, UsersRound, Wrench, CalendarDays, Sun, Settings } from 'lucide-react'
 
 /* ---------------------------------------------------------------------------
-   Sidebar — mobile-first right-side module menu (ui-ux #7):
-   - module grid (grid-auto-flow: column, fill top→bottom then wrap)
-   - 5px peek when closed (CLOSED_X = width - PEEK_WIDTH)
-   - viewport-aware column calculation (88px tiles)
-   - persistent pull-tab top-right (hamburger→X morph)
+    Sidebar — mobile-first left-side module menu (ui-ux #7):
+    - module grid (grid-auto-flow: column, fill top→bottom then wrap)
+    - 5px peek when closed (CLOSED_X = -(width - PEEK_WIDTH))
+    - viewport-aware column calculation (88px tiles)
+    - persistent pull-tab top-left (hamburger→X morph)
    - drag left open / right close; click toggles; click-outside closes
    - snap: |velocity|>100 wins else nearest half; spring-like CSS slide
    - open state app-level (NavContext); route change closes
@@ -95,18 +95,18 @@ const HamburgerIcon = ({ open }: { open: boolean }) => (
 const sidebarCss = css({
   position: 'fixed',
   top: 0,
-  right: 0,
+  left: 0,
   bottom: 0,
   zIndex: 'modal',
   display: 'flex',
   flexDirection: 'column',
   background: 'var(--sidebar-bg)',
   color: 'var(--sidebar-fg)',
-  borderLeft: '1px solid var(--sidebar-border)',
+  borderRight: '1px solid var(--sidebar-border)',
   overflow: 'hidden',
   contain: 'layout style',
   boxShadow:
-    '-8px 0px 16px var(--colors-black-a3),0px 0px 1px var(--colors-black-a5)',
+    '8px 0px 16px var(--colors-black-a3),0px 0px 1px var(--colors-black-a5)',
   width: `calc(var(--columns, 1) * ${TILE_SIZE}px + (var(--columns, 1) - 1) * ${TILE_GAP}px + 2 * ${SIDEBAR_PADDING}px)`,
   minWidth: `${TILE_SIZE + 2 * SIDEBAR_PADDING}px`,
   height: '100vh',
@@ -120,14 +120,14 @@ const sidebarCss = css({
 const pullTabWrapperCss = css({
   position: 'fixed',
   top: 0,
-  right: 0,
+  left: '44px',
   bottom: 0,
   zIndex: 'modal',
   pointerEvents: 'none',
   touchAction: 'none', // drag handle: keep the browser from hijacking the pan
   display: 'flex',
   alignItems: 'flex-start',
-  justifyContent: 'flex-start',
+  justifyContent: 'flex-end',
 })
 
 const sidebarGridCss = css({
@@ -242,10 +242,10 @@ function SidebarInner({ onSettingsNavigate, onModuleNavigate, logo }: SidebarInn
 
   // Current translateX (px) for narrow/overlay mode. On wide desktop we
   // ignore this and always pin to 0 (open).
-  // Right-side sidebar: closed = positive (peeking off the right edge),
-  // open = 0 (flush with right edge).
+  // Left-side sidebar: closed = negative (peeking off the left edge),
+  // open = 0 (flush with left edge).
   // Initialize to closed position; sync effect will correct based on isOpen/isWide.
-  const [x, setX] = useState(sidebarWidth - PEEK_WIDTH)
+  const [x, setX] = useState(-(sidebarWidth - PEEK_WIDTH))
   // Live ref so drag-end can read the current position without stale closures
   const xRef = useRef(x)
   useEffect(() => {
@@ -277,8 +277,8 @@ function SidebarInner({ onSettingsNavigate, onModuleNavigate, logo }: SidebarInn
         // `offset` is seeded by `from` with the current resting x, so it is
         // already the live sidebar position in px. Clamp it so the sidebar can
         // never be dragged past the fully-open (0) or fully-closed edge.
-        // Right-side: openX=0, closedX=sidebarWidth-PEEK_WIDTH (positive).
-        const clampedX = Math.max(openX, Math.min(closedX, ox))
+        // Left-side: openX=0, closedX=-(sidebarWidth-PEEK_WIDTH) (negative).
+        const clampedX = Math.min(openX, Math.max(closedX, ox))
         xRef.current = clampedX
         setX(clampedX)
       }
@@ -298,13 +298,13 @@ function SidebarInner({ onSettingsNavigate, onModuleNavigate, logo }: SidebarInn
         const elapsedMs = Math.max(performance.now() - dragStartTimeRef.current, 1)
         const velocity = (mx / elapsedMs) * 1000
 
-        // Right-side snap logic: drag left (negative velocity) → OPEN,
-        // drag right (positive velocity) → CLOSED.
+        // Left-side snap logic: drag right (positive velocity) → OPEN,
+        // drag left (negative velocity) → CLOSED.
         // |velocity| > 100 wins, else nearest half.
         const shouldOpen =
           Math.abs(velocity) > SNAP_VELOCITY_THRESHOLD
-            ? velocity < 0
-            : xRef.current < (closedX + openX) / 2
+            ? velocity > 0
+            : xRef.current > (closedX + openX) / 2
 
         // Sync the NavContext open state with the snap result
         if (shouldOpen) {
@@ -327,9 +327,9 @@ function SidebarInner({ onSettingsNavigate, onModuleNavigate, logo }: SidebarInn
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
-  // Calculate closed position (5px peek). Right-side: closed = positive
-  // offset (peeking off right edge).
-  const closedX = sidebarWidth - PEEK_WIDTH
+  // Calculate closed position (5px peek). Left-side: closed = negative
+  // offset (peeking off left edge).
+  const closedX = -(sidebarWidth - PEEK_WIDTH)
   const openX = 0
 
   // Sync position with open state (also on width/breakpoint changes)
@@ -390,7 +390,7 @@ function SidebarInner({ onSettingsNavigate, onModuleNavigate, logo }: SidebarInn
 
   // Inline transform + spring-like slide; disabled while dragging (1:1
   // tracking) and on wide desktop / reduced motion (instant).
-  // Right-side: positive translateX pushes sidebar off the right edge.
+  // Left-side: negative translateX pushes sidebar off the left edge.
   const positionStyle = (translate: number): React.CSSProperties => ({
     transform: `translateX(${translate}px)`,
     transition:
@@ -498,8 +498,8 @@ function SidebarInner({ onSettingsNavigate, onModuleNavigate, logo }: SidebarInn
       </div>
 
       {/* Pull tab - rendered OUTSIDE the sidebar so overflow:hidden can't crop
-          it. The wrapper is fixed at right:0 and shares the sidebar's transform,
-          so the tab hugs the sidebar's left edge as it slides. The wrapper is
+          it. The wrapper is fixed at left:0 and shares the sidebar's transform,
+          so the tab hugs the sidebar's right edge as it slides. The wrapper is
           pointer-events:none; the tab button re-enables them. */}
       {!isWide && (
         <div

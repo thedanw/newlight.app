@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { createListCollection } from '@ark-ui/react'
-import { Button, Field, Input, Tabs, Text } from '@/core/ui'
-import * as Select from '@/core/ui/select'
+import { Button, Field, Input, Select, Tabs, Text } from '@/core/ui'
 import { createJourneyCategory, createJourneyStage, createJourneyTrack, deleteJourneyTrack, saveJourneyCategory, saveJourneyStage, saveJourneyTrack } from '../lib/queries'
 import { useJourneySettings } from '../lib/settings-hooks'
 

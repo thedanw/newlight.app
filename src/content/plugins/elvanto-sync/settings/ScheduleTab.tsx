@@ -1,7 +1,9 @@
-import { Heading, Text, Card, Alert, Button, Input } from '@/core/ui'
+import { Heading, Text, Card, Alert, Button, Input, Select } from '@/core/ui'
 import { usePluginAPIContext } from '@/core/plugins/PluginAPI'
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Stack } from 'styled-system/jsx'
+import { createListCollection } from '@ark-ui/react'
+import { ChevronsUpDownIcon, CheckIcon } from 'lucide-react'
 
 /**
  * Schedule Tab — Skeleton (full implementation in Phase 10)
@@ -48,6 +50,15 @@ export function ScheduleTab() {
     }
   }
 
+  const syncDirectionCollection = useMemo(() => createListCollection({
+    items: [
+      { label: 'Pull Only (Elvanto → Supabase)', value: 'pull_only' },
+      { label: 'Bidirectional (Pull + Push)', value: 'bidirectional' },
+    ]
+  }), [])
+
+  const syncDirectionValue = syncDirection ? [syncDirection] : []
+
   return (
     <Stack gap="6">
       <Heading textStyle="md">Schedule</Heading>
@@ -77,22 +88,24 @@ export function ScheduleTab() {
 
             <Stack gap="2">
               <Text textStyle="sm" fontWeight="medium">Sync Direction</Text>
-              <select
-                value={syncDirection}
-                onChange={(e) => setSyncDirection(e.target.value as 'pull_only' | 'bidirectional')}
-                disabled={loading}
-                style={{
-                  width: '100%',
-                  padding: '8px 12px',
-                  borderRadius: '6px',
-                  border: '1px solid var(--border)',
-                  backgroundColor: 'var(--bg-default)',
-                  color: 'var(--fg-default)'
-                }}
-              >
-                <option value="pull_only">Pull Only (Elvanto → Supabase)</option>
-                <option value="bidirectional">Bidirectional (Pull + Push)</option>
-              </select>
+              <Select.Root collection={syncDirectionCollection} value={syncDirectionValue} onValueChange={(details) => setSyncDirection(details.value[0] as 'pull_only' | 'bidirectional')} disabled={loading}>
+                <Select.Control>
+                  <Select.Trigger width="100%">
+                    <Select.ValueText placeholder="Select direction" />
+                    <Select.Indicator><ChevronsUpDownIcon /></Select.Indicator>
+                  </Select.Trigger>
+                </Select.Control>
+                <Select.Positioner>
+                  <Select.Content>
+                    {syncDirectionCollection.items.map((item) => (
+                      <Select.Item key={item.value} item={item}>
+                        <Select.ItemText>{item.label}</Select.ItemText>
+                        <Select.ItemIndicator><CheckIcon /></Select.ItemIndicator>
+                      </Select.Item>
+                    ))}
+                  </Select.Content>
+                </Select.Positioner>
+              </Select.Root>
               <Text color="fg.muted" textStyle="sm">
                 MVP: Pull only. Bidirectional requires explicit admin action for pushes.
               </Text>

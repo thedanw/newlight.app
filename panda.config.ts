@@ -81,9 +81,9 @@ export default defineConfig({
         // Park UI radius scale — the `data-radius` knob on <html> re-maps these
         // via the theme emission block (src/core/theme/radius.css).
         radii: {
-          l1: { value: '{radii.xs}' },
-          l2: { value: '{radii.sm}' },
-          l3: { value: '{radii.md}' },
+          l1: { value: '0' },
+          l2: { value: '{radii.xs}' },
+          l3: { value: '{radii.sm}' },
         },
       }
     },

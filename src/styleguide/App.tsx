@@ -1,7 +1,6 @@
 'use client'
 import { useEffect, useRef, type ReactNode } from 'react'
 import { AnimatePresence, motion, useReducedMotion, type Variants } from 'framer-motion'
-import { useNavigate } from 'react-router-dom'
 import { css } from 'styled-system/css'
 import { token } from 'styled-system/tokens'
 import { HStack, Stack } from 'styled-system/jsx'
@@ -13,9 +12,7 @@ import {
   Drawer,
   Heading,
   PageHeader,
-  PagePanel,
   Text,
-  Sidebar,
 } from '@/core/ui'
 import {
   hrefForCategory,
@@ -75,14 +72,6 @@ const headerItemVariants: Variants = {
   exit: { opacity: 0, x: 12 },
 }
 
-const shellCss = css({
-  display: 'flex',
-  height: '100dvh',
-  overflow: 'hidden',
-  bg: 'var(--canvas-bg)',
-  color: 'fg.default',
-})
-
 // Panel stage: a NON-scrolling flex column that clips. position:relative
 // keeps the popLayout-popped (position:absolute) exiting panel's containing
 // block — and therefore its clipping — inside this region instead of body
@@ -124,7 +113,6 @@ const panelScrollerCss = css({
 const panelInnerCss = css({ px: '6', pb: '6', minHeight: '100%' })
 
 export default function StyleguideApp() {
-  const navigate = useNavigate()
   const {
     route,
     direction,
@@ -242,19 +230,9 @@ export default function StyleguideApp() {
   }
 
   return (
-    <div className={shellCss}>
-      {/* Sidebar */}
-      <Sidebar
-        onSettingsNavigate={() => navigate('/settings')}
-        onModuleNavigate={(moduleId) => navigate(`/${moduleId}`)}
-      />
-
-      {/* #page-panel — header + push/pop stack */}
-      <PagePanel id="page-panel">
-        {/* iOS nav-bar model: fixed chrome that collapses away entirely when
-            it has no content (hidden navigation bar), while its items still
-            get the trailing-edge handoff micro-transition. */}
-        <AnimatePresence initial={false}>
+    <>
+      {/* #page-panel content — Sidebar + PagePanel are provided by the shared AppShell */}
+      <AnimatePresence initial={false}>
           {hasHeaderContent && (
             <motion.div
               key="page-header"
@@ -336,7 +314,6 @@ export default function StyleguideApp() {
             </motion.div>
           </AnimatePresence>
         </div>
-      </PagePanel>
 
       {/* Native Park UI overlay demos — Dialog + Drawer (replaces SlidePanel) */}
       <Dialog.Root
@@ -378,6 +355,6 @@ export default function StyleguideApp() {
           </Drawer.Content>
         </Drawer.Positioner>
       </Drawer.Root>
-    </div>
+    </>
   )
 }

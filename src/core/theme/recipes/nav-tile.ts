@@ -42,7 +42,7 @@ export const navTile = defineRecipe({
     active: {
       true: {
         background: 'var(--sidebar-accent)',
-        color: 'var(--sidebar-accent-fg)',
+        color: 'var(--sidebar-fg)',
         _hover: {
           background: 'var(--sidebar-accent-hover)',
         },

@@ -1,8 +1,7 @@
-import { Heading, Text, Input, Button, Badge, Card } from '@/core/ui'
+import { Heading, Text, Input, Button, Badge, Card, Select, NumberInput } from '@/core/ui'
 import { usePluginAPIContext } from '@/core/plugins/PluginAPI'
 import { useState, useEffect, useMemo } from 'react'
 import { HStack, Stack } from 'styled-system/jsx'
-import { Select, NumberInput } from '@/core/ui'
 import { createListCollection } from '@ark-ui/react'
 import { ChevronsUpDownIcon, CheckIcon } from 'lucide-react'
 
@@ -169,8 +168,8 @@ export function FieldMappingTable({ disabled = false, dynamicFieldOptions = [] }
     return (
       <Card.Root>
         <Card.Body>
-          <Stack gap="3" align="center" style={{ padding: '24px' }}>
-            <Text color="fg.muted" textStyle="sm" style={{ textAlign: 'center' }}>
+          <Stack gap="3" align="center" p="6">
+            <Text color="fg.muted" textStyle="sm" textAlign="center">
               Field mappings are disabled until an Elvanto API key is saved and tested.
               Please go to the <strong>Connection</strong> tab to configure your API key.
             </Text>
@@ -194,7 +193,7 @@ export function FieldMappingTable({ disabled = false, dynamicFieldOptions = [] }
         </Card.Header>
         <Card.Body>
           {mappings.length === 0 ? (
-            <Stack gap="4" align="center" style={{ padding: '24px' }}>
+            <Stack gap="4" align="center" p="6">
               <Text color="fg.muted">No mapping rules yet</Text>
               <Button onClick={addMapping}>Add First Mapping</Button>
             </Stack>
@@ -291,7 +290,7 @@ function MappingRuleCard({ rule, index, appFields, elvantoFields, dynamicElvanto
               <Text textStyle="xs" color="fg.muted">App Field</Text>
               <Select.Root collection={appFieldCollection} value={appFieldValue} onValueChange={(details) => onUpdate(index, { appField: details.value[0] || '' })}>
                 <Select.Control>
-                  <Select.Trigger style={{ minWidth: '200px' }}>
+                  <Select.Trigger minWidth="200px">
                     <Select.ValueText placeholder="Select app field..." />
                     <Select.Indicator><ChevronsUpDownIcon /></Select.Indicator>
                   </Select.Trigger>
@@ -320,7 +319,7 @@ function MappingRuleCard({ rule, index, appFields, elvantoFields, dynamicElvanto
               <Text textStyle="xs" color="fg.muted">Elvanto Field</Text>
               <Select.Root collection={elvantoFieldCollection} value={elvantoFieldValue} onValueChange={(details) => onUpdate(index, { elvantoField: details.value[0] || '' })}>
                 <Select.Control>
-                  <Select.Trigger style={{ minWidth: '200px' }}>
+                  <Select.Trigger minWidth="200px">
                     <Select.ValueText placeholder="Select Elvanto field..." />
                     <Select.Indicator><ChevronsUpDownIcon /></Select.Indicator>
                   </Select.Trigger>
@@ -342,7 +341,7 @@ function MappingRuleCard({ rule, index, appFields, elvantoFields, dynamicElvanto
               <Text textStyle="xs" color="fg.muted">Transform</Text>
               <Select.Root collection={transformCollection} value={transformValue} onValueChange={(details) => onUpdate(index, { transform: details.value[0] || undefined })}>
                 <Select.Control>
-                  <Select.Trigger style={{ minWidth: '200px' }}>
+                  <Select.Trigger minWidth="200px">
                     <Select.ValueText placeholder="— None (Identity) —" />
                     <Select.Indicator><ChevronsUpDownIcon /></Select.Indicator>
                   </Select.Trigger>
@@ -364,7 +363,7 @@ function MappingRuleCard({ rule, index, appFields, elvantoFields, dynamicElvanto
             <Stack gap="1" alignItems="center" minWidth="80px">
               <Text textStyle="xs" color="fg.muted">Priority</Text>
               <NumberInput.Root value={String(rule.priority)} onValueChange={(e) => onUpdate(index, { priority: parseInt(e.value) || 0 })}>
-                <NumberInput.Input style={{ width: '60px' }} />
+                <NumberInput.Input width="60px" />
                 <NumberInput.Control>
                   <NumberInput.IncrementTrigger />
                   <NumberInput.DecrementTrigger />
@@ -386,13 +385,13 @@ function MappingRuleCard({ rule, index, appFields, elvantoFields, dynamicElvanto
           </HStack>
 
           {expanded && (
-            <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid var(--border)' }}>
+            <Stack mt="3" pt="3" borderTopWidth="1px" borderColor="border">
               <ConditionEditor
                 condition={rule.condition}
                 onChange={cond => onUpdate(index, { condition: cond })}
                 availableFields={[...appFields, ...elvantoFields, ...dynamicElvantoFieldOptions.map(o => o.value)]}
               />
-            </div>
+            </Stack>
           )}
         </Stack>
       </Card.Body>
@@ -400,13 +399,33 @@ function MappingRuleCard({ rule, index, appFields, elvantoFields, dynamicElvanto
   )
 }
 
-function ConditionEditor({ condition, onChange, availableFields }: { 
+function ConditionEditor({ condition, onChange, availableFields }: {
   condition: any
   onChange: (cond: any) => void
   availableFields: string[]
 }) {
   const [editMode, setEditMode] = useState<'simple' | 'advanced'>('simple')
-  
+
+  const fieldCollection = useMemo(() => createListCollection({
+    items: [{ label: 'Field', value: '' }, ...availableFields.map(f => ({ label: f, value: f }))]
+  }), [availableFields])
+
+  const operatorCollection = useMemo(() => createListCollection({
+    items: [
+      { label: 'Equals', value: 'equals' },
+      { label: 'Not Equals', value: 'not_equals' },
+      { label: 'In List', value: 'in' },
+      { label: 'Exists', value: 'exists' },
+    ]
+  }), [])
+
+  const typeCollection = useMemo(() => createListCollection({
+    items: [
+      { label: 'AND (all)', value: 'and' },
+      { label: 'OR (any)', value: 'or' },
+    ]
+  }), [])
+
   if (!condition) {
     return (
       <Stack gap="3">
@@ -417,44 +436,66 @@ function ConditionEditor({ condition, onChange, availableFields }: {
       </Stack>
     )
   }
-  
+
+  const fieldValue = condition.field ? [condition.field] : []
+  const operatorValue = condition.operator ? [condition.operator] : []
+  const typeValue = condition.type ? [condition.type] : []
+
   if (editMode === 'simple') {
     return (
       <Stack gap="3">
         <HStack gap="3" flexWrap="wrap">
-          <select
-            value={condition.field || ''}
-            onChange={e => onChange({ ...condition, field: e.target.value })}
-            style={{ minWidth: '200px' }}
-          >
-            <option value="">Field</option>
-            {availableFields.map(f => <option key={f} value={f}>{f}</option>)}
-          </select>
-          
-          <select
-            value={condition.operator || 'equals'}
-            onChange={e => onChange({ ...condition, operator: e.target.value })}
-            style={{ minWidth: '140px' }}
-          >
-            <option value="equals">Equals</option>
-            <option value="not_equals">Not Equals</option>
-            <option value="in">In List</option>
-            <option value="exists">Exists</option>
-          </select>
-          
+          <Select.Root collection={fieldCollection} value={fieldValue} onValueChange={(details) => onChange({ ...condition, field: details.value[0] || '' })}>
+            <Select.Control>
+              <Select.Trigger minWidth="200px">
+                <Select.ValueText placeholder="Field" />
+                <Select.Indicator><ChevronsUpDownIcon /></Select.Indicator>
+              </Select.Trigger>
+            </Select.Control>
+            <Select.Positioner>
+              <Select.Content>
+                {fieldCollection.items.map((item) => (
+                  <Select.Item key={item.value} item={item}>
+                    <Select.ItemText>{item.label}</Select.ItemText>
+                    <Select.ItemIndicator><CheckIcon /></Select.ItemIndicator>
+                  </Select.Item>
+                ))}
+              </Select.Content>
+            </Select.Positioner>
+          </Select.Root>
+
+          <Select.Root collection={operatorCollection} value={operatorValue} onValueChange={(details) => onChange({ ...condition, operator: details.value[0] || 'equals' })}>
+            <Select.Control>
+              <Select.Trigger minWidth="140px">
+                <Select.ValueText placeholder="Operator" />
+                <Select.Indicator><ChevronsUpDownIcon /></Select.Indicator>
+              </Select.Trigger>
+            </Select.Control>
+            <Select.Positioner>
+              <Select.Content>
+                {operatorCollection.items.map((item) => (
+                  <Select.Item key={item.value} item={item}>
+                    <Select.ItemText>{item.label}</Select.ItemText>
+                    <Select.ItemIndicator><CheckIcon /></Select.ItemIndicator>
+                  </Select.Item>
+                ))}
+              </Select.Content>
+            </Select.Positioner>
+          </Select.Root>
+
           {condition.operator !== 'exists' && (
             <Input
               value={condition.value || ''}
               onChange={e => onChange({ ...condition, value: e.target.value })}
               placeholder="Value"
-              style={{ minWidth: '150px' }}
+              minWidth="150px"
             />
           )}
-          
+
           <Button variant="outline" size="sm" onClick={() => setEditMode('advanced')}>
             Advanced (AND/OR)
           </Button>
-          
+
           <Button variant="solid" size="sm" color="red" onClick={() => onChange(null)}>
             Remove Condition
           </Button>
@@ -462,29 +503,39 @@ function ConditionEditor({ condition, onChange, availableFields }: {
       </Stack>
     )
   }
-  
+
   return (
     <Stack gap="3">
       <HStack gap="3">
         <Badge variant="outline">Advanced Mode</Badge>
-        <select
-          value={condition.type || 'and'}
-          onChange={e => onChange({ ...condition, type: e.target.value })}
-          style={{ width: '100px' }}
-        >
-          <option value="and">AND (all)</option>
-          <option value="or">OR (any)</option>
-        </select>
+        <Select.Root collection={typeCollection} value={typeValue} onValueChange={(details) => onChange({ ...condition, type: details.value[0] || 'and' })}>
+          <Select.Control>
+            <Select.Trigger width="100px">
+              <Select.ValueText placeholder="Type" />
+              <Select.Indicator><ChevronsUpDownIcon /></Select.Indicator>
+            </Select.Trigger>
+          </Select.Control>
+          <Select.Positioner>
+            <Select.Content>
+              {typeCollection.items.map((item) => (
+                <Select.Item key={item.value} item={item}>
+                  <Select.ItemText>{item.label}</Select.ItemText>
+                  <Select.ItemIndicator><CheckIcon /></Select.ItemIndicator>
+                </Select.Item>
+              ))}
+            </Select.Content>
+          </Select.Positioner>
+        </Select.Root>
         <Button variant="outline" size="sm" onClick={() => setEditMode('simple')}>
           Simple Mode
         </Button>
       </HStack>
-      
+
       <Stack gap="2">
         {(condition.conditions || []).map((cond: any, i: number) => (
           <HStack key={i} gap="2">
-            <ConditionEditor 
-              condition={cond} 
+            <ConditionEditor
+              condition={cond}
               onChange={newCond => {
                 const newConditions = [...(condition.conditions || [])]
                 newConditions[i] = newCond
@@ -501,10 +552,10 @@ function ConditionEditor({ condition, onChange, availableFields }: {
             </Button>
           </HStack>
         ))}
-        
-        <Button variant="outline" size="sm" onClick={() => onChange({ 
-          ...condition, 
-          conditions: [...(condition.conditions || []), { type: 'field_equals', field: '', operator: 'equals', value: '' }] 
+
+        <Button variant="outline" size="sm" onClick={() => onChange({
+          ...condition,
+          conditions: [...(condition.conditions || []), { type: 'field_equals', field: '', operator: 'equals', value: '' }]
         })}>
           + Add Condition
         </Button>

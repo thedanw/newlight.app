@@ -1,3 +1,4 @@
+export { AppShell } from "./app-shell";
 export { AbsoluteCenter, type AbsoluteCenterProps } from "./absolute-center";
 export * as Accordion from "./accordion";
 export * as Alert from "./alert";
@@ -67,3 +68,4 @@ export { Toaster, toaster } from "./toast";
 export * as ToggleGroup from "./toggle-group";
 export { Tooltip, type TooltipProps } from "./tooltip";
 export { Sidebar } from "./sidebar";
+export { ErrorBoundary } from "./error-boundary";

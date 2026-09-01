@@ -92,7 +92,7 @@ export function ElvantoSyncStatusWidget() {
     return (
       <Card.Root>
         <Card.Body>
-          <Stack gap="2" style={{ alignItems: 'center' }}>
+          <Stack gap="2" alignItems="center">
             <Heading textStyle="sm">Elvanto Sync</Heading>
             <Text color="fg.muted" textStyle="xs">Loading...</Text>
           </Stack>
@@ -104,7 +104,7 @@ export function ElvantoSyncStatusWidget() {
   return (
     <Card.Root>
       <Card.Header>
-        <Stack flexDirection="row" justify="space-between" style={{ alignItems: 'center' }}>
+        <Stack flexDirection="row" justify="space-between" alignItems="center">
           <Heading textStyle="sm">Elvanto Sync</Heading>
           {lastSync && getStatusBadge(lastSync.status)}
         </Stack>
@@ -133,7 +133,7 @@ export function ElvantoSyncStatusWidget() {
               </Stack>
             </Stack>
           ) : (
-            <Text color="fg.muted" textStyle="sm" style={{ textAlign: 'center' }}>
+            <Text color="fg.muted" textStyle="sm" textAlign="center">
               No sync runs yet
             </Text>
           )}

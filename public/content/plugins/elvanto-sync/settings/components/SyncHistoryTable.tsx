@@ -1,7 +1,9 @@
 import { Stack } from 'styled-system/jsx'
-import { Heading, Text, Card, Table, Badge, Button, Input, Dialog, Alert } from '@/core/ui'
+import { Heading, Text, Card, Table, Badge, Button, Input, Dialog, Alert, Select } from '@/core/ui'
 import { usePluginAPIContext } from '@/core/plugins/PluginAPI'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
+import { createListCollection } from '@ark-ui/react'
+import { ChevronsUpDownIcon, CheckIcon } from 'lucide-react'
 
 interface SyncHistoryItem {
   id: string
@@ -115,6 +117,39 @@ export function SyncHistoryTable() {
     setSelectedItem(item)
   }
 
+  const pageSizeCollection = useMemo(() => createListCollection({
+    items: [
+      { label: '10', value: '10' },
+      { label: '20', value: '20' },
+      { label: '50', value: '50' },
+      { label: '100', value: '100' },
+    ]
+  }), [])
+
+  const entityCollection = useMemo(() => createListCollection({
+    items: [
+      { label: 'All', value: '' },
+      { label: 'People', value: 'people' },
+      { label: 'Households', value: 'households' },
+      { label: 'Journey', value: 'journey' },
+      { label: 'Groups', value: 'groups' },
+      { label: 'Services', value: 'services' },
+      { label: 'Songs', value: 'songs' },
+      { label: 'Calendar Events', value: 'calendar_events' },
+      { label: 'Transactions', value: 'transactions' },
+    ]
+  }), [])
+
+  const statusCollection = useMemo(() => createListCollection({
+    items: [
+      { label: 'All', value: '' },
+      { label: 'Completed', value: 'completed' },
+      { label: 'Partial', value: 'partial' },
+      { label: 'Failed', value: 'failed' },
+      { label: 'Running', value: 'running' },
+    ]
+  }), [])
+
   const totalPages = Math.ceil(total / pageSize)
 
   return (
@@ -122,22 +157,24 @@ export function SyncHistoryTable() {
       <Stack flexDirection="row" gap="3" justify="space-between" align="center">
         <Heading textStyle="md">Sync History</Heading>
         <Stack flexDirection="row" gap="2">
-          <select 
-            value={pageSize} 
-            onChange={e => { setPageSize(Number(e.target.value)); setPage(1); }}
-            style={{
-              padding: '6px 12px',
-              borderRadius: '6px',
-              border: '1px solid var(--border)',
-              backgroundColor: 'var(--bg-default)',
-              color: 'var(--fg-default)'
-            }}
-          >
-            <option value={10}>10</option>
-            <option value={20}>20</option>
-            <option value={50}>50</option>
-            <option value={100}>100</option>
-          </select>
+          <Select.Root collection={pageSizeCollection} value={[String(pageSize)]} onValueChange={(details) => { setPageSize(Number(details.value[0])); setPage(1); }}>
+            <Select.Control>
+              <Select.Trigger minWidth="80px">
+                <Select.ValueText />
+                <Select.Indicator><ChevronsUpDownIcon /></Select.Indicator>
+              </Select.Trigger>
+            </Select.Control>
+            <Select.Positioner>
+              <Select.Content>
+                {pageSizeCollection.items.map((item) => (
+                  <Select.Item key={item.value} item={item}>
+                    <Select.ItemText>{item.label}</Select.ItemText>
+                    <Select.ItemIndicator><CheckIcon /></Select.ItemIndicator>
+                  </Select.Item>
+                ))}
+              </Select.Content>
+            </Select.Positioner>
+          </Select.Root>
         </Stack>
       </Stack>
 
@@ -148,57 +185,53 @@ export function SyncHistoryTable() {
         </Card.Header>
         <Card.Body>
           <Stack flexDirection="row" gap="3" flexWrap="wrap">
-            <Stack gap="1" style={{ minWidth: '150px' }}>
+            <Stack gap="1" minWidth="150px">
               <Text textStyle="xs" color="fg.muted">Entity</Text>
-              <select
-                value={filters.entity}
-                onChange={e => setFilters({ ...filters, entity: e.target.value })}
-                style={{
-                  width: '100%',
-                  padding: '8px 12px',
-                  borderRadius: '6px',
-                  border: '1px solid var(--border)',
-                  backgroundColor: 'var(--bg-default)',
-                  color: 'var(--fg-default)'
-                }}
-              >
-                <option value="">All</option>
-                <option value="people">People</option>
-                <option value="households">Households</option>
-                <option value="journey">Journey</option>
-                <option value="groups">Groups</option>
-                <option value="services">Services</option>
-                <option value="songs">Songs</option>
-                <option value="calendar_events">Calendar Events</option>
-                <option value="transactions">Transactions</option>
-              </select>
+              <Select.Root collection={entityCollection} value={[filters.entity]} onValueChange={(details) => setFilters({ ...filters, entity: details.value[0] })}>
+                <Select.Control>
+                  <Select.Trigger width="100%">
+                    <Select.ValueText placeholder="All" />
+                    <Select.Indicator><ChevronsUpDownIcon /></Select.Indicator>
+                  </Select.Trigger>
+                </Select.Control>
+                <Select.Positioner>
+                  <Select.Content>
+                    {entityCollection.items.map((item) => (
+                      <Select.Item key={item.value} item={item}>
+                        <Select.ItemText>{item.label}</Select.ItemText>
+                        <Select.ItemIndicator><CheckIcon /></Select.ItemIndicator>
+                      </Select.Item>
+                    ))}
+                  </Select.Content>
+                </Select.Positioner>
+              </Select.Root>
             </Stack>
-            <Stack gap="1" style={{ minWidth: '150px' }}>
+            <Stack gap="1" minWidth="150px">
               <Text textStyle="xs" color="fg.muted">Status</Text>
-              <select
-                value={filters.status}
-                onChange={e => setFilters({ ...filters, status: e.target.value })}
-                style={{
-                  width: '100%',
-                  padding: '8px 12px',
-                  borderRadius: '6px',
-                  border: '1px solid var(--border)',
-                  backgroundColor: 'var(--bg-default)',
-                  color: 'var(--fg-default)'
-                }}
-              >
-                <option value="">All</option>
-                <option value="completed">Completed</option>
-                <option value="partial">Partial</option>
-                <option value="failed">Failed</option>
-                <option value="running">Running</option>
-              </select>
+              <Select.Root collection={statusCollection} value={[filters.status]} onValueChange={(details) => setFilters({ ...filters, status: details.value[0] })}>
+                <Select.Control>
+                  <Select.Trigger width="100%">
+                    <Select.ValueText placeholder="All" />
+                    <Select.Indicator><ChevronsUpDownIcon /></Select.Indicator>
+                  </Select.Trigger>
+                </Select.Control>
+                <Select.Positioner>
+                  <Select.Content>
+                    {statusCollection.items.map((item) => (
+                      <Select.Item key={item.value} item={item}>
+                        <Select.ItemText>{item.label}</Select.ItemText>
+                        <Select.ItemIndicator><CheckIcon /></Select.ItemIndicator>
+                      </Select.Item>
+                    ))}
+                  </Select.Content>
+                </Select.Positioner>
+              </Select.Root>
             </Stack>
-            <Stack gap="1" style={{ minWidth: '180px' }}>
+            <Stack gap="1" minWidth="180px">
               <Text textStyle="xs" color="fg.muted">Date From</Text>
               <Input type="date" value={filters.dateFrom} onChange={e => setFilters({ ...filters, dateFrom: e.target.value })} />
             </Stack>
-            <Stack gap="1" style={{ minWidth: '180px' }}>
+            <Stack gap="1" minWidth="180px">
               <Text textStyle="xs" color="fg.muted">Date To</Text>
               <Input type="date" value={filters.dateTo} onChange={e => setFilters({ ...filters, dateTo: e.target.value })} />
             </Stack>
@@ -221,9 +254,9 @@ export function SyncHistoryTable() {
         </Card.Header>
         <Card.Body>
           {loading ? (
-            <Text color="fg.muted" style={{ textAlign: 'center', padding: '24px' }}>Loading history...</Text>
+            <Text color="fg.muted" textAlign="center" p="6">Loading history...</Text>
           ) : history.length === 0 ? (
-            <Text color="fg.muted" style={{ textAlign: 'center', padding: '24px' }}>No sync history found</Text>
+            <Text color="fg.muted" textAlign="center" p="6">No sync history found</Text>
           ) : (
             <>
               <Table.Root>
@@ -263,7 +296,7 @@ export function SyncHistoryTable() {
 
               {/* Pagination */}
               {totalPages > 1 && (
-                <Stack flexDirection="row" gap="2" justify="center" style={{ marginTop: '16px' }}>
+                <Stack flexDirection="row" gap="2" justify="center" mt="4">
                   <Button variant="outline" size="sm" onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}>
                     Previous
                   </Button>
@@ -313,35 +346,35 @@ export function SyncHistoryTable() {
             <Stack gap="4">
               <Stack gap="2">
                 <Stack flexDirection="row" gap="4">
-                  <Text textStyle="sm" color="fg.muted" style={{ minWidth: '120px' }}>Entity</Text>
+                  <Text textStyle="sm" color="fg.muted" minWidth="120px">Entity</Text>
                   <Text textStyle="sm" fontWeight="medium">{selectedItem?.entity}</Text>
                 </Stack>
                 <Stack flexDirection="row" gap="4">
-                  <Text textStyle="sm" color="fg.muted" style={{ minWidth: '120px' }}>Trigger</Text>
+                  <Text textStyle="sm" color="fg.muted" minWidth="120px">Trigger</Text>
                   <Text textStyle="sm">{selectedItem?.trigger}</Text>
                 </Stack>
                 <Stack flexDirection="row" gap="4">
-                  <Text textStyle="sm" color="fg.muted" style={{ minWidth: '120px' }}>Status</Text>
+                  <Text textStyle="sm" color="fg.muted" minWidth="120px">Status</Text>
                   <Text textStyle="sm" fontWeight="medium">{getStatusBadge(selectedItem?.status || '')}</Text>
                 </Stack>
                 <Stack flexDirection="row" gap="4">
-                  <Text textStyle="sm" color="fg.muted" style={{ minWidth: '120px' }}>Started</Text>
+                  <Text textStyle="sm" color="fg.muted" minWidth="120px">Started</Text>
                   <Text textStyle="sm">{formatDate(selectedItem?.started_at)}</Text>
                 </Stack>
                 <Stack flexDirection="row" gap="4">
-                  <Text textStyle="sm" color="fg.muted" style={{ minWidth: '120px' }}>Completed</Text>
+                  <Text textStyle="sm" color="fg.muted" minWidth="120px">Completed</Text>
                   <Text textStyle="sm">{formatDate(selectedItem?.completed_at)}</Text>
                 </Stack>
                 <Stack flexDirection="row" gap="4">
-                  <Text textStyle="sm" color="fg.muted" style={{ minWidth: '120px' }}>Duration</Text>
+                  <Text textStyle="sm" color="fg.muted" minWidth="120px">Duration</Text>
                   <Text textStyle="sm">{formatDuration(selectedItem?.started_at || '', selectedItem?.completed_at || null)}</Text>
                 </Stack>
                 <Stack flexDirection="row" gap="4">
-                  <Text textStyle="sm" color="fg.muted" style={{ minWidth: '120px' }}>Processed</Text>
+                  <Text textStyle="sm" color="fg.muted" minWidth="120px">Processed</Text>
                   <Text textStyle="sm">{selectedItem?.items_processed.toLocaleString()}</Text>
                 </Stack>
                 <Stack flexDirection="row" gap="4">
-                  <Text textStyle="sm" color="fg.muted" style={{ minWidth: '120px' }}>Failed</Text>
+                  <Text textStyle="sm" color="fg.muted" minWidth="120px">Failed</Text>
                   <Text textStyle="sm" color={selectedItem && selectedItem.items_failed > 0 ? 'red' : 'inherit'}>
                     {selectedItem?.items_failed.toLocaleString()}
                   </Text>

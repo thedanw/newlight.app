@@ -1,7 +1,9 @@
-import { Heading, Text, Card, Alert, Button, Table } from '@/core/ui'
+import { Heading, Text, Card, Alert, Button, Table, Select } from '@/core/ui'
 import { usePluginAPIContext } from '@/core/plugins/PluginAPI'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { HStack, Stack } from 'styled-system/jsx'
+import { createListCollection } from '@ark-ui/react'
+import { ChevronsUpDownIcon, CheckIcon } from 'lucide-react'
 
 interface LocationPairing {
   elvanto_location_id: string
@@ -177,6 +179,14 @@ export function LocationTrackPairing() {
     return journeyTracks.find(t => t.id === trackId)?.name || 'Unknown Track'
   }
 
+  const elvantoLocationCollection = useMemo(() => createListCollection({
+    items: [{ label: 'Select Elvanto location...', value: '' }, ...elvantoLocations.map(loc => ({ label: loc.name, value: loc.id }))]
+  }), [elvantoLocations])
+
+  const journeyTrackCollection = useMemo(() => createListCollection({
+    items: [{ label: 'Select journey track...', value: '' }, ...journeyTracks.map(track => ({ label: `${track.name} ${track.elvanto_location_id ? `(${track.elvanto_location_id.slice(0,8)}...)` : ''}`, value: track.id }))]
+  }), [journeyTracks])
+
   if (loading) {
     return (
       <Stack gap="4" align="center">
@@ -217,7 +227,7 @@ export function LocationTrackPairing() {
         </Card.Header>
         <Card.Body>
           {pairings.length === 0 ? (
-            <Stack gap="4" align="center" style={{ padding: '24px' }}>
+            <Stack gap="4" align="center" p="6">
               <Text color="fg.muted">No pairings configured</Text>
               <HStack gap="2">
                 <Button variant="outline" onClick={handleFetchLocations}>Fetch Locations First</Button>
@@ -230,8 +240,8 @@ export function LocationTrackPairing() {
                 <Table.Row>
                   <Table.Header>Elvanto Location</Table.Header>
                   <Table.Header>Journey Track</Table.Header>
-                  <Table.Header style={{ width: '140px' }}>Follow Elvanto</Table.Header>
-                  <Table.Header style={{ width: '100px' }}>Actions</Table.Header>
+                  <Table.Header width="140px">Follow Elvanto</Table.Header>
+                  <Table.Header width="100px">Actions</Table.Header>
                 </Table.Row>
               </Table.Head>
               <Table.Body>
@@ -239,39 +249,53 @@ export function LocationTrackPairing() {
                   <Table.Row key={index}>
                     <Table.Cell>
                       <Stack gap="1">
-                        <select
-                          value={pairing.elvanto_location_id}
-                          onChange={e => updatePairing(index, { elvanto_location_id: e.target.value, elvanto_location_name: elvantoLocations.find(l => l.id === e.target.value)?.name || '' })}
-                          style={{ minWidth: '200px' }}
-                        >
-                          <option value="">Select Elvanto location...</option>
-                          {elvantoLocations.map(loc => (
-                            <option key={loc.id} value={loc.id}>{loc.name}</option>
-                          ))}
-                        </select>
+                        <Select.Root collection={elvantoLocationCollection} value={pairing.elvanto_location_id ? [pairing.elvanto_location_id] : []} onValueChange={(details) => updatePairing(index, { elvanto_location_id: details.value[0] || '', elvanto_location_name: elvantoLocations.find(l => l.id === details.value[0])?.name || '' })}>
+                          <Select.Control>
+                            <Select.Trigger minWidth="200px">
+                              <Select.ValueText placeholder="Select Elvanto location..." />
+                              <Select.Indicator><ChevronsUpDownIcon /></Select.Indicator>
+                            </Select.Trigger>
+                          </Select.Control>
+                          <Select.Positioner>
+                            <Select.Content>
+                              {elvantoLocationCollection.items.map((item) => (
+                                <Select.Item key={item.value} item={item}>
+                                  <Select.ItemText>{item.label}</Select.ItemText>
+                                  <Select.ItemIndicator><CheckIcon /></Select.ItemIndicator>
+                                </Select.Item>
+                              ))}
+                            </Select.Content>
+                          </Select.Positioner>
+                        </Select.Root>
                         {pairing.elvanto_location_name && (
                           <Text textStyle="xs" color="fg.muted">{pairing.elvanto_location_name}</Text>
                         )}
                       </Stack>
                     </Table.Cell>
                     <Table.Cell>
-                      <select
-                        value={pairing.journey_track_id}
-                        onChange={e => updatePairing(index, { journey_track_id: e.target.value, journey_track_name: getTrackName(e.target.value) })}
-                        style={{ minWidth: '200px' }}
-                      >
-                        <option value="">Select journey track...</option>
-                        {journeyTracks.map(track => (
-                          <option key={track.id} value={track.id}>
-                            {track.name} {track.elvanto_location_id ? `(📍 ${track.elvanto_location_id.slice(0,8)}...)` : ''}
-                          </option>
-                        ))}
-                      </select>
+                      <Select.Root collection={journeyTrackCollection} value={pairing.journey_track_id ? [pairing.journey_track_id] : []} onValueChange={(details) => updatePairing(index, { journey_track_id: details.value[0] || '', journey_track_name: getTrackName(details.value[0]) })}>
+                        <Select.Control>
+                          <Select.Trigger minWidth="200px">
+                            <Select.ValueText placeholder="Select journey track..." />
+                            <Select.Indicator><ChevronsUpDownIcon /></Select.Indicator>
+                          </Select.Trigger>
+                        </Select.Control>
+                        <Select.Positioner>
+                          <Select.Content>
+                            {journeyTrackCollection.items.map((item) => (
+                              <Select.Item key={item.value} item={item}>
+                                <Select.ItemText>{item.label}</Select.ItemText>
+                                <Select.ItemIndicator><CheckIcon /></Select.ItemIndicator>
+                              </Select.Item>
+                            ))}
+                          </Select.Content>
+                        </Select.Positioner>
+                      </Select.Root>
                       {pairing.journey_track_name && (
                         <Text textStyle="xs" color="fg.muted">{pairing.journey_track_name}</Text>
                       )}
                     </Table.Cell>
-                    <Table.Cell style={{ textAlign: 'center' }}>
+                    <Table.Cell textAlign="center">
                       <input
                         type="checkbox"
                         checked={pairing.follow_elvanto}

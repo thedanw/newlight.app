@@ -149,7 +149,6 @@
    follow the same knobs. Class-based recipes win the cascade where present,
    so this only fills the gap for raw elements. */
 h1, h2, h3, h4, h5, h6 {
-  color: var(--heading-color);
   font-family: var(--font-family-heading);
   font-weight: var(--heading-font-weight);
   letter-spacing: var(--heading-letter-spacing);

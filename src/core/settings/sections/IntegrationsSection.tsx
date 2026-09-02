@@ -11,7 +11,7 @@ import { pluginManager } from '@/core/plugins/pluginManager'
 /**
  * Integrations Section — Lists all registered integration pages
  * Plugins register their settings pages under this section via hooks
- * Also includes a "Plugins" card for managing installed plugins
+ * Also includes a "Plugins" section for managing installed plugins
  */
 export function IntegrationsSection() {
   const navigate = useNavigate()
@@ -131,80 +131,82 @@ export function IntegrationsSection() {
           <Card.Root
             key={page.id}
             onClick={() => navigate(`/settings/integrations/${page.id}`)}
-            css={{ cursor: 'pointer', transition: 'box-shadow 0.2s' }}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault()
+                navigate(`/settings/integrations/${page.id}`)
+              }
+            }}
+            tabIndex={0}
+            role="link"
+            css={{ cursor: 'pointer' }}
           >
             <Card.Body>
               <Heading textStyle="sm">{page.title}</Heading>
             </Card.Body>
           </Card.Root>
         ))}
-        {/* Plugins card — contains all installed plugins with toggles */}
+        {/* Plugins section — one card per plugin (no nested cards). */}
         {plugins.length > 0 && (
-          <Card.Root>
-            <Card.Body>
-              <Stack gap="3">
-                <Stack direction="row" gap="2" justify="space-between" align="center">
-                  <Heading textStyle="md">Plugins</Heading>
-                  <Badge variant="outline">{plugins.length}</Badge>
-                </Stack>
-                {loading ? (
-                  <Text color="fg.muted" textStyle="sm">Loading plugins…</Text>
-                ) : (
-                  <Stack gap="2">
-                    {plugins.map((plugin) => {
-                      const isEnabled = Boolean(enabled[plugin.name])
-                      const settingsPages = getPluginSettingsPages(plugin.name)
-                      return (
-                        <Card.Root key={plugin.name} variant="outline">
-                          <Card.Body>
-                            <Stack direction="row" gap="4" justify="space-between" align="start">
-                              <Stack gap="1" flex="1">
-                                <Stack direction="row" gap="2">
-                                  <Heading textStyle="sm">{plugin.displayName}</Heading>
-                                  <Badge variant="outline">{plugin.version}</Badge>
-                                  {isEnabled ? (
-                                    <Badge variant="solid">Active</Badge>
-                                  ) : (
-                                    <Badge variant="subtle">Inactive</Badge>
-                                  )}
-                                </Stack>
-                                {plugin.description && (
-                                  <Text color="fg.muted" textStyle="sm">
-                                    {plugin.description}
-                                  </Text>
-                                )}
-                                {isEnabled && settingsPages.length > 0 && (
-                                  <Stack direction="row" gap="2" mt="2">
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      onClick={() => openSettings(plugin.name)}
-                                    >
-                                      Settings
-                                    </Button>
-                                  </Stack>
-                                )}
-                              </Stack>
-                              <Switch.Root
-                                checked={isEnabled}
-                                disabled={saving === plugin.name}
-                                onCheckedChange={(details) => togglePlugin(plugin.name, details.checked)}
-                              >
-                                <Switch.HiddenInput />
-                                <Switch.Control>
-                                  <Switch.Thumb />
-                                </Switch.Control>
-                              </Switch.Root>
+          <Stack gap="3">
+            <Heading textStyle="md">Plugins</Heading>
+            <Badge variant="outline">{plugins.length}</Badge>
+            {loading ? (
+              <Text color="fg.muted" textStyle="sm">Loading plugins…</Text>
+            ) : (
+              <Stack gap="2">
+                {plugins.map((plugin) => {
+                  const isEnabled = Boolean(enabled[plugin.name])
+                  const settingsPages = getPluginSettingsPages(plugin.name)
+                  return (
+                    <Card.Root key={plugin.name} variant="outline">
+                      <Card.Body>
+                        <Stack direction="row" gap="4" justify="space-between" align="start">
+                          <Stack gap="1" flex="1">
+                            <Stack direction="row" gap="2">
+                              <Heading textStyle="sm">{plugin.displayName}</Heading>
+                              <Badge variant="outline">{plugin.version}</Badge>
+                              {isEnabled ? (
+                                <Badge variant="solid">Active</Badge>
+                              ) : (
+                                <Badge variant="subtle">Inactive</Badge>
+                              )}
                             </Stack>
-                          </Card.Body>
-                        </Card.Root>
-                      )
-                    })}
-                  </Stack>
-                )}
+                            {plugin.description && (
+                              <Text color="fg.muted" textStyle="sm">
+                                {plugin.description}
+                              </Text>
+                            )}
+                          </Stack>
+                          <Switch.Root
+                            checked={isEnabled}
+                            disabled={saving === plugin.name}
+                            onCheckedChange={(details) => togglePlugin(plugin.name, details.checked)}
+                          >
+                            <Switch.HiddenInput />
+                            <Switch.Control>
+                              <Switch.Thumb />
+                            </Switch.Control>
+                          </Switch.Root>
+                        </Stack>
+                      </Card.Body>
+                      {isEnabled && settingsPages.length > 0 && (
+                        <Card.Footer>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => openSettings(plugin.name)}
+                          >
+                            Settings
+                          </Button>
+                        </Card.Footer>
+                      )}
+                    </Card.Root>
+                  )
+                })}
               </Stack>
-            </Card.Body>
-          </Card.Root>
+            )}
+          </Stack>
         )}
       </Stack>
     </Stack>

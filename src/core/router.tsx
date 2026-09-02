@@ -10,7 +10,7 @@ const FormPublicPage = lazy(() => import('@/modules/people/pages/FormPublicPage'
 
 export const router = createBrowserRouter([
   {
-    // Single shared app shell (Sidebar + PagePanel + ErrorBoundary + Suspense)
+    // Single shared app shell (Sidebar + Page.Root + ErrorBoundary + Suspense)
     // for every authenticated surface: the styleguide, module dashboards, and
     // settings. Public/unauthenticated routes live outside this shell.
     element: <AppShell />,

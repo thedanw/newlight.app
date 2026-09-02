@@ -2,13 +2,13 @@
 import { useEffect, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { css } from 'styled-system/css'
-import { HStack, Stack } from 'styled-system/jsx'
+import { Stack } from 'styled-system/jsx'
 import {
   BackButton,
   Breadcrumb,
   Card,
   Heading,
-  PageHeader,
+  Page,
   Text,
 } from '@/core/ui'
 import {
@@ -32,12 +32,15 @@ import {
    slides back to the previous panel. Unknown section/page ids fall back to
    the section list.
 
+   Uses the `Page` slot recipe scaffold: `Page.Root` + `Page.Header` +
+   `Page.Body`. The panel stage lives inside `Page.Body`.
+
    NOTE: the slide is a pure CSS keyframe animation on the panel container
    (keyed by route so it re-runs on each navigation). We deliberately avoid
    framer-motion's AnimatePresence here: mounting/unmounting panels that
    contain Ark UI portal components (Select/Dialog) inside an animated
    context throws "Invalid hook call" under React 19.
---------------------------------------------------------------------------- */
+-------------------------------------------------------------------------- */
 
 type Panel =
   | { kind: 'list' }
@@ -47,29 +50,15 @@ type Panel =
 const SLIDE_MS = 340
 const SLIDE_EASING = 'cubic-bezier(0.22, 1, 0.36, 1)'
 
-// Panel stage: a NON-scrolling flex column that clips. position:relative
-// keeps the absolutely-positioned panel's containing block — and therefore
-// its clipping — inside this region.
-const stageCss = css({
-  flex: '1',
-  display: 'flex',
-  flexDirection: 'column',
-  position: 'relative',
-  overflow: 'hidden',
-})
-
-// Each panel is its OWN full-stage-width scroll container: a pushed page
-// always mounts at scrollTop 0. Full width (padding on the inner wrapper)
-// so ±100% exits completely. Panels are absolutely positioned so they fill
-// the stage and scroll independently.
+// Page.Body is the scroll container for the current panel: it fills the
+// remaining height under the header and scrolls independently. minHeight:0
+// lets it shrink below its content so overflowY:auto actually scrolls.
 const panelScrollerCss = css({
-  position: 'absolute',
-  inset: '0',
+  flex: '1',
+  minHeight: '0',
   overflowY: 'auto',
   overflowX: 'hidden',
 })
-
-const panelInnerCss = css({ px: '6', pb: '6', minHeight: '100%' })
 
 // Slide-in keyframes. Push (deeper) slides in from the right; pop (back)
 // slides in from the left. The animation runs once on mount (keyed by route).
@@ -164,6 +153,14 @@ export default function SettingsPage() {
           <Card.Root
             key={s.id}
             onClick={() => navigate(`/settings/${s.id}`)}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault()
+                navigate(`/settings/${s.id}`)
+              }
+            }}
+            tabIndex={0}
+            role="link"
             css={{ cursor: 'pointer' }}
           >
             <Card.Body>
@@ -232,21 +229,14 @@ export default function SettingsPage() {
 
   return (
     <>
-      <PageHeader>
-        <HStack gap="2" flex="1" minWidth="0">
-          <BackButton onClick={goBack} />
-          {renderBreadcrumbs()}
-        </HStack>
-      </PageHeader>
+      <Page.Header>
+        <BackButton onClick={goBack} />
+        {renderBreadcrumbs()}
+      </Page.Header>
 
-      {/* Panel stage — clips; the current panel scrolls independently.
-          Keyed by route so the CSS slide animation re-runs on each
-          navigation (push slides in from the right, pop from the left). */}
-      <div className={stageCss}>
-        <div key={currentKey} className={`${panelScrollerCss} ${slideClass}`}>
-          <div className={panelInnerCss}>{renderPanel(current)}</div>
-        </div>
-      </div>
+      <Page.Body key={currentKey} className={`${panelScrollerCss} ${slideClass}`}>
+        {renderPanel(current)}
+      </Page.Body>
     </>
   )
 }

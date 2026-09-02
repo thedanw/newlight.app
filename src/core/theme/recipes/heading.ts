@@ -8,7 +8,6 @@ import { defineRecipe } from '@pandacss/dev'
 export const heading = defineRecipe({
   className: 'heading',
   base: {
-    color: 'var(--heading-color)',
     fontFamily: 'var(--font-family-heading)',
     fontWeight: 'var(--heading-font-weight, semibold)',
     letterSpacing: 'var(--heading-letter-spacing, normal)',

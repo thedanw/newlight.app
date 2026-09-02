@@ -53,6 +53,7 @@ import { pullTab } from "./pull-tab";
 import { avatar } from "./avatar";
 import { badge } from "./badge";
 import { card } from "./card";
+import { page } from "./page";
 import { text } from "./text";
 import { heading } from "./heading";
 import { button } from "./button";
@@ -61,6 +62,7 @@ export const recipes = {
   heading,
   text,
   card,
+  page,
   badge,
   avatar,
   kbd,

@@ -1,5 +1,5 @@
 'use client'
-import { createListCollection } from '@ark-ui/react/collection'
+import { createListCollection } from '@ark-ui/react'
 import type { FileUploadFileRejectDetails } from '@ark-ui/react/file-upload'
 import { CloudUploadIcon } from 'lucide-react'
 import { switchTheme } from '@/core/theme/theme-loader'
@@ -11,6 +11,7 @@ import {
 } from '@/core/theme/font-loader'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Box, HStack, Stack } from 'styled-system/jsx'
+import { css } from 'styled-system/css'
 import {
   Avatar,
   Button,
@@ -439,7 +440,7 @@ export default function ChurchInformationSection() {
       <HStack gap="3">
         <Avatar.Root
           size="lg"
-          style={previewLogo ? { background: 'transparent' } : undefined}
+          className={previewLogo ? css({ background: 'transparent' }) : undefined}
         >
           {previewLogo ? <Avatar.Image src={previewLogo} alt="Logo" /> : null}
           <Avatar.Fallback name="New Light" />

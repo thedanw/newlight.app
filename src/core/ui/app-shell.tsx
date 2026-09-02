@@ -2,7 +2,7 @@
 import { Suspense, type ReactNode } from 'react'
 import { useNavigate, useOutlet } from 'react-router-dom'
 import { css } from 'styled-system/css'
-import { Loader, PagePanel, Sidebar } from '@/core/ui'
+import { Loader, Page, Sidebar } from '@/core/ui'
 import { useSettings } from '@/core/settings/SettingsProvider'
 import { ErrorBoundary } from '@/core/ui'
 
@@ -10,7 +10,7 @@ import { ErrorBoundary } from '@/core/ui'
  * AppShell — the single source of truth for the authenticated app chrome.
  *
  * Every module dashboard, the settings area, and the styleguide share this
- * shell: a fixed Sidebar (left) + PagePanel that renders route content through
+ * shell: a fixed Sidebar (left) + Page.Root that renders route content through
  * the Outlet. Render errors in the active route are caught by `ErrorBoundary`
  * (with a retry), and async route chunks are covered by `Suspense`.
  *
@@ -39,11 +39,11 @@ export function AppShell({ children }: { children?: ReactNode }) {
         onModuleNavigate={(moduleId) => navigate(`/${moduleId}`)}
         logo={logoUrl}
       />
-      <PagePanel id="page-panel">
+      <Page.Root id="page-panel">
         <ErrorBoundary>
           <Suspense fallback={<Loader />}>{children ?? outlet}</Suspense>
         </ErrorBoundary>
-      </PagePanel>
+      </Page.Root>
     </div>
   )
 }

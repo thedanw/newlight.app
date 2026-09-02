@@ -1,39 +1,20 @@
 # Design System: New Light App
 
-**Single Source of Truth** for UI architecture. Enforced by Panda config recipes + Park UI + typed tokens + lint.
-
-## Architecture
-
-- **Zero-runtime CSS**: Panda config recipes (`defineRecipe`/`defineSlotRecipe`) compile to a single cached `global.css`. No CSS-in-JS, no inline styles, no `<style>` tags.
-- **BEM class naming**: `hash:false` emits human-readable classes (`.button`, `.button--size-lg`). Every div carries a semantic class.
-- **Park UI**: Vendored via `@park-ui/cli` into `src/core/ui`. Ark UI headless + Panda recipes. Source owned + editable.
-- **Barrel**: `src/core/ui/index.ts` is the ONLY UI import point for modules. No direct component file imports.
-- **Lint-gated**: Atomic `css()`/`cva`/`sva` restricted to rare one-offs. Recipe-first enforced.
+Single source of truth for UI architecture. Enforced by Panda config recipes + Park UI + typed tokens + lint.
 
 ## Theme Pipeline
 
-Token→semantic→pattern. 5 theme knobs + 2 pattern fields → Park UI derives the rest.
+Token → semantic → pattern. 5 theme knobs + 2 pattern fields → Park UI derives the rest.
 
-### Theme Knobs (super-admin locked, platform-wide)
-| Knob | Catalog | Default |
-|------|---------|---------|
-| colorScheme | light \| dark | light |
-| accent | 26 presets (orange default) | orange |
-| gray | 6 neutrals (sand default) | sand |
-| font | family list (Inter default) | Inter |
-| radius | none, xs, sm, md, lg, xl, 2xl | md |
-| sidebar style | dark / light / brand dark text / brand light text | light |
-| heading style | checkboxes: bold \| uppercase \| accent (independent) | off |
+- **colorScheme**: light | dark
+- **accent**: 26 presets (orange default)
+- **gray**: 6 neutrals (sand default)
+- **font**: family list (Inter default)
+- **radius**: none, xs, sm, md, lg, xl, 2xl (md)
+- **sidebar style**: dark / light / brand dark text / brand light text (light)
+- **heading style**: checkboxes: bold | uppercase | accent (independent, off)
 
-### Runtime Mechanism
-```html
-<html data-color-scheme="light" data-accent-color="orange" data-gray-color="sand" data-radius="md" data-sidebar-style="light" data-heading-style="bold accent">
-```
-CSS-var emission block maps each palette → semantic tokens. Zero rebuild, instant change. Logo = brand asset (save-on-apply only, NOT live re-theme).
-
-### Brand Asset (Logo)
-- Image URL (lab: local object URL → brand slot; final: Supabase Storage URL in `platform_settings` → Realtime)
-- Applies on SAVE only — persisted asset, not a runtime knob
+Runtime: `<html data-color-scheme="..." data-accent-color="..." data-gray-color="..." data-radius="..." data-sidebar-style="..." data-heading-style="...">`. CSS-var emission block maps each palette → semantic tokens. Zero rebuild, instant change. Logo = brand asset (save-on-apply only, NOT live re-theme).
 
 ## Typography
 
@@ -49,15 +30,38 @@ CSS-var emission block maps each palette → semantic tokens. Zero rebuild, inst
 ## Layout & Navigation
 
 ### App Shell
-- `#page-panel` = header (52px `--header-height`) + page header (h1) + content
-- Default `max-width: content-width` (`sizes.6xl` 1152px); `full` = 100%
+- `AppShell` in `src/core/ui` is the single app chrome: left `Sidebar` + `PagePanel` + `ErrorBoundary` + `Suspense`. `src/core/router.tsx` mounts it once; ALL authenticated routes nest beneath it.
+- Public/unauthenticated routes live OUTSIDE `AppShell`.
 - Header: header-main (left, back-chevron) + header-utilities (right, wraps when narrow)
 - Kebab pinned top-right: login/account, help, settings
 
+### Page Component (page scaffold)
+Every module page is built from the `Page` slot recipe (`src/core/ui/page.tsx`, recipe `src/core/theme/recipes/page.ts`). It replaces the old `PagePanel`/`PageHeader` pair with one scaffold:
+
+- **`Page.Root`** — outer wrapper. `marginLeft: 5px` (sidebar pull-tab), page-gutter `padding`, and vertical `gap` between header/body/footer. Based on the old `PagePanel`.
+- **`Page.Header`** — page chrome. Scrolls **with** the page (never fixed). Contains the `BackButton` on sub pages, or the `h1` on dashboard pages. Optional `headerVariant="hero"` on dashboard pages tints the header with the module's accent hue.
+- **`Page.Body`** — main content region. `gap` provides the vertical rhythm between cards.
+- **`Page.Footer`** — **optional**. `footerVariant="fixed"` pins to the bottom of the screen and stays visible while scrolling — used for whole-page save/apply forms.
+
+**Every page has `Page.Root` + `Page.Header` + `Page.Body`.** `Page.Footer` is optional (only when a whole-page save/apply action is needed).
+
+**Hero variant & module number:** `Page.Header headerVariant="hero"` renders a background with the same saturation/brightness as `--colors-color-palette-solid-bg` but hue shifted by `16deg × module number`. The module number is stored in the module manifest (`number` field, e.g. `peopleManifest.number`). Pass it to the header via Panda's `css` prop: `<Page.Header headerVariant="hero" css={{ '--module-number': peopleManifest.number }}>`. The hue shift is applied to a `::before` background layer so the header's own children (h1, back button) are NOT hue-shifted.
+
+### Responsive spacing (padding & gaps)
+Panda responsive object syntax scales spacing on small screens. Use `{ base: '3', md: '6' }` — `base` is the small-screen value (12px), `md` (768px) and up uses the full value (24px):
+
+```ts
+// Page recipe (root/body/header)
+padding: { base: '3', md: '6' },
+gap: { base: '3', md: '6' },
+```
+
+Apply the same pattern to other display components (cards, sections) so padding/gaps collapse from `6` (24px) on wide screens to `3` (12px) on small screens. The `Page` recipe already does this for root/header/body; mirror it in card-like components that need to breathe on mobile.
+
 ### Sidebar (Primary Nav)
-- Mobile-first right-side module grid (icons + labels)
+- Mobile-first **left-side** module grid (icons + labels)
 - Pins at `xl` (1280px); draggable overlay on narrow screens
-- 5px peek when closed; persistent pull-tab (9-dot→4-dot morph)
+- 5px peek when closed; persistent pull-tab top-left (morph)
 - Dynamic width measured at runtime; `--dynamic-sidebar-width` CSS var drives offsets
 - Account avatar in sidebar footer
 
@@ -86,33 +90,70 @@ Portal modal (`createPortal`→`body`), 3 variants:
 | xl | 1280px (sidebar pinned) |
 | 2xl | 1536px |
 
-## Data Display (Cards)
+## Cards & Vertical Layout
 
-Dashboard app: **everything except page/panel title, description, and toolbars is carded.** Cards = grouping container, NOT padding. 2 alignment lines.
+Cards are **grouping containers**, not padding boxes. Their job is to signal "these N things belong together and are separate from the things above and below."
 
 ### Alignment Lines
 - **L1** = page gutter (24px): titles, descriptions, alerts, toolbars, card outer edges
 - **L2** = card inset (24px, `p:6`): all card-internal text
 
-### Chrome vs Content
-| Never card (page chrome) | Card (content) |
-|---|---|
-| Page/panel title | Settings sections (1 logical group = 1 card) |
-| Page description (1–2 lines, muted) | Single continuous form (1 form = 1 card) |
-| Alerts / notices | Full-page table / data grid (1 table = 1 card) |
-| Page-level toolbars / action rows | Forms (grouped by section) |
-|  | Dashboard widgets (grid) |
-|  | Empty states |
-|  | Table + its controls |
+### Default: full-width cards
+A single logical group (one form, one table, one settings section) stretches edge-to-edge within the content column. Shrink to partial width only when two conditions are both true:
+1. There are 2+ related but distinct units the user needs to see or act on **simultaneously**.
+2. The narrower card width still supports legibility at the app's base font size.
 
-### Rules
-1. One page gutter for chrome + card outer edges
-2. One card inset for card content
-3. No canvas-level text directly above a card → fold into `Card.Description`
-4. Cards span full content width (except grids)
-5. One action location per card: `Card.Footer` (right, primary last) OR page toolbar — never both
-6. No nested cards → use divider / sub-section instead
-7. Card everything except title, description, toolbars → uniform dashboard rhythm
+### When to use side-by-side cards (page-level columns)
+Split the page into multiple cards when:
+- **Dashboard widgets**: 2–4 short stat/action cards the user scans, not sequentially completes. Use a 2-column grid at `md`, 3-column at `xl`.
+- **Edit screens with a small secondary section**: e.g. a primary full-width form plus a narrow "Admin" or "Notes" card with < 4 fields. The secondary card must be optional/rarely used — if the user always needs it, stack it below the primary.
+- **Never** split a single form into side-by-side cards just to save vertical space. That forces the user to scan left-to-right across unrelated fields and breaks the single-column reading flow.
+
+### When to use multi-column **within** a card
+Use 2 columns **only** for paired short fields of predictable height:
+- "First name / Last name", "City / State", "Start date / End date".
+- Read-only dashlets that are inherently short (e.g. a stat pair).
+
+**Mobile rule**: collapse to 1 column at `sm` (640px) unconditionally.
+
+Do **not** use multi-column for:
+- Long text inputs, textareas, or multi-line controls.
+- A form with mixed short + long fields (long fields become orphaned).
+- Fields whose labels vary in height (misalignment creates visual noise).
+
+### Vertical rhythm
+- Between cards on a page, use one consistent gap token. Don't add extra margin to "create breathing room" — if a card needs more space, it probably belongs at the top/bottom of the page or should be split.
+- Card internal padding should be one token (e.g. `p="6"` = 24px). Don't vary it per card.
+- **Every page has `Page.Root` + `Page.Header` + `Page.Body`.** `Page.Footer` is optional (whole-page save/apply only).
+- **Responsive rhythm:** page padding/gaps collapse from `6` (24px) to `3` (12px) on small screens via `{ base: '3', md: '6' }`. Mirror this in card-like display components so they breathe on mobile.
+
+### Card actions
+- **One action location per card:** either `Card.Footer` (right, primary last) OR the page toolbar — never both.
+- If a card has no actions, it needs no footer.
+
+### Read-only pages
+- Carding a read-only profile page can feel heavy. Stacked plain sections with headings are acceptable when the page is purely informational and has no inline editing.
+- **If/when inline editing is added**, wrap the editable region in a card so the user's eye knows "this is where I act."
+
+### Decision tree
+```
+Single logical group?
+  → Full-width card.
+
+Two or more groups?
+  → Can the user productively scan both at once?
+      → YES: side-by-side cards at md+, stacked on sm.
+      → NO: stacked full-width cards.
+
+Is it a form?
+  → Single entity: 1 full-width card, 1 column.
+  → Paired short fields (name, date range): 2 columns inside the card.
+  → Long text / mixed lengths: force 1 column.
+
+Is it a dashboard?
+  → Short widgets: 2–3 column grid.
+  → Tables, forms, editors: full-width cards within the grid.
+```
 
 ### When Cards Are Wrong
 - Modal / drawer content → container already exists
@@ -137,6 +178,8 @@ Dashboard app: **everything except page/panel title, description, and toolbars i
 | Maintain WCAG AA contrast (4.5:1 normal text) | Mix carded + uncarded content at same hierarchy level |
 | Use the accent color for the single most important action per screen | Create nested cards |
 | Respect `useReducedMotion` | Animate without checking reduced-motion preference |
+| Card everything except title, description, toolbars | Card page chrome |
+| Default to full-width cards; use partial width only for simultaneous-scan widgets | Shrink forms to partial width to save vertical space |
 
 ## Component Promotion
 

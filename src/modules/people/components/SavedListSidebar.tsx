@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Button, Dialog, Input, Switch, Text } from '@/core/ui'
+import { Button, Card, Dialog, Input, Switch, Text } from '@/core/ui'
+import { Stack } from 'styled-system/jsx'
 import type { EmailRecipient } from '@/core/lib/email'
 import { deleteSavedList, updateSavedList } from '../lib/queries'
 import { useSavedLists } from '../lib/saved-list-hooks'
@@ -55,17 +56,27 @@ export function SavedListSidebar({ onLoad, refreshKey = 0 }: { onLoad: (conditio
   }
 
   return (
-    <aside>
-      <Text>Saved lists</Text>
-      {data?.map((list) => (
-        <div key={list.id}>
-          <Button variant="plain" onClick={() => onLoad(list.conditions as PeopleListOptions)}>{list.name}</Button>
-          {list.is_shared && <Text color="fg.muted">shared</Text>}
-          <Button variant="outline" onClick={() => void openEmail(list.id)} disabled={emailLoading}>Email</Button>
-          <Button variant="outline" onClick={() => openEdit(list.id, list.name, list.is_shared)}>Edit</Button>
-          <Button variant="outline" onClick={() => void handleDelete(list.id)}>Delete</Button>
-        </div>
-      ))}
+    <Card.Root>
+      <Card.Header>
+        <Card.Title>Saved lists</Card.Title>
+      </Card.Header>
+      <Card.Body>
+        <Stack gap="3">
+          {data?.map((list) => (
+            <Stack key={list.id} gap="2">
+              <Stack flexDirection="row" gap="2" alignItems="center">
+                <Button variant="plain" onClick={() => onLoad(list.conditions as PeopleListOptions)}>{list.name}</Button>
+                {list.is_shared && <Text color="fg.muted">shared</Text>}
+              </Stack>
+              <Stack flexDirection="row" gap="2">
+                <Button variant="outline" onClick={() => void openEmail(list.id)} disabled={emailLoading}>Email</Button>
+                <Button variant="outline" onClick={() => openEdit(list.id, list.name, list.is_shared)}>Edit</Button>
+                <Button variant="outline" onClick={() => void handleDelete(list.id)}>Delete</Button>
+              </Stack>
+            </Stack>
+          ))}
+        </Stack>
+      </Card.Body>
       <SendEmailDialog
         open={emailListId !== null}
         onOpenChange={(next) => { if (!next) setEmailListId(null) }}
@@ -93,6 +104,6 @@ export function SavedListSidebar({ onLoad, refreshKey = 0 }: { onLoad: (conditio
           </Dialog.Content>
         </Dialog.Positioner>
       </Dialog.Root>
-    </aside>
+    </Card.Root>
   )
 }

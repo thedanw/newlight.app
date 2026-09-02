@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { Button, Card, Checkbox, Field, Heading, Input, PageHeader, Select, Switch, Text, Textarea } from '@/core/ui'
+import { Button, Card, Checkbox, Field, Heading, Input, Page, Select, Switch, Text, Textarea } from '@/core/ui'
 import { Stack } from 'styled-system/jsx'
 import { createListCollection } from '@ark-ui/react'
 import { createForm, getFormById, MAPPABLE_PERSON_FIELDS, updateForm } from '../lib/form-queries'
@@ -127,12 +127,15 @@ export default function FormBuilderPage() {
 
   return (
     <>
-      <PageHeader>
+      <Page.Header>
         <Heading>{id ? 'Edit form' : 'New form'}</Heading>
-        <Button onClick={() => navigate('/people/forms')}>Back</Button>
-      </PageHeader>
-      <main>
-        {message && <Text color="error">{message}</Text>}
+      </Page.Header>
+      <Page.Body>
+        <Stack gap="6">
+          <Stack flexDirection="row" gap="2">
+            <Button variant="outline" onClick={() => navigate('/people/forms')}>Back</Button>
+          </Stack>
+          {message && <Text color="error">{message}</Text>}
 
         {/* Form Settings */}
         <Card.Root>
@@ -207,16 +210,16 @@ export default function FormBuilderPage() {
         </Card.Root>
 
         {/* Form Fields */}
-        <Stack gap="4">
-          <Heading textStyle="lg">Fields</Heading>
-          {draft.fields.length === 0 && <Text color="fg.muted">No fields yet. Add one below.</Text>}
-          {draft.fields.map((field, index) => (
-            <Card.Root key={field.id}>
-              <Card.Header>
-                <Card.Title>Field {index + 1}</Card.Title>
-              </Card.Header>
-              <Card.Body>
-                <Stack gap="4">
+        <Card.Root>
+          <Card.Header>
+            <Card.Title>Fields</Card.Title>
+          </Card.Header>
+          <Card.Body>
+            <Stack gap="6">
+              {draft.fields.length === 0 && <Text color="fg.muted">No fields yet. Add one below.</Text>}
+              {draft.fields.map((field, index) => (
+                <Stack key={field.id} gap="4">
+                  <Heading textStyle="md">Field {index + 1}</Heading>
                   <Field.Root>
                     <Field.Label>Type</Field.Label>
                     <Select.Root collection={fieldTypeCollection} value={[field.field_type]} onValueChange={(details) => setField(field.id, { field_type: details.value[0] as FormFieldType })}>
@@ -284,15 +287,18 @@ export default function FormBuilderPage() {
                     <Button variant="outline" onClick={() => setDraft((current) => ({ ...current, fields: current.fields.filter((item) => item.id !== field.id) }))}>Remove</Button>
                   </Stack>
                 </Stack>
-              </Card.Body>
-            </Card.Root>
-          ))}
-          <Stack flexDirection="row" gap="3">
-            <Button onClick={() => setDraft((current) => ({ ...current, fields: [...current.fields, emptyField()] }))}>Add field</Button>
-            <Button onClick={() => void save()} disabled={saving}>{saving ? 'Saving...' : 'Save form'}</Button>
-          </Stack>
+              ))}
+            </Stack>
+          </Card.Body>
+          <Card.Footer>
+            <Stack flexDirection="row" gap="3">
+              <Button onClick={() => setDraft((current) => ({ ...current, fields: [...current.fields, emptyField()] }))}>Add field</Button>
+              <Button onClick={() => void save()} disabled={saving}>{saving ? 'Saving...' : 'Save form'}</Button>
+            </Stack>
+          </Card.Footer>
+        </Card.Root>
         </Stack>
-      </main>
+      </Page.Body>
     </>
   )
 }

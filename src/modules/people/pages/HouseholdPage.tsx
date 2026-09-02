@@ -1,5 +1,6 @@
 import { useNavigate, useParams } from 'react-router-dom'
-import { BackButton, Breadcrumb, Heading, PageHeader, Text } from '@/core/ui'
+import { BackButton, Breadcrumb, Card, Heading, Page, Text } from '@/core/ui'
+import { Stack } from 'styled-system/jsx'
 import { useHousehold } from '../lib/hooks'
 import { saveHouseholdAddress } from '../lib/queries'
 import { HouseholdAddress } from '../components/HouseholdAddress'
@@ -11,16 +12,16 @@ export default function HouseholdPage() {
   const { id } = useParams()
   const { data: household, loading, error } = useHousehold(id)
 
-  if (loading) return <><PageHeader><BackButton onClick={() => navigate('/people')} /><Heading>Household</Heading></PageHeader><main><PageSkeleton /></main></>
-  if (error || !household) return <><PageHeader><BackButton onClick={() => navigate('/people')} /><Heading>Household</Heading></PageHeader><main><Text>{error?.message ?? 'Household not found.'}</Text></main></>
+  if (loading) return <><Page.Header><BackButton onClick={() => navigate('/people')} /><Heading>Household</Heading></Page.Header><Page.Body><PageSkeleton /></Page.Body></>
+  if (error || !household) return <><Page.Header><BackButton onClick={() => navigate('/people')} /><Heading>Household</Heading></Page.Header><Page.Body><Text>{error?.message ?? 'Household not found.'}</Text></Page.Body></>
 
   return (
     <>
-      <PageHeader>
+      <Page.Header>
         <BackButton onClick={() => navigate('/people')} />
         <Heading>Household</Heading>
-      </PageHeader>
-      <main>
+      </Page.Header>
+      <Page.Body>
         <Breadcrumb.Root>
           <Breadcrumb.List>
             <Breadcrumb.Item><Breadcrumb.Link href="/people">People</Breadcrumb.Link></Breadcrumb.Item>
@@ -28,13 +29,21 @@ export default function HouseholdPage() {
             <Breadcrumb.Item><Breadcrumb.Link href={`/people/households/${household.id}`} aria-current="page">{household.name ?? 'Household'}</Breadcrumb.Link></Breadcrumb.Item>
           </Breadcrumb.List>
         </Breadcrumb.Root>
-        <Heading>{household.name ?? 'Unnamed household'}</Heading>
-        <section aria-labelledby="household-address-heading">
-          <Heading id="household-address-heading">Home address</Heading>
-          <HouseholdAddress address={household.address} onSave={async (address) => { await saveHouseholdAddress(household.id, address) }} />
-        </section>
-        <HouseholdMembers members={household.members} />
-      </main>
+        <Stack gap="6">
+          <Card.Root>
+            <Card.Header>
+              <Card.Title>{household.name ?? 'Unnamed household'}</Card.Title>
+            </Card.Header>
+            <Card.Body>
+              <Stack gap="4">
+                <Heading textStyle="md">Home address</Heading>
+                <HouseholdAddress address={household.address} onSave={async (address) => { await saveHouseholdAddress(household.id, address) }} />
+              </Stack>
+            </Card.Body>
+          </Card.Root>
+          <HouseholdMembers members={household.members} />
+        </Stack>
+      </Page.Body>
     </>
   )
 }

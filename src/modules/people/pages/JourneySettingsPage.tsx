@@ -1,4 +1,4 @@
-import { Heading, PageHeader, Text } from '@/core/ui'
+import { Heading, Page, Text } from '@/core/ui'
 import { useCurrentOperatorPermission } from '../lib/hooks'
 import { JourneySettingsManager } from '../components/JourneySettingsManager'
 import { PageSkeleton } from '../components/PageSkeleton'
@@ -8,14 +8,14 @@ export default function JourneySettingsPage() {
   const canManage = permission.data === 'admin' || permission.data === 'super_admin'
   return (
     <>
-      <PageHeader>
+      <Page.Header>
         <Heading>Journey settings</Heading>
-      </PageHeader>
-      <main>
+      </Page.Header>
+      <Page.Body>
         {permission.loading && <PageSkeleton lines={2} />}
         {!permission.loading && !canManage && <Text>You do not have permission to manage journey settings.</Text>}
         {!permission.loading && canManage && <JourneySettingsManager />}
-      </main>
+      </Page.Body>
     </>
   )
 }

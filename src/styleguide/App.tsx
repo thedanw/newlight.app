@@ -11,7 +11,7 @@ import {
   Dialog,
   Drawer,
   Heading,
-  PageHeader,
+  Page,
   Text,
 } from '@/core/ui'
 import {
@@ -231,7 +231,7 @@ export default function StyleguideApp() {
 
   return (
     <>
-      {/* #page-panel content — Sidebar + PagePanel are provided by the shared AppShell */}
+      {/* #page-panel content — Sidebar + Page.Root are provided by the shared AppShell */}
       <AnimatePresence initial={false}>
           {hasHeaderContent && (
             <motion.div
@@ -244,7 +244,7 @@ export default function StyleguideApp() {
               transition={reduceMotion ? FADE_TWEEN : PUSH_SPRING}
               className={css({ overflow: 'hidden', flexShrink: '0' })}
             >
-              <PageHeader>
+              <Page.Header>
                 <HStack gap="2" flex="1" minWidth="0">
                   <motion.div
                     variants={reduceMotion ? fadeVariants : headerItemVariants}
@@ -255,7 +255,7 @@ export default function StyleguideApp() {
                     <BackButton onClick={back} />
                   </motion.div>
                 </HStack>
-              </PageHeader>
+              </Page.Header>
             </motion.div>
           )}
         </AnimatePresence>

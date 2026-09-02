@@ -1,5 +1,7 @@
-import { useState } from 'react'
-import { Field, PageHeader, Heading, Text } from '@/core/ui'
+import { useMemo, useState } from 'react'
+import { createListCollection } from '@ark-ui/react'
+import { Field, Heading, Page, Select, Text } from '@/core/ui'
+import { Stack } from 'styled-system/jsx'
 import { useJourneyGrid } from '../lib/hooks'
 import { JourneyGrid } from '../components/JourneyGrid'
 import { PageSkeleton } from '../components/PageSkeleton'
@@ -13,6 +15,20 @@ export default function JourneyGridPage() {
   const [message, setMessage] = useState<string | null>(null)
   const tags = data ? [...new Map(Object.values(data.tagsByPerson).flat().map((item) => [item.id, item])).values()] : []
   const visibleGrid = data ? { ...data, people: data.people.map((person) => ({ ...person, journey: updatedJourneys[person.id] ?? person.journey })).filter((person) => (demographic === 'all' || person.demographic === demographic) && (tag === 'all' || data.tagsByPerson[person.id]?.some((item) => item.id === tag))) } : null
+
+  const demographicCollection = useMemo(() => createListCollection({
+    items: [
+      { label: 'All', value: 'all' },
+      { label: 'Adults', value: 'adult' },
+      { label: 'Youth', value: 'youth' },
+      { label: 'Children', value: 'child' },
+    ]
+  }), [])
+
+  const tagCollection = useMemo(() => createListCollection({
+    items: [{ label: 'All', value: 'all' }, ...tags.map((item) => ({ label: item.name, value: item.id }))]
+  }), [tags])
+
   const handleStageChange = async (personId: string, trackId: string, stage: string) => {
     if (!data) return
     const person = data.people.find((item) => item.id === personId)
@@ -22,17 +38,45 @@ export default function JourneyGridPage() {
   }
   return (
     <>
-      <PageHeader>
+      <Page.Header>
         <Heading>Journey</Heading>
-      </PageHeader>
-      <main>
-        <Field.Root><Field.Label>Demographic</Field.Label><select value={demographic} onChange={(event) => setDemographic(event.target.value)}><option value="all">All</option><option value="adult">Adults</option><option value="youth">Youth</option><option value="child">Children</option></select></Field.Root>
-        <Field.Root><Field.Label>Tag</Field.Label><select value={tag} onChange={(event) => setTag(event.target.value)}><option value="all">All</option>{tags.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></Field.Root>
-        {message && <Text>{message}</Text>}
-        {loading && <PageSkeleton />}
-        {error && <Text>{error.message}</Text>}
-        {!loading && !error && visibleGrid && <JourneyGrid grid={visibleGrid} onStageChange={handleStageChange} />}
-      </main>
+      </Page.Header>
+      <Page.Body>
+        <Stack gap="6">
+          <Stack flexDirection="row" gap="4">
+            <Field.Root>
+              <Field.Label>Demographic</Field.Label>
+              <Select.Root collection={demographicCollection} value={[demographic]} onValueChange={(details) => setDemographic(details.value[0])}>
+                <Select.Control>
+                  <Select.Trigger><Select.ValueText placeholder="All" /><Select.Indicator /></Select.Trigger>
+                </Select.Control>
+                <Select.Positioner>
+                  <Select.Content>
+                    {demographicCollection.items.map((item) => <Select.Item key={item.value} item={item}><Select.ItemText>{item.label}</Select.ItemText><Select.ItemIndicator /></Select.Item>)}
+                  </Select.Content>
+                </Select.Positioner>
+              </Select.Root>
+            </Field.Root>
+            <Field.Root>
+              <Field.Label>Tag</Field.Label>
+              <Select.Root collection={tagCollection} value={[tag]} onValueChange={(details) => setTag(details.value[0])}>
+                <Select.Control>
+                  <Select.Trigger><Select.ValueText placeholder="All" /><Select.Indicator /></Select.Trigger>
+                </Select.Control>
+                <Select.Positioner>
+                  <Select.Content>
+                    {tagCollection.items.map((item) => <Select.Item key={item.value} item={item}><Select.ItemText>{item.label}</Select.ItemText><Select.ItemIndicator /></Select.Item>)}
+                  </Select.Content>
+                </Select.Positioner>
+              </Select.Root>
+            </Field.Root>
+          </Stack>
+          {message && <Text>{message}</Text>}
+          {loading && <PageSkeleton />}
+          {error && <Text>{error.message}</Text>}
+          {!loading && !error && visibleGrid && <JourneyGrid grid={visibleGrid} onStageChange={handleStageChange} />}
+        </Stack>
+      </Page.Body>
     </>
   )
 }

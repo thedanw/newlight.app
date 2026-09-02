@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
-import { Heading } from '@/core/ui'
+import { Card } from '@/core/ui'
+import { Stack } from 'styled-system/jsx'
 
 type ProfileSectionProps = {
   title: string
@@ -8,10 +9,14 @@ type ProfileSectionProps = {
 
 export function ProfileSection({ title, children }: ProfileSectionProps) {
   return (
-    <section aria-labelledby={`profile-section-${title}`}>
-      <Heading id={`profile-section-${title}`}>{title}</Heading>
-      {children}
-    </section>
+    <Card.Root>
+      <Card.Header>
+        <Card.Title>{title}</Card.Title>
+      </Card.Header>
+      <Card.Body>
+        <Stack gap="3">{children}</Stack>
+      </Card.Body>
+    </Card.Root>
   )
 }
 

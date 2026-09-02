@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Badge, Button, Heading, Text } from '@/core/ui'
+import { Badge, Button, Card, Heading, Text } from '@/core/ui'
+import { HStack, Stack } from 'styled-system/jsx'
 import type { EmailRecipient } from '@/core/lib/email'
 import type { Person } from '../lib/types'
 import { SendEmailDialog } from './SendEmailDialog'
@@ -17,13 +18,23 @@ export function PersonHeader({ person, onEdit }: PersonHeaderProps) {
     ? [{ email: person.email as string, name }]
     : []
   return (
-    <header>
-      <Heading>{name}</Heading>
-      <Text>{person.email ?? 'No email address'}</Text>
-      <Badge colorPalette={person.demographic === 'adult' ? 'blue' : person.demographic === 'youth' ? 'orange' : 'green'}>{person.demographic}</Badge>
-      {hasEmail && <Button variant="outline" onClick={() => setEmailOpen(true)}>Email</Button>}
-      <Button onClick={onEdit}>Edit person</Button>
+    <Card.Root>
+      <Card.Body>
+        <Stack gap="3">
+          <HStack justifyContent="space-between" alignItems="center">
+            <Stack gap="1">
+              <Heading>{name}</Heading>
+              <Text color="fg.muted">{person.email ?? 'No email address'}</Text>
+            </Stack>
+            <HStack gap="2">
+              <Badge colorPalette={person.demographic === 'adult' ? 'blue' : person.demographic === 'youth' ? 'orange' : 'green'}>{person.demographic}</Badge>
+              {hasEmail && <Button variant="outline" onClick={() => setEmailOpen(true)}>Email</Button>}
+              <Button onClick={onEdit}>Edit person</Button>
+            </HStack>
+          </HStack>
+        </Stack>
+      </Card.Body>
       <SendEmailDialog open={emailOpen} onOpenChange={setEmailOpen} recipients={recipient} />
-    </header>
+    </Card.Root>
   )
 }

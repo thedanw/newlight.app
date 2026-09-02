@@ -5,6 +5,8 @@ export const peopleManifest = {
   id: 'people',
   name: 'People',
   icon: Users as LucideIcon,
+  /** Module number — drives the page header hero hue shift (16deg × number). */
+  number: 1,
   alwaysOn: true,
   basePath: '/people',
   nav: {

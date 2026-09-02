@@ -1,5 +1,6 @@
 import { useNavigate, useParams } from 'react-router-dom'
-import { BackButton, Breadcrumb, Heading, PageHeader, Text } from '@/core/ui'
+import { BackButton, Breadcrumb, Heading, Page, Text } from '@/core/ui'
+import { Stack } from 'styled-system/jsx'
 import { usePerson } from '../lib/hooks'
 import { PersonHeader } from '../components/PersonHeader'
 import { PageSkeleton } from '../components/PageSkeleton'
@@ -21,23 +22,23 @@ export default function PersonProfilePage() {
 
   if (loading) return (
     <>
-      <PageHeader>
+      <Page.Header>
         <BackButton onClick={() => navigate('/people')} />
         <Heading>Profile</Heading>
-      </PageHeader>
-      <main><PageSkeleton /></main>
+      </Page.Header>
+      <Page.Body><PageSkeleton /></Page.Body>
     </>
   )
 
   if (error || !person) return (
     <>
-      <PageHeader>
+      <Page.Header>
         <BackButton onClick={() => navigate('/people')} />
         <Heading>Profile</Heading>
-      </PageHeader>
-      <main>
+      </Page.Header>
+      <Page.Body>
         <Text>{error?.message ?? 'Person not found.'}</Text>
-      </main>
+      </Page.Body>
     </>
   )
 
@@ -53,35 +54,37 @@ export default function PersonProfilePage() {
 
   return (
     <>
-      <PageHeader>
+      <Page.Header>
         <BackButton onClick={() => navigate('/people')} />
         <Heading>People</Heading>
-      </PageHeader>
+      </Page.Header>
 
-      <main>
-        <Breadcrumb.Root>
-          <Breadcrumb.List>
-            <Breadcrumb.Item><Breadcrumb.Link href="/people">People</Breadcrumb.Link></Breadcrumb.Item>
-            <Breadcrumb.Separator />
-            <Breadcrumb.Item><Breadcrumb.Link href={`/people/${person.id}`} aria-current="page">{person.firstname} {person.lastname}</Breadcrumb.Link></Breadcrumb.Item>
-          </Breadcrumb.List>
-        </Breadcrumb.Root>
+      <Page.Body>
+        <Stack gap="6">
+          <Breadcrumb.Root>
+            <Breadcrumb.List>
+              <Breadcrumb.Item><Breadcrumb.Link href="/people">People</Breadcrumb.Link></Breadcrumb.Item>
+              <Breadcrumb.Separator />
+              <Breadcrumb.Item><Breadcrumb.Link href={`/people/${person.id}`} aria-current="page">{person.firstname} {person.lastname}</Breadcrumb.Link></Breadcrumb.Item>
+            </Breadcrumb.List>
+          </Breadcrumb.Root>
 
-        <PersonHeader person={person} onEdit={() => navigate(`/people/${person.id}/edit`)} />
+          <PersonHeader person={person} onEdit={() => navigate(`/people/${person.id}/edit`)} />
 
-        <PersonalSection person={person} />
-        <DemographicsSection person={person} />
+          <PersonalSection person={person} />
+          <DemographicsSection person={person} />
 
-        {showContact && <ContactSection person={person} />}
-        {showGuardians && <GuardiansSection person={person} />}
-        {showMedical && <MedicalSection person={person} />}
-        {showConsents && <ConsentsSection person={person} />}
-        {showChildSafety && <ChildSafetySection person={person} />}
-        {showAdmin && <AdminSection person={person} />}
+          {showContact && <ContactSection person={person} />}
+          {showGuardians && <GuardiansSection person={person} />}
+          {showMedical && <MedicalSection person={person} />}
+          {showConsents && <ConsentsSection person={person} />}
+          {showChildSafety && <ChildSafetySection person={person} />}
+          {showAdmin && <AdminSection person={person} />}
 
-        <JourneySection person={person} />
-        <TagsSection person={person} />
-      </main>
+          <JourneySection person={person} />
+          <TagsSection person={person} />
+        </Stack>
+      </Page.Body>
     </>
   )
 }

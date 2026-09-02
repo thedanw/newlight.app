@@ -1,7 +1,9 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useState, type CSSProperties } from 'react'
 import { ChevronLeft, ChevronRight, Plus, Search } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
-import { Button, Dialog, Heading, Icon, Input, PageHeader, Pagination, Text } from '@/core/ui'
+import { Button, Dialog, Heading, Icon, Input, Page, Pagination, Text } from '@/core/ui'
+import { Stack } from 'styled-system/jsx'
+import { peopleManifest } from './manifest'
 import type { PeopleListOptions, Person, PersonWithJourney } from './lib/types'
 import { usePeopleList } from './lib/hooks'
 import { PeopleFilters } from './components/PeopleFilters'
@@ -38,36 +40,43 @@ export default function PeopleDashboardPage() {
 
   return (
     <>
-      <PageHeader>
+      <Page.Header
+        headerVariant="hero"
+        style={{ '--module-number': peopleManifest.number } as CSSProperties}
+      >
         <Heading>People</Heading>
-        <Button onClick={() => navigate('/people/new')}>
-          <Icon><Plus /></Icon>
-          New person
-        </Button>
-        <Button onClick={() => setSearchResults(null)}>
-          <Icon><Search /></Icon>
-          Directory
-        </Button>
-      </PageHeader>
-      <main>
         <PeopleSearch onResults={handleSearchResults} onSearching={handleSearching} />
-        <PeopleFilters filters={filters} onChange={handleFiltersChange} />
-        <SavedListSidebar onLoad={(conditions) => setFilters({ ...conditions, limit: PAGE_SIZE, offset: 0 })} refreshKey={savedListRefreshKey} />
-        <Dialog.Root>
-          <Dialog.Trigger asChild><Button>Save current filters</Button></Dialog.Trigger>
-          <Dialog.Backdrop /><Dialog.Positioner><Dialog.Content><Dialog.Title>Save list</Dialog.Title><Dialog.Body><Input value={savedListName} onChange={(event) => setSavedListName(event.target.value)} placeholder="List name" /></Dialog.Body><Dialog.Footer><Dialog.ActionTrigger onClick={() => { void createSavedList(savedListName, filters); setSavedListName(''); setSavedListRefreshKey((key) => key + 1) }}>Save</Dialog.ActionTrigger><Dialog.CloseTrigger>Cancel</Dialog.CloseTrigger></Dialog.Footer></Dialog.Content></Dialog.Positioner>
-        </Dialog.Root>
-        {peopleQuery.error && !searchResults && <Text color="fg.default">{peopleQuery.error.message}</Text>}
-        {searching && <Text color="fg.muted">Searching...</Text>}
-        <PeopleTable people={visiblePeople} loading={peopleQuery.loading && !searchResults} />
-        {!searchResults && (
-          <Pagination.Root key={page} count={hasNextPage ? (page + 1) * PAGE_SIZE : page * PAGE_SIZE} pageSize={PAGE_SIZE} defaultPage={page} onPageChange={(details) => setPage(details.page)}>
-            <Pagination.PrevTrigger><ChevronLeft /></Pagination.PrevTrigger>
-            <Pagination.Items render={(item) => <Pagination.Item type="page" value={item.value} />} />
-            <Pagination.NextTrigger><ChevronRight /></Pagination.NextTrigger>
-          </Pagination.Root>
-        )}
-      </main>
+      </Page.Header>
+      <Page.Body>
+        <Stack gap="6">
+          <Stack flexDirection="row" gap="2">
+            <Button onClick={() => navigate('/people/new')}>
+              <Icon><Plus /></Icon>
+              New person
+            </Button>
+            <Button onClick={() => setSearchResults(null)}>
+              <Icon><Search /></Icon>
+              Directory
+            </Button>
+          </Stack>
+          <PeopleFilters filters={filters} onChange={handleFiltersChange} />
+          <SavedListSidebar onLoad={(conditions) => setFilters({ ...conditions, limit: PAGE_SIZE, offset: 0 })} refreshKey={savedListRefreshKey} />
+          <Dialog.Root>
+            <Dialog.Trigger asChild><Button>Save current filters</Button></Dialog.Trigger>
+            <Dialog.Backdrop /><Dialog.Positioner><Dialog.Content><Dialog.Title>Save list</Dialog.Title><Dialog.Body><Input value={savedListName} onChange={(event) => setSavedListName(event.target.value)} placeholder="List name" /></Dialog.Body><Dialog.Footer><Dialog.ActionTrigger onClick={() => { void createSavedList(savedListName, filters); setSavedListName(''); setSavedListRefreshKey((key) => key + 1) }}>Save</Dialog.ActionTrigger><Dialog.CloseTrigger>Cancel</Dialog.CloseTrigger></Dialog.Footer></Dialog.Content></Dialog.Positioner>
+          </Dialog.Root>
+          {peopleQuery.error && !searchResults && <Text color="fg.default">{peopleQuery.error.message}</Text>}
+          {searching && <Text color="fg.muted">Searching...</Text>}
+          <PeopleTable people={visiblePeople} loading={peopleQuery.loading && !searchResults} />
+          {!searchResults && (
+            <Pagination.Root key={page} count={hasNextPage ? (page + 1) * PAGE_SIZE : page * PAGE_SIZE} pageSize={PAGE_SIZE} defaultPage={page} onPageChange={(details) => setPage(details.page)}>
+              <Pagination.PrevTrigger><ChevronLeft /></Pagination.PrevTrigger>
+              <Pagination.Items render={(item) => <Pagination.Item type="page" value={item.value} />} />
+              <Pagination.NextTrigger><ChevronRight /></Pagination.NextTrigger>
+            </Pagination.Root>
+          )}
+        </Stack>
+      </Page.Body>
     </>
   )
 }

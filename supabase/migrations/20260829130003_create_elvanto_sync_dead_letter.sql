@@ -42,4 +42,4 @@ CREATE INDEX IF NOT EXISTS idx_elvanto_sync_dead_letter_unresolved
 
 -- Grant permissions
 GRANT SELECT, UPDATE ON public.elvanto_sync_dead_letter TO authenticated;
-GRANT INSERT ON public.elvanto_sync_dead_letter TO service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.elvanto_sync_dead_letter TO service_role;

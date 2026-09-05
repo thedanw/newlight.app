@@ -2,6 +2,7 @@ import { Heading, Text, Card, Badge, Button, Alert } from '@/core/ui'
 import { Stack } from 'styled-system/jsx'
 import { usePluginAPIContext } from '@/core/plugins/PluginAPI'
 import { useState, useEffect } from 'react'
+import { triggerElvantoSync } from '../sync/trigger-sync'
 
 /**
  * Elvanto Sync Status Widget — Dashboard widget showing sync status
@@ -47,21 +48,13 @@ export function ElvantoSyncStatusWidget() {
 
   const handleSyncNow = async () => {
     try {
-      const response = await fetch('/functions/v1/elvanto-sync-worker', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ trigger: 'manual' }),
-      })
-      
-      if (response.ok) {
-        toast.success('Sync triggered')
-        fetchStatus()
-      } else {
-        toast.error('Failed to trigger sync')
-      }
+      await triggerElvantoSync({ trigger: 'manual' })
+      toast.success('Sync triggered')
+      fetchStatus()
     } catch (err) {
-      console.error('[ElvantoSyncStatusWidget] Sync trigger error:', err)
-      toast.error('Failed to trigger sync')
+      const message = err instanceof Error ? err.message : String(err)
+      console.error('[ElvantoSyncStatusWidget] Sync trigger error:', message)
+      toast.error(`Failed to trigger sync: ${message}`)
     }
   }
 

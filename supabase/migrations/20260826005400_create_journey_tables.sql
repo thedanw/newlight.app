@@ -54,3 +54,20 @@ CREATE TABLE custom_field_values (
   custom_field_id uuid NOT NULL REFERENCES custom_fields(id),
   name varchar NOT NULL
 );
+
+-- Grant permissions
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.journey_track_categories TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.journey_tracks TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.journey_stages TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.people_audit TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.people_categories TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.custom_fields TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.custom_field_values TO authenticated;
+-- service_role bypasses RLS but still needs table grants for the edge function
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.journey_track_categories TO service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.journey_tracks TO service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.journey_stages TO service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.people_audit TO service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.people_categories TO service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.custom_fields TO service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.custom_field_values TO service_role;

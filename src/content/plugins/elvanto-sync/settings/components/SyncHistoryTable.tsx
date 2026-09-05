@@ -260,19 +260,19 @@ export function SyncHistoryTable() {
           ) : (
             <>
               <Table.Root>
-                <Table.Header>
+                <Table.Head>
                   <Table.Row>
-                    <Table.Head>Entity</Table.Head>
-                    <Table.Head>Trigger</Table.Head>
-                    <Table.Head>Started</Table.Head>
-                    <Table.Head>Completed</Table.Head>
-                    <Table.Head>Duration</Table.Head>
-                    <Table.Head>Status</Table.Head>
-                    <Table.Head>Processed</Table.Head>
-                    <Table.Head>Failed</Table.Head>
-                    <Table.Head>Actions</Table.Head>
+                    <Table.Header>Entity</Table.Header>
+                    <Table.Header>Trigger</Table.Header>
+                    <Table.Header>Started</Table.Header>
+                    <Table.Header>Completed</Table.Header>
+                    <Table.Header>Duration</Table.Header>
+                    <Table.Header>Status</Table.Header>
+                    <Table.Header>Processed</Table.Header>
+                    <Table.Header>Failed</Table.Header>
+                    <Table.Header>Actions</Table.Header>
                   </Table.Row>
-                </Table.Header>
+                </Table.Head>
                 <Table.Body>
                   {history.map((run) => (
                     <Table.Row key={run.id}>

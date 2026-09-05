@@ -25,7 +25,7 @@ const APP_FIELDS = [
   'demographic', 'gender', 'date_of_birth', 'marital_status',
   'kindy_start_year', 'school_name', 'school_email_permission', 'school_email',
   'address_line1', 'address_suburb', 'address_state', 'address_postcode',
-  'email', 'contact_channels',
+  'email', 'mobile', 'contact_channels',
   'guardian_relationships',
   'medical_allergies', 'medical_other', 'medical_medication',
   'consent_external_photo', 'consent_internal_photo', 'consent_school_email',
@@ -67,7 +67,7 @@ const DEFAULT_MAPPINGS: MappingRule[] = [
   { appField: 'preferred_name', elvantoField: 'preferred_name', direction: 'both', priority: 100 },
   { appField: 'middle_name', elvantoField: 'middle_name', direction: 'both', priority: 100 },
   { appField: 'email', elvantoField: 'email', direction: 'both', priority: 100 },
-  { appField: 'contact_channels.primary_mobile.value', elvantoField: 'mobile', direction: 'both', priority: 90 },
+  { appField: 'mobile', elvantoField: 'mobile', direction: 'both', priority: 90 },
   { appField: 'contact_channels.primary_home.value', elvantoField: 'phone', direction: 'both', priority: 90 },
   { appField: 'demographic', elvantoField: 'category_id', direction: 'pull', priority: 80, transform: 'category_to_demographic' },
   { appField: 'gender', elvantoField: 'gender', direction: 'both', priority: 80, transform: 'capitalize_enum' },
@@ -89,6 +89,25 @@ const DEFAULT_MAPPINGS: MappingRule[] = [
   { appField: 'elvanto_giving_number', elvantoField: 'giving_number', direction: 'pull', priority: 10 },
   { appField: 'elvanto_locations', elvantoField: 'locations', direction: 'pull', priority: 10 },
 ]
+
+// ============================================
+// Helpers
+// ============================================
+
+/** De-duplicate combobox items by `value`, keeping the first occurrence (unique React keys). */
+function uniqueItems<T extends { value: string }>(items: T[]): T[] {
+  const seen = new Set<string>()
+  return items.filter(item => {
+    if (seen.has(item.value)) return false
+    seen.add(item.value)
+    return true
+  })
+}
+
+/** De-duplicate field-name strings, preserving order. */
+function uniqueFields(names: string[]): string[] {
+  return [...new Set(names)]
+}
 
 export function FieldMappingTable({ disabled = false, dynamicFieldOptions = [] }: FieldMappingTableProps) {
   const { settings, toast } = usePluginAPIContext()
@@ -242,11 +261,15 @@ function MappingRuleCard({ rule, index, appFields, elvantoFields, dynamicElvanto
   const [expanded, setExpanded] = useState(false)
 
   const appFieldCollection = useMemo(() => createListCollection({
-    items: [{ label: 'Select app field...', value: '' }, ...appFields.map((f) => ({ label: f, value: f }))]
+    items: uniqueItems([{ label: 'Select app field...', value: '' }, ...appFields.map((f) => ({ label: f, value: f }))])
   }), [appFields])
 
   const elvantoFieldCollection = useMemo(() => createListCollection({
-    items: [{ label: 'Select Elvanto field...', value: '' }, ...elvantoFields.map((f) => ({ label: f, value: f })), ...dynamicElvantoFieldOptions]
+    items: uniqueItems([
+      { label: 'Select Elvanto field...', value: '' },
+      ...elvantoFields.map((f) => ({ label: f, value: f })),
+      ...dynamicElvantoFieldOptions,
+    ])
   }), [elvantoFields, dynamicElvantoFieldOptions])
 
   const transformCollection = useMemo(() => createListCollection({
@@ -378,7 +401,7 @@ function MappingRuleCard({ rule, index, appFields, elvantoFields, dynamicElvanto
           <ConditionEditor
             condition={rule.condition}
             onChange={cond => onUpdate(index, { condition: cond })}
-            availableFields={[...appFields, ...elvantoFields, ...dynamicElvantoFieldOptions.map(o => o.value)]}
+            availableFields={uniqueFields([...appFields, ...elvantoFields, ...dynamicElvantoFieldOptions.map(o => o.value)])}
           />
         </Stack>
       )}
@@ -394,7 +417,7 @@ function ConditionEditor({ condition, onChange, availableFields }: {
   const [editMode, setEditMode] = useState<'simple' | 'advanced'>('simple')
 
   const fieldCollection = useMemo(() => createListCollection({
-    items: [{ label: 'Field', value: '' }, ...availableFields.map(f => ({ label: f, value: f }))]
+    items: uniqueItems([{ label: 'Field', value: '' }, ...availableFields.map(f => ({ label: f, value: f }))])
   }), [availableFields])
 
   const operatorCollection = useMemo(() => createListCollection({

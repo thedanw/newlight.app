@@ -7,6 +7,9 @@ import type { TypedSupabaseClient } from '@/core/plugins/PluginAPI'
 import { applyMappings, getDateFilterForEntity, updateEntityWatermark, SYNC_ENTITIES } from './mapping-engine'
 import { loadWatermark as _loadWatermark } from './watermark'
 
+// Fallback journey when no track mappings produced updates (DB CHECK journey <> '{}')
+const DEFAULT_JOURNEY: Record<string, string> = { default: 'contact' }
+
 // ============================================
 // Types
 // ============================================
@@ -314,19 +317,19 @@ function preparePersonUpsert(
     mobile: appRecord.mobile ?? person.mobile,
     
     // Demographics
-    demographic: appRecord.demographic ?? mapCategoryToDemographic(person.category_id),
-    gender: appRecord.gender ?? mapGender(person.gender),
+    demographic: sanitizeDemographic(appRecord.demographic ?? mapCategoryToDemographic(person.category_id)),
+    gender: sanitizeGender(appRecord.gender ?? mapGender(person.gender)),
     date_of_birth: appRecord.date_of_birth ?? person.birthday,
     anniversary: appRecord.anniversary ?? person.anniversary,
-    marital_status: appRecord.marital_status ?? mapMaritalStatus(person.marital_status),
+    marital_status: sanitizeMaritalStatus(appRecord.marital_status ?? mapMaritalStatus(person.marital_status)),
     kindy_start_year: appRecord.kindy_start_year ?? mapSchoolGradeToKindyYear(person.school_grade),
     school_name: appRecord.school_name ?? null,
     
     // Access
-    access_permission: appRecord.access_permission ?? mapAdminToPermission(person.admin),
+    access_permission: sanitizeAccessPermission(appRecord.access_permission ?? mapAdminToPermission(person.admin)),
     
-    // Journey
-    journey: journeyUpdates,
+    // Journey (DB CHECK journey <> '{}' — always emit a non-empty object)
+    journey: Object.keys(journeyUpdates).length > 0 ? journeyUpdates : { ...DEFAULT_JOURNEY },
     
     // Sync metadata
     _synced_at: now,
@@ -345,6 +348,37 @@ function preparePersonUpsert(
 }
 
 // Mapping helpers (inline for now, will use transforms.ts)
+function sanitizeDemographic(value: any): 'adult' | 'youth' | 'child' {
+  if (value === 'adult' || value === 'youth' || value === 'child') return value
+  // UUID or unknown value — fall back to adult (safe enum default)
+  return 'adult'
+}
+
+function sanitizeGender(value: any): 'male' | 'female' | null {
+  if (value === 'male' || value === 'female') return value
+  if (typeof value === 'string') {
+    const lower = value.toLowerCase()
+    if (lower === 'male' || lower === 'female') return lower
+  }
+  return null
+}
+
+function sanitizeMaritalStatus(value: any): string | null {
+  const valid = ['single', 'engaged', 'married', 'partner', 'widowed', 'divorced', 'separated']
+  if (typeof value === 'string' && valid.includes(value.toLowerCase())) {
+    return value.toLowerCase()
+  }
+  return null
+}
+
+function sanitizeAccessPermission(value: any): string {
+  const valid = ['public', 'member_area', 'team_leaders', 'admin', 'super_admin']
+  if (typeof value === 'string' && valid.includes(value.toLowerCase())) {
+    return value.toLowerCase()
+  }
+  return 'member_area'
+}
+
 function mapCategoryToDemographic(_categoryId: string): 'adult' | 'youth' | 'child' {
   // Would need category lookup - default to adult
   return 'adult'

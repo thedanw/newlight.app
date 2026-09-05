@@ -36,6 +36,36 @@ export function category_to_journey_stage(categoryName: string, _context?: Recor
 }
 
 // ============================================
+// 1b. category_to_demographic
+// People Category name → demographic enum (adult | youth | child)
+// ============================================
+
+/**
+ * Maps an Elvanto People Category to a demographic enum value.
+ * Accepts a category NAME (e.g. "Kids", "Youth", "Adults") or a category UUID.
+ * UUIDs cannot be resolved without a lookup, so they default to 'adult'
+ * (safe fallback — the demographic enum only allows adult|youth|child).
+ */
+export function category_to_demographic(categoryValue: any, _context?: Record<string, any>): string {
+  if (!categoryValue) return 'adult'
+
+  // If it looks like a UUID, we can't resolve the name — default to adult
+  if (typeof categoryValue === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(categoryValue)) {
+    return 'adult'
+  }
+
+  const normalized = String(categoryValue).trim().replace(/[*_]+$/, '').toLowerCase()
+
+  if (/(^|\s)(child|kid|kids|toddler|infant|baby|pre-school|preschool|nursery)/.test(normalized)) {
+    return 'child'
+  }
+  if (/(^|\s)(youth|teen|teenager|high.?school|young.?adult|youth.?group)/.test(normalized)) {
+    return 'youth'
+  }
+  return 'adult'
+}
+
+// ============================================
 // 2. location_to_journey_tracks
 // Locations[] array → Campus journey tracks (multi-target)
 // ============================================
@@ -277,6 +307,7 @@ export function format_departments(departments: DepartmentStructure[]): string {
 
 export const TRANSFORMS: Record<string, TransformFn> = {
   category_to_journey_stage,
+  category_to_demographic,
   location_to_journey_tracks,
   defacto_to_partner,
   school_grade_to_kindy_year,

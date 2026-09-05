@@ -69,12 +69,15 @@ export async function saveWatermark(
   
   const { error } = await (supabase as any)
     .from('elvanto_sync_config')
-    .upsert({
-      key,
-      value: watermark,
-      environment: 'production',
-      updated_by: (await supabase.auth.getUser()).data.user?.id,
-    })
+    .upsert(
+      {
+        key,
+        value: watermark,
+        environment: 'production',
+        updated_by: (await supabase.auth.getUser()).data.user?.id,
+      },
+      { onConflict: 'key' }
+    )
   
   if (error) {
     console.error(`[Watermark] Failed to save watermark for ${entity}:`, error)

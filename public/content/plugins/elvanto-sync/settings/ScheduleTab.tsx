@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react'
 import { Stack } from 'styled-system/jsx'
 import { createListCollection } from '@ark-ui/react'
 import { ChevronsUpDownIcon, CheckIcon } from 'lucide-react'
+import { triggerElvantoSync } from '../sync/trigger-sync'
 
 /**
  * Schedule Tab — Skeleton (full implementation in Phase 10)
@@ -31,20 +32,12 @@ export function ScheduleTab() {
   const handleSyncNow = async () => {
     setLoading(true)
     try {
-      const response = await fetch('/functions/v1/elvanto-sync-worker', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ trigger: 'manual' }),
-      })
-      
-      if (response.ok) {
-        toast.success('Sync triggered successfully')
-      } else {
-        toast.error('Failed to trigger sync')
-      }
+      await triggerElvantoSync({ trigger: 'manual' })
+      toast.success('Sync triggered successfully')
     } catch (err) {
-      console.error('[ScheduleTab] Sync trigger error:', err)
-      toast.error('Failed to trigger sync')
+      const message = err instanceof Error ? err.message : String(err)
+      console.error('[ScheduleTab] Sync trigger error:', message)
+      toast.error(`Failed to trigger sync: ${message}`)
     } finally {
       setLoading(false)
     }

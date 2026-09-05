@@ -44,4 +44,4 @@ CREATE INDEX IF NOT EXISTS idx_elvanto_sync_history_status
 
 -- Grant permissions
 GRANT SELECT ON public.elvanto_sync_history TO authenticated;
-GRANT INSERT, UPDATE ON public.elvanto_sync_history TO service_role;
+GRANT SELECT, INSERT, UPDATE ON public.elvanto_sync_history TO service_role;

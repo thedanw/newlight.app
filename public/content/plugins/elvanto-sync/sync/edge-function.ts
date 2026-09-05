@@ -48,6 +48,8 @@ interface SyncRequest {
   trigger: 'cron' | 'manual' | 'webhook'
   entity?: string // Optional: sync only specific entity
   fullScan?: boolean
+  action?: 'test_connection' | 'list_locations'
+  api_key?: string // Used for action requests
 }
 
 interface SyncResponse {
@@ -159,7 +161,7 @@ async function addToDeadLetter(
   payload: any,
   error: string
 ): Promise<void> {
-  const { error } = await (supabase as any)
+  const { error: insertError } = await (supabase as any)
     .from('elvanto_sync_dead_letter')
     .insert({
       entity,
@@ -169,17 +171,132 @@ async function addToDeadLetter(
       last_attempt_at: new Date().toISOString(),
     })
   
-  if (error) {
-    console.error(`[DeadLetter] Failed to add dead letter for ${entity}:`, error)
+  if (insertError) {
+    console.error(`[DeadLetter] Failed to add dead letter for ${entity}:`, insertError)
   }
 }
 
-function getCredentials(): { apiKey: string } | null {
-  if (!ELVANTO_API_KEY) {
-    console.error('[Sync] ELVANTO_API_KEY not set in environment')
+// ============================================
+// Encrypted API Key (AES-GCM)
+// ============================================
+
+const ENCRYPTION_ALGORITHM = 'AES-GCM'
+const ENCRYPTION_IV_LENGTH = 12 // 96 bits for GCM
+const ENCRYPTED_SETTINGS_ID = '00000000-0000-0000-0000-000000000001'
+
+/**
+ * Get encryption key from environment
+ * In production: ELVANTO_ENCRYPTION_KEY (32-byte key, hex-encoded)
+ * In development: fallback to a derived key (NOT SECURE - dev only)
+ */
+async function getEncryptionKey(): Promise<CryptoKey> {
+  const envKey = Deno.env.get('ELVANTO_ENCRYPTION_KEY')
+
+  if (envKey) {
+    // The hosted secret is 64 hex chars = 32 bytes. Decode as hex first,
+    // falling back to base64 for legacy 44-char base64 keys.
+    const keyData = hexToArrayBuffer(envKey) ?? base64ToArrayBuffer(envKey)
+    return crypto.subtle.importKey(
+      'raw',
+      keyData,
+      { name: ENCRYPTION_ALGORITHM },
+      false,
+      ['decrypt']
+    )
+  }
+
+  // DEVELOPMENT ONLY - derive from a fixed string (NOT SECURE)
+  const devKey = 'dev-key-elvanto-sync-plugin-change-in-production'
+  const keyData = new TextEncoder().encode(devKey.padEnd(32, '0').slice(0, 32))
+  return crypto.subtle.importKey(
+    'raw',
+    keyData,
+    { name: ENCRYPTION_ALGORITHM },
+    false,
+    ['decrypt']
+  )
+}
+
+/**
+ * Decode a hex-encoded string to an ArrayBuffer, or null if not valid hex.
+ */
+function hexToArrayBuffer(hex: string): ArrayBuffer | null {
+  if (!/^[0-9a-fA-F]+$/.test(hex) || hex.length % 2 !== 0) return null
+  const bytes = new Uint8Array(hex.length / 2)
+  for (let i = 0; i < bytes.length; i++) {
+    bytes[i] = parseInt(hex.slice(i * 2, i * 2 + 2), 16)
+  }
+  return bytes.buffer
+}
+
+/**
+ * Decrypt the Elvanto API key stored in elvanto_settings.api_key_encrypted.
+ * Expects base64(iv(12 bytes) + aes-gcm-ciphertext-with-auth-tag).
+ */
+async function decryptApiKey(ciphertextB64: string): Promise<string | null> {
+  try {
+    const key = await getEncryptionKey()
+    const combined = base64ToArrayBuffer(ciphertextB64)
+
+    if (combined.byteLength < ENCRYPTION_IV_LENGTH) {
+      console.warn('[Sync] Invalid encrypted API key: too short')
+      return null
+    }
+
+    const iv = combined.slice(0, ENCRYPTION_IV_LENGTH)
+    const ciphertext = combined.slice(ENCRYPTION_IV_LENGTH)
+
+    const decrypted = await crypto.subtle.decrypt(
+      { name: ENCRYPTION_ALGORITHM, iv },
+      key,
+      ciphertext
+    )
+
+    return new TextDecoder().decode(decrypted)
+  } catch (err) {
+    console.warn('[Sync] Failed to decrypt Elvanto API key:', err)
     return null
   }
-  return { apiKey: ELVANTO_API_KEY }
+}
+
+/**
+ * Convert base64 string to ArrayBuffer
+ */
+function base64ToArrayBuffer(base64: string): ArrayBuffer {
+  const binary = atob(base64)
+  const bytes = new Uint8Array(binary.length)
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i)
+  }
+  return bytes.buffer
+}
+
+async function getCredentials(): Promise<{ apiKey: string } | null> {
+  // 1. Prefer the encrypted key stored in elvanto_settings (singleton row)
+  try {
+    const { data, error } = await (supabase as any)
+      .from('elvanto_settings')
+      .select('api_key_encrypted')
+      .eq('id', ENCRYPTED_SETTINGS_ID)
+      .maybeSingle()
+
+    if (!error && data?.api_key_encrypted) {
+      const apiKey = await decryptApiKey(data.api_key_encrypted)
+      if (apiKey) {
+        return { apiKey }
+      }
+    }
+  } catch (err) {
+    console.warn('[Sync] Failed to read encrypted Elvanto API key:', err)
+  }
+
+  // 2. Fall back to the legacy ELVANTO_API_KEY env var
+  if (ELVANTO_API_KEY) {
+    return { apiKey: ELVANTO_API_KEY }
+  }
+
+  console.error('[Sync] Could not obtain Elvanto API key (encrypted settings or ELVANTO_API_KEY env)')
+  return null
 }
 
 // ============================================
@@ -235,7 +352,7 @@ const entitySyncs: Record<string, EntitySyncFn> = {
 
 async function runSync(request: SyncRequest): Promise<SyncResponse> {
   const startedAt = new Date().toISOString()
-  const credentials = getCredentials()
+  const credentials = await getCredentials()
   
   if (!credentials) {
     return {
@@ -246,7 +363,7 @@ async function runSync(request: SyncRequest): Promise<SyncResponse> {
       entities: {},
       totalProcessed: 0,
       totalFailed: 0,
-      errors: ['ELVANTO_API_KEY not configured'],
+      errors: ['Could not obtain Elvanto API key'],
     }
   }
   
@@ -378,6 +495,109 @@ serve(async (req) => {
   
   try {
     const body: SyncRequest = await req.json()
+    
+    // Handle test connection action
+    if (body.action === 'test_connection' && body.api_key) {
+      try {
+        const response = await fetch('https://api.elvanto.com/v1/people/getInfo.json', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Basic ${btoa(body.api_key + ':')}`,
+          },
+          body: JSON.stringify({ id: 'current' }),
+        })
+
+        if (response.ok) {
+          const data = await response.json()
+          if (data.status === 'ok') {
+            return new Response(JSON.stringify({
+              success: true,
+              message: 'Connection successful! Elvanto API responded OK.',
+            }), {
+              status: 200,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            })
+          } else {
+            return new Response(JSON.stringify({
+              success: false,
+              error: data.error?.message || 'API returned error status',
+            }), {
+              status: 200,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            })
+          }
+        } else if (response.status === 401) {
+          return new Response(JSON.stringify({
+            success: false,
+            error: 'Invalid API key (401 Unauthorized)',
+          }), {
+            status: 200,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          })
+        } else {
+          return new Response(JSON.stringify({
+            success: false,
+            error: `HTTP ${response.status}: ${response.statusText}`,
+          }), {
+            status: 200,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          })
+        }
+      } catch (err) {
+        return new Response(JSON.stringify({
+          success: false,
+          error: err instanceof Error ? err.message : 'Network error',
+        }), {
+          status: 200,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+    }
+
+    // Handle list locations action (server-side proxy — Elvanto has no CORS)
+    if (body.action === 'list_locations' && body.api_key) {
+      try {
+        const response = await fetch('https://api.elvanto.com/v1/calendar/getAll.json', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Basic ${btoa(body.api_key + ':')}`,
+          },
+          body: JSON.stringify({ page_size: 1000 }),
+        })
+
+        const data = await response.json().catch(() => ({}))
+        if (response.ok && data.status === 'ok') {
+          const raw = data.calendars
+          const calendars = Array.isArray(raw)
+            ? raw
+            : Array.isArray(raw?.calendar) ? raw.calendar : []
+          const locations = calendars.map((calendar: any) => ({ id: calendar.id, name: calendar.name }))
+
+          return new Response(JSON.stringify({ success: true, locations }), {
+            status: 200,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          })
+        }
+
+        return new Response(JSON.stringify({
+          success: false,
+          error: data.error?.message || `HTTP ${response.status}`,
+        }), {
+          status: 200,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      } catch (err) {
+        return new Response(JSON.stringify({
+          success: false,
+          error: err instanceof Error ? err.message : 'Network error',
+        }), {
+          status: 200,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+    }
     
     // Validate trigger
     if (!['cron', 'manual', 'webhook'].includes(body.trigger)) {

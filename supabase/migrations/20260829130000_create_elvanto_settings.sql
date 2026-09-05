@@ -30,3 +30,5 @@ CREATE INDEX IF NOT EXISTS idx_elvanto_settings_environment
 
 -- Grant permissions
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.elvanto_settings TO authenticated;
+-- service_role bypasses RLS but still needs table grants for the edge function
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.elvanto_settings TO service_role;

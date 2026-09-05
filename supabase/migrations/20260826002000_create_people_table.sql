@@ -111,3 +111,14 @@ create table people_tags (
   tag_id uuid not null references tags(id),
   primary key (person_id, tag_id)
 );
+
+-- Grant permissions
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.people TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.people_relationships TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.tags TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.people_tags TO authenticated;
+-- service_role bypasses RLS but still needs table grants for the edge function
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.people TO service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.people_relationships TO service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.tags TO service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.people_tags TO service_role;

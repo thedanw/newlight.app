@@ -25,6 +25,25 @@ interface MappingRowProps {
   onDuplicate: (index: number) => void
 }
 
+// ============================================
+// Helpers
+// ============================================
+
+/** De-duplicate combobox items by `value`, keeping the first occurrence (unique React keys). */
+function uniqueItems<T extends { value: string }>(items: T[]): T[] {
+  const seen = new Set<string>()
+  return items.filter(item => {
+    if (seen.has(item.value)) return false
+    seen.add(item.value)
+    return true
+  })
+}
+
+/** De-duplicate field-name strings, preserving order. */
+function uniqueFields(names: string[]): string[] {
+  return [...new Set(names)]
+}
+
 export function MappingRow({ rule, index, appFields, elvantoFields, dynamicElvantoFieldOptions = [], onUpdate, onDelete, onDuplicate }: MappingRowProps) {
   const [expanded, setExpanded] = useState(false)
   const [transformDesc, setTransformDesc] = useState('')
@@ -38,11 +57,15 @@ export function MappingRow({ rule, index, appFields, elvantoFields, dynamicElvan
   }, [rule.transform])
 
   const appFieldCollection = useMemo(() => createListCollection({
-    items: [{ label: 'Select app field...', value: '' }, ...appFields.map((f) => ({ label: f, value: f }))]
+    items: uniqueItems([{ label: 'Select app field...', value: '' }, ...appFields.map((f) => ({ label: f, value: f }))])
   }), [appFields])
 
   const elvantoFieldCollection = useMemo(() => createListCollection({
-    items: [{ label: 'Select Elvanto field...', value: '' }, ...elvantoFields.map((f) => ({ label: f, value: f })), ...dynamicElvantoFieldOptions]
+    items: uniqueItems([
+      { label: 'Select Elvanto field...', value: '' },
+      ...elvantoFields.map((f) => ({ label: f, value: f })),
+      ...dynamicElvantoFieldOptions,
+    ])
   }), [elvantoFields, dynamicElvantoFieldOptions])
 
   const transformCollection = useMemo(() => createListCollection({
@@ -181,7 +204,7 @@ export function MappingRow({ rule, index, appFields, elvantoFields, dynamicElvan
           <ConditionEditor
             condition={rule.condition}
             onChange={cond => onUpdate(index, { condition: cond })}
-            availableFields={[...appFields, ...elvantoFields]}
+            availableFields={uniqueFields([...appFields, ...elvantoFields])}
           />
         </Stack>
       )}
@@ -198,7 +221,7 @@ function ConditionEditor({ condition, onChange, availableFields }: {
   const [editMode, setEditMode] = useState<'simple' | 'advanced'>('simple')
 
   const fieldCollection = useMemo(() => createListCollection({
-    items: [{ label: 'Field', value: '' }, ...availableFields.map(f => ({ label: f, value: f }))]
+    items: uniqueItems([{ label: 'Field', value: '' }, ...availableFields.map(f => ({ label: f, value: f }))])
   }), [availableFields])
 
   const operatorCollection = useMemo(() => createListCollection({

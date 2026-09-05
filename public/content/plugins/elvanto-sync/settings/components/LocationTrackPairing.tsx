@@ -4,6 +4,8 @@ import { useState, useEffect, useMemo } from 'react'
 import { HStack, Stack } from 'styled-system/jsx'
 import { createListCollection } from '@ark-ui/react'
 import { ChevronsUpDownIcon, CheckIcon } from 'lucide-react'
+import { decrypt } from '../../utils/encryption'
+import { fetchElvantoLocations } from '../../sync/elvanto-api'
 
 interface LocationPairing {
   elvanto_location_id: string
@@ -66,31 +68,24 @@ export function LocationTrackPairing() {
         return
       }
 
-      const apiKey = creds.apiKey
-
-      const response = await fetch('https://api.elvanto.com/v1/calendar/getAll.json', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Basic ${btoa(apiKey + ':')}`,
-        },
-        body: JSON.stringify({}),
-      })
-
-      if (!response.ok) {
-        throw new Error(`Elvanto API error: ${response.status}`)
+      // The stored credential is AES-GCM encrypted (see ConnectionTab.tsx) —
+      // decrypt it before using it as the Basic-auth username.
+      let apiKey = creds.apiKey
+      try {
+        apiKey = await decrypt(apiKey)
+      } catch {
+        // Fallback: legacy/plaintext credentials were stored unencrypted.
       }
 
-      const locations = [
-        { id: '8a631195-8914-4136-858c-f160885ab60d', name: 'Central Campus' },
-        { id: '9f3aec97-3d61-471d-ab50-5f28070d970d', name: 'North Campus' },
-      ]
-      
+      // Fetch through the Vite proxy (dev) or the Edge Function (prod) —
+      // Elvanto's API does not send CORS headers so it can't be hit directly.
+      const locations = await fetchElvantoLocations(apiKey)
       setElvantoLocations(locations)
-      toast.success(`Fetched ${locations.length} locations from Elvanto`)
+      toast.success(`Fetched ${locations.length} location${locations.length === 1 ? '' : 's'} from Elvanto`)
     } catch (err) {
       console.error('[LocationTrackPairing] Failed to fetch locations:', err)
-      toast.error('Failed to fetch locations from Elvanto')
+      const message = err instanceof Error ? err.message : 'Unknown error'
+      toast.error(`Failed to fetch locations from Elvanto: ${message}`)
     } finally {
       setFetching(false)
     }

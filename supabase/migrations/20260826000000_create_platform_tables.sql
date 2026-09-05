@@ -39,3 +39,16 @@ create table addresses (
   postcode varchar,
   _synced_at timestamptz not null default now()
 );
+
+-- Grant permissions
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.user_roles TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.module_config TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.platform_settings TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.households TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.addresses TO authenticated;
+-- service_role bypasses RLS but still needs table grants for the edge function
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.user_roles TO service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.module_config TO service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.platform_settings TO service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.households TO service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.addresses TO service_role;

@@ -54,6 +54,7 @@ export * as RatingGroup from "./rating-group";
 export * as ScrollArea from "./scroll-area";
 export * as SegmentGroup from "./segment-group";
 export * as Select from "./select";
+export { SearchInput, type SearchInputProps } from "./search-input";
 export { Sidebar } from "./sidebar";
 export { Skeleton, SkeletonCircle, SkeletonText, type SkeletonCircleProps, type SkeletonProps, type SkeletonTextProps } from "./skeleton";
 export * as Slider from "./slider";

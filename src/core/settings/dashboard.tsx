@@ -1,13 +1,11 @@
 'use client'
 import { useMemo, type CSSProperties } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { css } from 'styled-system/css'
-import { HStack, Stack } from 'styled-system/jsx'
+import { Stack } from 'styled-system/jsx'
 import { Settings } from 'lucide-react'
 import {
   Card,
   Heading,
-  Icon,
   Page,
   Text,
 } from '@/core/ui'

@@ -8,7 +8,7 @@ import { peopleManifest } from './manifest'
 // Registers the people module's settings page (core #41 settings-schema demo).
 import './settings'
 
-const PeopleDashboardPage = lazy(() => import('./index'))
+const PeopleDashboardPage = lazy(() => import('./dashboard'))
 const PersonProfilePage = lazy(() => import('./pages/PersonProfilePage'))
 const CreatePersonPage = lazy(() => import('./pages/CreatePersonPage'))
 const EditPersonPage = lazy(() => import('./pages/EditPersonPage'))

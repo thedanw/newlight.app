@@ -4,7 +4,7 @@ const sharedHeaderStyles = {
   display: 'flex',
   top: '0',
   color: 'var(--colors-color-palette-solid-fg)',
-  padding: 'calc( 48px + var(--spacing-3) )',
+  padding: 'calc( 48px + var(--spacing-1) )',
   '@media (min-width: 1280px)': {
     padding: { base: '3', md: '6' },
   },

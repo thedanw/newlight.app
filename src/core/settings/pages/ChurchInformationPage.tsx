@@ -10,7 +10,7 @@ import {
   type FontKey,
 } from '@/core/theme/font-loader'
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { Box, HStack, Stack } from 'styled-system/jsx'
 import { css } from 'styled-system/css'
 import {
@@ -194,7 +194,6 @@ const HEADING_OPTIONS: Array<{ value: HeadingToken; label: string }> = [
 export default function ChurchInformationPage() {
   const { supabase, getAppSettings, saveAppSettings } = useSettings()
   const navigate = useNavigate()
-  const { page } = useParams()
   const [theme, setTheme] = useState<BrandState>(getInitialState)
   const [churchInfo, setChurchInfo] = useState<ChurchInfo>(EMPTY_CHURCH_INFO)
   const [logoUrl, setLogoUrl] = useState<string | null>(null)
@@ -207,6 +206,7 @@ export default function ChurchInformationPage() {
   const initialChurchInfo = useRef<ChurchInfo>(EMPTY_CHURCH_INFO)
   const logoTransferred = useRef(false)
   const isDirtyRef = useRef(false)
+  const hasHydrated = useRef(false)
 
   useEffect(() => {
     isDirtyRef.current = isDirty
@@ -218,7 +218,20 @@ export default function ChurchInformationPage() {
       .then((settings) => {
         if (cancelled || !settings) return
         if (settings.theme) {
-          setTheme((previous) => ({ ...previous, ...settings.theme }))
+          setTheme((previous) => {
+            const merged = { ...previous, ...settings.theme }
+            const changed =
+              merged.scheme !== previous.scheme ||
+              merged.accent !== previous.accent ||
+              merged.gray !== previous.gray ||
+              merged.font !== previous.font ||
+              merged.radius !== previous.radius ||
+              merged.sidebarStyle !== previous.sidebarStyle ||
+              merged.headings.bold !== previous.headings.bold ||
+              merged.headings.uppercase !== previous.headings.uppercase ||
+              merged.headings.accent !== previous.headings.accent
+            return changed ? merged : previous
+          })
           initialTheme.current = { ...getInitialState(), ...settings.theme }
         }
         if (settings.churchInfo) {
@@ -228,9 +241,11 @@ export default function ChurchInformationPage() {
         if (settings.logoUrl) {
           setLogoUrl(settings.logoUrl)
         }
+        hasHydrated.current = true
       })
       .catch((error) => {
         console.error('Failed to hydrate app settings:', error)
+        hasHydrated.current = true
       })
     return () => {
       cancelled = true
@@ -238,6 +253,7 @@ export default function ChurchInformationPage() {
   }, [getAppSettings])
 
   useEffect(() => {
+    if (!hasHydrated.current) return
     switchTheme({
       accent: theme.accent,
       gray: theme.gray,

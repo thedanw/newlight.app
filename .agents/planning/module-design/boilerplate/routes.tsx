@@ -4,7 +4,7 @@ import type { RouteObject } from 'react-router-dom'
 // Registers the <moduleId> module's settings page (settings-schema extension).
 import './settings'
 
-const <Module>DashboardPage = lazy(() => import('./index'))
+const <Module>DashboardPage = lazy(() => import('./dashboard'))
 // Add more page lazy imports as you build them:
 // const <Module>DetailPage = lazy(() => import('./pages/<Module>DetailPage'))
 

@@ -11,7 +11,14 @@ const APP_SETTINGS_KEY = 'app-settings'
 const APP_SETTINGS_ENV = import.meta.env.MODE ?? 'development'
 
 async function boot() {
-  let themeState = { accent: 'orange' as const, gray: 'neutral' as const }
+  let themeState = {
+    accent: 'orange' as const,
+    gray: 'neutral' as const,
+    radius: 'md' as const,
+    font: 'inter' as const,
+    sidebarStyle: 'light' as const,
+    mode: 'light' as const,
+  }
 
   try {
     const { data } = await supabase
@@ -22,11 +29,16 @@ async function boot() {
       .maybeSingle()
 
     if (data?.value) {
-      const value = data.value as { theme?: { accent?: string; gray?: string } }
-      if (value.theme) {
+      const raw = data.value as { theme?: { scheme?: string; accent?: string; gray?: string; font?: string; radius?: string; sidebarStyle?: string } }
+      if (raw.theme) {
+        const t = raw.theme
         themeState = {
-          accent: (value.theme.accent as 'orange') ?? 'orange',
-          gray: (value.theme.gray as 'neutral') ?? 'neutral',
+          accent: (t?.accent as 'orange') ?? 'orange',
+          gray: (t?.gray as 'neutral') ?? 'neutral',
+          radius: (t?.radius as 'md') ?? 'md',
+          font: (t?.font as 'inter') ?? 'inter',
+          sidebarStyle: (t?.sidebarStyle as 'light') ?? 'light',
+          mode: (t?.scheme as 'light') ?? 'light',
         }
       }
     }

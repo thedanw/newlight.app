@@ -4,9 +4,9 @@ import type { RouteObject } from 'react-router-dom'
 // Registers the example module's settings page (settings-schema extension).
 import './settings'
 
-const ExampleDashboardPage = lazy(() => import('./index'))
-// Add more page lazy imports as you build them:
-// const ExampleDetailPage = lazy(() => import('./pages/ExampleDetailPage'))
+const ExampleDashboardPage = lazy(() => import('./dashboard'))
+const CategoryPage = lazy(() => import('./pages/CategoryPage'))
+const TypographyShowcasePage = lazy(() => import('./pages/TypographyShowcase'))
 
 /**
  * Children of the shared `AppShell` (see `core/router.tsx`). The module owns no
@@ -14,8 +14,6 @@ const ExampleDashboardPage = lazy(() => import('./index'))
  */
 export const exampleRoutes: RouteObject[] = [
   { index: true, element: <ExampleDashboardPage /> },
-  // Add more routes here. Examples:
-  // { path: 'new', element: <CreateExamplePage /> },
-  // { path: ':id/edit', element: <EditExamplePage /> },
-  // { path: ':id', element: <ExampleDetailPage /> },
+  { path: 'category/typography', element: <TypographyShowcasePage /> },
+  { path: 'category/:categoryId', element: <CategoryPage /> },
 ]

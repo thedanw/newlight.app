@@ -59,12 +59,6 @@ export interface HeadingRootProps extends ComponentProps<'div'> {
   children?: ReactNode
 }
 
-const headingRootCss: SystemStyleObject = {
-  position: 'sticky',
-  top: '0',
-  zIndex: '1',
-}
-
 const HeadingRootBase = forwardRef<HTMLDivElement, HeadingRootProps>(
   ({ level: propLevel, icon: IconComponent, title, children, css: cssProp, ...rest }, ref) => {
     const { manifest, level: ctxLevel } = useBreadcrumb()
@@ -75,12 +69,13 @@ const HeadingRootBase = forwardRef<HTMLDivElement, HeadingRootProps>(
     const backButton = actualLevel >= 1 ? (
       <BackButton
         variant="plain"
-        marginLeft="-3"
-        colorPalette=""
-        aria-label="Back"
+        
+        marginRight="-2"
+        marginLeft="0"
         boxSize="8"
         boxShadow="none"
-        css={{ _icon: { boxSize: '8' } }}
+        opacity="0.5"
+        css={{ _icon: { boxSize: '7' } }}
         onClick={() => window.history.back()}
       >
         <ChevronLeftIcon />
@@ -88,7 +83,7 @@ const HeadingRootBase = forwardRef<HTMLDivElement, HeadingRootProps>(
     ) : null
 
     const separator = actualLevel === 2 ? (
-      <ChevronRightIcon />
+      <ChevronLeftIcon />
     ) : null
 
     return (
@@ -97,7 +92,6 @@ const HeadingRootBase = forwardRef<HTMLDivElement, HeadingRootProps>(
         <Icon size="">
           <ActualIcon />
         </Icon>
-        {separator}
         <PageHeading size="lg" truncate>
           {displayTitle}
         </PageHeading>

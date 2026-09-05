@@ -1,15 +1,14 @@
 import { useCallback, useState, type CSSProperties } from 'react'
 import { ChevronLeft, ChevronRight, Plus, Search, Users } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
-import { Button, Dialog, Input, Page, Pagination, Text } from '@/core/ui'
+import { Button, Dialog, Input, Page, Pagination, SearchInput, Text } from '@/core/ui'
 import { HStack, Stack } from 'styled-system/jsx'
 import { peopleManifest } from './manifest'
 import type { PeopleListOptions, Person, PersonWithJourney } from './lib/types'
 import { usePeopleList } from './lib/hooks'
 import { PeopleFilters } from './components/PeopleFilters'
-import { PeopleSearch } from './components/PeopleSearch'
 import { PeopleTable } from './components/PeopleTable'
-import { createSavedList } from './lib/queries'
+import { createSavedList, searchPeople } from './lib/queries'
 import { SavedListSidebar } from './components/SavedListSidebar'
 
 const PAGE_SIZE = 50
@@ -47,7 +46,18 @@ export default function PeopleDashboardPage() {
         <Page.Heading level={0} icon={Users} title="People" />
       </Page.Header>
       <Page.HeaderBottom style={{ '--module-number': peopleManifest.number } as CSSProperties}>
-        {/* People description and quick actions can go here */}
+        <Stack gap="3" maxW="3xl">
+          <Text textStyle="sm" color="fg.default">
+            Find people by name, preferred name, or email.
+          </Text>
+          <SearchInput
+            search={searchPeople}
+            onResults={handleSearchResults}
+            onSearching={handleSearching}
+            placeholder="Search people"
+            ariaLabel="Search people"
+          />
+        </Stack>
       </Page.HeaderBottom>
 
       <Page.Body>

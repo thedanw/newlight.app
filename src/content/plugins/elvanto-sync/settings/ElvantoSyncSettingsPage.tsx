@@ -1,6 +1,7 @@
 import { useState, lazy, Suspense, type ComponentType } from 'react'
-import { Heading, Text, Tabs } from '@/core/ui'
+import { Page, Heading, Text, Tabs } from '@/core/ui'
 import { Stack } from 'styled-system/jsx'
+import { Settings } from 'lucide-react'
 
 // Lazy-load tab components to avoid bundle bloat
 const ConnectionTab = lazy(() => import('./ConnectionTab').then(m => ({ default: m.ConnectionTab })))
@@ -33,7 +34,9 @@ export function ElvantoSyncSettingsPage() {
   const [activeTab, setActiveTab] = useState('connection')
 
   return (
-    <Stack gap="6">
+    <Page.Main>
+      <Page.Header><Page.Heading level={1} icon={Settings} title="Elvanto Sync" /></Page.Header>
+      <Page.Body>
       <Heading textStyle="lg">Elvanto Sync</Heading>
       <Text color="fg.muted" textStyle="sm">
         Configure and monitor synchronization with Elvanto ChMS.
@@ -56,6 +59,7 @@ export function ElvantoSyncSettingsPage() {
           </Tabs.Content>
         ))}
       </Tabs.Root>
-    </Stack>
+      </Page.Body>
+    </Page.Main>
   )
 }

@@ -7,7 +7,7 @@ import { settingsManifest } from './manifest'
 
 import './settings'
 
-const SettingsPage = lazy(() => import('./index'))
+const SettingsPage = lazy(() => import('./dashboard'))
 
 // Children rendered beneath the shared `AppShell` (see `core/router.tsx`),
 // which owns the `/settings` path, Sidebar, Page.Root, and error handling.

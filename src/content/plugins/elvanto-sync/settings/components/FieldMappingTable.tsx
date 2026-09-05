@@ -417,7 +417,7 @@ function ConditionEditor({ condition, onChange, availableFields }: {
     return (
       <Stack gap="3">
         <Text textStyle="sm" color="fg.muted">No condition (always applies)</Text>
-        <Button variant="outline" size="sm" onClick={() => setEditMode('simple')}>
+        <Button variant="outline" size="sm" onClick={() => onChange({ type: 'field_equals', field: '', operator: 'equals', value: '' })}>
           Add Condition
         </Button>
       </Stack>

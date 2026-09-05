@@ -1,8 +1,10 @@
 'use client'
-import { Badge, Card, Code, Heading, Kbd, Link, Table, Text } from '@/core/ui'
+import { Type } from 'lucide-react'
+import type { CSSProperties, ReactNode } from 'react'
+import { Badge, Card, Code, Heading, Kbd, Link, Page, Table, Text } from '@/core/ui'
 import { Box, Grid, HStack, Stack } from 'styled-system/jsx'
 import { css } from 'styled-system/css'
-import type { ReactNode } from 'react'
+import { exampleManifest } from '../manifest'
 
 /* ---------------------------------------------------------------------------
    Typography Showcase — the typography category rendered as a high-end brand
@@ -161,9 +163,14 @@ function PatternCard({ title, note, children }: { title: string; note: string; c
 
 /* ------------------------------------------------------------------ page */
 
-export function TypographyShowcase() {
+export default function TypographyShowcasePage() {
   return (
-    <Stack gap={{ base: '12', md: '16' }} maxW="6xl" pb="4">
+    <Page.Main>
+      <Page.Header style={{ '--module-number': exampleManifest.number } as CSSProperties}>
+        <Page.Heading level={1} icon={Type} title="Typography" />
+      </Page.Header>
+      <Page.Body>
+      <Stack gap={{ base: '12', md: '16' }} maxW="6xl" pb="4">
       {/* Masthead */}
       <Stack gap={{ base: '5', md: '6' }} maxW="3xl">
         <HStack gap="2" flexWrap="wrap">
@@ -560,6 +567,8 @@ export function TypographyShowcase() {
           </Table.Root>
         </Box>
       </Section>
-    </Stack>
+      </Stack>
+      </Page.Body>
+    </Page.Main>
   )
 }

@@ -125,6 +125,7 @@ const pullTabWrapperCss = css({
   bottom: 0,
   zIndex: 'modal',
   pointerEvents: 'none',
+  touchAction: 'none',
   display: 'flex',
   alignItems: 'flex-start',
   justifyContent: 'flex-end',

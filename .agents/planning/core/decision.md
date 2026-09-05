@@ -35,6 +35,7 @@ Church admins, staff, team leaders, volunteers; household members self-viewing t
 - No offline editing / write queue for MVP — offline is read-only
 - No native app builds for MVP — PWA only; native wrappers = future option
 - No enforced MFA (removed); SMS OTP is login-only, never a second factor
+- Financial/giving workflows are out of MVP scope; no financial module or financial tables are provisioned
 
 ## Assumptions
 - Single church tenant (multi-tenancy gap open)

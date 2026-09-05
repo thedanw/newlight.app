@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "ios-hig": {
+      "source": "pproenca/dot-skills",
+      "sourceType": "github",
+      "skillPath": "skills/.experimental/ios-hig/SKILL.md",
+      "computedHash": "19a43f1b92000ab7c78f73f12f7843ae22769b1f84a80b873aad5f2d06bc09a1"
+    }
+  }
+}

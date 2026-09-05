@@ -1,0 +1,23 @@
+import type { CSSProperties } from 'react'
+import { Page, Text } from '@/core/ui'
+import { Users } from 'lucide-react'
+import { useCurrentOperatorPermission } from '../lib/hooks'
+import { JourneySettingsManager } from '../components/JourneySettingsManager'
+import { PageSkeleton } from '../components/PageSkeleton'
+
+export default function JourneySettingsPage() {
+  const permission = useCurrentOperatorPermission()
+  const canManage = permission.data === 'admin' || permission.data === 'super_admin'
+  return (
+    <Page.Main>
+      <Page.Header style={{ '--module-number': 1 } as CSSProperties}>
+        <Page.Heading level={1} icon={Users} title="Journey settings" />
+      </Page.Header>
+      <Page.Body>
+        {permission.loading && <PageSkeleton lines={2} />}
+        {!permission.loading && !canManage && <Text>You do not have permission to manage journey settings.</Text>}
+        {!permission.loading && canManage && <JourneySettingsManager />}
+      </Page.Body>
+    </Page.Main>
+  )
+}

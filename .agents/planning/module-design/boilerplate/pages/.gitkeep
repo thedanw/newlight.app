@@ -1,0 +1,15 @@
+// Add module-local page components here. Each page is lazy-loaded from
+// `routes.tsx`. Example:
+//
+// import { useParams } from 'react-router-dom'
+// import { Heading, Page, Text } from '@/core/ui'
+//
+// export default function <Module>DetailPage() {
+//   const { id } = useParams()
+//   return (
+//     <Page.Body>
+//       <Heading><Module> {id}</Heading>
+//     </Page.Body>
+//   )
+// }
+export {}

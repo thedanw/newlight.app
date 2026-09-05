@@ -1,5 +1,7 @@
 # Decision: People Module — Data Model & Journey Grid
 
+> **UI/UX Guidelines:** All UI implementation MUST strictly follow `.agents/planning/ui-ux/decision.md` and `.agents/planning/module-design/decision.md`. See plan.md §UI/UX Guidelines for full details.
+
 ## Aliases
 - Journey grid = journey tracks (rows) × universal stages (columns); one stage per journey track per person; categories/subcategories = structural headings only (never journey rows)
 - Stage = journey_stage_slug — values & colors in peopleFields.md journey grid
@@ -30,7 +32,7 @@ Church admins/staff managing people; household members self-viewing; groups/serv
 - `safe_ministry_start_date` stored as DATE — free-text ("Text area") dropped
 - PG enums (values defined in peopleFields.md): demographic, marital_status, gender, phone_type, consent_status, school_email_permission, safe_ministry_leader_type, wwcc_verification_outcome, wwcc_exemption_type, smt_type, smc_result, access_permission, journey_stage_slug
 - Seeded stages: contact, guest, linked, regular + terminal archived, deleted_privacy_data (colors in peopleFields.md journey grid)
-- people_audit: field_changed = journey_track | gdpr_deletion; change_reason = manual | auto_progression | gdpr_request
+- people_audit: field_changed = journey_track | demographic | gdpr_deletion; change_reason = manual | auto_progression | gdpr_request | migration | sync (#48)
 - RLS posture: household sees own people + journeys; admins see/manage all; users update own profile; journey tracks/stages readable by authenticated; people_audit admin-only
 - Indexes: name search GIN (first+last+preferred), household, demographic, auth_user, parent/guardian relationships, journey JSONB GIN (track→stage containment), audit
 - Module API: getById(s), getByHousehold, getGuardians, getByDemographic, getByJourneyTrack, getWithValidWWCC, getWithSafeMinistry, getJourneyGrid, search
@@ -115,6 +117,7 @@ Church admins/staff managing people; household members self-viewing; groups/serv
 45 Never allow zero journey tracks — unchecking the last track forces it to archived → person stays on the grid; archived = terminal "removed from active"
 46 Model contact-only (unregistered) parents as people rows with people.journey auto-reconciled from linked children ('contact' stage on each child's track) → one people table + JSONB single source; parents visible as grid contacts
 47 Contact-only parent lifecycle: reconcile on child-link change; no active child links + no own journey → auto-archive (restorable/promotable), never hard-delete → no orphan data or data loss
+48 Extend people_audit.change_reason with 'migration' and 'sync' → Elvanto migration seeds journey/demographic in bulk (compatibility-design.md §3) and sync emits archive/tombstone events; both stay filterable from manual corrections
 
 ## Decision Gap Log
 1 Table architecture: single people vs vertical partitioning → open

@@ -1,0 +1,93 @@
+import { colorPackages } from "@/core/theme/colors";
+import { animationStyles } from "@/core/theme/animation-styles";
+import { zIndex } from "@/core/theme/tokens/z-index";
+import { shadows } from "@/core/theme/tokens/shadows";
+import { durations } from "@/core/theme/tokens/durations";
+import { colors } from "@/core/theme/tokens/colors";
+import { textStyles } from "@/core/theme/text-styles";
+import { layerStyles } from "@/core/theme/layer-styles";
+import { keyframes } from "@/core/theme/keyframes";
+import { globalCss } from "@/core/theme/global-css";
+import { conditions } from "@/core/theme/conditions";
+import { slotRecipes, recipes } from "@/core/theme/recipes";
+import { defineConfig } from '@pandacss/dev'
+
+const { orange, neutral, red } = colorPackages
+
+export default defineConfig({
+  preflight: true,
+  hash: false,
+
+  // Typo protection: enum-like props (display, position, overflow, …) only
+  // accept valid CSS values. NOTE: `strictTokens` was evaluated and rejected
+  // for now — see scripts/lint-tokens.mjs for the token-discipline gate that
+  // replaces it (raw-value auditing without breaking pristine Park UI
+  // vendor files or hitting TS2590 union-complexity limits).
+  strictPropertyValues: true,
+
+  include: ['./src/**/*.{ts,tsx}', './pages/**/*.{js,jsx,ts,tsx}'],
+  exclude: [],
+  outdir: 'styled-system',
+  jsxFramework: 'react',
+  staticCss: {
+    recipes: {
+      '*': '*',
+    },
+  },
+
+  theme: {
+    extend: {
+      animationStyles: animationStyles,
+      recipes: recipes,
+      slotRecipes: slotRecipes,
+      keyframes: keyframes,
+      layerStyles: layerStyles,
+      textStyles: textStyles,
+
+      tokens: {
+        colors: colors,
+        durations: durations,
+        zIndex: zIndex
+      },
+
+      semanticTokens: {
+        colors: {
+          fg: {
+            default: { value: { _light: '{colors.gray.12}', _dark: '{colors.gray.12}' } },
+            muted: { value: { _light: '{colors.gray.11}', _dark: '{colors.gray.11}' } },
+            subtle: { value: { _light: '{colors.gray.10}', _dark: '{colors.gray.10}' } },
+          },
+
+          border: {
+            value: { _light: '{colors.gray.4}', _dark: '{colors.gray.4}' },
+          },
+
+          error: {
+            value: { _light: '{colors.red.9}', _dark: '{colors.red.9}' },
+          },
+
+          gray: neutral,
+          neutral: neutral,
+          orange: orange,
+          red: red,
+          // NOTE: only these four palettes are bundled as Panda semantic
+          // tokens (:root defaults). Every OTHER Park UI palette stays
+          // runtime-only — compiled to public/core/theme/colors/<name>.css by
+          // scripts/generate-theme-colors.mjs and loaded on demand by
+          // theme-loader.js. Do NOT register them here.
+        },
+        shadows: shadows,
+
+        // Park UI radius scale — the `data-radius` knob on <html> re-maps these
+        // via the theme emission block (src/core/theme/radius.css).
+        radii: {
+          l1: { value: '0' },
+          l2: { value: '{radii.xs}' },
+          l3: { value: '{radii.sm}' },
+        },
+      }
+    },
+  },
+  globalCss: globalCss,
+  conditions: conditions
+})

@@ -1,0 +1,19 @@
+/* Typography theme - loaded dynamically */
+:root {
+  --heading-font-weight: var(--font-weights-semibold);
+  --heading-text-transform: none;
+  --heading-letter-spacing: normal;
+  --heading-color: var(--colors-fg-default);
+}
+
+[data-heading-style*='bold'] {
+  --heading-font-weight: 800;
+}
+
+[data-heading-style*='uppercase'] {
+  --heading-text-transform: uppercase;
+}
+
+[data-heading-style*='accent'] {
+  --heading-color: var(--colors-color-palette-11);
+}

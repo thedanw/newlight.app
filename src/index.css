@@ -1,0 +1,23 @@
+@layer reset, base, tokens, recipes, utilities;
+
+/* Settings dashboard panel slide transitions (SettingsPage.tsx).
+   Push (deeper) slides in from the right; pop (back) slides in from the
+   left. Pure CSS so Ark UI portal components (Select/Dialog) inside the
+   panel never render inside a framer-motion animated context. */
+@keyframes settings-slide-in-right {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes settings-slide-in-left {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}

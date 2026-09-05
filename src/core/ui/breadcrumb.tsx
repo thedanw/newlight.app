@@ -62,10 +62,12 @@ export const ModuleBreadcrumbProvider = forwardRef<HTMLDivElement, ModuleBreadcr
 )
 ModuleBreadcrumbProvider.displayName = 'ModuleBreadcrumbProvider'
 
+const NullIcon = () => null
+
 export function useBreadcrumb(): ModuleBreadcrumbContextValue {
   const ctx = useContext(ModuleBreadcrumbContext)
   if (!ctx) {
-    return { manifest: { id: '', name: '', icon: () => null, basePath: '' }, level: 0 }
+    return { manifest: { id: '', name: '', icon: NullIcon as unknown as LucideIcon, basePath: '' }, level: 0 }
   }
   return ctx
 }

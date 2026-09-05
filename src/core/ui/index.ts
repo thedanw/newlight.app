@@ -60,6 +60,7 @@ export * as Slider from "./slider";
 export { Span, type SpanProps } from "./span";
 export { Spinner, type SpinnerProps } from "./spinner";
 export * as Splitter from "./splitter";
+export { SearchInput, type SearchInputProps } from "./search-input";
 export * as Switch from "./switch";
 export * as Table from "./table";
 export * as Tabs from "./tabs";

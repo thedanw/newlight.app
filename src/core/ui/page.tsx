@@ -1,6 +1,6 @@
 'use client'
 import { ark } from '@ark-ui/react/factory'
-import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react'
+import { ChevronLeftIcon } from 'lucide-react'
 import { forwardRef, type ComponentProps, type ReactNode } from 'react'
 import { css } from 'styled-system/css'
 import { createStyleContext } from 'styled-system/jsx'
@@ -60,7 +60,7 @@ export interface HeadingRootProps extends ComponentProps<'div'> {
 }
 
 const HeadingRootBase = forwardRef<HTMLDivElement, HeadingRootProps>(
-  ({ level: propLevel, icon: IconComponent, title, children, css: cssProp, ...rest }, ref) => {
+  ({ level: propLevel, icon: IconComponent, title, children }, ref) => {
     const { manifest, level: ctxLevel } = useBreadcrumb()
     const actualLevel = propLevel ?? ctxLevel
     const ActualIcon = IconComponent ?? manifest.icon
@@ -69,7 +69,6 @@ const HeadingRootBase = forwardRef<HTMLDivElement, HeadingRootProps>(
     const backButton = actualLevel >= 1 ? (
       <BackButton
         variant="plain"
-        
         marginRight="-2"
         marginLeft="0"
         boxSize="8"
@@ -82,21 +81,17 @@ const HeadingRootBase = forwardRef<HTMLDivElement, HeadingRootProps>(
       </BackButton>
     ) : null
 
-    const separator = actualLevel === 2 ? (
-      <ChevronLeftIcon />
-    ) : null
-
     return (
-      <>
+      <div className={headerInnerCss} ref={ref}>
         {backButton}
-        <Icon size="">
+        <Icon size="sm">
           <ActualIcon />
         </Icon>
-        <PageHeading size="lg" truncate>
+        <PageHeading truncate>
           {displayTitle}
         </PageHeading>
         {children}
-      </>
+      </div>
     )
   },
 )
@@ -104,6 +99,4 @@ HeadingRootBase.displayName = 'Page.Heading.Root'
 
 export const Heading = Object.assign(HeadingRootBase, {
   Root: HeadingRootBase,
-  Icon: withContext(ark.span, 'headingIcon'),
-  Title: withContext(ark.span, 'headingTitle'),
 })

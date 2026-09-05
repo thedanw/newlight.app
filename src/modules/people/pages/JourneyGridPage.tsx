@@ -1,7 +1,8 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, type CSSProperties } from 'react'
 import { createListCollection } from '@ark-ui/react'
-import { Field, Heading, Page, Select, Text } from '@/core/ui'
+import { Field, Page, Select, Text } from '@/core/ui'
 import { Stack } from 'styled-system/jsx'
+import { Users } from 'lucide-react'
 import { useJourneyGrid } from '../lib/hooks'
 import { JourneyGrid } from '../components/JourneyGrid'
 import { PageSkeleton } from '../components/PageSkeleton'
@@ -37,9 +38,9 @@ export default function JourneyGridPage() {
     try { await updatePersonJourney(personId, nextJourney); setUpdatedJourneys((current) => ({ ...current, [personId]: nextJourney })); setMessage('Stage updated.') } catch (updateError) { setMessage(updateError instanceof Error ? updateError.message : 'Unable to update stage.') }
   }
   return (
-    <>
-      <Page.Header>
-        <Heading>Journey</Heading>
+    <Page.Main>
+      <Page.Header style={{ '--module-number': 1 } as CSSProperties}>
+        <Page.Heading level={1} icon={Users} title="Journey" />
       </Page.Header>
       <Page.Body>
         <Stack gap="6">
@@ -77,6 +78,6 @@ export default function JourneyGridPage() {
           {!loading && !error && visibleGrid && <JourneyGrid grid={visibleGrid} onStageChange={handleStageChange} />}
         </Stack>
       </Page.Body>
-    </>
+    </Page.Main>
   )
 }

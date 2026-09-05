@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Input, Text } from '@/core/ui'
+import { Search } from 'lucide-react'
+import { Icon, IconButton, Input, InputGroup, Text } from '@/core/ui'
 import { searchPeople } from '../lib/queries'
 import type { Person } from '../lib/types'
 
@@ -33,9 +34,24 @@ export function PeopleSearch({ onResults, onSearching }: PeopleSearchProps) {
   }, [value, onResults, onSearching])
 
   return (
-    <div>
-      <Input value={value} onChange={(event) => setValue(event.target.value)} placeholder="Search people" aria-label="Search people" />
+    <InputGroup
+      width="full"
+      endElement={
+        <IconButton variant="clear" size="sm">
+          <Icon><Search /></Icon>
+        </IconButton>
+      }
+    >
+      <Input
+        value={value}
+        onChange={(event) => setValue(event.target.value)}
+        placeholder="Search people"
+        aria-label="Search people"
+        bg="white"
+        color="fg.default"
+        width="full"
+      />
       {error && <Text color="fg.default">{error}</Text>}
-    </div>
+    </InputGroup>
   )
 }

@@ -1,4 +1,4 @@
-import { registerSettingsSection } from '@/core/settings/settings-schema'
+import { registerSettingsSection } from '@/core/settings/lib/schema'
 import PeopleSettingsPage from './settings/PeopleSettingsPage'
 
 /**

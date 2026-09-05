@@ -1,6 +1,4 @@
 import type { ComponentType } from 'react'
-import ChurchInformationSection from './sections/ChurchInformationSection'
-import { IntegrationsSection } from './sections/IntegrationsSection'
 import { getAllSettingsSections as getPluginSections, getAllSettingsPages as getPluginPages } from '@/core/plugins/HookRegistry'
 
 /**
@@ -95,21 +93,3 @@ export function getSettingsPage(sectionId: string, pageId: string): SettingsPage
   return corePages.find((p) => p.sectionId === sectionId && p.id === pageId) ?? 
          getPluginPages(sectionId).find((p) => p.id === pageId)
 }
-
-// Core sections — registered at module load.
-registerSettingsSection({
-  id: 'church-info',
-  title: 'Church Information',
-  description: 'Church name, app name, contact details, and brand/theme settings.',
-  component: ChurchInformationSection,
-  order: 0,
-})
-
-// Core "Integrations" section — registered at module load (order: 100, after church-info)
-registerSettingsSection({
-  id: 'integrations',
-  title: 'Integrations',
-  description: 'Third-party integrations and external service connections.',
-  component: IntegrationsSection,
-  order: 100,
-})

@@ -1,6 +1,7 @@
 import { RouterProvider } from 'react-router-dom'
 import { router } from './core/router'
-import { SettingsProvider, AppTitleSync } from './core/settings/SettingsProvider'
+import { SettingsProvider } from './core/settings/lib/provider'
+import { AppTitleSync } from './core/settings/lib/app-title-sync'
 import { PluginLoader } from './core/plugins/PluginLoader'
 import { Toaster } from './core/ui'
 import { supabase } from './core/lib/supabase'

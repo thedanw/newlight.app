@@ -1,6 +1,8 @@
 import { useNavigate, useParams } from 'react-router-dom'
-import { BackButton, Breadcrumb, Heading, Page, Text } from '@/core/ui'
+import type { CSSProperties } from 'react'
+import { Breadcrumb, Page, Text } from '@/core/ui'
 import { Stack } from 'styled-system/jsx'
+import { Users } from 'lucide-react'
 import { usePerson } from '../lib/hooks'
 import { PersonHeader } from '../components/PersonHeader'
 import { PageSkeleton } from '../components/PageSkeleton'
@@ -21,25 +23,23 @@ export default function PersonProfilePage() {
   const { data: person, loading, error } = usePerson(id)
 
   if (loading) return (
-    <>
-      <Page.Header>
-        <BackButton onClick={() => navigate('/people')} />
-        <Heading>Profile</Heading>
+    <Page.Main>
+      <Page.Header style={{ '--module-number': 1 } as CSSProperties}>
+        <Page.Heading level={1} icon={Users} title="Profile" />
       </Page.Header>
       <Page.Body><PageSkeleton /></Page.Body>
-    </>
+    </Page.Main>
   )
 
   if (error || !person) return (
-    <>
-      <Page.Header>
-        <BackButton onClick={() => navigate('/people')} />
-        <Heading>Profile</Heading>
+    <Page.Main>
+      <Page.Header style={{ '--module-number': 1 } as CSSProperties}>
+        <Page.Heading level={1} icon={Users} title="Profile" />
       </Page.Header>
       <Page.Body>
         <Text>{error?.message ?? 'Person not found.'}</Text>
       </Page.Body>
-    </>
+    </Page.Main>
   )
 
   const isAdult = person.demographic === 'adult'
@@ -53,10 +53,9 @@ export default function PersonProfilePage() {
   const showAdmin = ['admin', 'super_admin'].includes(person.access_permission)
 
   return (
-    <>
-      <Page.Header>
-        <BackButton onClick={() => navigate('/people')} />
-        <Heading>People</Heading>
+    <Page.Main>
+      <Page.Header style={{ '--module-number': 1 } as CSSProperties}>
+        <Page.Heading level={1} icon={Users} title="Profile" />
       </Page.Header>
 
       <Page.Body>
@@ -85,6 +84,6 @@ export default function PersonProfilePage() {
           <TagsSection person={person} />
         </Stack>
       </Page.Body>
-    </>
+    </Page.Main>
   )
 }

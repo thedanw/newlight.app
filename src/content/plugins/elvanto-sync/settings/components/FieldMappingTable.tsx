@@ -1,9 +1,10 @@
-import { Heading, Text, Input, Button, Badge, Card, Select, NumberInput } from '@/core/ui'
+'use client'
+import { Heading, Text, Input, Button, Badge, Card, Combobox, NumberInput } from '@/core/ui'
 import { usePluginAPIContext } from '@/core/plugins/PluginAPI'
 import { useState, useEffect, useMemo } from 'react'
 import { HStack, Stack } from 'styled-system/jsx'
 import { createListCollection } from '@ark-ui/react'
-import { ChevronsUpDownIcon, CheckIcon } from 'lucide-react'
+import { CheckIcon } from 'lucide-react'
 
 interface MappingRule {
   appField: string
@@ -239,15 +240,6 @@ interface MappingRuleCardProps {
 
 function MappingRuleCard({ rule, index, appFields, elvantoFields, dynamicElvantoFieldOptions, onUpdate, onDelete, onDuplicate }: MappingRuleCardProps) {
   const [expanded, setExpanded] = useState(false)
-  const [transformDesc, setTransformDesc] = useState('')
-
-  useEffect(() => {
-    if (rule.transform) {
-      setTransformDesc(`Transform: ${rule.transform}`)
-    } else {
-      setTransformDesc('No transform (identity)')
-    }
-  }, [rule.transform])
 
   const appFieldCollection = useMemo(() => createListCollection({
     items: [{ label: 'Select app field...', value: '' }, ...appFields.map((f) => ({ label: f, value: f }))]
@@ -282,120 +274,115 @@ function MappingRuleCard({ rule, index, appFields, elvantoFields, dynamicElvanto
   const transformValue = rule.transform ? [rule.transform] : []
 
   return (
-    <Card.Root>
-      <Card.Body>
-        <Stack gap="3">
-          <HStack gap="3" alignItems="center" justifyContent="space-between" flexWrap="wrap">
-            <Stack gap="1" flex="1" minWidth="200px">
-              <Text textStyle="xs" color="fg.muted">App Field</Text>
-              <Select.Root collection={appFieldCollection} value={appFieldValue} onValueChange={(details) => onUpdate(index, { appField: details.value[0] || '' })}>
-                <Select.Control>
-                  <Select.Trigger minWidth="200px">
-                    <Select.ValueText placeholder="Select app field..." />
-                    <Select.Indicator><ChevronsUpDownIcon /></Select.Indicator>
-                  </Select.Trigger>
-                </Select.Control>
-                <Select.Positioner>
-                  <Select.Content>
-                    {appFieldCollection.items.map((item) => (
-                      <Select.Item key={item.value} item={item}>
-                        <Select.ItemText>{item.label}</Select.ItemText>
-                        <Select.ItemIndicator><CheckIcon /></Select.ItemIndicator>
-                      </Select.Item>
-                    ))}
-                  </Select.Content>
-                </Select.Positioner>
-              </Select.Root>
-            </Stack>
-
-            <Stack gap="1" alignItems="center">
-              <Text textStyle="xs" color="fg.muted">Direction</Text>
-              <Text textStyle="sm" color="fg">
-                {rule.direction === 'pull' ? '→' : rule.direction === 'push' ? '←' : '↔'}
-              </Text>
-            </Stack>
-
-            <Stack gap="1" flex="1" minWidth="200px">
-              <Text textStyle="xs" color="fg.muted">Elvanto Field</Text>
-              <Select.Root collection={elvantoFieldCollection} value={elvantoFieldValue} onValueChange={(details) => onUpdate(index, { elvantoField: details.value[0] || '' })}>
-                <Select.Control>
-                  <Select.Trigger minWidth="200px">
-                    <Select.ValueText placeholder="Select Elvanto field..." />
-                    <Select.Indicator><ChevronsUpDownIcon /></Select.Indicator>
-                  </Select.Trigger>
-                </Select.Control>
-                <Select.Positioner>
-                  <Select.Content>
-                    {elvantoFieldCollection.items.map((item) => (
-                      <Select.Item key={item.value} item={item}>
-                        <Select.ItemText>{item.label}</Select.ItemText>
-                        <Select.ItemIndicator><CheckIcon /></Select.ItemIndicator>
-                      </Select.Item>
-                    ))}
-                  </Select.Content>
-                </Select.Positioner>
-              </Select.Root>
-            </Stack>
-
-            <Stack gap="1" flex="1" minWidth="200px">
-              <Text textStyle="xs" color="fg.muted">Transform</Text>
-              <Select.Root collection={transformCollection} value={transformValue} onValueChange={(details) => onUpdate(index, { transform: details.value[0] || undefined })}>
-                <Select.Control>
-                  <Select.Trigger minWidth="200px">
-                    <Select.ValueText placeholder="— None (Identity) —" />
-                    <Select.Indicator><ChevronsUpDownIcon /></Select.Indicator>
-                  </Select.Trigger>
-                </Select.Control>
-                <Select.Positioner>
-                  <Select.Content>
-                    {transformCollection.items.map((item) => (
-                      <Select.Item key={item.value} item={item}>
-                        <Select.ItemText>{item.label}</Select.ItemText>
-                        <Select.ItemIndicator><CheckIcon /></Select.ItemIndicator>
-                      </Select.Item>
-                    ))}
-                  </Select.Content>
-                </Select.Positioner>
-              </Select.Root>
-              {transformDesc && <Text textStyle="xs" color="fg.muted">{transformDesc}</Text>}
-            </Stack>
-
-            <Stack gap="1" alignItems="center" minWidth="80px">
-              <Text textStyle="xs" color="fg.muted">Priority</Text>
-              <NumberInput.Root value={String(rule.priority)} onValueChange={(e) => onUpdate(index, { priority: parseInt(e.value) || 0 })}>
-                <NumberInput.Input width="60px" />
-                <NumberInput.Control>
-                  <NumberInput.IncrementTrigger />
-                  <NumberInput.DecrementTrigger />
-                </NumberInput.Control>
-              </NumberInput.Root>
-            </Stack>
-
-            <HStack gap="1">
-              <Button variant="outline" size="sm" onClick={() => setExpanded(!expanded)}>
-                {expanded ? '−' : '+'}
-              </Button>
-              <Button variant="outline" size="sm" onClick={() => onDuplicate(index)} title="Duplicate">
-                📋
-              </Button>
-              <Button variant="solid" size="sm" color="red" onClick={() => onDelete(index)} title="Delete">
-                🗑
-              </Button>
-            </HStack>
-          </HStack>
-
-          {expanded && (
-            <Stack mt="3" pt="3" borderTopWidth="1px" borderColor="border">
-              <ConditionEditor
-                condition={rule.condition}
-                onChange={cond => onUpdate(index, { condition: cond })}
-                availableFields={[...appFields, ...elvantoFields, ...dynamicElvantoFieldOptions.map(o => o.value)]}
-              />
-            </Stack>
-          )}
+    <Stack>
+      <HStack gap="3" alignItems="center" justifyContent="space-between" flexWrap="wrap">
+        <Stack gap="1" flex="1" minWidth="200px">
+          <Text textStyle="xs" color="fg.muted">App Field</Text>
+          <Combobox.Root collection={appFieldCollection} value={appFieldValue} onValueChange={(details) => onUpdate(index, { appField: details.value[0] || '' })}>
+            <Combobox.Control>
+              <Combobox.Input placeholder="Select app field..." />
+              <Combobox.IndicatorGroup>
+                <Combobox.Trigger />
+              </Combobox.IndicatorGroup>
+            </Combobox.Control>
+            <Combobox.Positioner>
+              <Combobox.Content css={{ maxHeight: '400px', overflowY: 'auto' }}>
+                {appFieldCollection.items.map((item) => (
+                  <Combobox.Item key={item.value} item={item}>
+                    <Combobox.ItemText>{item.label}</Combobox.ItemText>
+                    <Combobox.ItemIndicator><CheckIcon /></Combobox.ItemIndicator>
+                  </Combobox.Item>
+                ))}
+              </Combobox.Content>
+            </Combobox.Positioner>
+          </Combobox.Root>
         </Stack>
-      </Card.Body>
-    </Card.Root>
+
+        <Stack gap="1" alignItems="center">
+          <Text textStyle="xs" color="fg.muted">Direction</Text>
+          <Text textStyle="sm" color="fg">
+            {rule.direction === 'pull' ? '→' : rule.direction === 'push' ? '←' : '↔'}
+          </Text>
+        </Stack>
+
+        <Stack gap="1" flex="1" minWidth="200px">
+          <Text textStyle="xs" color="fg.muted">Elvanto Field</Text>
+          <Combobox.Root collection={elvantoFieldCollection} value={elvantoFieldValue} onValueChange={(details) => onUpdate(index, { elvantoField: details.value[0] || '' })}>
+            <Combobox.Control>
+              <Combobox.Input placeholder="Select Elvanto field..." />
+              <Combobox.IndicatorGroup>
+                <Combobox.Trigger />
+              </Combobox.IndicatorGroup>
+            </Combobox.Control>
+            <Combobox.Positioner>
+              <Combobox.Content css={{ maxHeight: '400px', overflowY: 'auto' }}>
+                {elvantoFieldCollection.items.map((item) => (
+                  <Combobox.Item key={item.value} item={item}>
+                    <Combobox.ItemText>{item.label}</Combobox.ItemText>
+                    <Combobox.ItemIndicator><CheckIcon /></Combobox.ItemIndicator>
+                  </Combobox.Item>
+                ))}
+              </Combobox.Content>
+            </Combobox.Positioner>
+          </Combobox.Root>
+        </Stack>
+
+        <Stack gap="1" flex="1" minWidth="200px">
+          <Text textStyle="xs" color="fg.muted">Transform</Text>
+          <Combobox.Root collection={transformCollection} value={transformValue} onValueChange={(details) => onUpdate(index, { transform: details.value[0] || undefined })}>
+            <Combobox.Control>
+              <Combobox.Input placeholder="— None (Identity) —" />
+              <Combobox.IndicatorGroup>
+                <Combobox.Trigger />
+              </Combobox.IndicatorGroup>
+            </Combobox.Control>
+            <Combobox.Positioner>
+              <Combobox.Content css={{ maxHeight: '400px', overflowY: 'auto' }}>
+                {transformCollection.items.map((item) => (
+                  <Combobox.Item key={item.value} item={item}>
+                    <Combobox.ItemText>{item.label}</Combobox.ItemText>
+                    <Combobox.ItemIndicator><CheckIcon /></Combobox.ItemIndicator>
+                  </Combobox.Item>
+                ))}
+              </Combobox.Content>
+            </Combobox.Positioner>
+          </Combobox.Root>
+        </Stack>
+
+        <Stack gap="1" alignItems="center" minWidth="80px">
+          <Text textStyle="xs" color="fg.muted">Priority</Text>
+          <NumberInput.Root value={String(rule.priority)} onValueChange={(e) => onUpdate(index, { priority: parseInt(e.value) || 0 })}>
+            <NumberInput.Input width="60px" />
+            <NumberInput.Control>
+              <NumberInput.IncrementTrigger />
+              <NumberInput.DecrementTrigger />
+            </NumberInput.Control>
+          </NumberInput.Root>
+        </Stack>
+
+        <HStack gap="1">
+          <Button variant="outline" size="sm" onClick={() => setExpanded(!expanded)}>
+            {expanded ? '−' : '+'}
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => onDuplicate(index)} title="Duplicate">
+            📋
+          </Button>
+          <Button variant="solid" size="sm" onClick={() => onDelete(index)} title="Delete">
+            🗑
+          </Button>
+        </HStack>
+      </HStack>
+
+      {expanded && (
+        <Stack mt="3" pt="3" borderTopWidth="1px" borderColor="border">
+          <ConditionEditor
+            condition={rule.condition}
+            onChange={cond => onUpdate(index, { condition: cond })}
+            availableFields={[...appFields, ...elvantoFields, ...dynamicElvantoFieldOptions.map(o => o.value)]}
+          />
+        </Stack>
+      )}
+    </Stack>
   )
 }
 
@@ -445,43 +432,43 @@ function ConditionEditor({ condition, onChange, availableFields }: {
     return (
       <Stack gap="3">
         <HStack gap="3" flexWrap="wrap">
-          <Select.Root collection={fieldCollection} value={fieldValue} onValueChange={(details) => onChange({ ...condition, field: details.value[0] || '' })}>
-            <Select.Control>
-              <Select.Trigger minWidth="200px">
-                <Select.ValueText placeholder="Field" />
-                <Select.Indicator><ChevronsUpDownIcon /></Select.Indicator>
-              </Select.Trigger>
-            </Select.Control>
-            <Select.Positioner>
-              <Select.Content>
+          <Combobox.Root collection={fieldCollection} value={fieldValue} onValueChange={(details) => onChange({ ...condition, field: details.value[0] || '' })}>
+            <Combobox.Control>
+              <Combobox.Input placeholder="Field" />
+              <Combobox.IndicatorGroup>
+                <Combobox.Trigger />
+              </Combobox.IndicatorGroup>
+            </Combobox.Control>
+            <Combobox.Positioner>
+              <Combobox.Content css={{ maxHeight: '400px', overflowY: 'auto' }}>
                 {fieldCollection.items.map((item) => (
-                  <Select.Item key={item.value} item={item}>
-                    <Select.ItemText>{item.label}</Select.ItemText>
-                    <Select.ItemIndicator><CheckIcon /></Select.ItemIndicator>
-                  </Select.Item>
+                  <Combobox.Item key={item.value} item={item}>
+                    <Combobox.ItemText>{item.label}</Combobox.ItemText>
+                    <Combobox.ItemIndicator><CheckIcon /></Combobox.ItemIndicator>
+                  </Combobox.Item>
                 ))}
-              </Select.Content>
-            </Select.Positioner>
-          </Select.Root>
+              </Combobox.Content>
+            </Combobox.Positioner>
+          </Combobox.Root>
 
-          <Select.Root collection={operatorCollection} value={operatorValue} onValueChange={(details) => onChange({ ...condition, operator: details.value[0] || 'equals' })}>
-            <Select.Control>
-              <Select.Trigger minWidth="140px">
-                <Select.ValueText placeholder="Operator" />
-                <Select.Indicator><ChevronsUpDownIcon /></Select.Indicator>
-              </Select.Trigger>
-            </Select.Control>
-            <Select.Positioner>
-              <Select.Content>
+          <Combobox.Root collection={operatorCollection} value={operatorValue} onValueChange={(details) => onChange({ ...condition, operator: details.value[0] || 'equals' })}>
+            <Combobox.Control>
+              <Combobox.Input placeholder="Operator" />
+              <Combobox.IndicatorGroup>
+                <Combobox.Trigger />
+              </Combobox.IndicatorGroup>
+            </Combobox.Control>
+            <Combobox.Positioner>
+              <Combobox.Content css={{ maxHeight: '400px', overflowY: 'auto' }}>
                 {operatorCollection.items.map((item) => (
-                  <Select.Item key={item.value} item={item}>
-                    <Select.ItemText>{item.label}</Select.ItemText>
-                    <Select.ItemIndicator><CheckIcon /></Select.ItemIndicator>
-                  </Select.Item>
+                  <Combobox.Item key={item.value} item={item}>
+                    <Combobox.ItemText>{item.label}</Combobox.ItemText>
+                    <Combobox.ItemIndicator><CheckIcon /></Combobox.ItemIndicator>
+                  </Combobox.Item>
                 ))}
-              </Select.Content>
-            </Select.Positioner>
-          </Select.Root>
+              </Combobox.Content>
+            </Combobox.Positioner>
+          </Combobox.Root>
 
           {condition.operator !== 'exists' && (
             <Input
@@ -508,24 +495,24 @@ function ConditionEditor({ condition, onChange, availableFields }: {
     <Stack gap="3">
       <HStack gap="3">
         <Badge variant="outline">Advanced Mode</Badge>
-        <Select.Root collection={typeCollection} value={typeValue} onValueChange={(details) => onChange({ ...condition, type: details.value[0] || 'and' })}>
-          <Select.Control>
-            <Select.Trigger width="100px">
-              <Select.ValueText placeholder="Type" />
-              <Select.Indicator><ChevronsUpDownIcon /></Select.Indicator>
-            </Select.Trigger>
-          </Select.Control>
-          <Select.Positioner>
-            <Select.Content>
+        <Combobox.Root collection={typeCollection} value={typeValue} onValueChange={(details) => onChange({ ...condition, type: details.value[0] || 'and' })}>
+          <Combobox.Control>
+            <Combobox.Input placeholder="Type" />
+            <Combobox.IndicatorGroup>
+              <Combobox.Trigger />
+            </Combobox.IndicatorGroup>
+          </Combobox.Control>
+          <Combobox.Positioner>
+            <Combobox.Content css={{ maxHeight: '400px', overflowY: 'auto' }}>
               {typeCollection.items.map((item) => (
-                <Select.Item key={item.value} item={item}>
-                  <Select.ItemText>{item.label}</Select.ItemText>
-                  <Select.ItemIndicator><CheckIcon /></Select.ItemIndicator>
-                </Select.Item>
+                <Combobox.Item key={item.value} item={item}>
+                  <Combobox.ItemText>{item.label}</Combobox.ItemText>
+                  <Combobox.ItemIndicator><CheckIcon /></Combobox.ItemIndicator>
+                </Combobox.Item>
               ))}
-            </Select.Content>
-          </Select.Positioner>
-        </Select.Root>
+            </Combobox.Content>
+          </Combobox.Positioner>
+        </Combobox.Root>
         <Button variant="outline" size="sm" onClick={() => setEditMode('simple')}>
           Simple Mode
         </Button>

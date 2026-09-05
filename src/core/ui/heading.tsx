@@ -6,4 +6,4 @@ import type { StyledComponent } from 'styled-system/types'
 type Props = HeadingVariantProps & { as?: React.ElementType }
 
 export type HeadingProps = ComponentProps<typeof Heading>
-export const Heading = styled('h2', heading) as StyledComponent<'h2', Props>
+export const Heading = styled('h1', heading) as StyledComponent<'h2', Props>

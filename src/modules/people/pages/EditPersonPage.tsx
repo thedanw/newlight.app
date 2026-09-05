@@ -1,6 +1,8 @@
 import { useNavigate, useParams } from 'react-router-dom'
-import { Breadcrumb, Heading, Page, Text } from '@/core/ui'
+import type { CSSProperties } from 'react'
+import { Breadcrumb, Page, Text } from '@/core/ui'
 import { Stack } from 'styled-system/jsx'
+import { Users } from 'lucide-react'
 import { usePerson } from '../lib/hooks'
 import { useCurrentOperatorPermission } from '../lib/hooks'
 import { updatePerson } from '../lib/queries'
@@ -12,11 +14,29 @@ export default function EditPersonPage() {
   const { id } = useParams()
   const { data: person, loading, error } = usePerson(id)
   const operatorPermission = useCurrentOperatorPermission()
-  if (loading) return <><Page.Header><Heading>Edit person</Heading></Page.Header><Page.Body><PageSkeleton /></Page.Body></>
-  if (error || !person || !id) return <><Page.Header><Heading>Edit person</Heading></Page.Header><Page.Body><Text>{error?.message ?? 'Person not found.'}</Text></Page.Body></>
+  if (loading) return (
+    <Page.Main>
+      <Page.Header style={{ '--module-number': 1 } as CSSProperties}>
+        <Page.Heading level={1} icon={Users} title="Edit person" />
+      </Page.Header>
+      <Page.Body><PageSkeleton /></Page.Body>
+    </Page.Main>
+  )
+  if (error || !person || !id) return (
+    <Page.Main>
+      <Page.Header style={{ '--module-number': 1 } as CSSProperties}>
+        <Page.Heading level={1} icon={Users} title="Edit person" />
+      </Page.Header>
+      <Page.Body>
+        <Text>{error?.message ?? 'Person not found.'}</Text>
+      </Page.Body>
+    </Page.Main>
+  )
   return (
-    <>
-      <Page.Header><Heading>Edit person</Heading></Page.Header>
+    <Page.Main>
+      <Page.Header style={{ '--module-number': 1 } as CSSProperties}>
+        <Page.Heading level={1} icon={Users} title="Edit person" />
+      </Page.Header>
       <Page.Body>
         <Stack gap="6">
           <Breadcrumb.Root>
@@ -31,6 +51,6 @@ export default function EditPersonPage() {
           <PersonForm initialValue={person} allowAdminFields={operatorPermission.data === 'admin' || operatorPermission.data === 'super_admin'} submitLabel="Save changes" onCancel={() => navigate(`/people/${id}`)} onSubmit={async (value) => { await updatePerson(id, value); navigate(`/people/${id}`) }} />
         </Stack>
       </Page.Body>
-    </>
+    </Page.Main>
   )
 }

@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
+import type { CSSProperties } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { Button, Card, Heading, Page, Table, Text } from '@/core/ui'
+import { Button, Card, Page, Table, Text } from '@/core/ui'
 import { Stack } from 'styled-system/jsx'
+import { Users } from 'lucide-react'
 import { getFormById, getFormSubmissions } from '../lib/form-queries'
 import { PageSkeleton } from '../components/PageSkeleton'
 import type { Form, FormSubmissionWithPerson } from '../lib/types'
@@ -19,13 +21,27 @@ export default function FormSubmissionsPage() {
     getFormSubmissions(id).then(setSubmissions).catch((reason: unknown) => setError(reason instanceof Error ? reason : new Error(String(reason))))
   }, [id])
 
-  if (error) return <Text>{error.message}</Text>
-  if (!form || !submissions) return <Page.Body><PageSkeleton /></Page.Body>
+  if (error) return (
+    <Page.Main>
+      <Page.Header style={{ '--module-number': 1 } as CSSProperties}>
+        <Page.Heading level={1} icon={Users} title="Submissions" />
+      </Page.Header>
+      <Page.Body><Text>{error.message}</Text></Page.Body>
+    </Page.Main>
+  )
+  if (!form || !submissions) return (
+    <Page.Main>
+      <Page.Header style={{ '--module-number': 1 } as CSSProperties}>
+        <Page.Heading level={1} icon={Users} title="Submissions" />
+      </Page.Header>
+      <Page.Body><PageSkeleton /></Page.Body>
+    </Page.Main>
+  )
 
   return (
-    <>
-      <Page.Header>
-        <Heading>Submissions — {form.name}</Heading>
+    <Page.Main>
+      <Page.Header style={{ '--module-number': 1 } as CSSProperties}>
+        <Page.Heading level={1} icon={Users} title={`Submissions — ${form.name}`} />
       </Page.Header>
       <Page.Body>
         <Stack gap="6">
@@ -63,6 +79,6 @@ export default function FormSubmissionsPage() {
           </Card.Root>
         </Stack>
       </Page.Body>
-    </>
+    </Page.Main>
   )
 }

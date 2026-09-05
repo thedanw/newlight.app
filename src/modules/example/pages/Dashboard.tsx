@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import { SearchIcon, XIcon } from 'lucide-react'
 import { Box, Grid, HStack, Stack } from 'styled-system/jsx'
-import { tocCategories } from '../toc'
+import { tocCategories } from './toc'
 import {
   AbsoluteCenter,
   Badge,
@@ -247,5 +247,4 @@ export function Dashboard({ onOpenCategory, onOpenComponent, onOpenOverlay }: Da
     </Stack>
   )
 }
-
 

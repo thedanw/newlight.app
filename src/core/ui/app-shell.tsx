@@ -3,7 +3,7 @@ import { Suspense, type ReactNode } from 'react'
 import { useNavigate, useOutlet } from 'react-router-dom'
 import { css } from 'styled-system/css'
 import { Loader, Page, Sidebar } from '@/core/ui'
-import { useSettings } from '@/core/settings/SettingsProvider'
+import { useSettings } from '@/core/settings/lib/provider'
 import { ErrorBoundary } from '@/core/ui'
 
 /**

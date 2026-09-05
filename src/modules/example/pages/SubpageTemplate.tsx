@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import { Accordion, Card, Heading, Icon, Text } from '@/core/ui'
 import { Box, Grid, HStack, Stack } from 'styled-system/jsx'
-import { type TocCategory } from '../toc'
+import { type TocCategory } from './toc'
 import { DEMOS } from './demos'
 
 /* ---------------------------------------------------------------------------

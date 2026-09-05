@@ -4,7 +4,7 @@ import { useDrag } from '@use-gesture/react'
 import { css } from 'styled-system/css'
 import { HStack, Stack } from 'styled-system/jsx'
 import { Avatar, Menu, NavTile, PullTab, NavProvider, useNavContext, Text } from '@/core/ui'
-import { Users, UsersRound, Wrench, CalendarDays, Sun, Settings } from 'lucide-react'
+import { Users, UsersRound, Wrench, CalendarDays, Sun, Settings, Palette } from 'lucide-react'
 
 /* ---------------------------------------------------------------------------
     Sidebar — mobile-first left-side module menu (ui-ux #7):
@@ -25,6 +25,7 @@ const MODULES = [
   { id: 'groups', label: 'Groups', icon: UsersRound },
   { id: 'services', label: 'Services', icon: Wrench },
   { id: 'calendar', label: 'Calendar', icon: CalendarDays },
+  { id: 'example', label: 'Example', icon: Palette },
 ] as const
 
 const FOOTER_TILES = 2 // Account + Settings
@@ -124,7 +125,6 @@ const pullTabWrapperCss = css({
   bottom: 0,
   zIndex: 'modal',
   pointerEvents: 'none',
-  touchAction: 'none', // drag handle: keep the browser from hijacking the pan
   display: 'flex',
   alignItems: 'flex-start',
   justifyContent: 'flex-end',
@@ -359,9 +359,9 @@ function SidebarInner({ onSettingsNavigate, onModuleNavigate, logo }: SidebarInn
     }
     
     if (isOpen) {
-      document.addEventListener('click', handleClickOutside)
+      document.addEventListener('pointerdown', handleClickOutside)
     }
-    return () => document.removeEventListener('click', handleClickOutside)
+    return () => document.removeEventListener('pointerdown', handleClickOutside)
   }, [isOpen, close])
 
   // Tab click: a genuine click toggles. After a real drag the browser still
@@ -377,12 +377,19 @@ function SidebarInner({ onSettingsNavigate, onModuleNavigate, logo }: SidebarInn
 
   // Handle module click - close sidebar on narrow screens
   const handleModuleClick = useCallback((moduleId: string) => {
-    // On narrow screens, close the overlay when a tile is clicked
-    if (window.innerWidth < 1280) { // xl breakpoint
+    if (window.innerWidth < 1280) {
       close()
     }
     onModuleNavigate?.(moduleId)
   }, [close, onModuleNavigate])
+
+  // Handle settings click - close sidebar on narrow screens
+  const handleSettingsClick = useCallback(() => {
+    if (window.innerWidth < 1280) {
+      close()
+    }
+    onSettingsNavigate?.()
+  }, [close, onSettingsNavigate])
 
   // On wide desktop, sidebar is always pinned (ignore open state)
   const displayX = isWide ? 0 : x
@@ -480,7 +487,7 @@ function SidebarInner({ onSettingsNavigate, onModuleNavigate, logo }: SidebarInn
                       </Stack>
                     </HStack>
                   </Menu.ItemGroupLabel>
-                  <Menu.Item value="settings" onSelect={onSettingsNavigate}>
+                  <Menu.Item value="settings" onSelect={handleSettingsClick}>
                     <Settings />
                     <Menu.ItemText>Settings</Menu.ItemText>
                   </Menu.Item>
@@ -492,7 +499,7 @@ function SidebarInner({ onSettingsNavigate, onModuleNavigate, logo }: SidebarInn
           <NavTile
             icon={<Settings className={css({ width: '24px', height: '24px' })} />}
             label="Settings"
-            onClick={onSettingsNavigate}
+            onClick={handleSettingsClick}
           />
         </nav>
       </div>
@@ -510,7 +517,7 @@ function SidebarInner({ onSettingsNavigate, onModuleNavigate, logo }: SidebarInn
           <PullTab
             open={effectiveIsOpen}
             onClick={handleTabClick}
-            className={css({ pointerEvents: 'auto', touchAction: 'none' })}
+            className={css({ pointerEvents: 'auto' })}
           >
             <HamburgerIcon open={effectiveIsOpen} />
           </PullTab>

@@ -1,5 +1,5 @@
 import type { ComponentType } from 'react'
-import type { SettingsSection, SettingsPage } from '@/core/settings/settings-schema'
+import type { SettingsSection, SettingsPage } from '@/core/settings/lib/schema'
 
 /**
  * Hook Registry — Central registry for plugin-registered extensions

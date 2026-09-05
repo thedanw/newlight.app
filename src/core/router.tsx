@@ -1,8 +1,8 @@
-import { createBrowserRouter } from 'react-router-dom'
+import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { lazy } from 'react'
 import ErrorPage from '@/core/errors/ErrorPage'
 import { AppShell } from '@/core/ui'
-import StyleguideApp from '@/styleguide/App'
+import { exampleRoutes } from '@/modules/example/routes'
 import { peopleRoutes } from '@/modules/people/routes'
 import { coreRoutes } from '@/core/routes'
 
@@ -16,7 +16,8 @@ export const router = createBrowserRouter([
     element: <AppShell />,
     errorElement: <ErrorPage />,
     children: [
-      { index: true, element: <StyleguideApp /> },
+      { index: true, element: <Navigate to="/people" replace /> },
+      { path: 'example', children: exampleRoutes },
       { path: 'people', children: peopleRoutes },
       { path: 'settings', children: coreRoutes },
     ],

@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
+import type { CSSProperties } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Badge, Button, Card, Heading, Page, Table, Text } from '@/core/ui'
+import { Badge, Button, Card, Page, Table, Text } from '@/core/ui'
 import { Stack } from 'styled-system/jsx'
+import { Users } from 'lucide-react'
 import { deleteForm, getFormSubmissionCounts, getForms } from '../lib/form-queries'
 import { PageSkeleton } from '../components/PageSkeleton'
 import type { Form } from '../lib/types'
@@ -19,8 +21,22 @@ export default function FormsListPage() {
   }
   useEffect(load, [])
 
-  if (error) return <Text>{error.message}</Text>
-  if (!forms) return <Page.Body><PageSkeleton /></Page.Body>
+  if (error) return (
+    <Page.Main>
+      <Page.Header style={{ '--module-number': 1 } as CSSProperties}>
+        <Page.Heading level={1} icon={Users} title="Forms" />
+      </Page.Header>
+      <Page.Body><Text>{error.message}</Text></Page.Body>
+    </Page.Main>
+  )
+  if (!forms) return (
+    <Page.Main>
+      <Page.Header style={{ '--module-number': 1 } as CSSProperties}>
+        <Page.Heading level={1} icon={Users} title="Forms" />
+      </Page.Header>
+      <Page.Body><PageSkeleton /></Page.Body>
+    </Page.Main>
+  )
 
   const handleDelete = async (id: string) => {
     try {
@@ -33,9 +49,9 @@ export default function FormsListPage() {
   }
 
   return (
-    <>
-      <Page.Header>
-        <Heading>Forms</Heading>
+    <Page.Main>
+      <Page.Header style={{ '--module-number': 1 } as CSSProperties}>
+        <Page.Heading level={1} icon={Users} title="Forms" />
       </Page.Header>
       <Page.Body>
         <Stack gap="6">
@@ -82,6 +98,6 @@ export default function FormsListPage() {
           </Card.Root>
         </Stack>
       </Page.Body>
-    </>
+    </Page.Main>
   )
 }

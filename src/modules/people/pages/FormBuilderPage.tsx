@@ -1,10 +1,12 @@
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState, useMemo, type CSSProperties } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Button, Card, Checkbox, Field, Heading, Input, Page, Select, Switch, Text, Textarea } from '@/core/ui'
 import { Stack } from 'styled-system/jsx'
+import { Users } from 'lucide-react'
 import { createListCollection } from '@ark-ui/react'
 import { createForm, getFormById, MAPPABLE_PERSON_FIELDS, updateForm } from '../lib/form-queries'
 import { getTags } from '../lib/queries'
+import { PageSkeleton } from '../components/PageSkeleton'
 import type { FormDraft, FormFieldDraft } from '../lib/form-queries'
 import type { FormFieldOption, FormFieldType, FormSubmitAction, Tag } from '../lib/types'
 
@@ -93,7 +95,14 @@ export default function FormBuilderPage() {
       })
   }, [id])
 
-  if (!loaded) return <Text>Loading form...</Text>
+  if (!loaded) return (
+    <Page.Main>
+      <Page.Header style={{ '--module-number': 1 } as CSSProperties}>
+        <Page.Heading level={1} icon={Users} title="New form" />
+      </Page.Header>
+      <Page.Body><PageSkeleton /></Page.Body>
+    </Page.Main>
+  )
 
   const setField = (fieldId: string, patch: Partial<FormFieldDraft>) => {
     setDraft((current) => ({
@@ -125,10 +134,12 @@ export default function FormBuilderPage() {
     }
   }
 
+  const headingTitle = id ? 'Edit form' : 'New form'
+
   return (
-    <>
-      <Page.Header>
-        <Heading>{id ? 'Edit form' : 'New form'}</Heading>
+    <Page.Main>
+        <Page.Header style={{ '--module-number': 1 } as CSSProperties}>
+          <Page.Heading level={1} icon={Users} title={headingTitle} />
       </Page.Header>
       <Page.Body>
         <Stack gap="6">
@@ -299,6 +310,6 @@ export default function FormBuilderPage() {
         </Card.Root>
         </Stack>
       </Page.Body>
-    </>
+    </Page.Main>
   )
 }

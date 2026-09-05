@@ -1,6 +1,8 @@
 import { useNavigate, useParams } from 'react-router-dom'
-import { BackButton, Breadcrumb, Card, Heading, Page, Text } from '@/core/ui'
+import type { CSSProperties } from 'react'
+import { Breadcrumb, Card, Heading, Page, Text } from '@/core/ui'
 import { Stack } from 'styled-system/jsx'
+import { Users } from 'lucide-react'
 import { useHousehold } from '../lib/hooks'
 import { saveHouseholdAddress } from '../lib/queries'
 import { HouseholdAddress } from '../components/HouseholdAddress'
@@ -12,14 +14,29 @@ export default function HouseholdPage() {
   const { id } = useParams()
   const { data: household, loading, error } = useHousehold(id)
 
-  if (loading) return <><Page.Header><BackButton onClick={() => navigate('/people')} /><Heading>Household</Heading></Page.Header><Page.Body><PageSkeleton /></Page.Body></>
-  if (error || !household) return <><Page.Header><BackButton onClick={() => navigate('/people')} /><Heading>Household</Heading></Page.Header><Page.Body><Text>{error?.message ?? 'Household not found.'}</Text></Page.Body></>
+  if (loading) return (
+    <Page.Main>
+      <Page.Header style={{ '--module-number': 1 } as CSSProperties}>
+        <Page.Heading level={1} icon={Users} title="Household" />
+      </Page.Header>
+      <Page.Body><PageSkeleton /></Page.Body>
+    </Page.Main>
+  )
+  if (error || !household) return (
+    <Page.Main>
+      <Page.Header style={{ '--module-number': 1 } as CSSProperties}>
+        <Page.Heading level={1} icon={Users} title="Household" />
+      </Page.Header>
+      <Page.Body>
+        <Text>{error?.message ?? 'Household not found.'}</Text>
+      </Page.Body>
+    </Page.Main>
+  )
 
   return (
-    <>
-      <Page.Header>
-        <BackButton onClick={() => navigate('/people')} />
-        <Heading>Household</Heading>
+    <Page.Main>
+      <Page.Header style={{ '--module-number': 1 } as CSSProperties}>
+        <Page.Heading level={1} icon={Users} title="Household" />
       </Page.Header>
       <Page.Body>
         <Breadcrumb.Root>
@@ -44,6 +61,6 @@ export default function HouseholdPage() {
           <HouseholdMembers members={household.members} />
         </Stack>
       </Page.Body>
-    </>
+    </Page.Main>
   )
 }

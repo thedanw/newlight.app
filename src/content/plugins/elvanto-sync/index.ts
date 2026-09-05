@@ -1,4 +1,4 @@
-import type { SettingsSection, SettingsPage } from '@/core/settings/settings-schema'
+import type { SettingsSection, SettingsPage } from '@/core/settings/lib/schema'
 import { 
   type DashboardWidget,
   type SettingsLink

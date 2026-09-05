@@ -1,4 +1,4 @@
-import { type TocCategory } from '../toc'
+import { type TocCategory } from './toc'
 import { SubpageTemplate } from './SubpageTemplate'
 import { TypographyShowcase } from './TypographyShowcase'
 

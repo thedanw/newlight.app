@@ -12,5 +12,6 @@ export const heading = defineRecipe({
     fontWeight: 'var(--heading-font-weight, semibold)',
     letterSpacing: 'var(--heading-letter-spacing, normal)',
     textTransform: 'var(--heading-text-transform, none)',
+    fontSize: '2xl',
   },
 })

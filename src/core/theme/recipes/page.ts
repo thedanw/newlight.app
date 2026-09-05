@@ -1,25 +1,27 @@
 import { defineSlotRecipe } from '@pandacss/dev'
 
-/**
- * Page — the standard page scaffold for every module page.
- *
- * Replaces the old `PagePanel` + `PageHeader` pair with a single slot recipe:
- *   - `root`   : outer wrapper (margin-left for the sidebar pull-tab, page
- *                gutter padding, vertical rhythm between header/body/footer)
- *   - `header` : page chrome — h1 on dashboard pages, back-button on sub
- *                pages. Scrolls WITH the page (never fixed). Optional `hero`
- *                variant tints the header with the module's accent hue.
- *   - `body`   : main content region (vertical rhythm between cards)
- *   - `footer` : OPTIONAL. `fixed` variant pins to the bottom of the screen
- *                and stays visible while scrolling — used for whole-page
- *                save/apply forms.
- *
- * Responsive rhythm: padding/gaps collapse from `6` (24px) on wide screens to
- * `3` (12px) on small screens via the `base`/`md` responsive object syntax.
- */
+const sharedHeaderStyles = {
+  display: 'flex',
+  top: '0',
+  color: 'var(--colors-color-palette-solid-fg)',
+  padding: 'calc( 48px + var(--spacing-3) )',
+  '@media (min-width: 1280px)': {
+    padding: { base: '3', md: '6' },
+  },
+  _before: {
+    content: '""',
+    position: 'absolute',
+    inset: '0',
+    zIndex: '-1',
+    pointerEvents: 'none',
+    background: 'var(--colors-color-palette-solid-bg)',
+    filter: 'hue-rotate(calc(60deg * var(--module-number, 0)))',
+  },
+}
+
 export const page = defineSlotRecipe({
   className: 'page',
-  slots: ['root', 'header', 'body', 'footer'],
+  slots: ['root', 'headerTop', 'header', 'headerBottom', 'main', 'body', 'footer'],
   base: {
     root: {
       display: 'flex',
@@ -28,6 +30,7 @@ export const page = defineSlotRecipe({
       minWidth: '0',
       height: '100%',
       overflow: 'hidden',
+      position: 'relative',
       marginLeft: '5px',
       padding: '0',
       gap: { base: '3', md: '6' },
@@ -35,20 +38,33 @@ export const page = defineSlotRecipe({
         marginLeft: 'var(--dynamic-sidebar-width, 100px)',
       },
     },
+    headerTop: {
+      zIndex: '1',
+      position: 'relative',
+      pt: { base: '9', md: '12' },
+      pb: '0',
+      minHeight: { base: '3', md: '6' },
+      ...sharedHeaderStyles,
+    },
     header: {
-      display: 'flex',
+      position: 'sticky',
+      zIndex: '2',
       alignItems: 'center',
+      gap: '2',
+      flexShrink: '0',
       pt: '8px',
       pb: '8px',
-      borderBottom: '1px solid var(--colors-border)',
-      flexShrink: '0',
       minHeight: '65px',
-      paddingRight: { base: '3', md: '6' },
-      paddingLeft: 'calc( 48px + 3)',
-      /* leave space for sidebar pull tab */
-      '@media (min-width: 1280px)': {
-        paddingLeft: { base: '3', md: '6' },
-      },
+      ...sharedHeaderStyles,
+    },
+    headerBottom: {
+      zIndex: '1',
+      position: 'relative',
+      flexDirection: 'column',
+      pt: '0',
+      gap: { base: '3', md: '6' },
+      pb: { base: '3rem', md: '5rem' },
+      ...sharedHeaderStyles,
     },
     body: {
       display: 'flex',
@@ -56,10 +72,17 @@ export const page = defineSlotRecipe({
       flex: '1',
       minWidth: '0',
       gap: { base: '3', md: '6' },
-      paddingLeft: { base: '3', md: '6' },
-      paddingRight: { base: '3', md: '6' },
-      overflowY: 'auto',
+      padding: { base: '3', md: '6' },
       position: 'relative',
+    },
+    main: {
+      position: 'absolute',
+      inset: '0',
+      display: 'flex',
+      flexDirection: 'column',
+      minWidth: '0',
+      overflowY: 'auto',
+      overflowX: 'hidden',
     },
     footer: {
       display: 'flex',

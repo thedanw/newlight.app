@@ -1,6 +1,6 @@
 'use client'
 import { useEffect } from 'react'
-import { useSettings } from './SettingsProvider'
+import { useSettings } from './provider'
 
 /**
  * AppTitleSync — Loads app settings on mount and syncs the app name to

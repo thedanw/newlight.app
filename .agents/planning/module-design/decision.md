@@ -22,6 +22,11 @@ Small-context LLM agents authoring modules; solo developer reviewing; future con
 - Lifecycle: disable-only via module_config (data retained); no uninstall (YAGNI)
 - CI gates: ESLint + tsc + bundle + Playwright (core #29/#39/#45)
 
+## Page Layout Structure
+- Dashboard = root module/settings page. Uses `<Page.Main>` with `<Page.HeaderTop>`, `<Page.Header>` (sticky, contains `<Page.Heading>`), and `<Page.HeaderBottom>` (description, search, tools). All three receive `--module-number` for the hue-rotate background.
+- Subpage = any nested route. Uses `<Page.Main>` with only `<Page.Header>` (sticky, contains `<Page.Heading>`). No `<Page.HeaderTop>` or `<Page.HeaderBottom>`.
+- `<Page.Heading>` reads `ModuleBreadcrumbContext` for icon/title and renders level 0/1/2 breadcrumb patterns automatically.
+
 ## Decision Log: decision → Rationale
 1 Keep compile-time same-repo modules in src/modules/* (no runtime plugins / pkg workspaces) → CF static + PWA offline + solo-dev simplicity (YAGNI)
 2 Lock module UI imports to single core/ui barrel → agents can't reach atomic css()/Panda internals (Goal 3)

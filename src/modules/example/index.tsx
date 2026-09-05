@@ -19,10 +19,10 @@ import {
   hrefForDashboard,
   useHashNavigation,
   type Route,
-} from './router'
+} from './pages/router'
 import { Dashboard } from './pages/Dashboard'
 import { CategoryPage } from './pages/Category'
-import { tocCategories, type TocCategory } from './toc'
+import { tocCategories, type TocCategory } from './pages/toc'
 
 /* ---------------------------------------------------------------------------
    Styleguide shell (temp-styleguide #38) — the app root while the lab runs.
@@ -112,7 +112,7 @@ const panelScrollerCss = css({
 
 const panelInnerCss = css({ px: '6', pb: '6', minHeight: '100%' })
 
-export default function StyleguideApp() {
+export default function ExampleDashboardPage() {
   const {
     route,
     direction,
@@ -239,11 +239,10 @@ export default function StyleguideApp() {
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: 'auto', opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              // Same spring as the panels so chrome and page land together —
-              // mixed tween/spring timings read as a jump at animation end.
               transition={reduceMotion ? FADE_TWEEN : PUSH_SPRING}
               className={css({ overflow: 'hidden', flexShrink: '0' })}
             >
+              <Page.HeaderTop />
               <Page.Header>
                 <HStack gap="2" flex="1" minWidth="0">
                   <motion.div
@@ -256,6 +255,34 @@ export default function StyleguideApp() {
                   </motion.div>
                 </HStack>
               </Page.Header>
+              <Page.HeaderBottom>
+                <Breadcrumb.Root>
+                  <Breadcrumb.List>
+                    <Breadcrumb.Item>
+                      <Breadcrumb.Link href={hrefForDashboard()} onClick={handleCrumbHome}>
+                        Style Guide
+                      </Breadcrumb.Link>
+                    </Breadcrumb.Item>
+                    {current.kind === 'category' && (
+                      <>
+                        <Breadcrumb.Separator />
+                        <Breadcrumb.Item>
+                          <Breadcrumb.Link
+                            href={hrefForCategory(current.category.id)}
+                            aria-current="page"
+                            onClick={(event) => {
+                              event.preventDefault()
+                              openCategory(current.category.id)
+                            }}
+                          >
+                            {current.category.name}
+                          </Breadcrumb.Link>
+                        </Breadcrumb.Item>
+                      </>
+                    )}
+                  </Breadcrumb.List>
+                </Breadcrumb.Root>
+              </Page.HeaderBottom>
             </motion.div>
           )}
         </AnimatePresence>
@@ -268,7 +295,7 @@ export default function StyleguideApp() {
             <motion.div
               key={currentKey}
               custom={direction}
-              variants={reduceMotion ? fadeVariants : slideVariants}
+              variants={reduceMotion ? slideVariants : fadeVariants}
               initial="enter"
               animate="center"
               exit="exit"
@@ -276,39 +303,6 @@ export default function StyleguideApp() {
               className={panelScrollerCss}
             >
               <div className={panelInnerCss}>
-                {/* Breadcrumbs travel WITH their page — no separate animation,
-                    no direction to keep in sync. */}
-                <div className={crumbStickyCss}>
-                  <Breadcrumb.Root>
-                    <Breadcrumb.List>
-                      <Breadcrumb.Item>
-                        <Breadcrumb.Link href={hrefForDashboard()} onClick={handleCrumbHome}>
-                          Style Guide
-                        </Breadcrumb.Link>
-                      </Breadcrumb.Item>
-                      {current.kind === 'category' && (
-                        <>
-                          <Breadcrumb.Separator />
-                          <Breadcrumb.Item>
-                            {/* The current crumb doubles as a canonical link:
-                                following it re-enters the plain category URL
-                                (dropping any /component/<Name> anchor). */}
-                            <Breadcrumb.Link
-                              href={hrefForCategory(current.category.id)}
-                              aria-current="page"
-                              onClick={(event) => {
-                                event.preventDefault()
-                                openCategory(current.category.id)
-                              }}
-                            >
-                              {current.category.name}
-                            </Breadcrumb.Link>
-                          </Breadcrumb.Item>
-                        </>
-                      )}
-                    </Breadcrumb.List>
-                  </Breadcrumb.Root>
-                </div>
                 {renderPanel(current)}
               </div>
             </motion.div>

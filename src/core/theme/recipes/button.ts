@@ -21,7 +21,6 @@ export const button = defineRecipe({
     userSelect: 'none',
     verticalAlign: 'middle',
     whiteSpace: 'nowrap',
-    boxShadow: 'var(--button-shadow)',
     _icon: {
       flexShrink: '0',
     },
@@ -29,14 +28,6 @@ export const button = defineRecipe({
       layerStyle: 'disabled',
     },
     focusVisibleRing: 'outside',
-    _hover: {
-        borderColor: 'colorPalette.surface.border.hover',
-     },
-      _active: {
-      bg: 'colorPalette.surface.bg.active',
-      boxShadow: 'var(--button-shadow-pressed)',
-      transform: 'translateY(1px)',
-    },
   },
   defaultVariants: {
     variant: 'solid',
@@ -53,8 +44,8 @@ export const button = defineRecipe({
       },
       surface: {
         bg: 'colorPalette.surface.bg',
-        borderWidth: '0px',
-        borderColor: 'colorPalette.outline.border',
+        borderWidth: '1px',
+        borderColor: 'colorPalette.surface.border',
         color: 'colorPalette.surface.fg',
         _hover: {
           borderColor: 'colorPalette.surface.border.hover',
@@ -80,7 +71,7 @@ export const button = defineRecipe({
         },
       },
       outline: {
-        borderWidth: '0px',
+        borderWidth: '1px',
         borderColor: 'colorPalette.outline.border',
         color: 'colorPalette.outline.fg',
         _hover: {

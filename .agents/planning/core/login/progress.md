@@ -26,3 +26,15 @@
 | Error | Resolution |
 |-------|-----------|
 | (none — Batch 1) | — |
+
+## 2026-09-06 — Batch 2 Complete (Auth helpers + person linkage, TDD)
+- 2.1-2.4 TDD: name.test.ts (11 tests) → FAIL → name.ts implemented → PASS.
+- 2.5 getPersonByAuthUserId(userId) in src/core/auth/lib/queries.ts (people by auth_user_id, non-deleted).
+- 2.6 AuthProvider loads person profile on user change (person, isProfileLoading); exposes initials/displayName via getInitials/getDisplayName.
+- Verify: `pnpm typecheck` clean; `pnpm test` 51 passed.
+- Commit: `feat: auth→person linkage + name helpers (TDD)`
+
+## Errors
+| Error | Resolution |
+|-------|-----------|
+| (none — Batch 2) | — |

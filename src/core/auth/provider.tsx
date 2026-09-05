@@ -2,6 +2,9 @@
 import { createContext, useEffect, useState, type ReactNode } from 'react'
 import { supabase } from '@/core/lib/supabase'
 import type { AuthError, Session, User } from '@supabase/supabase-js'
+import type { Tables } from '@/core/lib/database.types'
+import { getPersonByAuthUserId } from './lib/queries'
+import { getInitials, getDisplayName } from './lib/name'
 
 /**
  * AuthContextValue — session + auth actions owned by AuthProvider.
@@ -12,6 +15,13 @@ export interface AuthContextValue {
   session: Session | null
   user: User | null
   isLoading: boolean
+  /** Linked people row (null if auth user has no person record). */
+  person: Tables<'people'> | null
+  isProfileLoading: boolean
+  /** Initials for the account avatar (first+last, fallback user_metadata/email). */
+  initials: string
+  /** Display name for the account tile (preferred_name ?? firstname, fallback). */
+  displayName: string
   signInWithPassword: (email: string, password: string) => Promise<{ error: AuthError | null }>
   signInWithOtp: (email: string) => Promise<{ error: AuthError | null }>
   signOut: () => Promise<{ error: AuthError | null }>
@@ -30,6 +40,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null)
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [person, setPerson] = useState<Tables<'people'> | null>(null)
+  const [isProfileLoading, setIsProfileLoading] = useState(false)
 
   useEffect(() => {
     const hasRealAuth = import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY
@@ -71,6 +83,43 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(false)
   }, [])
 
+  // Load linked person profile whenever the auth user changes
+  useEffect(() => {
+    let cancelled = false
+    if (!user) {
+      setPerson(null)
+      setIsProfileLoading(false)
+      return
+    }
+    setIsProfileLoading(true)
+    getPersonByAuthUserId(user.id)
+      .then((p) => {
+        if (!cancelled) setPerson(p)
+      })
+      .catch(() => {
+        if (!cancelled) setPerson(null)
+      })
+      .finally(() => {
+        if (!cancelled) setIsProfileLoading(false)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [user?.id])
+
+  const initials = getInitials({
+    firstname: person?.firstname,
+    lastname: person?.lastname,
+    user_metadata: user?.user_metadata,
+    email: user?.email,
+  })
+  const displayName = getDisplayName({
+    preferred_name: person?.preferred_name,
+    firstname: person?.firstname,
+    user_metadata: user?.user_metadata,
+    email: user?.email,
+  })
+
   const signInWithPassword = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password })
     return { error }
@@ -103,6 +152,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         session,
         user,
         isLoading,
+        person,
+        isProfileLoading,
+        initials,
+        displayName,
         signInWithPassword,
         signInWithOtp,
         signOut,

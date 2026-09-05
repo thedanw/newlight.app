@@ -32,12 +32,12 @@
 **Ctx:** Overall: login via account tile. Now: name helpers + auth→person profile load.
 **Track:** ✅ plan.md tasks; progress.md log per task.
 **Tools:** --todo tool; subagent for AuthProvider profile-load wiring.
-- [ ] 2.1 Write failing test: getInitials/getDisplayName → src/core/auth/lib/name.test.ts
-- [ ] 2.2 Run `pnpm test` → FAIL
-- [ ] 2.3 Implement src/core/auth/lib/name.ts (initials first+last; display preferred_name??firstname; fallback user_metadata/email)
-- [ ] 2.4 Run `pnpm test` → PASS
-- [ ] 2.5 Add getPersonByAuthUserId(userId) → src/core/auth/lib/queries.ts (people by auth_user_id, non-deleted)
-- [ ] 2.6 AuthProvider loads person profile after session change (person, isProfileLoading; expose initials/displayName)
+- [x] 2.1 Write failing test: getInitials/getDisplayName → src/core/auth/lib/name.test.ts
+- [x] 2.2 Run `pnpm test` → FAIL
+- [x] 2.3 Implement src/core/auth/lib/name.ts (initials first+last; display preferred_name??firstname; fallback user_metadata/email)
+- [x] 2.4 Run `pnpm test` → PASS
+- [x] 2.5 Add getPersonByAuthUserId(userId) → src/core/auth/lib/queries.ts (people by auth_user_id, non-deleted)
+- [x] 2.6 AuthProvider loads person profile after session change (person, isProfileLoading; expose initials/displayName)
 **End:** tests green → commit `feat: auth→person linkage + name helpers (TDD)` → task_plan.md B2 ✅ → report. Next: B3.
 
 ### Batch 3: Login page (TDD)

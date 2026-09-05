@@ -13,7 +13,7 @@
 | Batch | Title | Status |
 |-------|-------|--------|
 | 1 | Auth foundation (AuthProvider+useAuth+SettingsProvider refactor) | complete |
-| 2 | Auth helpers + person linkage (TDD) | pending |
+| 2 | Auth helpers + person linkage (TDD) | complete |
 | 3 | Login page (TDD) | pending |
 | 4 | Account tile + /account page (TDD) | pending |
 | 5 | RLS refinement (migration) | pending |

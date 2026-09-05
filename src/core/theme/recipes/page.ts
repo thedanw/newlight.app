@@ -4,9 +4,11 @@ const sharedHeaderStyles = {
   display: 'flex',
   top: '0',
   color: 'var(--colors-color-palette-solid-fg)',
-  padding: 'calc( 48px + var(--spacing-1) )',
+  paddingLeft: 'calc( 48px + var(--spacing-1) )',
+  paddingRight: 'calc( 48px + var(--spacing-1) )',
   '@media (min-width: 1280px)': {
-    padding: { base: '3', md: '6' },
+    paddingLeft: { base: '3', md: '6' },
+    paddingRight: { base: '3', md: '6' },
   },
   _before: {
     content: '""',

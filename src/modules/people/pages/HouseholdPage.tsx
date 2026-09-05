@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import type { CSSProperties } from 'react'
 import { Breadcrumb, Card, Heading, Page, Text } from '@/core/ui'
 import { Stack } from 'styled-system/jsx'
@@ -10,7 +10,6 @@ import { HouseholdMembers } from '../components/HouseholdMembers'
 import { PageSkeleton } from '../components/PageSkeleton'
 
 export default function HouseholdPage() {
-  const navigate = useNavigate()
   const { id } = useParams()
   const { data: household, loading, error } = useHousehold(id)
 

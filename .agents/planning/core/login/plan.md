@@ -22,10 +22,10 @@
 **Ctx:** Overall: login via account tile. Now: AuthProvider+useAuth; SettingsProvider refactor.
 **Track:** ✅ plan.md tasks; progress.md log per task.
 **Tools:** --todo tool; subagent for SettingsProvider refactor (cross-file).
-- [ ] 1.1 Add vitest.config.ts + `"test": "vitest run"` script
-- [ ] 1.2 Create src/core/auth/ (provider.tsx AuthProvider, use-auth.ts, index.ts): getSession+onAuthStateChange; isLoading; lab mock fallback (from SettingsProvider); expose signInWithPassword/signInWithOtp/signOut/resetPasswordForEmail/updatePassword
-- [ ] 1.3 Refactor SettingsProvider → consume useAuth() (drop own session effect)
-- [ ] 1.4 Wrap App.tsx with AuthProvider (above SettingsProvider)
+- [x] 1.1 Add vitest.config.ts + `"test": "vitest run"` script
+- [x] 1.2 Create src/core/auth/ (provider.tsx AuthProvider, use-auth.ts, index.ts): getSession+onAuthStateChange; isLoading; lab mock fallback (from SettingsProvider); expose signInWithPassword/signInWithOtp/signOut/resetPasswordForEmail/updatePassword
+- [x] 1.3 Refactor SettingsProvider → consume useAuth() (drop own session effect)
+- [x] 1.4 Wrap App.tsx with AuthProvider (above SettingsProvider)
 **End:** tsc -b clean → commit `feat: add AuthProvider + useAuth, refactor SettingsProvider` → task_plan.md B1 ✅ → report. Next: B2.
 
 ### Batch 2: Auth helpers + person linkage (TDD)

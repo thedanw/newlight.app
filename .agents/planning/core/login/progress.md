@@ -12,3 +12,17 @@
 | Error | Resolution |
 |-------|-----------|
 | (none — planning phase) | — |
+
+## 2026-09-06 — Batch 1 Complete (Auth foundation)
+- Branch: feature/login-system (created from main after merging settings-dashboard).
+- 1.1 vitest.config.ts + `"test": "vitest run"` script added.
+- 1.2 src/core/auth/ created: provider.tsx (AuthProvider: getSession+onAuthStateChange, isLoading, lab mock fallback, signInWithPassword/signInWithOtp/signOut/resetPasswordForEmail/updatePassword), use-auth.ts, index.ts.
+- 1.3 SettingsProvider refactored → consumes useAuth() (dropped own session effect; kept logoUrl/getAppSettings/saveAppSettings).
+- 1.4 App.tsx wrapped with AuthProvider above SettingsProvider.
+- Verify: `pnpm typecheck` clean; `pnpm test` 40 passed (existing elvanto transforms).
+- Commit: `feat: add AuthProvider + useAuth, refactor SettingsProvider`
+
+## Errors
+| Error | Resolution |
+|-------|-----------|
+| (none — Batch 1) | — |

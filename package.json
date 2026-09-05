@@ -12,6 +12,7 @@
     "lint:tokens": "node scripts/lint-tokens.mjs",
     "preview": "vite preview",
     "typecheck": "tsc -b",
+    "test": "vitest run",
     "panda": "panda codegen",
     "theme:colors": "node scripts/generate-theme-colors.mjs",
     "copy-plugins": "node scripts/copy-plugins.mjs",

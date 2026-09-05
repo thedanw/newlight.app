@@ -5,14 +5,14 @@
 | Phase | Status | Notes |
 |-------|--------|-------|
 | Brainstorm | complete | decision.md; lock: email/password+magic link; sign-in only; public browsing+RLS; tile→/account |
-| Plan | in_progress | plan.md; awaiting user confirmation |
-| Execute & Review | pending | |
+| Plan | complete | plan.md; user confirmed execution |
+| Execute & Review | in_progress | B1 in progress |
 | Review | pending | |
 
 ## Batch Tracker
 | Batch | Title | Status |
 |-------|-------|--------|
-| 1 | Auth foundation (AuthProvider+useAuth+SettingsProvider refactor) | pending |
+| 1 | Auth foundation (AuthProvider+useAuth+SettingsProvider refactor) | complete |
 | 2 | Auth helpers + person linkage (TDD) | pending |
 | 3 | Login page (TDD) | pending |
 | 4 | Account tile + /account page (TDD) | pending |

@@ -150,7 +150,7 @@ export default function LoginPage() {
                 </Button>
               </VStack>
             ) : (
-              <form onSubmit={handleSubmit}>
+              <form onSubmit={handleSubmit} noValidate>
                 <Stack gap="4">
                   <Field.Root>
                     <Field.Label>Email</Field.Label>

@@ -78,10 +78,10 @@
 **Ctx:** Overall: login via account tile. Now: config, lint/build, browser verify.
 **Track:** ✅ plan.md tasks; progress.md log per task.
 **Tools:** --todo tool; subagent for browser verification (automation techniques in repo memory).
-- [ ] 6.1 Update supabase/config.toml: site_url + additional_redirect_urls include http://localhost:5173
-- [ ] 6.2 Run `pnpm typecheck` + `pnpm lint:tokens` + `pnpm build`; fix errors
-- [ ] 6.3 Browser verify: logged-out tile=Log-in; /login renders; sign in (test user) → account avatar+initials+first name; /account profile; sign out → Log-in; magic link if email server available
-- [ ] 6.4 Run full `pnpm test` — all green
+- [x] 6.1 Update supabase/config.toml: site_url + additional_redirect_urls include http://localhost:5173
+- [x] 6.2 Run `pnpm typecheck` + `pnpm lint:tokens` + `pnpm build`; fix errors
+- [x] 6.3 Browser verify: logged-out tile=Log-in; /login renders; sign in (test user) → account avatar+initials+first name; /account profile; sign out → Log-in; magic link if email server available
+- [x] 6.4 Run full `pnpm test` — all green
 **End:** all checks green → commit `chore: config, lint, build, browser verification` → task_plan.md B6 ✅ → report. Next: Final.
 
 ### Final

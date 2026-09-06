@@ -46,7 +46,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isProfileLoading, setIsProfileLoading] = useState(false)
 
   useEffect(() => {
-    const hasRealAuth = import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY
+    // Match supabase.ts fallback: publishable key counts as real auth
+    const hasRealAuth =
+      import.meta.env.VITE_SUPABASE_URL &&
+      (import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY)
 
     if (hasRealAuth) {
       supabase.auth.getSession().then(({ data: { session } }) => {

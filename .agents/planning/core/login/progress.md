@@ -75,3 +75,18 @@
 | Error | Resolution |
 |-------|-----------|
 | (none — Batch 5) | — |
+
+## 2026-09-06 — Batch 6 Complete (Config + polish + verification)
+- 6.1 config.toml: site_url → http://localhost:5173; additional_redirect_urls += http://localhost:5173.
+- 6.2 `pnpm typecheck` + `pnpm lint:tokens` + `pnpm build` all pass (chunk-size warning pre-existing).
+- 6.3 Browser verified (dev server 5173): signed-out tile = Log-in (sidebar footer, FOOTER_TILES=2 kept); Log-in tile click → /login; /login renders (semantic main, logo, app name, email/password, Password|Magic link toggle, forgot-password); mode toggle works; custom validation shows "Email is required." / "Enter a valid email address." (added noValidate to form — native HTML5 validation was blocking custom errors); /account renders (header, avatar, profile fields, change password, sign out). SIGN-IN FLOW DEFERRED: no test user credentials (sb_secret_ key rejected by admin API — needs dashboard-created user, plan Open Question).
+- 6.4 Full `pnpm test` — 59 passed.
+- Bug fixed: AuthProvider hasRealAuth only checked VITE_SUPABASE_ANON_KEY; now also accepts VITE_SUPABASE_PUBLISHABLE_KEY (matches supabase.ts fallback) — real auth now activates with the publishable key.
+- Commit: `chore: config, lint, build, browser verification`
+
+## Errors
+| Error | Resolution |
+|-------|-----------|
+| Native HTML5 validation blocked custom error on invalid email | Added `noValidate` to login form |
+| hasRealAuth ignored publishable-key fallback → lab mock used instead of real auth | hasRealAuth now accepts ANON_KEY OR PUBLISHABLE_KEY |
+| Admin API rejected sb_secret_ key (not a JWT) | Test user creation deferred to dashboard (Open Question) |

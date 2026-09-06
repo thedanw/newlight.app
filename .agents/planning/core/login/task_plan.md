@@ -1,13 +1,13 @@
 # Task Plan: Login System — Account Nav Tile Entry Point
 
-## Status: planning
+## Status: complete
 
 | Phase | Status | Notes |
 |-------|--------|-------|
 | Brainstorm | complete | decision.md; lock: email/password+magic link; sign-in only; public browsing+RLS; tile→/account |
 | Plan | complete | plan.md; user confirmed execution |
 | Execute & Review | complete | B1–B6 + Final all done; pushed feature/login-system |
-| Review | pending | |
+| Review | complete | Validation checklist all green (tests/typecheck/lint/build/browser/RLS); open questions resolved (test user created, change-password included) |
 
 ## Batch Tracker
 | Batch | Title | Status |

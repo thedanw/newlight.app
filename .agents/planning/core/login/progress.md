@@ -98,3 +98,19 @@
 | Native HTML5 validation blocked custom error on invalid email | Added `noValidate` to login form |
 | hasRealAuth ignored publishable-key fallback → lab mock used instead of real auth | hasRealAuth now accepts ANON_KEY OR PUBLISHABLE_KEY |
 | Admin API rejected sb_secret_ key (not a JWT) | Test user creation deferred to dashboard (Open Question) |
+
+## 2026-09-06 — Validation Complete + Open Questions Resolved
+- **Test user created** via Supabase admin API (secret key as BOTH `apikey` and `Authorization: Bearer`): `test@newlight.app` / `TestPass123!` (id `b6a303c9-1dff-4a29-893a-cbbad741550c`, confirmed).
+- **Full login flow verified in browser** (dev server 5173):
+  1. Signed in with test user on /login → navigated to /people.
+  2. Account tile shows avatar initials "TE" (email fallback) + first name "test".
+  3. /account shows real data: avatar "TE", name "test", email, role "authenticated", Change password card, Sign out.
+  4. Sign out → navigated to /login (logout POST aborted net::ERR_ABORTED but local session cleared → navigate worked).
+  5. Navigated to /people → sidebar tile returned to "Log in" (signed-out state). ✅
+- **RLS verified against local stack** (`supabase start` applied all migrations incl. `20260906000000_refine_people_rls_for_auth.sql`; `scripts/rls-verify.mjs`):
+  - anon query → only `access_permission='public'` non-deleted people ✅
+  - authenticated query → all non-deleted people ✅
+  - Cleanup: test people deleted, `supabase stop` run.
+- **plan.md updated**: all Validation items `[x]`; both Open Questions `[x]` (test user created; Change-password included minimal).
+- **Remaining (deferred, needs DB access):** apply `20260906000000_refine_people_rls_for_auth.sql` to REMOTE DB via `supabase db push` (needs DB password) or dashboard SQL editor. Local verification confirms the migration is correct.
+- Commit: `docs: complete validation checklist + resolve open questions`

@@ -88,12 +88,12 @@
 - [x] **Push:** `git push origin feature/login-system`
 
 ## Validation
-- [ ] All vitest tests pass
-- [ ] No lint/type errors (tsc -b, lint:tokens)
-- [ ] Build succeeds (pnpm build)
-- [ ] Browser: tile transitions, login flow, sign out verified
-- [ ] RLS: anon query returns only access_permission='public' people
+- [x] All vitest tests pass — `pnpm test` → 59 passed (name 11, validation 5, tile-state 3, + existing)
+- [x] No lint/type errors (tsc -b, lint:tokens) — both clean
+- [x] Build succeeds (pnpm build) — ✓ built in 8.23s
+- [x] Browser: tile transitions, login flow, sign out verified — full flow: signed out → Log-in tile; /login renders; sign in (test@newlight.app) → /people; account tile shows initials+name; /account shows profile + Change password + Sign out; sign out → /login; tile returns to Log-in
+- [x] RLS: anon query returns only access_permission='public' people — verified against local stack (`supabase start` + `scripts/rls-verify.mjs`): anon sees only public non-deleted; authenticated sees all non-deleted. Migration `20260906000000_refine_people_rls_for_auth.sql` NOT yet applied to remote DB (needs `supabase db push` with DB password or dashboard SQL editor)
 
 ## Open Questions
-- [ ] Dev Supabase test user with known password for browser verify (or create via dashboard)
-- [ ] Include Change-password on /account this phase? (stretch — default: include minimal)
+- [x] Dev Supabase test user with known password for browser verify — created via admin API: `test@newlight.app` / `TestPass123!` (id `b6a303c9-1dff-4a29-893a-cbbad741550c`)
+- [x] Include Change-password on /account this phase? — resolved: included minimal (Change password card on /account using `updatePassword`)

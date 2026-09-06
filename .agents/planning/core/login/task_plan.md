@@ -6,7 +6,7 @@
 |-------|--------|-------|
 | Brainstorm | complete | decision.md; lock: email/password+magic link; sign-in only; public browsing+RLS; tile→/account |
 | Plan | complete | plan.md; user confirmed execution |
-| Execute & Review | in_progress | B1 in progress |
+| Execute & Review | complete | B1–B6 + Final all done; pushed feature/login-system |
 | Review | pending | |
 
 ## Batch Tracker

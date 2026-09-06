@@ -1,7 +1,7 @@
 'use client'
 import { ark } from '@ark-ui/react/factory'
 import { ChevronRightIcon } from 'lucide-react'
-import { type ComponentProps, type ReactNode, createContext, useContext, forwardRef } from 'react'
+import { type ComponentProps, type ReactNode, createContext, useContext } from 'react'
 import { createStyleContext } from 'styled-system/jsx'
 import { breadcrumb } from 'styled-system/recipes'
 import type { LucideIcon } from 'lucide-react'
@@ -51,15 +51,17 @@ export interface ModuleBreadcrumbProviderProps {
   children: ReactNode
 }
 
-export const ModuleBreadcrumbProvider = forwardRef<HTMLDivElement, ModuleBreadcrumbProviderProps>(
-  ({ manifest, level = 0, children, ...props }, ref) => {
-    return (
-      <ModuleBreadcrumbContext.Provider value={{ manifest, level }}>
-        <div ref={ref} {...props}>{children}</div>
-      </ModuleBreadcrumbContext.Provider>
-    )
-  },
-)
+// Pure context provider — intentionally renders NO DOM element so that the
+// routed page's Page.Main / Page.Footer become direct children of the shell's
+// Page.Root. A wrapper <div> here breaks the flex height chain (auto-height
+// parent + height:100% child) and kills Page.Main's scrolling.
+export function ModuleBreadcrumbProvider({ manifest, level = 0, children }: ModuleBreadcrumbProviderProps) {
+  return (
+    <ModuleBreadcrumbContext.Provider value={{ manifest, level }}>
+      {children}
+    </ModuleBreadcrumbContext.Provider>
+  )
+}
 ModuleBreadcrumbProvider.displayName = 'ModuleBreadcrumbProvider'
 
 const NullIcon = () => null

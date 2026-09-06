@@ -47,7 +47,7 @@ export default function PeopleDashboardPage() {
       </Page.Header>
       <Page.HeaderBottom style={{ '--module-number': peopleManifest.number } as CSSProperties}>
         <Stack gap="3" maxW="3xl">
-          <Text textStyle="sm" color="fg.default">
+          <Text>
             Find people by name, preferred name, or email.
           </Text>
           <SearchInput

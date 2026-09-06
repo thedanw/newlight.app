@@ -16,6 +16,6 @@
 | 2 | Auth helpers + person linkage (TDD) | complete |
 | 3 | Login page (TDD) | complete |
 | 4 | Account tile + /account page (TDD) | complete |
-| 5 | RLS refinement (migration) | pending |
+| 5 | RLS refinement (migration) | complete |
 | 6 | Config + polish + verification | pending |
 | Final | Push feature/login-system | pending |

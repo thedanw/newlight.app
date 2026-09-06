@@ -64,3 +64,14 @@
 | Error | Resolution |
 |-------|-----------|
 | (none — Batch 4) | — |
+
+## 2026-09-06 — Batch 5 Complete (RLS refinement migration)
+- 5.1 Created supabase/migrations/20260906000000_refine_people_rls_for_auth.sql (idempotent): drop "Public read access" on people; recreate for anon `using (deleted_at is null and access_permission = 'public')`; add "Authenticated read access" for authenticated `using (deleted_at is null)`. GRANTs unchanged (anon SELECT + authenticated full already exist).
+- 5.2 SQL verified by review (standard Postgres DDL, matches known-good 20260828120000 pattern; columns deleted_at/access_permission confirmed in database.types.ts). `supabase db lint --linked` NOT run — no DB password in .env and no local stack. Deferred to B6.
+- 5.3 No database.types.ts drift (policies only, no schema change).
+- Commit: `feat: RLS — anonymous sees public-access people only`
+
+## Errors
+| Error | Resolution |
+|-------|-----------|
+| (none — Batch 5) | — |

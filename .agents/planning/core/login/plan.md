@@ -69,9 +69,9 @@
 **Ctx:** Overall: login via account tile. Now: anon sees public-access people only.
 **Track:** ✅ plan.md tasks; progress.md log per task.
 **Tools:** --todo tool; subagent for migration authoring (idempotent).
-- [ ] 5.1 New idempotent migration supabase/migrations/<ts>_refine_people_rls_for_auth.sql: drop+recreate anon policy `using (deleted_at is null AND access_permission = 'public')`; add authenticated SELECT policy `using (deleted_at is null)`; keep GRANTs
-- [ ] 5.2 Verify migration SQL (lint / db push dry-run)
-- [ ] 5.3 Update database.types.ts if drift (expected none)
+- [x] 5.1 New idempotent migration supabase/migrations/<ts>_refine_people_rls_for_auth.sql: drop+recreate anon policy `using (deleted_at is null AND access_permission = 'public')`; add authenticated SELECT policy `using (deleted_at is null)`; keep GRANTs
+- [x] 5.2 Verify migration SQL (lint / db push dry-run)
+- [x] 5.3 Update database.types.ts if drift (expected none)
 **End:** SQL verified → commit `feat: RLS — anonymous sees public-access people only` → task_plan.md B5 ✅ → report. Next: B6.
 
 ### Batch 6: Config + polish + verification

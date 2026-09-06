@@ -61,6 +61,15 @@ type PersonRow = {
   _source_modified: string
 }
 
+type PersonRelationshipRow = {
+  id: string
+  person_id: string
+  related_person_id: string
+  relationship_type: Database['public']['Enums']['relationship_type']
+  is_primary_guardian: boolean | null
+  _synced_at: string
+}
+
 type HouseholdRow = {
   id: string
   elvanto_family_id: number | null
@@ -164,6 +173,7 @@ export type Database = {
   public: {
     Tables: {
       people: TableDefinition<PersonRow>
+      people_relationships: TableDefinition<PersonRelationshipRow>
       households: TableDefinition<HouseholdRow>
       addresses: TableDefinition<AddressRow>
       contact_channels: TableDefinition<ContactChannelRow>

@@ -26,7 +26,15 @@
 | Error | Resolution |
 |-------|-----------|
 | (none — Batch 1) | — |
+## 2026-09-06 — Final Complete (Push)
+- Pushed `feature/login-system` to origin (6 commits). HEAD == origin/feature/login-system.
+- PR link: https://github.com/thedanw/newlight.app/pull/new/feature/login-system
+- All 6 batches + Final ✅. Plan complete.
 
+## Errors
+| Error | Resolution |
+|-------|-----------|
+| (none — Final) | — |
 ## 2026-09-06 — Batch 2 Complete (Auth helpers + person linkage, TDD)
 - 2.1-2.4 TDD: name.test.ts (11 tests) → FAIL → name.ts implemented → PASS.
 - 2.5 getPersonByAuthUserId(userId) in src/core/auth/lib/queries.ts (people by auth_user_id, non-deleted).

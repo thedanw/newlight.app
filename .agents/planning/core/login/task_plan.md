@@ -18,4 +18,4 @@
 | 4 | Account tile + /account page (TDD) | complete |
 | 5 | RLS refinement (migration) | complete |
 | 6 | Config + polish + verification | complete |
-| Final | Push feature/login-system | pending |
+| Final | Push feature/login-system | complete |

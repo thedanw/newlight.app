@@ -85,7 +85,7 @@
 **End:** all checks green → commit `chore: config, lint, build, browser verification` → task_plan.md B6 ✅ → report. Next: Final.
 
 ### Final
-- [ ] **Push:** `git push origin feature/login-system`
+- [x] **Push:** `git push origin feature/login-system`
 
 ## Validation
 - [ ] All vitest tests pass

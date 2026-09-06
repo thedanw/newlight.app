@@ -40,3 +40,12 @@ export function getDisplayName(source: NameSource): string {
   const local = emailLocal(source.email)
   return local || 'Account'
 }
+
+/** First name for the account tile label; falls back to user_metadata then email local part. */
+export function getFirstName(source: NameSource): string {
+  const first = source.firstname?.trim()
+  if (first) return first
+  const metaFirst = metaString(source.user_metadata, 'first_name')
+  if (metaFirst) return metaFirst
+  return emailLocal(source.email) || 'Account'
+}

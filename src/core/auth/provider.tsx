@@ -4,7 +4,7 @@ import { supabase } from '@/core/lib/supabase'
 import type { AuthError, Session, User } from '@supabase/supabase-js'
 import type { Tables } from '@/core/lib/database.types'
 import { getPersonByAuthUserId } from './lib/queries'
-import { getInitials, getDisplayName } from './lib/name'
+import { getInitials, getDisplayName, getFirstName } from './lib/name'
 
 /**
  * AuthContextValue — session + auth actions owned by AuthProvider.
@@ -22,6 +22,8 @@ export interface AuthContextValue {
   initials: string
   /** Display name for the account tile (preferred_name ?? firstname, fallback). */
   displayName: string
+  /** First name for the account tile label (fallback user_metadata/email). */
+  firstName: string
   signInWithPassword: (email: string, password: string) => Promise<{ error: AuthError | null }>
   signInWithOtp: (email: string) => Promise<{ error: AuthError | null }>
   signOut: () => Promise<{ error: AuthError | null }>
@@ -119,6 +121,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     user_metadata: user?.user_metadata,
     email: user?.email,
   })
+  const firstName = getFirstName({
+    firstname: person?.firstname,
+    user_metadata: user?.user_metadata,
+    email: user?.email,
+  })
 
   const signInWithPassword = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password })
@@ -156,6 +163,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isProfileLoading,
         initials,
         displayName,
+        firstName,
         signInWithPassword,
         signInWithOtp,
         signOut,

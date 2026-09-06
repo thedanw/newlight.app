@@ -8,6 +8,7 @@ import { coreRoutes } from '@/core/routes'
 
 const FormPublicPage = lazy(() => import('@/modules/people/pages/FormPublicPage'))
 const LoginPage = lazy(() => import('@/core/auth/LoginPage'))
+const AccountPage = lazy(() => import('@/core/auth/AccountPage'))
 
 export const router = createBrowserRouter([
   {
@@ -18,6 +19,7 @@ export const router = createBrowserRouter([
     errorElement: <ErrorPage />,
     children: [
       { index: true, element: <Navigate to="/people" replace /> },
+      { path: 'account', element: <AccountPage /> },
       { path: 'example', children: exampleRoutes },
       { path: 'people', children: peopleRoutes },
       { path: 'settings', children: coreRoutes },

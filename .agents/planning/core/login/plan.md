@@ -56,13 +56,13 @@
 **Ctx:** Overall: login via account tile. Now: tile states + /account profile page.
 **Track:** ✅ plan.md tasks; progress.md log per task.
 **Tools:** --todo tool; subagent for sidebar tile swap (layout-sensitive).
-- [ ] 4.1 Write failing test: getAccountTileState(auth) → 'login'|'account' → src/core/auth/lib/tile-state.test.ts
-- [ ] 4.2 Run `pnpm test` → FAIL
-- [ ] 4.3 Implement src/core/auth/lib/tile-state.ts
-- [ ] 4.4 Run `pnpm test` → PASS
-- [ ] 4.5 Update src/core/ui/sidebar.tsx footer: signed out → Log-in tile (LogIn icon, "Log in") → onAccountNavigate('/login'); signed in → account tile (Avatar initials, label=First name) → onAccountNavigate('/account'); keep FOOTER_TILES=2; add onAccountNavigate prop; thread through AppShell
-- [ ] 4.6 Create src/core/auth/AccountPage.tsx (inside AppShell): avatar, name, email, role, Sign out, optional Change password
-- [ ] 4.7 Add /account route INSIDE AppShell in src/core/router.tsx (lazy)
+- [x] 4.1 Write failing test: getAccountTileState(auth) → 'login'|'account' → src/core/auth/lib/tile-state.test.ts
+- [x] 4.2 Run `pnpm test` → FAIL
+- [x] 4.3 Implement src/core/auth/lib/tile-state.ts
+- [x] 4.4 Run `pnpm test` → PASS
+- [x] 4.5 Update src/core/ui/sidebar.tsx footer: signed out → Log-in tile (LogIn icon, "Log in") → onAccountNavigate('/login'); signed in → account tile (Avatar initials, label=First name) → onAccountNavigate('/account'); keep FOOTER_TILES=2; add onAccountNavigate prop; thread through AppShell
+- [x] 4.6 Create src/core/auth/AccountPage.tsx (inside AppShell): avatar, name, email, role, Sign out, optional Change password
+- [x] 4.7 Add /account route INSIDE AppShell in src/core/router.tsx (lazy)
 **End:** tests green; tile states verified → commit `feat: account tile states + /account profile page` → task_plan.md B4 ✅ → report. Next: B5.
 
 ### Batch 5: RLS refinement (migration)

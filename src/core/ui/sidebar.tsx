@@ -2,9 +2,10 @@
 import { useRef, useState, useEffect, useCallback } from 'react'
 import { useDrag } from '@use-gesture/react'
 import { css } from 'styled-system/css'
-import { HStack, Stack } from 'styled-system/jsx'
-import { Avatar, Menu, NavTile, PullTab, NavProvider, useNavContext, Text } from '@/core/ui'
-import { Users, UsersRound, Wrench, CalendarDays, Sun, Settings, Palette } from 'lucide-react'
+import { Avatar, NavTile, PullTab, NavProvider, useNavContext } from '@/core/ui'
+import { useAuth } from '@/core/auth'
+import { getAccountTileState } from '@/core/auth/lib/tile-state'
+import { Users, UsersRound, Wrench, CalendarDays, Sun, Settings, Palette, LogIn } from 'lucide-react'
 
 /* ---------------------------------------------------------------------------
     Sidebar — mobile-first left-side module menu (ui-ux #7):
@@ -198,12 +199,15 @@ const brandTileCss = css({
 interface SidebarInnerProps {
   onSettingsNavigate?: () => void
   onModuleNavigate?: (moduleId: string) => void
+  /** Navigate to the account surface (/login when signed out, /account when signed in). */
+  onAccountNavigate?: (path: string) => void
   /** Committed brand logo URL — replaces the Sun mark in the brand slot. */
   logo?: string | null
 }
 
-function SidebarInner({ onSettingsNavigate, onModuleNavigate, logo }: SidebarInnerProps) {
+function SidebarInner({ onSettingsNavigate, onModuleNavigate, onAccountNavigate, logo }: SidebarInnerProps) {
   const { isOpen, open, close, toggle } = useNavContext()
+  const { user, initials, firstName } = useAuth()
   const sidebarRef = useRef<HTMLDivElement>(null)
   const [isDragging, setIsDragging] = useState(false)
   const dragStartTimeRef = useRef(0)
@@ -392,6 +396,14 @@ function SidebarInner({ onSettingsNavigate, onModuleNavigate, logo }: SidebarInn
     onSettingsNavigate?.()
   }, [close, onSettingsNavigate])
 
+  // Handle account click - close sidebar on narrow screens
+  const handleAccountClick = useCallback((path: string) => {
+    if (window.innerWidth < 1280) {
+      close()
+    }
+    onAccountNavigate?.(path)
+  }, [close, onAccountNavigate])
+
   // On wide desktop, sidebar is always pinned (ignore open state)
   const displayX = isWide ? 0 : x
   const effectiveIsOpen = isWide ? true : isOpen
@@ -461,41 +473,25 @@ function SidebarInner({ onSettingsNavigate, onModuleNavigate, logo }: SidebarInn
           })}
         </nav>
 
-        {/* Footer: account menu + brand settings — row-priority grid */}
+        {/* Footer: account/log-in tile + brand settings — row-priority grid */}
         <nav className={sidebarFooterCss} aria-label="Account">
-          <Menu.Root positioning={{ placement: 'top-start' }}>
-            <Menu.Trigger asChild>
-              <NavTile
-                icon={
-                  <Avatar.Root size="lg" className={css({ width: '24px', height: '24px' })}>
-                    <Avatar.Fallback name="Account" />
-                  </Avatar.Root>
-                }
-                label="Account"
-              />
-            </Menu.Trigger>
-            <Menu.Positioner>
-              <Menu.Content minWidth="13rem">
-                <Menu.ItemGroup id="account">
-                  <Menu.ItemGroupLabel>
-                    <HStack gap="2">
-                      <Avatar.Root size="2xs">
-                        <Avatar.Fallback name="Account" />
-                      </Avatar.Root>
-                      <Stack gap="0">
-                        <Text textStyle="sm" fontWeight="semibold">Account</Text>
-                        <Text textStyle="xs" color="fg.muted">New Light</Text>
-                      </Stack>
-                    </HStack>
-                  </Menu.ItemGroupLabel>
-                  <Menu.Item value="settings" onSelect={handleSettingsClick}>
-                    <Settings />
-                    <Menu.ItemText>Settings</Menu.ItemText>
-                  </Menu.Item>
-                </Menu.ItemGroup>
-              </Menu.Content>
-            </Menu.Positioner>
-          </Menu.Root>
+          {getAccountTileState(user) === 'account' ? (
+            <NavTile
+              icon={
+                <Avatar.Root size="lg" className={css({ width: '24px', height: '24px' })}>
+                  <Avatar.Fallback>{initials}</Avatar.Fallback>
+                </Avatar.Root>
+              }
+              label={firstName}
+              onClick={() => handleAccountClick('/account')}
+            />
+          ) : (
+            <NavTile
+              icon={<LogIn className={css({ width: '24px', height: '24px' })} />}
+              label="Log in"
+              onClick={() => handleAccountClick('/login')}
+            />
+          )}
 
           <NavTile
             icon={<Settings className={css({ width: '24px', height: '24px' })} />}
@@ -531,14 +527,21 @@ function SidebarInner({ onSettingsNavigate, onModuleNavigate, logo }: SidebarInn
 interface SidebarProps {
   onSettingsNavigate?: () => void
   onModuleNavigate?: (moduleId: string) => void
+  /** Navigate to the account surface (/login when signed out, /account when signed in). */
+  onAccountNavigate?: (path: string) => void
   /** Committed brand logo URL — shown in the brand slot instead of the Sun. */
   logo?: string | null
 }
 
-export function Sidebar({ onSettingsNavigate, onModuleNavigate, logo }: SidebarProps) {
+export function Sidebar({ onSettingsNavigate, onModuleNavigate, onAccountNavigate, logo }: SidebarProps) {
   return (
     <NavProvider>
-      <SidebarInner onSettingsNavigate={onSettingsNavigate} onModuleNavigate={onModuleNavigate} logo={logo} />
+      <SidebarInner
+        onSettingsNavigate={onSettingsNavigate}
+        onModuleNavigate={onModuleNavigate}
+        onAccountNavigate={onAccountNavigate}
+        logo={logo}
+      />
     </NavProvider>
   )
 }

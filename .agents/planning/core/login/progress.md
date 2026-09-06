@@ -50,3 +50,17 @@
 | Error | Resolution |
 |-------|-----------|
 | (none — Batch 3) | — |
+
+## 2026-09-06 — Batch 4 Complete (Account tile + /account page, TDD)
+- 4.1-4.4 TDD: tile-state.test.ts (3 tests) → FAIL → tile-state.ts implemented → PASS.
+- 4.5 sidebar.tsx footer: signed out → Log-in tile (LogIn icon, "Log in"); signed in → account tile (Avatar initials via getInitials, label=firstName); onAccountNavigate prop threaded through AppShell; FOOTER_TILES=2 kept; removed old Account menu (Menu/HStack/Stack/Text imports dropped).
+- 4.6 AccountPage.tsx (inside AppShell): avatar+name+email, profile fields (first name/email/role), Change password, Sign out → /login.
+- 4.7 /account route added INSIDE AppShell (lazy).
+- Added getFirstName helper + firstName in AuthContextValue (decision #12: label = First name).
+- Verify: `pnpm typecheck` clean; `pnpm test` 59 passed.
+- Commit: `feat: account tile states + /account profile page`
+
+## Errors
+| Error | Resolution |
+|-------|-----------|
+| (none — Batch 4) | — |

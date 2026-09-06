@@ -15,7 +15,7 @@
 | 1 | Auth foundation (AuthProvider+useAuth+SettingsProvider refactor) | complete |
 | 2 | Auth helpers + person linkage (TDD) | complete |
 | 3 | Login page (TDD) | complete |
-| 4 | Account tile + /account page (TDD) | pending |
+| 4 | Account tile + /account page (TDD) | complete |
 | 5 | RLS refinement (migration) | pending |
 | 6 | Config + polish + verification | pending |
 | Final | Push feature/login-system | pending |

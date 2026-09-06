@@ -362,6 +362,7 @@ export default function ChurchInformationPage() {
   const previewLogo = draftLogoUrl ?? logoUrl
 
   return (
+    <>
     <Page.Main>
       <Page.Header
         style={{ '--module-number': 0 } as CSSProperties}
@@ -506,36 +507,69 @@ export default function ChurchInformationPage() {
             <Card.Header>
               <Heading textStyle="md">Appearance</Heading>
             </Card.Header>
-            <Card.Body>
-              <Stack gap="4">
+            <Card.Body gap="6">
+              <HStack gap="6" alignItems="start">
                 <Field.Root>
-                  <Field.Label>Color scheme</Field.Label>
-                  <HStack gap="2">
-                    <Button
-                      flex="1"
-                      size="sm"
-                      variant={theme.scheme === 'light' ? 'solid' : 'outline'}
-                      onClick={() => { setTheme((s) => ({ ...s, scheme: 'light' })); setIsDirty(true) }}
-                    >
-                      Light
-                    </Button>
-                    <Button
-                      flex="1"
-                      size="sm"
-                      variant={theme.scheme === 'dark' ? 'solid' : 'outline'}
-                      onClick={() => { setTheme((s) => ({ ...s, scheme: 'dark' })); setIsDirty(true) }}
-                    >
-                      Dark
-                    </Button>
-                  </HStack>
-                  <Field.HelperText>Flips the whole shell between light and dark.</Field.HelperText>
+                  <Field.Label>Accent color</Field.Label>
+                  <RadioCardGroup.Root
+                    aria-label="Accent color"
+                    display="grid"
+                    gridTemplateColumns="repeat(3, 1fr)"
+                    gap="1.5"
+                    value={theme.accent}
+                    onValueChange={(details) => {
+                      setIsDirty(true)
+                      setTheme((s) => ({ ...s, accent: (details.value ?? s.accent) as Accent }))
+                    }}
+                  >
+                    {ACCENT_OPTIONS.map((option) => (
+                      <RadioCardGroup.Item
+                        key={option.value}
+                        value={option.value}
+                        height="9"
+                        py="0"
+                        justifyContent="flex-start"
+                        css={{ _checked: { borderColor: 'gray.9', boxShadowColor: 'gray.9' } }}
+                      >
+                        <Box
+                          flex="0 0 auto"
+                          width="3.5"
+                          height="3.5"
+                          borderRadius="full"
+                          style={{ background: ACCENT_SWATCHES[option.value] }}
+                        />
+                        <RadioCardGroup.ItemText textTransform="capitalize">{option.label}</RadioCardGroup.ItemText>
+                        <RadioCardGroup.ItemHiddenInput />
+                      </RadioCardGroup.Item>
+                    ))}
+                  </RadioCardGroup.Root>
+                  <Field.HelperText>
+                    Only the selected theme file loads at runtime — swatches are hard-coded hexes.
+                  </Field.HelperText>
                 </Field.Root>
-
-                <Stack
-                  gap="4"
-                  display={{ base: 'grid', md: 'grid' }}
-                  gridTemplateColumns={{ base: '1fr', md: '1fr 1fr' }}
-                >
+                <Stack gap="6">
+                    <Field.Root>
+                      <Field.Label>Color scheme</Field.Label>
+                      <HStack gap="2">
+                        <Button
+                          flex="1"
+                          size="sm"
+                          variant={theme.scheme === 'light' ? 'solid' : 'outline'}
+                          onClick={() => { setTheme((s) => ({ ...s, scheme: 'light' })); setIsDirty(true) }}
+                        >
+                        Light
+                        </Button>
+                        <Button
+                         flex="1"
+                         size="sm"
+                         variant={theme.scheme === 'dark' ? 'solid' : 'outline'}
+                         onClick={() => { setTheme((s) => ({ ...s, scheme: 'dark' })); setIsDirty(true) }}
+                        >
+                        Dark
+                        </Button>
+                      </HStack>
+                      <Field.HelperText>Flips the whole shell between light and dark.</Field.HelperText>
+                    </Field.Root>
                   <Field.Root>
                     <Field.Label>Gray</Field.Label>
                     <RadioCardGroup.Root
@@ -574,92 +608,51 @@ export default function ChurchInformationPage() {
                       Only the selected theme file loads at runtime — swatches are hard-coded hexes.
                     </Field.HelperText>
                   </Field.Root>
+                  <ThemeSelect
+                   label="Sidebar style"
+                   items={SIDEBAR_OPTIONS}
+                   value={theme.sidebarStyle}
+                   onChange={(value) => { setTheme((s) => ({ ...s, sidebarStyle: value as SidebarStyle })); setIsDirty(true) }}
+                   helperText="Sidebar background / text pair (light, dark, or brand)."
+                  />
 
-                  <Field.Root>
-                    <Field.Label>Accent color</Field.Label>
-                    <RadioCardGroup.Root
-                      aria-label="Accent color"
-                      display="grid"
-                      gridTemplateColumns="repeat(3, 1fr)"
-                      gap="1.5"
-                      value={theme.accent}
-                      onValueChange={(details) => {
-                        setIsDirty(true)
-                        setTheme((s) => ({ ...s, accent: (details.value ?? s.accent) as Accent }))
-                      }}
-                    >
-                      {ACCENT_OPTIONS.map((option) => (
-                        <RadioCardGroup.Item
-                          key={option.value}
-                          value={option.value}
-                          height="9"
-                          py="0"
-                          justifyContent="flex-start"
-                          css={{ _checked: { borderColor: 'gray.9', boxShadowColor: 'gray.9' } }}
-                        >
-                          <Box
-                            flex="0 0 auto"
-                            width="3.5"
-                            height="3.5"
-                            borderRadius="full"
-                            style={{ background: ACCENT_SWATCHES[option.value] }}
-                          />
-                          <RadioCardGroup.ItemText textTransform="capitalize">{option.label}</RadioCardGroup.ItemText>
-                          <RadioCardGroup.ItemHiddenInput />
-                        </RadioCardGroup.Item>
-                      ))}
-                    </RadioCardGroup.Root>
-                    <Field.HelperText>
-                      Only the selected theme file loads at runtime — swatches are hard-coded hexes.
-                    </Field.HelperText>
-                  </Field.Root>
                 </Stack>
+              </HStack>
+              <Field.Root gap="1">
+                      <Field.Label>Corner radius</Field.Label>
+                      <Slider.Root
+                        min={0}
+                        max={RADII.length - 1}
+                        step={1}
+                        value={[RADII.indexOf(theme.radius)]}
+                        onValueChange={(details) => { setIsDirty(true); setTheme((s) => ({ ...s, radius: RADII[details.value[0]] })) }}
+                      >
+                        <Slider.Control>
+                          <Slider.Track>
+                            <Slider.Range />
+                          </Slider.Track>
+                          <Slider.Thumbs />
+                        </Slider.Control>
+                        <Slider.Marks marks={RADIUS_MARKS} />
+                      </Slider.Root>
+                    </Field.Root>
+            </Card.Body>
+          </Card.Root>
 
-                <ThemeSelect
-                  label="Sidebar style"
-                  items={SIDEBAR_OPTIONS}
-                  value={theme.sidebarStyle}
-                  onChange={(value) => { setTheme((s) => ({ ...s, sidebarStyle: value as SidebarStyle })); setIsDirty(true) }}
-                  helperText="Sidebar background / text pair (light, dark, or brand)."
-                />
-                <Field.Root>
-                  <Field.Label>Corner radius</Field.Label>
-                  <Slider.Root
-                    min={0}
-                    max={RADII.length - 1}
-                    step={1}
-                    value={[RADII.indexOf(theme.radius)]}
-                    onValueChange={(details) => { setIsDirty(true); setTheme((s) => ({ ...s, radius: RADII[details.value[0]] })) }}
-                  >
-                    <Slider.Control>
-                      <Slider.Track>
-                        <Slider.Range />
-                      </Slider.Track>
-                      <Slider.Thumbs />
-                    </Slider.Control>
-                    <Slider.Marks marks={RADIUS_MARKS} />
-                  </Slider.Root>
-                  <Field.HelperText>
-                    {theme.radius} — shifts radii l1/l2/l3 across the shell.
-                  </Field.HelperText>
-                </Field.Root>
+          <Card.Root>
+            <Card.Header>
 
-                <ThemeSelect
+              <Heading textStyle="md">Typography</Heading>
+            </Card.Header>
+            <Card.Body gap="4">
+              <HStack gap="6">
+              <ThemeSelect
                   label="Font"
                   items={FONT_OPTIONS}
                   value={theme.font}
                   onChange={(value) => { setTheme((s) => ({ ...s, font: value as FontKey })); setIsDirty(true) }}
                   helperText="Fetches the selected webfont and re-fonts the whole shell live."
                 />
-              </Stack>
-            </Card.Body>
-          </Card.Root>
-
-          <Card.Root>
-            <Card.Header>
-              <Heading textStyle="md">Heading Style</Heading>
-            </Card.Header>
-            <Card.Body>
               <Field.Root>
                 <Field.Label>Heading style</Field.Label>
                 <Stack gap="2">
@@ -685,10 +678,12 @@ export default function ChurchInformationPage() {
                   Independent toggles — written space-separated to data-heading-style.
                 </Field.HelperText>
               </Field.Root>
+              </HStack>
             </Card.Body>
           </Card.Root>
         </Stack>
       </Page.Body>
+    </Page.Main>
 
       <Page.Footer>
         <Button
@@ -705,7 +700,7 @@ export default function ChurchInformationPage() {
           {saving ? 'Saving…' : 'Apply'}
         </Button>
       </Page.Footer>
-    </Page.Main>
+    </>
   )
 }
 

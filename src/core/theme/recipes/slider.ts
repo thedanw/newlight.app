@@ -22,6 +22,7 @@ export const slider = defineSlotRecipe({
     control: {
       display: 'inline-flex',
       alignItems: 'center',
+      marginBottom: '6',
     },
     track: {
       overflow: 'hidden',

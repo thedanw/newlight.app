@@ -35,7 +35,10 @@ export const page = defineSlotRecipe({
       position: 'relative',
       marginLeft: '5px',
       padding: '0',
-      gap: { base: '3', md: '6' },
+      // Gap removed — the root's only in-flow children are Page.Main (flex:1)
+      // and, on action pages, Page.Footer. When main was absolute it was the
+      // only child and the gap had zero effect; with footer now in-flow a gap
+      // would detach the action bar from the bottom of the page.
       '@media (min-width: 1280px)': {
         marginLeft: 'var(--dynamic-sidebar-width, 100px)',
       },
@@ -71,26 +74,32 @@ export const page = defineSlotRecipe({
     body: {
       display: 'flex',
       flexDirection: 'column',
-      flex: '1',
+      // Natural height (no grow/shrink): Page.Main is the scroll container and
+      // flex-grow on body would size it to exactly the visible viewport,
+      // leaving no overflow for Main to scroll when content is taller.
+      flex: '0 0 auto',
       minWidth: '0',
       gap: { base: '3', md: '6' },
       padding: { base: '3', md: '6' },
       position: 'relative',
     },
     main: {
-      position: 'absolute',
-      inset: '0',
+      position: 'relative',
+      flex: '1',
+      minHeight: '0',
+      minWidth: '0',
       display: 'flex',
       flexDirection: 'column',
-      minWidth: '0',
       overflowY: 'auto',
       overflowX: 'hidden',
     },
     footer: {
       display: 'flex',
+      alignItems: 'center',
       justifyContent: 'flex-end',
       paddingLeft: { base: '3', md: '6' },
       paddingRight: { base: '3', md: '6' },
+      paddingBlock: '4',
       gap: '3',
       flexShrink: '0',
     },

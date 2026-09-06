@@ -44,12 +44,12 @@
 **Ctx:** Overall: login via account tile. Now: /login page (password+magic link+forgot).
 **Track:** ✅ plan.md tasks; progress.md log per task.
 **Tools:** --todo tool; subagent for LoginPage UI (branded, outside AppShell).
-- [ ] 3.1 Write failing test: identifier validation → src/core/auth/lib/validation.test.ts
-- [ ] 3.2 Run `pnpm test` → FAIL
-- [ ] 3.3 Implement src/core/auth/lib/validation.ts
-- [ ] 3.4 Run `pnpm test` → PASS
-- [ ] 3.5 Create src/core/auth/LoginPage.tsx: semantic <main> (NO Page.* slots — outside AppShell); logo+app name; email field; mode toggle Password|Magic link; forgot-password; loading/error; success → navigate (default /people)
-- [ ] 3.6 Add /login route OUTSIDE AppShell in src/core/router.tsx (lazy)
+- [x] 3.1 Write failing test: identifier validation → src/core/auth/lib/validation.test.ts
+- [x] 3.2 Run `pnpm test` → FAIL
+- [x] 3.3 Implement src/core/auth/lib/validation.ts
+- [x] 3.4 Run `pnpm test` → PASS
+- [x] 3.5 Create src/core/auth/LoginPage.tsx: semantic <main> (NO Page.* slots — outside AppShell); logo+app name; email field; mode toggle Password|Magic link; forgot-password; loading/error; success → navigate (default /people)
+- [x] 3.6 Add /login route OUTSIDE AppShell in src/core/router.tsx (lazy)
 **End:** tests green; route renders → commit `feat: login page (email/password + magic link)` → task_plan.md B3 ✅ → report. Next: B4.
 
 ### Batch 4: Account tile + /account page (TDD)

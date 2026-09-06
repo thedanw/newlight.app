@@ -7,6 +7,7 @@ import { peopleRoutes } from '@/modules/people/routes'
 import { coreRoutes } from '@/core/routes'
 
 const FormPublicPage = lazy(() => import('@/modules/people/pages/FormPublicPage'))
+const LoginPage = lazy(() => import('@/core/auth/LoginPage'))
 
 export const router = createBrowserRouter([
   {
@@ -25,6 +26,11 @@ export const router = createBrowserRouter([
   {
     path: '/forms/:formId',
     element: <FormPublicPage />,
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: '/login',
+    element: <LoginPage />,
     errorElement: <ErrorPage />,
   },
 ])

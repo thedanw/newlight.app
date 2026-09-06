@@ -38,3 +38,15 @@
 | Error | Resolution |
 |-------|-----------|
 | (none — Batch 2) | — |
+
+## 2026-09-06 — Batch 3 Complete (Login page, TDD)
+- 3.1-3.4 TDD: validation.test.ts (5 tests) → FAIL → validation.ts implemented → PASS.
+- 3.5 LoginPage.tsx: semantic <main> (no Page.* slots), logo+app name (from settings), email field, Password|Magic link toggle, forgot-password, loading/error/notice states, navigate /people on success.
+- 3.6 /login route added OUTSIDE AppShell (lazy) in router.tsx.
+- Verify: `pnpm typecheck` clean; `pnpm test` 56 passed.
+- Commit: `feat: login page (email/password + magic link)`
+
+## Errors
+| Error | Resolution |
+|-------|-----------|
+| (none — Batch 3) | — |

@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { createListCollection } from '@ark-ui/react'
-import { Card, Field, Select } from '@/core/ui'
+import { Field, Select } from '@/core/ui'
 import { Stack } from 'styled-system/jsx'
 import type { JourneyStage, PeopleListOptions } from '../lib/types'
 import { useTags, useJourneyTracks, useJourneyStages } from '../lib/hooks'

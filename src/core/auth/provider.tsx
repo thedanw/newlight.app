@@ -1,0 +1,180 @@
+'use client'
+import { createContext, useEffect, useState, type ReactNode } from 'react'
+import { supabase } from '@/core/lib/supabase'
+import type { AuthError, Session, User } from '@supabase/supabase-js'
+import type { Tables } from '@/core/lib/database.types'
+import { getPersonByAuthUserId } from './lib/queries'
+import { getInitials, getDisplayName, getFirstName } from './lib/name'
+
+/**
+ * AuthContextValue — session + auth actions owned by AuthProvider.
+ * SettingsProvider consumes this (single source of truth, decision #9).
+ */
+export interface AuthContextValue {
+  supabase: typeof supabase
+  session: Session | null
+  user: User | null
+  isLoading: boolean
+  /** Linked people row (null if auth user has no person record). */
+  person: Tables<'people'> | null
+  isProfileLoading: boolean
+  /** Initials for the account avatar (first+last, fallback user_metadata/email). */
+  initials: string
+  /** Display name for the account tile (preferred_name ?? firstname, fallback). */
+  displayName: string
+  /** First name for the account tile label (fallback user_metadata/email). */
+  firstName: string
+  signInWithPassword: (email: string, password: string) => Promise<{ error: AuthError | null }>
+  signInWithOtp: (email: string) => Promise<{ error: AuthError | null }>
+  signOut: () => Promise<{ error: AuthError | null }>
+  resetPasswordForEmail: (email: string) => Promise<{ error: AuthError | null }>
+  updatePassword: (newPassword: string) => Promise<{ error: AuthError | null }>
+}
+
+export const AuthContext = createContext<AuthContextValue | null>(null)
+
+/**
+ * AuthProvider — owns the Supabase session lifecycle (getSession +
+ * onAuthStateChange) and exposes auth actions. Falls back to a lab mock
+ * session when Supabase env vars are absent (decision #10).
+ */
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [session, setSession] = useState<Session | null>(null)
+  const [user, setUser] = useState<User | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [person, setPerson] = useState<Tables<'people'> | null>(null)
+  const [isProfileLoading, setIsProfileLoading] = useState(false)
+
+  useEffect(() => {
+    // Match supabase.ts fallback: publishable key counts as real auth
+    const hasRealAuth =
+      import.meta.env.VITE_SUPABASE_URL &&
+      (import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY)
+
+    if (hasRealAuth) {
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        setSession(session)
+        setUser(session?.user ?? null)
+        setIsLoading(false)
+      })
+
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+        setSession(session)
+        setUser(session?.user ?? null)
+      })
+
+      return () => subscription.unsubscribe()
+    }
+
+    // Lab mock/fallback — anonymous session
+    const mockSession: Session = {
+      access_token: 'mock-token',
+      refresh_token: 'mock-refresh',
+      expires_in: 3600,
+      expires_at: Math.floor(Date.now() / 1000) + 3600,
+      token_type: 'bearer',
+      user: {
+        id: 'lab-user',
+        aud: 'authenticated',
+        role: 'authenticated',
+        email: 'lab@newlight.app',
+        created_at: new Date().toISOString(),
+        app_metadata: {},
+        user_metadata: {},
+      },
+    }
+    setSession(mockSession)
+    setUser(mockSession.user)
+    setIsLoading(false)
+  }, [])
+
+  // Load linked person profile whenever the auth user changes
+  useEffect(() => {
+    let cancelled = false
+    if (!user) {
+      setPerson(null)
+      setIsProfileLoading(false)
+      return
+    }
+    setIsProfileLoading(true)
+    getPersonByAuthUserId(user.id)
+      .then((p) => {
+        if (!cancelled) setPerson(p)
+      })
+      .catch(() => {
+        if (!cancelled) setPerson(null)
+      })
+      .finally(() => {
+        if (!cancelled) setIsProfileLoading(false)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [user?.id])
+
+  const initials = getInitials({
+    firstname: person?.firstname,
+    lastname: person?.lastname,
+    user_metadata: user?.user_metadata,
+    email: user?.email,
+  })
+  const displayName = getDisplayName({
+    preferred_name: person?.preferred_name,
+    firstname: person?.firstname,
+    user_metadata: user?.user_metadata,
+    email: user?.email,
+  })
+  const firstName = getFirstName({
+    firstname: person?.firstname,
+    user_metadata: user?.user_metadata,
+    email: user?.email,
+  })
+
+  const signInWithPassword = async (email: string, password: string) => {
+    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    return { error }
+  }
+
+  const signInWithOtp = async (email: string) => {
+    const { error } = await supabase.auth.signInWithOtp({ email })
+    return { error }
+  }
+
+  const signOut = async () => {
+    const { error } = await supabase.auth.signOut()
+    return { error }
+  }
+
+  const resetPasswordForEmail = async (email: string) => {
+    const { error } = await supabase.auth.resetPasswordForEmail(email)
+    return { error }
+  }
+
+  const updatePassword = async (newPassword: string) => {
+    const { error } = await supabase.auth.updateUser({ password: newPassword })
+    return { error }
+  }
+
+  return (
+    <AuthContext.Provider
+      value={{
+        supabase,
+        session,
+        user,
+        isLoading,
+        person,
+        isProfileLoading,
+        initials,
+        displayName,
+        firstName,
+        signInWithPassword,
+        signInWithOtp,
+        signOut,
+        resetPasswordForEmail,
+        updatePassword,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  )
+}

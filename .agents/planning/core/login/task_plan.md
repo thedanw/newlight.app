@@ -1,21 +1,21 @@
 # Task Plan: Login System — Account Nav Tile Entry Point
 
-## Status: planning
+## Status: complete
 
 | Phase | Status | Notes |
 |-------|--------|-------|
 | Brainstorm | complete | decision.md; lock: email/password+magic link; sign-in only; public browsing+RLS; tile→/account |
-| Plan | in_progress | plan.md; awaiting user confirmation |
-| Execute & Review | pending | |
-| Review | pending | |
+| Plan | complete | plan.md; user confirmed execution |
+| Execute & Review | complete | B1–B6 + Final all done; pushed feature/login-system |
+| Review | complete | Validation checklist all green (tests/typecheck/lint/build/browser/RLS); open questions resolved (test user created, change-password included) |
 
 ## Batch Tracker
 | Batch | Title | Status |
 |-------|-------|--------|
-| 1 | Auth foundation (AuthProvider+useAuth+SettingsProvider refactor) | pending |
-| 2 | Auth helpers + person linkage (TDD) | pending |
-| 3 | Login page (TDD) | pending |
-| 4 | Account tile + /account page (TDD) | pending |
-| 5 | RLS refinement (migration) | pending |
-| 6 | Config + polish + verification | pending |
-| Final | Push feature/login-system | pending |
+| 1 | Auth foundation (AuthProvider+useAuth+SettingsProvider refactor) | complete |
+| 2 | Auth helpers + person linkage (TDD) | complete |
+| 3 | Login page (TDD) | complete |
+| 4 | Account tile + /account page (TDD) | complete |
+| 5 | RLS refinement (migration) | complete |
+| 6 | Config + polish + verification | complete |
+| Final | Push feature/login-system | complete |

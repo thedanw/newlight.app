@@ -37,6 +37,7 @@ export function AppShell({ children }: { children?: ReactNode }) {
       <Sidebar
         onSettingsNavigate={() => navigate('/settings')}
         onModuleNavigate={(moduleId) => navigate(`/${moduleId}`)}
+        onAccountNavigate={(path) => navigate(path)}
         logo={logoUrl}
       />
       <Page.Root id="page-panel">

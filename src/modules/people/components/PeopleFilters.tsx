@@ -2,8 +2,8 @@ import { useMemo } from 'react'
 import { createListCollection } from '@ark-ui/react'
 import { Card, Field, Select } from '@/core/ui'
 import { Stack } from 'styled-system/jsx'
-import type { PeopleListOptions } from '../lib/types'
-import { useTags } from '../lib/hooks'
+import type { JourneyStage, PeopleListOptions } from '../lib/types'
+import { useTags, useJourneyTracks, useJourneyStages } from '../lib/hooks'
 
 type PeopleFiltersProps = {
   filters: PeopleListOptions
@@ -12,6 +12,8 @@ type PeopleFiltersProps = {
 
 export function PeopleFilters({ filters, onChange }: PeopleFiltersProps) {
   const tags = useTags()
+  const tracks = useJourneyTracks()
+  const stages = useJourneyStages()
 
   const demographicCollection = useMemo(() => createListCollection({
     items: [
@@ -36,13 +38,16 @@ export function PeopleFilters({ filters, onChange }: PeopleFiltersProps) {
     ]
   }), [])
 
+  const trackCollection = useMemo(() => createListCollection({
+    items: [{ label: 'All tracks', value: '' }, ...(tracks.data ?? []).map((track) => ({ label: track.name, value: track.id }))]
+  }), [tracks.data])
+
+  const stageCollection = useMemo(() => createListCollection({
+    items: [{ label: 'All stages', value: '' }, ...(stages.data ?? []).map((stage: JourneyStage) => ({ label: stage.label, value: stage.slug }))]
+  }), [stages.data])
+
   return (
-    <Card.Root>
-      <Card.Header>
-        <Card.Title>Filter people</Card.Title>
-      </Card.Header>
-      <Card.Body>
-        <Stack gap="4">
+        <Stack gap="4" width="full">
           <Field.Root>
             <Field.Label>Demographic</Field.Label>
             <Select.Root collection={demographicCollection} value={[filters.demographic ?? '']} onValueChange={(details) => onChange({ ...filters, demographic: details.value[0] ? details.value[0] as NonNullable<PeopleListOptions['demographic']> : undefined })}>
@@ -52,6 +57,32 @@ export function PeopleFilters({ filters, onChange }: PeopleFiltersProps) {
               <Select.Positioner>
                 <Select.Content>
                   {demographicCollection.items.map((item) => <Select.Item key={item.value} item={item}><Select.ItemText>{item.label}</Select.ItemText><Select.ItemIndicator /></Select.Item>)}
+                </Select.Content>
+              </Select.Positioner>
+            </Select.Root>
+          </Field.Root>
+          <Field.Root>
+            <Field.Label>Journey track</Field.Label>
+            <Select.Root collection={trackCollection} value={[filters.journeyTrackId ?? '']} onValueChange={(details) => onChange({ ...filters, journeyTrackId: details.value[0] || undefined })}>
+              <Select.Control>
+                <Select.Trigger><Select.ValueText placeholder="All tracks" /><Select.Indicator /></Select.Trigger>
+              </Select.Control>
+              <Select.Positioner>
+                <Select.Content>
+                  {trackCollection.items.map((item) => <Select.Item key={item.value} item={item}><Select.ItemText>{item.label}</Select.ItemText><Select.ItemIndicator /></Select.Item>)}
+                </Select.Content>
+              </Select.Positioner>
+            </Select.Root>
+          </Field.Root>
+          <Field.Root>
+            <Field.Label>Journey stage</Field.Label>
+            <Select.Root collection={stageCollection} value={[filters.journeyStage ?? '']} onValueChange={(details) => onChange({ ...filters, journeyStage: details.value[0] || undefined })}>
+              <Select.Control>
+                <Select.Trigger><Select.ValueText placeholder="All stages" /><Select.Indicator /></Select.Trigger>
+              </Select.Control>
+              <Select.Positioner>
+                <Select.Content>
+                  {stageCollection.items.map((item) => <Select.Item key={item.value} item={item}><Select.ItemText>{item.label}</Select.ItemText><Select.ItemIndicator /></Select.Item>)}
                 </Select.Content>
               </Select.Positioner>
             </Select.Root>
@@ -83,7 +114,5 @@ export function PeopleFilters({ filters, onChange }: PeopleFiltersProps) {
             </Select.Root>
           </Field.Root>
         </Stack>
-      </Card.Body>
-    </Card.Root>
   )
 }

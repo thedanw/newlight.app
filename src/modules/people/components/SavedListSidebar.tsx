@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Button, Card, Dialog, Input, Switch, Text } from '@/core/ui'
+import { Button, Heading, Dialog, Input, Switch, Text } from '@/core/ui'
 import { Stack } from 'styled-system/jsx'
 import type { EmailRecipient } from '@/core/lib/email'
 import { deleteSavedList, updateSavedList } from '../lib/queries'
@@ -56,13 +56,11 @@ export function SavedListSidebar({ onLoad, refreshKey = 0 }: { onLoad: (conditio
   }
 
   return (
-    <Card.Root>
-      <Card.Header>
-        <Card.Title>Saved lists</Card.Title>
-      </Card.Header>
-      <Card.Body>
-        <Stack gap="3">
+<>
+        <Heading>Saved lists</Heading>
+        <Stack gap="3" width="full">
           {data?.map((list) => (
+            <>
             <Stack key={list.id} gap="2">
               <Stack flexDirection="row" gap="2" alignItems="center">
                 <Button variant="plain" onClick={() => onLoad(list.conditions as PeopleListOptions)}>{list.name}</Button>
@@ -74,9 +72,10 @@ export function SavedListSidebar({ onLoad, refreshKey = 0 }: { onLoad: (conditio
                 <Button variant="outline" onClick={() => void handleDelete(list.id)}>Delete</Button>
               </Stack>
             </Stack>
+            </>
           ))}
         </Stack>
-      </Card.Body>
+
       <SendEmailDialog
         open={emailListId !== null}
         onOpenChange={(next) => { if (!next) setEmailListId(null) }}
@@ -104,6 +103,6 @@ export function SavedListSidebar({ onLoad, refreshKey = 0 }: { onLoad: (conditio
           </Dialog.Content>
         </Dialog.Positioner>
       </Dialog.Root>
-    </Card.Root>
+</>
   )
 }

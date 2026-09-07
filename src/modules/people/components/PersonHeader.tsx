@@ -8,9 +8,10 @@ import { SendEmailDialog } from './SendEmailDialog'
 type PersonHeaderProps = {
   person: Person
   onEdit: () => void
+  canEdit?: boolean
 }
 
-export function PersonHeader({ person, onEdit }: PersonHeaderProps) {
+export function PersonHeader({ person, onEdit, canEdit = true }: PersonHeaderProps) {
   const [emailOpen, setEmailOpen] = useState(false)
   const name = person.preferred_name ? `${person.preferred_name} ${person.lastname}` : `${person.firstname} ${person.lastname}`
   const hasEmail = Boolean(person.email?.trim())
@@ -29,7 +30,7 @@ export function PersonHeader({ person, onEdit }: PersonHeaderProps) {
             <HStack gap="2">
               <Badge colorPalette={person.demographic === 'adult' ? 'blue' : person.demographic === 'youth' ? 'orange' : 'green'}>{person.demographic}</Badge>
               {hasEmail && <Button variant="outline" onClick={() => setEmailOpen(true)}>Email</Button>}
-              <Button onClick={onEdit}>Edit person</Button>
+              {canEdit && <Button onClick={onEdit}>Edit person</Button>}
             </HStack>
           </HStack>
         </Stack>

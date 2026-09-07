@@ -4,6 +4,7 @@ import { Breadcrumb, Page, Text } from '@/core/ui'
 import { Stack } from 'styled-system/jsx'
 import { Users } from 'lucide-react'
 import { usePerson } from '../lib/hooks'
+import { useProfilePermissions } from '../lib/profile-permissions'
 import { PersonHeader } from '../components/PersonHeader'
 import { PageSkeleton } from '../components/PageSkeleton'
 import { PersonalSection } from '../components/sections/PersonalSection'
@@ -21,6 +22,7 @@ export default function PersonProfilePage() {
   const navigate = useNavigate()
   const { id } = useParams()
   const { data: person, loading, error } = usePerson(id)
+  const permissions = useProfilePermissions(person)
 
   if (loading) return (
     <Page.Main>
@@ -68,16 +70,16 @@ export default function PersonProfilePage() {
             </Breadcrumb.List>
           </Breadcrumb.Root>
 
-          <PersonHeader person={person} onEdit={() => navigate(`/people/${person.id}/edit`)} />
+          <PersonHeader person={person} onEdit={() => navigate(`/people/${person.id}/edit`)} canEdit={permissions.canEdit} />
 
-          <PersonalSection person={person} />
-          <DemographicsSection person={person} />
+          <PersonalSection person={person} canEdit={permissions.canEdit} />
+          <DemographicsSection person={person} canEdit={permissions.canEdit} />
 
-          {showContact && <ContactSection person={person} />}
-          {showGuardians && <GuardiansSection person={person} />}
+          {showContact && <ContactSection person={person} canEdit={permissions.canEdit} />}
+          {showGuardians && <GuardiansSection person={person} canManageGuardians={permissions.canManageGuardians} />}
           {showMedical && <MedicalSection person={person} />}
           {showConsents && <ConsentsSection person={person} />}
-          {showChildSafety && <ChildSafetySection person={person} />}
+          {showChildSafety && <ChildSafetySection person={person} canEditChildSafety={permissions.canEditChildSafety} />}
           {showAdmin && <AdminSection person={person} />}
 
           <JourneySection person={person} />

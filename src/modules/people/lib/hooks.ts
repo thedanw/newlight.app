@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
-import { getCurrentOperatorPermission, getHouseholdById, getHouseholds, getJourneyGrid, getJourneyTracks, getPeopleList, getPersonById, searchPeople } from './queries'
+import { getCurrentOperatorPermission, getHouseholdById, getHouseholds, getJourneyGrid, getJourneyStages, getJourneyTracks, getPeopleList, getPersonById, getPersonGuardians, searchPeople } from './queries'
 import { getPersonTags, getTags } from './queries'
-import type { HouseholdDetails, JourneyGrid, JourneyTrack, PeopleListOptions, Person, PersonWithJourney } from './types'
+import type { HouseholdDetails, JourneyGrid, JourneyStage, JourneyTrack, PeopleListOptions, Person, PersonWithJourney } from './types'
 
 type AsyncState<T> = {
   data: T | null
@@ -9,7 +9,7 @@ type AsyncState<T> = {
   error: Error | null
 }
 
-function useAsyncQuery<T>(query: () => Promise<T>, key: string): AsyncState<T> {
+export function useAsyncQuery<T>(query: () => Promise<T>, key: string): AsyncState<T> {
   const [state, setState] = useState<AsyncState<T>>({ data: null, loading: true, error: null })
 
   useEffect(() => {
@@ -66,6 +66,10 @@ export function useJourneyTracks(): AsyncState<JourneyTrack[]> {
   return useAsyncQuery(getJourneyTracks, 'journey-tracks')
 }
 
+export function useJourneyStages(): AsyncState<JourneyStage[]> {
+  return useAsyncQuery(getJourneyStages, 'journey-stages')
+}
+
 export function useCurrentOperatorPermission(): AsyncState<Person['access_permission'] | null> {
   return useAsyncQuery(getCurrentOperatorPermission, 'current-operator-permission')
 }
@@ -80,4 +84,8 @@ export function useTags(): AsyncState<import('./types').Tag[]> {
 
 export function usePersonTags(personId: string | undefined): AsyncState<import('./types').Tag[]> {
   return useAsyncQuery(() => personId ? getPersonTags(personId) : Promise.resolve([]), personId ?? '')
+}
+
+export function usePersonGuardians(personId: string | undefined): AsyncState<Person[]> {
+  return useAsyncQuery(() => personId ? getPersonGuardians(personId) : Promise.resolve([]), personId ?? '')
 }

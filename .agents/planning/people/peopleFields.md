@@ -1,5 +1,4 @@
-> Single source of truth for PEOPLE field-level data (names, enums, visibility, journey-grid mapping). Decisions/rationale → `decision.md` (governs on conflict).
-> **UI/UX Guidelines:** All UI implementation MUST strictly follow `.agents/planning/ui-ux/decision.md` and `.agents/planning/module-design/decision.md`. See plan.md §UI/UX Guidelines for full details.
+> Single source of truth for PEOPLE field-level data (field names, enums, visibility, journey-grid mapping). Decisions/rationale → `decision.md` (governs on conflict). Journey-grid structure here; behaviour in `decision.md` #42–48.
 
 # Journey Grid Overview (replaces Locations, status, People Category)
 = journey tracks (rows) × universal stages (columns); 1 stage/track/person in `people.journey` JSONB `{track_id → stage}`. Decisions #38–43.
@@ -64,9 +63,9 @@ First Name · Preferred Name · Last Name
 - `demographic`: Adult | Youth | Child (PG enum)
 - `gender`: Male | Female | Blank (PG enum)
 - Date of Birth
-- Marital Status [Adult]: Blank | Single | Engaged | Married | Partner | Widowed | Divorced | Separated → `marital_status` (PG enum; legacy typo "Enaged"→"Engaged")
+- Marital Status [Adult]: Blank | Single | Engaged | Married | Partner | Widowed | Divorced | Separated → `marital_status` (PG enum)
 - School [Youth+Child]; School Year → **REPLACED by `kindy_start_year` int** (calc = CURRENT_YEAR − kindy_start_year; no preschool per #24–25)
-- School Email permission [Youth]: Blank | Yes | No → `school_email_permission` (DUPLICATE of Consents "Youth School Email Permission")
+- School Email permission [Youth]: Yes | No → `school_email_permission` (yes_no enum; single source of truth per #35)
 - School Email [Youth + permission 'yes']
 
 ## Address [All]
@@ -82,16 +81,16 @@ Linked guardians — **Registered** (members via people_relationships → profil
 Anaphylaxis/Allergy/Medical Details · Other Medical/Behavioral info · Regular Medication
 
 ## Consents [Youth+Child]
-- External Photo Consent: Blank | Yes | No → `consent_status`
-- Internal Photo Consent: Blank | Yes | No → `consent_status` (typo "Internel"→"Internal")
-- Youth School Email Permission [Youth]: Blank | Yes | No → `school_email_permission` (DUPLICATE of Demographics "School Email permission")
-- Biscuit Permission [Child <5]: Blank | Yes | No → `biscuit_permission_under5`
-- Girl Guide Off-site Permission: Blank | Yes | No → `consent_status`
+- External Photo Consent: Yes | No → `consent_external_photo` (yes_no enum)
+- Internal Photo Consent: Yes | No → `consent_internal_photo` (yes_no enum)
+- Youth School Email Permission [Youth]: Yes | No → `school_email_permission` (yes_no enum; single source of truth, Demographics section)
+- Biscuit Permission [Child <5]: Yes | No → `consent_biscuit_under5` (yes_no enum)
+- Girl Guide Off-site Permission: Yes | No → `consent_girl_guide_offsite` (yes_no enum)
 
 ## Child Safety Accreditation [Youth+Adult]
 - Safe Ministry Leader Type: Adults Leader | Junior Leader | Not Active | Under 13 Assistant | Visiting Leader
 - Safe Min Notes
-- Safe Ministry Start Date → DATE type (legacy "Text area" inconsistent with WWCC Expiry Date)
+- Safe Ministry Start Date → DATE type (per #36)
 
 ### WWCC [Youth+Adult]
 WWCC Number · WWCC Expiry Date · WWCC Verification Date · WWCC Verification Made By · WWCC Verification Outcome: blank | Cleared · WWCC Exemption: Support Role | Volunteer and Parent of attending Child (multi-select)
@@ -105,9 +104,5 @@ SMC Exemption · SMC Reviewer · SMC Result Date · SMC Result: Age 13-17 Applic
 ## Admin [Admin role — All]
 - `access_permission`: Public | Member Area | Team Leaders | Admin | SuperAdmin (PG enum)
 - `date_professed` · `legacy_date_added` · `legacy_member_id`
-
-
-
-
 
 

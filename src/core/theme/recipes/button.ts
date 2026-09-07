@@ -43,7 +43,7 @@ export const button = defineRecipe({
         },
       },
       surface: {
-        bg: 'colorPalette.surface.bg',
+        bg: 'colorPalette.1',
         borderWidth: '1px',
         borderColor: 'colorPalette.surface.border',
         color: 'colorPalette.surface.fg',

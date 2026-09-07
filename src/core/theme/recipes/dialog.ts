@@ -63,7 +63,7 @@ export const dialog = defineSlotRecipe({
       textStyle: 'sm',
       width: '100%',
       zIndex: 'calc(var(--dialog-z-index) + var(--layer-index, 0))',
-      py: { base: '4', md: '6' },
+      padding: { base: '3', md: '6' },
       gap: { base: '4', md: '6' },
       _open: {
         animationDuration: 'slowest',
@@ -82,9 +82,9 @@ export const dialog = defineSlotRecipe({
     body: {
       display: 'flex',
       flex: '1',
+      gap: { base: '3', md: '6' },
       flexDirection: 'column',
       alignItems: 'flex-start',
-      px: { base: '4', md: '6' },
     },
     footer: {
       display: 'flex',

@@ -1,6 +1,6 @@
 import { supabase } from '@/core/lib/supabase'
 import type { Json } from '@/core/lib/database.types'
-import type { HouseholdDetails, JourneyGrid, JourneyStage, JourneyTrack, JourneyTrackCategory, PeopleListOptions, Person, PersonWithJourney, Tag } from './types'
+import type { HouseholdDetails, JourneyGrid, JourneyStage, JourneyTrack, JourneyTrackCategory, PeopleListOptions, Person, PersonRelationship, PersonWithJourney, Tag } from './types'
 
 const DEFAULT_PAGE_SIZE = 50
 
@@ -63,7 +63,7 @@ export async function updatePerson(id: string, input: Partial<PersonInput>): Pro
   return data
 }
 
-async function writePeopleAudit(personId: string, fieldChanged: string, oldValue: Json | null, newValue: Json | null) {
+export async function writePeopleAudit(personId: string, fieldChanged: string, oldValue: Json | null, newValue: Json | null) {
   const { error } = await supabase.from('people_audit').insert({
     id: crypto.randomUUID(),
     person_id: personId,
@@ -193,6 +193,12 @@ export async function updatePersonJourney(id: string, journey: Person['journey']
 
 export async function getJourneyTracks(): Promise<JourneyGrid['tracks']> {
   const { data, error } = await supabase.from('journey_tracks').select('*').is('deleted_at', null).order('sort_order')
+  if (error) throw error
+  return data ?? []
+}
+
+export async function getJourneyStages(): Promise<JourneyGrid['stages']> {
+  const { data, error } = await supabase.from('journey_stages').select('*').order('sort_order')
   if (error) throw error
   return data ?? []
 }
@@ -388,4 +394,67 @@ export async function searchPeople(searchTerm: string, limit = DEFAULT_PAGE_SIZE
     .limit(limit)
   if (error) throw error
   return data ?? []
+}
+
+export async function getPersonGuardians(personId: string): Promise<Person[]> {
+  const { data: relationships, error: relError } = await supabase
+    .from('people_relationships')
+    .select('related_person_id')
+    .eq('person_id', personId)
+    .eq('relationship_type', 'guardian')
+  if (relError) throw relError
+  const ids = (relationships ?? []).map((row) => row.related_person_id)
+  if (!ids.length) return []
+  const { data, error } = await supabase
+    .from('people')
+    .select('*')
+    .in('id', ids)
+    .is('deleted_at', null)
+  if (error) throw error
+  return data ?? []
+}
+
+export async function createPersonRelationship(input: { person_id: string; related_person_id: string; relationship_type: PersonRelationship['relationship_type']; is_primary_guardian?: boolean | null }): Promise<PersonRelationship> {
+  if (input.person_id === input.related_person_id) {
+    throw new Error('A person cannot be their own guardian.')
+  }
+  const { data, error } = await supabase
+    .from('people_relationships')
+    .insert({
+      id: crypto.randomUUID(),
+      person_id: input.person_id,
+      related_person_id: input.related_person_id,
+      relationship_type: input.relationship_type,
+      is_primary_guardian: input.is_primary_guardian ?? null,
+      _synced_at: new Date().toISOString(),
+    })
+    .select('*')
+    .single()
+  if (error) throw error
+  return data
+}
+
+export async function createContactOnlyParent(firstname: string, lastname: string): Promise<Person> {
+  const now = new Date().toISOString()
+  const { data, error } = await supabase
+    .from('people')
+    .insert({
+      id: crypto.randomUUID(),
+      firstname,
+      lastname,
+      demographic: 'adult',
+      access_permission: 'member_area',
+      custom_fields: null,
+      deleted_at: null,
+      elvanto_id: null,
+      auth_user_id: null,
+      mobile: null,
+      picture_url: null,
+      _synced_at: now,
+      _source_modified: now,
+    })
+    .select('*')
+    .single()
+  if (error) throw error
+  return data
 }

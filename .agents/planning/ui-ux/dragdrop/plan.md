@@ -70,16 +70,16 @@
 4. Keep it framework-agnostic (no framer imports here) so plugins can use it too.
 5. Use `supabase` from the app's typed client (`@/core/lib/supabase` or wherever the typed client lives — match existing query patterns in `src/modules/people/lib/queries.ts`).
 
-- [ ] Task 2.1: Mark Batch 1 tasks complete in plan.md; update `progress.md`
-- [ ] Task 2.2: **Write failing test** — `useOrderedCollection` reorders locally, marks dirty, persists, and rolls back on failure
+- [x] Task 2.1: Mark Batch 1 tasks complete in plan.md; update `progress.md`
+- [x] Task 2.2: **Write failing test** — `useOrderedCollection` reorders locally, marks dirty, persists, and rolls back on failure
   Code: `src/core/lib/__tests__/useOrderedCollection.test.tsx`
-- [ ] Task 2.3: **Run test** to verify it fails
+- [x] Task 2.3: **Run test** to verify it fails
   Run: `pnpm test -- useOrderedCollection`
   Expected: FAIL
-- [ ] Task 2.4: Implement `OrderedCollectionDefinition` + `OrderedCollectionService` in `src/core/lib/ordered-collection.ts`
-- [ ] Task 2.5: Implement `useOrderedCollection` hook in `src/core/lib/useOrderedCollection.ts`
-- [ ] Task 2.6: Export from `src/core/lib/index.ts`
-- [ ] Task 2.7: **Run test** to verify it passes
+- [x] Task 2.4: Implement `OrderedCollectionDefinition` + `OrderedCollectionService` in `src/core/lib/ordered-collection.ts`
+- [x] Task 2.5: Implement `useOrderedCollection` hook in `src/core/lib/useOrderedCollection.ts`
+- [x] Task 2.6: Export from `src/core/lib/index.ts`
+- [x] Task 2.7: **Run test** to verify it passes
   Run: `pnpm test -- useOrderedCollection`
   Expected: PASS
 

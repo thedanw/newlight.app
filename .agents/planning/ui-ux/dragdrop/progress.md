@@ -22,6 +22,13 @@
 - **Design deviation:** applied `reorder()` slot classes manually via `cx()` instead of `createStyleContext`/`styled` — Panda's `styled` treats `transition` as a CSS prop, incompatible with motion's `Transition` (see Errors/Gotchas).
 - Gates: `pnpm test -- reorder` 3/3 PASS · `pnpm typecheck` clean · `pnpm lint:tokens` clean.
 
+### 2026-09-08 — Batch 2: `useOrderedCollection` + `OrderedCollectionService` (TDD)
+- Wrote failing test `src/core/lib/__tests__/useOrderedCollection.test.tsx` (hook: load/reorder/dirty/save/rollback/reset; service: per-row sort_order persist + failure) → confirmed FAIL (modules missing).
+- Created `src/core/lib/ordered-collection.ts` — `OrderedCollectionDefinition` (`collectionId`, `table`, `orderColumn` default `sort_order`, `scope`, `primaryKey` default `id`), `OrderedCollectionService.persist(definition, orderedIds)` → one typed Supabase update per row (`sort_order = index` + scope, `.eq(primaryKey, id)`), returns false on first error. Generic table name cast to `keyof Database['public']['Tables']`; payload cast `as never` (dynamic keys vs typed Update union).
+- Created `src/core/lib/useOrderedCollection.ts` — `{ definition, load, persist? }` → `{ items, reorder, isDirty, save, reset, error }`. Optimistic `reorder`, `save` persists (defaults to `orderedCollectionService.persist` bound to definition; custom `persist` for JSON-blob cases like FieldMapping) and rolls back to last saved order on failure. Refs (`loadRef`/`persistRef`/`itemsRef`) keep callbacks stable, avoid stale closures.
+- Created `src/core/lib/index.ts` barrel (re-exports both modules).
+- Gates: `pnpm test -- useOrderedCollection` 7/7 PASS · `pnpm typecheck` clean · `pnpm lint:tokens` 1 pre-existing violation (unrelated ProfileSections work).
+
 ## Errors / Gotchas
 - **Panda `styled()` is incompatible with framer-motion components:** `styled(MotionReorder.Group/Item)` treats `transition` as a CSS property (it IS a CSS prop), so it would mangle motion's `Transition` prop and its type conflicts (`Transition<any>` vs `ConditionalValue<...>`). Also `styled` intercepts `as`. → `Reorder` applies the `reorder()` slot recipe classes manually via `cx()` instead of `createStyleContext`/`styled`. Documented in a NOTE comment in `reorder.tsx`.
 - **Button recipe has no `ghost` variant** (only `solid | surface | subtle | outline | plain`) → `Reorder.Handle` uses `variant="plain"`.
@@ -30,3 +37,4 @@
 
 ## Test Results
 - **Batch 1 (2026-09-08):** `pnpm test -- reorder` — 3/3 PASS (renders list+items in order; accessible handle per item; handle starts drag on pointerdown). `pnpm typecheck` clean. `pnpm lint:tokens` clean.
+- **Batch 2 (2026-09-08):** `pnpm test -- useOrderedCollection` — 7/7 PASS (loads initial; reorders locally + dirty; persists + clears dirty; rolls back on failure; reset restores; service persists sort_order per row with scope; service returns false on error). `pnpm typecheck` clean. `pnpm lint:tokens` — 1 pre-existing violation in `src/modules/people/components/ProfileSections/JourneySection/JourneySection.tsx:160` (unrelated in-progress people-module work, NOT Batch 2 files).

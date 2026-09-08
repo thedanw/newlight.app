@@ -128,6 +128,7 @@ export const tocCategories: TocCategory[] = [
       { name: 'NumberInput', description: 'Stepper numeric input.', group: 'Advanced & composite', shipped: true },
       { name: 'PinInput', description: 'Code/OTP digit input.', group: 'Advanced & composite', shipped: true },
       { name: 'RatingGroup', description: 'Star rating input.', group: 'Advanced & composite', shipped: true },
+      { name: 'Reorder', description: 'Handle-only drag-to-reorder list.', group: 'Advanced & composite', shipped: true },
       { name: 'Select', description: 'Dropdown selector.', group: 'Advanced & composite', shipped: true },
       { name: 'TagsInput', description: 'Chip/tag multi-input.', group: 'Advanced & composite', shipped: true },
     ],

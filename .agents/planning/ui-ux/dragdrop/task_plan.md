@@ -21,7 +21,7 @@
 - [x] Batch 5: JourneySettingsManager adoption (TDD)
 - [x] Batch 6: FormBuilderPage adoption (TDD)
 - [x] Batch 7: Elvanto FieldMappingTable adoption (TDD) — plugin case study
-- [ ] Batch 8: Polish, docs, quality gates
+- [x] Batch 8: Polish, docs, quality gates (demo + plugin API doc done; gates green except user's in-flight `journey-reorder`/`ProfileSections` work)
 - [ ] Batch 9: Cleanup temp artifacts + consolidate planning to decision.md
 
 ## Phase 4: Review

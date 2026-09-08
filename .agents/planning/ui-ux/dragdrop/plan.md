@@ -191,16 +191,16 @@
 3. Keep the Up/Down buttons as a keyboard fallback (recommended) — they call the same `reorder` path.
 4. Verify mobile: handle-only drag, form preview still scrolls.
 
-- [ ] Task 6.1: Mark Batch 5 tasks complete in plan.md; update `progress.md`
-- [ ] Task 6.2: **Write failing test** — form field reorder persists `sort_order` via the core hook
+- [x] Task 6.1: Mark Batch 5 tasks complete in plan.md; update `progress.md`
+- [x] Task 6.2: **Write failing test** — form field reorder persists `sort_order` via the core hook
   Code: `src/modules/people/__tests__/form-reorder.test.tsx`
-- [ ] Task 6.3: **Run test** to verify it fails
+- [x] Task 6.3: **Run test** to verify it fails
   Run: `pnpm test -- form-reorder`
-  Expected: FAIL
-- [ ] Task 6.4: Replace Up/Down field list with `Reorder` + `useOrderedCollection` (keep buttons as fallback)
-- [ ] Task 6.5: **Run test** to verify it passes
+  Expected: FAIL ✓ (RED confirmed — module-scope hook bug surfaced)
+- [x] Task 6.4: Replace Up/Down field list with `Reorder` + `useOrderedCollection` (keep buttons as fallback)
+- [x] Task 6.5: **Run test** to verify it passes
   Run: `pnpm test -- form-reorder`
-  Expected: PASS
+  Expected: PASS ✓ (2/2)
 
 ---
 

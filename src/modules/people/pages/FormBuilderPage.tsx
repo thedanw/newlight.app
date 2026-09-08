@@ -1,29 +1,18 @@
 import { useEffect, useState, useMemo, type CSSProperties } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { Button, Card, Checkbox, Field, Heading, Input, Page, Select, Switch, Text, Textarea } from '@/core/ui'
+import { Button, Card, Checkbox, Field, Heading, Input, Page, Reorder, Select, Switch, Text, Textarea } from '@/core/ui'
 import { Stack } from 'styled-system/jsx'
 import { Users } from 'lucide-react'
 import { createListCollection } from '@ark-ui/react'
 import { createForm, getFormById, MAPPABLE_PERSON_FIELDS, updateForm } from '../lib/form-queries'
 import { getTags } from '../lib/queries'
 import { PageSkeleton } from '../components/PageSkeleton'
+import { useOrderedCollection } from '@/core/lib'
 import type { FormDraft, FormFieldDraft } from '../lib/form-queries'
 import type { FormFieldOption, FormFieldType, FormSubmitAction, Tag } from '../lib/types'
 
-  const FIELD_TYPES: FormFieldType[] = ['text', 'email', 'phone', 'number', 'select', 'multi_select', 'checkbox', 'textarea', 'date']
-  const SUBMIT_ACTIONS: FormSubmitAction[] = ['none', 'create_person', 'update_person', 'add_to_tag']
-
-  const fieldTypeCollection = useMemo(() => createListCollection({
-    items: FIELD_TYPES.map((type) => ({ label: type, value: type }))
-  }), [])
-
-  const submitActionCollection = useMemo(() => createListCollection({
-    items: SUBMIT_ACTIONS.map((action) => ({ label: action, value: action }))
-  }), [])
-
-  const mappableObjectFieldsCollection = useMemo(() => createListCollection({
-    items: [{ label: 'None', value: '' }, ...MAPPABLE_PERSON_FIELDS.map((name) => ({ label: name, value: name }))]
-  }), [])
+const FIELD_TYPES: FormFieldType[] = ['text', 'email', 'phone', 'number', 'select', 'multi_select', 'checkbox', 'textarea', 'date']
+const SUBMIT_ACTIONS: FormSubmitAction[] = ['none', 'create_person', 'update_person', 'add_to_tag']
 
 const emptyField = (): FormFieldDraft => ({
   id: crypto.randomUUID(),
@@ -55,9 +44,40 @@ export default function FormBuilderPage() {
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
 
+  const fieldTypeCollection = useMemo(() => createListCollection({
+    items: FIELD_TYPES.map((type) => ({ label: type, value: type }))
+  }), [])
+
+  const submitActionCollection = useMemo(() => createListCollection({
+    items: SUBMIT_ACTIONS.map((action) => ({ label: action, value: action }))
+  }), [])
+
+  const mappableObjectFieldsCollection = useMemo(() => createListCollection({
+    items: [{ label: 'None', value: '' }, ...MAPPABLE_PERSON_FIELDS.map((name) => ({ label: name, value: name }))]
+  }), [])
+
   const tagCollection = useMemo(() => createListCollection({
     items: [{ label: 'Select a tag', value: '' }, ...tags.map((tag) => ({ label: tag.name, value: tag.id }))]
   }), [tags])
+
+  // Stable id list (memoized) so `useOrderedCollection` syncs from the draft.
+  const fieldIds = useMemo(() => draft.fields.map((field) => field.id), [draft.fields])
+
+  const fieldsCollection = useOrderedCollection({
+    definition: { collectionId: 'forms:fields', table: 'form_fields' },
+    initialItems: fieldIds,
+    persist: (ids) => {
+      setDraft((current) => {
+        const byId = new Map(current.fields.map((field) => [field.id, field]))
+        const fields = ids
+          .map((fieldId) => byId.get(fieldId))
+          .filter((field): field is FormFieldDraft => Boolean(field))
+          .map((field, index) => ({ ...field, sort_order: index }))
+        return { ...current, fields }
+      })
+      return Promise.resolve(true)
+    },
+  })
 
   useEffect(() => {
     getTags().then(setTags).catch(() => undefined)
@@ -111,14 +131,17 @@ export default function FormBuilderPage() {
     }))
   }
 
+  const reorderFields = (next: string[]) => {
+    fieldsCollection.reorder(next)
+    void fieldsCollection.save(next)
+  }
+
   const moveField = (index: number, direction: -1 | 1) => {
-    setDraft((current) => {
-      const fields = [...current.fields]
-      const target = index + direction
-      if (target < 0 || target >= fields.length) return current
-      ;[fields[index], fields[target]] = [fields[target], fields[index]]
-      return { ...current, fields }
-    })
+    const next = [...fieldIds]
+    const target = index + direction
+    if (target < 0 || target >= next.length) return
+    ;[next[index], next[target]] = [next[target], next[index]]
+    reorderFields(next)
   }
 
   const save = async () => {
@@ -228,8 +251,11 @@ export default function FormBuilderPage() {
           <Card.Body>
             <Stack gap="6">
               {draft.fields.length === 0 && <Text color="fg.muted">No fields yet. Add one below.</Text>}
+              <Reorder.Root values={fieldIds} onReorder={reorderFields}>
               {draft.fields.map((field, index) => (
-                <Stack key={field.id} gap="4">
+                <Reorder.Item key={field.id} value={field.id}>
+                  <Reorder.Handle />
+                  <Stack flex="1" gap="4">
                   <Heading textStyle="md">Field {index + 1}</Heading>
                   <Field.Root>
                     <Field.Label>Type</Field.Label>
@@ -297,8 +323,10 @@ export default function FormBuilderPage() {
                     <Button variant="outline" onClick={() => moveField(index, 1)}>Down</Button>
                     <Button variant="outline" onClick={() => setDraft((current) => ({ ...current, fields: current.fields.filter((item) => item.id !== field.id) }))}>Remove</Button>
                   </Stack>
-                </Stack>
+                  </Stack>
+                </Reorder.Item>
               ))}
+              </Reorder.Root>
             </Stack>
           </Card.Body>
           <Card.Footer>

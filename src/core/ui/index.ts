@@ -51,6 +51,7 @@ export { PullTab, type PullTabProps } from "./pull-tab";
 export * as RadioCardGroup from "./radio-card-group";
 export * as RadioGroup from "./radio-group";
 export * as RatingGroup from "./rating-group";
+export * as Reorder from "./reorder";
 export * as ScrollArea from "./scroll-area";
 export * as SegmentGroup from "./segment-group";
 export * as Select from "./select";

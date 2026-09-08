@@ -162,18 +162,18 @@
 4. Delete `moveItem` + bespoke DnD handlers once replaced.
 5. Verify mobile: handle-only drag, list body still scrolls.
 
-- [ ] Task 5.1: Mark Batch 4 tasks complete in plan.md; update `progress.md`
-- [ ] Task 5.2: **Write failing test** — journey stage reorder persists `sort_order` via the core hook
+- [x] Task 5.1: Mark Batch 4 tasks complete in plan.md; update `progress.md`
+- [x] Task 5.2: **Write failing test** — journey stage reorder persists `sort_order` via the core hook
   Code: `src/modules/people/__tests__/journey-reorder.test.tsx`
-- [ ] Task 5.3: **Run test** to verify it fails
+- [x] Task 5.3: **Run test** to verify it fails
   Run: `pnpm test -- journey-reorder`
-  Expected: FAIL
-- [ ] Task 5.4: Replace tracks/categories/stages DnD with `Reorder` + `useOrderedCollection`
-- [ ] Task 5.5: Delete bespoke `moveItem`/HTML5 DnD handlers
-- [ ] Task 5.6: **Run test** to verify it passes
+  Expected: FAIL ✓ (RED confirmed)
+- [x] Task 5.4: Replace tracks/categories/stages DnD with `Reorder` + `useOrderedCollection`
+- [x] Task 5.5: Delete bespoke `moveItem`/HTML5 DnD handlers
+- [x] Task 5.6: **Run test** to verify it passes
   Run: `pnpm test -- journey-reorder`
-  Expected: PASS
-- [ ] Task 5.7: Verify `pnpm typecheck` + `pnpm lint:tokens` clean; manual browser smoke test on `/people` journey settings
+  Expected: PASS ✓ (2/2)
+- [x] Task 5.7: Verify `pnpm typecheck` + `pnpm lint:tokens` clean; manual browser smoke test on `/people` journey settings
 
 ---
 

@@ -80,6 +80,36 @@ describe('useOrderedCollection', () => {
     expect(result.current.items).toEqual(initial)
     expect(result.current.isDirty).toBe(false)
   })
+
+  it('syncs items from a stable initialItems instead of load', () => {
+    const initialItems = ['a', 'b', 'c']
+    const { result } = renderHook(() =>
+      useOrderedCollection({
+        definition,
+        initialItems,
+        persist: vi.fn().mockResolvedValue(true),
+      }),
+    )
+    expect(result.current.items).toEqual(initialItems)
+    act(() => result.current.reorder(['b', 'a', 'c']))
+    expect(result.current.items).toEqual(['b', 'a', 'c'])
+    expect(result.current.isDirty).toBe(true)
+  })
+
+  it('persists an explicit next order when passed to save', async () => {
+    const persist = vi.fn().mockResolvedValue(true)
+    const { result } = renderHook(() =>
+      useOrderedCollection({ definition, load: vi.fn().mockResolvedValue(initial), persist }),
+    )
+    await waitFor(() => expect(result.current.items).toEqual(initial))
+    let ok = false
+    await act(async () => {
+      ok = await result.current.save(['c', 'b', 'a'])
+    })
+    expect(ok).toBe(true)
+    expect(persist).toHaveBeenCalledWith(['c', 'b', 'a'])
+    expect(result.current.isDirty).toBe(false)
+  })
 })
 
 describe('orderedCollectionService', () => {

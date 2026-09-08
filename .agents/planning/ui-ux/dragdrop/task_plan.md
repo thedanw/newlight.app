@@ -18,7 +18,7 @@
 - [x] Batch 2: `useOrderedCollection` + `OrderedCollectionService` (TDD)
 - [x] Batch 3: Mobile-first + a11y + motion polish (TDD)
 - [x] Batch 4: Plugin `reorder` API + `registerOrderedCollection` (TDD)
-- [ ] Batch 5: JourneySettingsManager adoption (TDD)
+- [x] Batch 5: JourneySettingsManager adoption (TDD)
 - [ ] Batch 6: FormBuilderPage adoption (TDD)
 - [ ] Batch 7: Elvanto FieldMappingTable adoption (TDD) — plugin case study
 - [ ] Batch 8: Polish, docs, quality gates

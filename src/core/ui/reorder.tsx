@@ -9,6 +9,8 @@ import {
   createContext,
   forwardRef,
   useContext,
+  useEffect,
+  useState,
   type ComponentProps,
 } from 'react'
 import { cx } from 'styled-system/css'
@@ -19,6 +21,24 @@ import { IconButton } from './icon-button'
 // `createStyleContext`/`styled`) because Panda's `styled` factory treats
 // `transition` as a CSS property, which conflicts with framer-motion's
 // `Transition` prop on `Reorder.Group` / `Reorder.Item`.
+
+// Local reduced-motion hook (house pattern: do NOT import framer's). Drag
+// tracking is never gated on reduced motion — only the release animation is
+// suppressed (zeroed transition).
+export function useReducedMotion(): boolean {
+  const [reduced, setReduced] = useState(() => {
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return false
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  })
+  useEffect(() => {
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return
+    const mql = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const onChange = (event: MediaQueryListEvent) => setReduced(event.matches)
+    mql.addEventListener('change', onChange)
+    return () => mql.removeEventListener('change', onChange)
+  }, [])
+  return reduced
+}
 
 // --- Root ---------------------------------------------------------------
 
@@ -44,10 +64,11 @@ const ItemControlsContext = createContext<DragControls | null>(null)
 export type ItemProps = ComponentProps<typeof MotionReorder.Item>
 
 export const Item = forwardRef<HTMLLIElement, ItemProps>(function ReorderItem(
-  { dragListener = false, dragControls, className, children, ...props },
+  { dragListener = false, dragControls, className, transition, children, ...props },
   ref,
 ) {
   const controls = useDragControls()
+  const reducedMotion = useReducedMotion()
   return (
     <ItemControlsContext.Provider value={controls}>
       <MotionReorder.Item
@@ -56,6 +77,7 @@ export const Item = forwardRef<HTMLLIElement, ItemProps>(function ReorderItem(
         dragListener={dragListener}
         dragControls={dragControls ?? controls}
         {...props}
+        transition={reducedMotion ? { duration: 0 } : transition}
       >
         {children}
       </MotionReorder.Item>
@@ -77,7 +99,7 @@ export const Handle = forwardRef<HTMLButtonElement, HandleProps>(function Reorde
       ref={ref}
       className={cx(reorder().handle, className)}
       variant="plain"
-      size="sm"
+      size="lg"
       aria-label="Reorder item"
       onPointerDown={(event) => {
         controls?.start(event)

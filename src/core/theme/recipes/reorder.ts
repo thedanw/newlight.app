@@ -18,6 +18,10 @@ export const reorder = defineSlotRecipe({
       display: 'flex',
       alignItems: 'center',
       gap: '3',
+      // Opacity-only enter (keyframes in src/index.css) — never conflicts
+      // with framer-motion's transform-based drag/layout. Exit is defined
+      // for consumers; AnimatePresence is forbidden around Ark portals.
+      animation: 'reorder-item-enter 0.2s ease-out',
     },
     handle: {
       flexShrink: '0',

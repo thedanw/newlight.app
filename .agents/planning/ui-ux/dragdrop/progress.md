@@ -29,6 +29,14 @@
 - Created `src/core/lib/index.ts` barrel (re-exports both modules).
 - Gates: `pnpm test -- useOrderedCollection` 7/7 PASS · `pnpm typecheck` clean · `pnpm lint:tokens` 1 pre-existing violation (unrelated ProfileSections work).
 
+### 2026-09-08 — Batch 3: Mobile-First + A11y + Motion Polish (TDD)
+- Wrote failing test `src/core/ui/__tests__/reorder-a11y.test.tsx` (≥44px handle + aria-label; reduced-motion zeroes release transition; default transition when motion allowed; `useReducedMotion` hook true/false) → confirmed FAIL (module missing).
+- Added local `useReducedMotion` hook in `reorder.tsx` (exported; `window.matchMedia('(prefers-reduced-motion: reduce)')` + change listener — NOT framer's, per house pattern). `Reorder.Item` passes `transition={reducedMotion ? { duration: 0 } : transition}` — drag tracking never gated, only release animation suppressed.
+- Handle: `size="lg"` (44px via button recipe `h: '11'`) instead of `size="sm"`; keeps `variant="plain"`, `aria-label="Reorder item"`, grab/grabbing cursors, `touchAction: 'none'` (handle only — waffle-sidebar lesson). Focus-visible ring already provided by button recipe `focusVisibleRing: 'outside'`.
+- Added `@keyframes reorder-item-enter` / `reorder-item-exit` (opacity-only) to `src/index.css` (house pattern: `settings-slide-in-*` precedent). Applied enter animation to `item` slot in recipe (NOT `AnimatePresence` — React 19 + Ark portal guardrail). Ran `pnpm panda` (codegen accepted custom keyframe name).
+- Auto-scroll: framer handles it inside `Page.Body`; no `overflow` clipping added (verified no change needed).
+- Gates: `pnpm test -- reorder` 8/8 PASS · `pnpm typecheck` my files clean (4 pre-existing errors in unrelated ProfileSections test) · `pnpm lint:tokens` 1 pre-existing violation (unrelated).
+
 ## Errors / Gotchas
 - **Panda `styled()` is incompatible with framer-motion components:** `styled(MotionReorder.Group/Item)` treats `transition` as a CSS property (it IS a CSS prop), so it would mangle motion's `Transition` prop and its type conflicts (`Transition<any>` vs `ConditionalValue<...>`). Also `styled` intercepts `as`. → `Reorder` applies the `reorder()` slot recipe classes manually via `cx()` instead of `createStyleContext`/`styled`. Documented in a NOTE comment in `reorder.tsx`.
 - **Button recipe has no `ghost` variant** (only `solid | surface | subtle | outline | plain`) → `Reorder.Handle` uses `variant="plain"`.
@@ -38,3 +46,4 @@
 ## Test Results
 - **Batch 1 (2026-09-08):** `pnpm test -- reorder` — 3/3 PASS (renders list+items in order; accessible handle per item; handle starts drag on pointerdown). `pnpm typecheck` clean. `pnpm lint:tokens` clean.
 - **Batch 2 (2026-09-08):** `pnpm test -- useOrderedCollection` — 7/7 PASS (loads initial; reorders locally + dirty; persists + clears dirty; rolls back on failure; reset restores; service persists sort_order per row with scope; service returns false on error). `pnpm typecheck` clean. `pnpm lint:tokens` — 1 pre-existing violation in `src/modules/people/components/ProfileSections/JourneySection/JourneySection.tsx:160` (unrelated in-progress people-module work, NOT Batch 2 files).
+- **Batch 3 (2026-09-08):** `pnpm test -- reorder` — 8/8 PASS (Batch 1 3 tests + Batch 3 5 tests: ≥44px handle via `button--size_lg`, reduced-motion zeroes release transition, default transition when motion allowed, `useReducedMotion` true/false). `pnpm typecheck` — my files clean; 4 pre-existing errors in unrelated `ProfileSections/JourneySection.test.tsx`. `pnpm lint:tokens` — same 1 pre-existing violation (unrelated).

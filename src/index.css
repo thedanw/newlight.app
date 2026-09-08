@@ -21,3 +21,25 @@
     transform: translateX(0);
   }
 }
+
+/* Reorder item enter/exit (Reorder compound component). Pure CSS so Ark UI
+   portal components inside reorder items never render inside a framer-motion
+   animated context (React 19 + Ark portal guardrail). Opacity-only so it
+   never conflicts with framer-motion's transform-based drag/layout. */
+@keyframes reorder-item-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes reorder-item-exit {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}

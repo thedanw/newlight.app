@@ -101,15 +101,15 @@
 4. Verify `touch-action` is set so vertical scroll isn't broken on the list body (handle only, not the whole item — waffle-sidebar lesson).
 5. Confirm auto-scroll works when `Reorder.Root` is inside `Page.Body` (framer handles it; just verify no `overflow` clipping).
 
-- [ ] Task 3.1: Mark Batch 2 tasks complete in plan.md; update `progress.md`
-- [ ] Task 3.2: **Write failing test** — handle has ≥44px target and `aria-label`; reduced-motion suppresses only release animation
+- [x] Task 3.1: Mark Batch 2 tasks complete in plan.md; update `progress.md`
+- [x] Task 3.2: **Write failing test** — handle has ≥44px target and `aria-label`; reduced-motion suppresses only release animation
   Code: `src/core/ui/__tests__/reorder-a11y.test.tsx`
-- [ ] Task 3.3: **Run test** to verify it fails
+- [x] Task 3.3: **Run test** to verify it fails
   Run: `pnpm test -- reorder-a11y`
   Expected: FAIL
-- [ ] Task 3.4: Add CSS keyframes + recipe polish (touch-action, cursors, focus-visible, active states)
-- [ ] Task 3.5: Add reduced-motion handling + handle sizing/aria in `reorder.tsx`
-- [ ] Task 3.6: **Run test** to verify it passes
+- [x] Task 3.4: Add CSS keyframes + recipe polish (touch-action, cursors, focus-visible, active states)
+- [x] Task 3.5: Add reduced-motion handling + handle sizing/aria in `reorder.tsx`
+- [x] Task 3.6: **Run test** to verify it passes
   Run: `pnpm test -- reorder-a11y`
   Expected: PASS
 

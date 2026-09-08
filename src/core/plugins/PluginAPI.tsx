@@ -1,6 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/core/lib/database.types'
 import { createContext, useContext, type ReactNode } from 'react'
+import { registerOrderedCollection, type OrderedCollection } from './HookRegistry'
 
 export type TypedSupabaseClient = SupabaseClient<Database>
 
@@ -27,12 +28,18 @@ export interface PluginI18nAPI {
   t: (key: string, params?: Record<string, string | number>) => string
 }
 
+export interface PluginReorderAPI {
+  /** Declare a reorderable collection (consumed via the core `useOrderedCollection` hook). */
+  register: (collection: OrderedCollection) => void
+}
+
 export interface PluginAPIContext {
   supabase: TypedSupabaseClient
   settings: PluginSettingsAPI
   router: PluginRouterAPI
   toast: PluginToastAPI
   i18n: PluginI18nAPI
+  reorder: PluginReorderAPI
   pluginName: string
   pluginVersion: string
 }
@@ -140,6 +147,12 @@ export function createPluginI18nAPI(): PluginI18nAPI {
   }
 }
 
+export function createPluginReorderAPI(pluginName: string): PluginReorderAPI {
+  return {
+    register: (collection: OrderedCollection) => registerOrderedCollection(collection, pluginName),
+  }
+}
+
 export function createPluginAPIContext(
   supabase: SupabaseClient,
   pluginName: string,
@@ -152,6 +165,7 @@ export function createPluginAPIContext(
     router: createPluginRouterAPI(navigate),
     toast: createPluginToastAPI(),
     i18n: createPluginI18nAPI(),
+    reorder: createPluginReorderAPI(pluginName),
     pluginName,
     pluginVersion,
   }

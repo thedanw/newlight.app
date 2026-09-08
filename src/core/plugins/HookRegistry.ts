@@ -1,5 +1,6 @@
 import type { ComponentType } from 'react'
 import type { SettingsSection, SettingsPage } from '@/core/settings/lib/schema'
+import type { OrderedCollectionDefinition } from '@/core/lib/ordered-collection'
 
 /**
  * Hook Registry — Central registry for plugin-registered extensions
@@ -21,6 +22,16 @@ export interface NavItem {
   route: string
   icon?: string
   order?: number
+}
+
+/**
+ * Ordered collection — a reorderable collection a plugin declares/consumes.
+ * The `definition` drives the core `useOrderedCollection` persistence hook.
+ */
+export interface OrderedCollection {
+  id: string
+  definition: OrderedCollectionDefinition
+  label?: string
 }
 
 /**
@@ -46,6 +57,7 @@ const pluginPages: SettingsPage[] = []
 const pluginWidgets: DashboardWidget[] = []
 const pluginNavItems: NavItem[] = []
 const pluginSettingsLinks: SettingsLink[] = []
+const pluginOrderedCollections: OrderedCollection[] = []
 
 // Track which plugin registered what (for debugging/unloading)
 const pluginRegistrations = new Map<string, {
@@ -54,6 +66,7 @@ const pluginRegistrations = new Map<string, {
   widgets: string[]
   navItems: string[]
   settingsLinks: string[]
+  orderedCollections: string[]
 }>()
 
 /**
@@ -68,7 +81,7 @@ export function registerPluginSettingsSection(section: SettingsSection, pluginNa
   pluginSections.sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
   
   // Track registration
-  const reg = pluginRegistrations.get(pluginName) ?? { sections: [], pages: [], widgets: [], navItems: [], settingsLinks: [] }
+  const reg = pluginRegistrations.get(pluginName) ?? { sections: [], pages: [], widgets: [], navItems: [], settingsLinks: [], orderedCollections: [] }
   reg.sections.push(section.id)
   pluginRegistrations.set(pluginName, reg)
 }
@@ -85,7 +98,7 @@ export function registerPluginSettingsPage(page: SettingsPage, pluginName: strin
   pluginPages.push(page)
   pluginPages.sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
   
-  const reg = pluginRegistrations.get(pluginName) ?? { sections: [], pages: [], widgets: [], navItems: [], settingsLinks: [] }
+  const reg = pluginRegistrations.get(pluginName) ?? { sections: [], pages: [], widgets: [], navItems: [], settingsLinks: [], orderedCollections: [] }
   reg.pages.push(key)
   pluginRegistrations.set(pluginName, reg)
 }
@@ -100,7 +113,7 @@ export function registerPluginDashboardWidget(widget: DashboardWidget, pluginNam
   }
   pluginWidgets.push(widget)
   
-  const reg = pluginRegistrations.get(pluginName) ?? { sections: [], pages: [], widgets: [], navItems: [], settingsLinks: [] }
+  const reg = pluginRegistrations.get(pluginName) ?? { sections: [], pages: [], widgets: [], navItems: [], settingsLinks: [], orderedCollections: [] }
   reg.widgets.push(widget.id)
   pluginRegistrations.set(pluginName, reg)
 }
@@ -116,7 +129,7 @@ export function registerPluginNavItem(item: NavItem, pluginName: string): void {
   pluginNavItems.push(item)
   pluginNavItems.sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
   
-  const reg = pluginRegistrations.get(pluginName) ?? { sections: [], pages: [], widgets: [], navItems: [], settingsLinks: [] }
+  const reg = pluginRegistrations.get(pluginName) ?? { sections: [], pages: [], widgets: [], navItems: [], settingsLinks: [], orderedCollections: [] }
   reg.navItems.push(item.id)
   pluginRegistrations.set(pluginName, reg)
 }
@@ -133,7 +146,7 @@ export function registerPluginSettingsLink(link: SettingsLink, pluginName: strin
   pluginSettingsLinks.push(link)
   pluginSettingsLinks.sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
 
-  const reg = pluginRegistrations.get(pluginName) ?? { sections: [], pages: [], widgets: [], navItems: [], settingsLinks: [] }
+  const reg = pluginRegistrations.get(pluginName) ?? { sections: [], pages: [], widgets: [], navItems: [], settingsLinks: [], orderedCollections: [] }
   reg.settingsLinks.push(key)
   pluginRegistrations.set(pluginName, reg)
 }
@@ -143,6 +156,28 @@ export function registerPluginSettingsLink(link: SettingsLink, pluginName: strin
  */
 export function getSettingsLinks(sectionId: string): SettingsLink[] {
   return pluginSettingsLinks.filter((l) => l.sectionId === sectionId)
+}
+
+/**
+ * Register an ordered collection from a plugin (deduped by id)
+ */
+export function registerOrderedCollection(collection: OrderedCollection, pluginName: string): void {
+  if (pluginOrderedCollections.some((c) => c.id === collection.id)) {
+    console.warn(`[HookRegistry] Ordered collection "${collection.id}" already registered (by ${pluginName})`)
+    return
+  }
+  pluginOrderedCollections.push(collection)
+
+  const reg = pluginRegistrations.get(pluginName) ?? { sections: [], pages: [], widgets: [], navItems: [], settingsLinks: [], orderedCollections: [] }
+  reg.orderedCollections.push(collection.id)
+  pluginRegistrations.set(pluginName, reg)
+}
+
+/**
+ * Get all registered ordered collections
+ */
+export function getOrderedCollections(): OrderedCollection[] {
+  return pluginOrderedCollections
 }
 
 /**
@@ -231,6 +266,11 @@ export function clearPluginRegistrations(pluginName?: string): void {
         )
         if (idx >= 0) pluginSettingsLinks.splice(idx, 1)
       })
+      // Remove ordered collections
+      reg.orderedCollections.forEach((id) => {
+        const idx = pluginOrderedCollections.findIndex((c) => c.id === id)
+        if (idx >= 0) pluginOrderedCollections.splice(idx, 1)
+      })
       pluginRegistrations.delete(pluginName)
     }
   } else {
@@ -240,6 +280,7 @@ export function clearPluginRegistrations(pluginName?: string): void {
     pluginWidgets.length = 0
     pluginNavItems.length = 0
     pluginSettingsLinks.length = 0
+    pluginOrderedCollections.length = 0
     pluginRegistrations.clear()
   }
 }
@@ -269,5 +310,9 @@ export const pluginHooks = {
 
   settingsLinks: (pluginName: string) => {
     return (link: SettingsLink) => registerPluginSettingsLink(link, pluginName)
+  },
+
+  orderedCollections: (pluginName: string) => {
+    return (collection: OrderedCollection) => registerOrderedCollection(collection, pluginName)
   },
 }

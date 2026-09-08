@@ -63,6 +63,25 @@ export const PluginNavItemSchema = z.object({
 
 export type PluginNavItem = z.infer<typeof PluginNavItemSchema>
 
+// Ordered collection a plugin can declare (drives the core reorder API)
+export const PluginOrderedCollectionDefinitionSchema = z.object({
+  collectionId: z.string(),
+  table: z.string(),
+  orderColumn: z.string().optional(),
+  scope: z.record(z.string(), z.unknown()).optional(),
+  primaryKey: z.string().optional(),
+})
+
+export type PluginOrderedCollectionDefinition = z.infer<typeof PluginOrderedCollectionDefinitionSchema>
+
+export const PluginOrderedCollectionSchema = z.object({
+  id: z.string(),
+  definition: PluginOrderedCollectionDefinitionSchema,
+  label: z.string().optional(),
+})
+
+export type PluginOrderedCollection = z.infer<typeof PluginOrderedCollectionSchema>
+
 // Hooks that a plugin can implement
 export const PluginHooksSchema = z.object({
   settingsSections: z.string().optional(), // Function name to call
@@ -88,6 +107,7 @@ export const PluginManifestSchema = z.object({
   }).optional(),
   dashboardWidgets: z.array(PluginDashboardWidgetSchema).optional(),
   navItems: z.array(PluginNavItemSchema).optional(),
+  orderedCollections: z.array(PluginOrderedCollectionSchema).optional(),
   hooks: PluginHooksSchema.optional(),
   permissions: z.array(PluginPermissionSchema),
 })

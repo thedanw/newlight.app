@@ -132,16 +132,16 @@
 4. Add optional `orderedCollections?: PluginOrderedCollection[]` to `PluginManifest` (Zod schema) — declarative registration path.
 5. Plugins consume via `usePluginAPI().reorder.register(...)` + the core `useOrderedCollection` hook (imported from `@/core/lib`).
 
-- [ ] Task 4.1: Mark Batch 3 tasks complete in plan.md; update `progress.md`
-- [ ] Task 4.2: **Write failing test** — a plugin registers an ordered collection via the API and it's retrievable + tracked per-plugin
+- [x] Task 4.1: Mark Batch 3 tasks complete in plan.md; update `progress.md`
+- [x] Task 4.2: **Write failing test** — a plugin registers an ordered collection via the API and it's retrievable + tracked per-plugin
   Code: `src/core/plugins/__tests__/reorder-api.test.tsx`
-- [ ] Task 4.3: **Run test** to verify it fails
+- [x] Task 4.3: **Run test** to verify it fails
   Run: `pnpm test -- reorder-api`
   Expected: FAIL
-- [ ] Task 4.4: Add `OrderedCollection` type + `registerOrderedCollection`/`getOrderedCollections` to `HookRegistry.ts`
-- [ ] Task 4.5: Add `reorder` API to `PluginAPI.tsx` (`createPluginReorderAPI` + context field)
-- [ ] Task 4.6: Add optional `orderedCollections` to `manifest-schema.ts` + re-export from `plugins/index.ts`
-- [ ] Task 4.7: **Run test** to verify it passes
+- [x] Task 4.4: Add `OrderedCollection` type + `registerOrderedCollection`/`getOrderedCollections` to `HookRegistry.ts`
+- [x] Task 4.5: Add `reorder` API to `PluginAPI.tsx` (`createPluginReorderAPI` + context field)
+- [x] Task 4.6: Add optional `orderedCollections` to `manifest-schema.ts` + re-export from `plugins/index.ts`
+- [x] Task 4.7: **Run test** to verify it passes
   Run: `pnpm test -- reorder-api`
   Expected: PASS
 

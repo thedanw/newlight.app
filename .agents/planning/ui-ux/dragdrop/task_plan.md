@@ -20,7 +20,7 @@
 - [x] Batch 4: Plugin `reorder` API + `registerOrderedCollection` (TDD)
 - [x] Batch 5: JourneySettingsManager adoption (TDD)
 - [x] Batch 6: FormBuilderPage adoption (TDD)
-- [ ] Batch 7: Elvanto FieldMappingTable adoption (TDD) — plugin case study
+- [x] Batch 7: Elvanto FieldMappingTable adoption (TDD) — plugin case study
 - [ ] Batch 8: Polish, docs, quality gates
 - [ ] Batch 9: Cleanup temp artifacts + consolidate planning to decision.md
 

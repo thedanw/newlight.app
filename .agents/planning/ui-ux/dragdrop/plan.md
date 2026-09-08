@@ -221,19 +221,19 @@
 6. Persistence: use `useOrderedCollection` with a custom `persist` that writes the reordered array (with re-derived priorities) to `settings.setConfig('field_mappings', ...)` — NOT the default `sort_order` column path.
 7. Optionally register the collection via `api.reorder.register({ id: 'elvanto:field-mappings', definition: {...} })`.
 
-- [ ] Task 7.1: Mark Batch 6 tasks complete in plan.md; update `progress.md`
-- [ ] Task 7.2: **Write failing test** — field mapping rows reorder and persist re-derived priorities
+- [x] Task 7.1: Mark Batch 6 tasks complete in plan.md; update `progress.md`
+- [x] Task 7.2: **Write failing test** — field mapping rows reorder and persist re-derived priorities
   Code: `src/content/plugins/elvanto-sync/settings/__tests__/field-mapping-reorder.test.tsx`
-- [ ] Task 7.3: **Run test** to verify it fails
+- [x] Task 7.3: **Run test** to verify it fails
   Run: `pnpm test -- field-mapping-reorder`
-  Expected: FAIL
-- [ ] Task 7.4: Add stable `id` to `MappingRule` + key rows by id
-- [ ] Task 7.5: Wrap rows in `Reorder.Root`/`Reorder.Item`/`Reorder.Handle` (handle-only drag)
-- [ ] Task 7.6: Re-derive `priority` from position on save; wire `useOrderedCollection` with custom `persist`
-- [ ] Task 7.7: **Run test** to verify it passes
+  Expected: FAIL ✓ (RED confirmed)
+- [x] Task 7.4: Add stable `id` to `MappingRule` + key rows by id
+- [x] Task 7.5: Wrap rows in `Reorder.Root`/`Reorder.Item`/`Reorder.Handle` (handle-only drag)
+- [x] Task 7.6: Re-derive `priority` from position on save; wire `useOrderedCollection` with custom `persist`
+- [x] Task 7.7: **Run test** to verify it passes
   Run: `pnpm test -- field-mapping-reorder`
-  Expected: PASS
-- [ ] Task 7.8: Verify `pnpm typecheck` + `pnpm lint:tokens` clean; browser smoke test on `/settings/integrations/elvanto-sync`
+  Expected: PASS ✓ (2/2)
+- [x] Task 7.8: Verify `pnpm typecheck` + `pnpm lint:tokens` clean; browser smoke test on `/settings/integrations/elvanto-sync`
 
 ---
 

@@ -1,12 +1,15 @@
 'use client'
-import { Heading, Text, Input, Button, Badge, Card, Combobox, NumberInput } from '@/core/ui'
+import { Heading, Text, Input, Button, Badge, Card, Combobox, NumberInput, Reorder } from '@/core/ui'
 import { usePluginAPIContext } from '@/core/plugins/PluginAPI'
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, type ReactNode } from 'react'
 import { HStack, Stack } from 'styled-system/jsx'
 import { createListCollection } from '@ark-ui/react'
 import { CheckIcon } from 'lucide-react'
+import { useOrderedCollection } from '@/core/lib'
+import { DirectionSelect } from './DirectionSelect'
 
 interface MappingRule {
+  id: string
   appField: string
   elvantoField: string
   direction: 'pull' | 'push' | 'both'
@@ -61,7 +64,7 @@ const ELVANTO_FIELDS = [
   'custom_<uuid>',
 ]
 
-const DEFAULT_MAPPINGS: MappingRule[] = [
+const DEFAULT_MAPPINGS_BASE: Omit<MappingRule, 'id'>[] = [
   { appField: 'firstname', elvantoField: 'firstname', direction: 'both', priority: 100 },
   { appField: 'lastname', elvantoField: 'lastname', direction: 'both', priority: 100 },
   { appField: 'preferred_name', elvantoField: 'preferred_name', direction: 'both', priority: 100 },
@@ -90,6 +93,8 @@ const DEFAULT_MAPPINGS: MappingRule[] = [
   { appField: 'elvanto_locations', elvantoField: 'locations', direction: 'pull', priority: 10 },
 ]
 
+const DEFAULT_MAPPINGS: MappingRule[] = DEFAULT_MAPPINGS_BASE.map((rule) => ({ ...rule, id: crypto.randomUUID() }))
+
 // ============================================
 // Helpers
 // ============================================
@@ -110,12 +115,37 @@ function uniqueFields(names: string[]): string[] {
 }
 
 export function FieldMappingTable({ disabled = false, dynamicFieldOptions = [] }: FieldMappingTableProps) {
-  const { settings, toast } = usePluginAPIContext()
+  const { settings, toast, reorder } = usePluginAPIContext()
   const [mappings, setMappings] = useState<MappingRule[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [appFields] = useState<string[]>(APP_FIELDS)
   const [elvantoFields, setElvantoFields] = useState<string[]>(ELVANTO_FIELDS)
+
+  // Stable id list (memoized) so `useOrderedCollection` syncs from state.
+  const mappingIds = useMemo(() => mappings.map((rule) => rule.id), [mappings])
+
+  const mappingsCollection = useOrderedCollection({
+    definition: { collectionId: 'elvanto:field-mappings', table: 'elvanto_sync_config' },
+    initialItems: mappingIds,
+    persist: (ids) => {
+      const byId = new Map(mappings.map((rule) => [rule.id, rule]))
+      const reordered = ids
+        .map((id) => byId.get(id))
+        .filter((rule): rule is MappingRule => Boolean(rule))
+        // Drag order = priority order: top row gets the highest priority.
+        .map((rule, index) => ({ ...rule, priority: (ids.length - index) * 10 }))
+      return settings.setConfig('field_mappings', reordered).then(() => true).catch(() => false)
+    },
+  })
+
+  useEffect(() => {
+    reorder.register({
+      id: 'elvanto:field-mappings',
+      definition: { collectionId: 'elvanto:field-mappings', table: 'elvanto_sync_config' },
+      label: 'Field mappings',
+    })
+  }, [reorder])
 
   useEffect(() => {
     if (dynamicFieldOptions.length > 0) {
@@ -133,7 +163,8 @@ export function FieldMappingTable({ disabled = false, dynamicFieldOptions = [] }
     try {
       const data = await settings.getConfig<MappingRule[]>('field_mappings')
       if (data) {
-        setMappings(data)
+        // Older configs may lack stable ids — backfill so Reorder.Item keys are unique.
+        setMappings(data.map((rule) => ({ ...rule, id: rule.id ?? crypto.randomUUID() })))
       } else {
         setMappings(DEFAULT_MAPPINGS)
       }
@@ -148,9 +179,9 @@ export function FieldMappingTable({ disabled = false, dynamicFieldOptions = [] }
   const saveMappings = async () => {
     setSaving(true)
     try {
-      const sorted = [...mappings].sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0))
-      await settings.setConfig('field_mappings', sorted)
-      toast.success('Field mappings saved')
+      const ok = await mappingsCollection.save()
+      if (ok) toast.success('Field mappings saved')
+      else toast.error('Failed to save field mappings')
     } catch (err) {
       console.error('[FieldMappingTable] Failed to save mappings:', err)
       toast.error('Failed to save field mappings')
@@ -160,7 +191,7 @@ export function FieldMappingTable({ disabled = false, dynamicFieldOptions = [] }
   }
 
   const addMapping = () => {
-    setMappings([...mappings, { appField: '', elvantoField: '', direction: 'pull', priority: 0 }])
+    setMappings([...mappings, { id: crypto.randomUUID(), appField: '', elvantoField: '', direction: 'pull', priority: 0 }])
   }
 
   const updateMapping = (index: number, updates: Partial<MappingRule>) => {
@@ -172,8 +203,17 @@ export function FieldMappingTable({ disabled = false, dynamicFieldOptions = [] }
   }
 
   const duplicateMapping = (index: number) => {
-    const duplicated = { ...mappings[index], priority: mappings[index].priority - 1 }
+    const duplicated = { ...mappings[index], id: crypto.randomUUID(), priority: mappings[index].priority - 1 }
     setMappings([...mappings.slice(0, index + 1), duplicated, ...mappings.slice(index + 1)])
+  }
+
+  const reorderMappings = (next: string[]) => {
+    const byId = new Map(mappings.map((rule) => [rule.id, rule]))
+    const reordered = next
+      .map((id) => byId.get(id))
+      .filter((rule): rule is MappingRule => Boolean(rule))
+    setMappings(reordered)
+    mappingsCollection.reorder(next)
   }
 
   if (loading) {
@@ -219,19 +259,23 @@ export function FieldMappingTable({ disabled = false, dynamicFieldOptions = [] }
             </Stack>
           ) : (
             <Stack gap="3">
-              {mappings.map((rule, index) => (
-                <MappingRuleCard
-                  key={index}
-                  rule={rule}
-                  index={index}
-                  appFields={appFields}
-                  elvantoFields={elvantoFields}
-                  dynamicElvantoFieldOptions={dynamicFieldOptions}
-                  onUpdate={updateMapping}
-                  onDelete={deleteMapping}
-                  onDuplicate={duplicateMapping}
-                />
-              ))}
+              <Reorder.Root values={mappingsCollection.items} onReorder={reorderMappings}>
+                {mappings.map((rule, index) => (
+                  <Reorder.Item key={rule.id} value={rule.id}>
+                    <MappingRuleCard
+                      rule={rule}
+                      index={index}
+                      appFields={appFields}
+                      elvantoFields={elvantoFields}
+                      dynamicElvantoFieldOptions={dynamicFieldOptions}
+                      onUpdate={updateMapping}
+                      onDelete={deleteMapping}
+                      onDuplicate={duplicateMapping}
+                      handle={<Reorder.Handle />}
+                    />
+                  </Reorder.Item>
+                ))}
+              </Reorder.Root>
             </Stack>
           )}
         </Card.Body>
@@ -255,9 +299,10 @@ interface MappingRuleCardProps {
   onUpdate: (index: number, updates: Partial<MappingRule>) => void
   onDelete: (index: number) => void
   onDuplicate: (index: number) => void
+  handle: ReactNode
 }
 
-function MappingRuleCard({ rule, index, appFields, elvantoFields, dynamicElvantoFieldOptions, onUpdate, onDelete, onDuplicate }: MappingRuleCardProps) {
+function MappingRuleCard({ rule, index, appFields, elvantoFields, dynamicElvantoFieldOptions, onUpdate, onDelete, onDuplicate, handle }: MappingRuleCardProps) {
   const [expanded, setExpanded] = useState(false)
 
   const appFieldCollection = useMemo(() => createListCollection({
@@ -297,40 +342,12 @@ function MappingRuleCard({ rule, index, appFields, elvantoFields, dynamicElvanto
   const transformValue = rule.transform ? [rule.transform] : []
 
   return (
-    <Stack>
-      <HStack gap="3" alignItems="center" justifyContent="space-between" flexWrap="wrap">
-        <Stack gap="1" flex="1" minWidth="200px">
-          <Text textStyle="xs" color="fg.muted">App Field</Text>
-          <Combobox.Root collection={appFieldCollection} value={appFieldValue} onValueChange={(details) => onUpdate(index, { appField: details.value[0] || '' })}>
-            <Combobox.Control>
-              <Combobox.Input placeholder="Select app field..." />
-              <Combobox.IndicatorGroup>
-                <Combobox.Trigger />
-              </Combobox.IndicatorGroup>
-            </Combobox.Control>
-            <Combobox.Positioner>
-              <Combobox.Content css={{ maxHeight: '400px', overflowY: 'auto' }}>
-                {appFieldCollection.items.map((item) => (
-                  <Combobox.Item key={item.value} item={item}>
-                    <Combobox.ItemText>{item.label}</Combobox.ItemText>
-                    <Combobox.ItemIndicator><CheckIcon /></Combobox.ItemIndicator>
-                  </Combobox.Item>
-                ))}
-              </Combobox.Content>
-            </Combobox.Positioner>
-          </Combobox.Root>
-        </Stack>
-
-        <Stack gap="1" alignItems="center">
-          <Text textStyle="xs" color="fg.muted">Direction</Text>
-          <Text textStyle="sm" color="fg">
-            {rule.direction === 'pull' ? '→' : rule.direction === 'push' ? '←' : '↔'}
-          </Text>
-        </Stack>
-
-        <Stack gap="1" flex="1" minWidth="200px">
-          <Text textStyle="xs" color="fg.muted">Elvanto Field</Text>
-          <Combobox.Root collection={elvantoFieldCollection} value={elvantoFieldValue} onValueChange={(details) => onUpdate(index, { elvantoField: details.value[0] || '' })}>
+    <Stack gap="3">
+      <HStack gap="3" alignItems="center" flexWrap="wrap" css={{ borderBottomWidth: '1px', borderColor: 'border', pb: '3' }}>
+        {handle}
+        <Stack gap="1" flex="1" minWidth="0">
+          <Text textStyle="sm" color="fg.muted">Elvanto Field</Text>
+          <Combobox.Root size="sm" collection={elvantoFieldCollection} value={elvantoFieldValue} onValueChange={(details) => onUpdate(index, { elvantoField: details.value[0] || '' })}>
             <Combobox.Control>
               <Combobox.Input placeholder="Select Elvanto field..." />
               <Combobox.IndicatorGroup>
@@ -350,18 +367,25 @@ function MappingRuleCard({ rule, index, appFields, elvantoFields, dynamicElvanto
           </Combobox.Root>
         </Stack>
 
-        <Stack gap="1" flex="1" minWidth="200px">
-          <Text textStyle="xs" color="fg.muted">Transform</Text>
-          <Combobox.Root collection={transformCollection} value={transformValue} onValueChange={(details) => onUpdate(index, { transform: details.value[0] || undefined })}>
+        <Stack gap="1" alignItems="center" minWidth="80px" alignSelf="flex-end">
+          <DirectionSelect
+            value={rule.direction}
+            onChange={(direction) => onUpdate(index, { direction })}
+          />
+        </Stack>
+
+        <Stack gap="1" flex="1" minWidth="0">
+          <Text textStyle="sm" color="fg.muted">App Field</Text>
+          <Combobox.Root size="sm" collection={appFieldCollection} value={appFieldValue} onValueChange={(details) => onUpdate(index, { appField: details.value[0] || '' })}>
             <Combobox.Control>
-              <Combobox.Input placeholder="— None (Identity) —" />
+              <Combobox.Input placeholder="Select app field..." />
               <Combobox.IndicatorGroup>
                 <Combobox.Trigger />
               </Combobox.IndicatorGroup>
             </Combobox.Control>
             <Combobox.Positioner>
               <Combobox.Content css={{ maxHeight: '400px', overflowY: 'auto' }}>
-                {transformCollection.items.map((item) => (
+                {appFieldCollection.items.map((item) => (
                   <Combobox.Item key={item.value} item={item}>
                     <Combobox.ItemText>{item.label}</Combobox.ItemText>
                     <Combobox.ItemIndicator><CheckIcon /></Combobox.ItemIndicator>
@@ -372,9 +396,9 @@ function MappingRuleCard({ rule, index, appFields, elvantoFields, dynamicElvanto
           </Combobox.Root>
         </Stack>
 
-        <Stack gap="1" alignItems="center" minWidth="80px">
-          <Text textStyle="xs" color="fg.muted">Priority</Text>
-          <NumberInput.Root value={String(rule.priority)} onValueChange={(e) => onUpdate(index, { priority: parseInt(e.value) || 0 })}>
+        <Stack gap="1" alignItems="center" minWidth="80px" alignSelf="flex-end">
+          <Text textStyle="sm" color="fg.muted">Priority</Text>
+          <NumberInput.Root size="sm" value={String(rule.priority)} onValueChange={(e) => onUpdate(index, { priority: parseInt(e.value) || 0 })}>
             <NumberInput.Input width="60px" />
             <NumberInput.Control>
               <NumberInput.IncrementTrigger />
@@ -383,7 +407,7 @@ function MappingRuleCard({ rule, index, appFields, elvantoFields, dynamicElvanto
           </NumberInput.Root>
         </Stack>
 
-        <HStack gap="1">
+        <HStack gap="1" alignSelf="flex-end">
           <Button variant="outline" size="sm" onClick={() => setExpanded(!expanded)}>
             {expanded ? '−' : '+'}
           </Button>
@@ -397,7 +421,28 @@ function MappingRuleCard({ rule, index, appFields, elvantoFields, dynamicElvanto
       </HStack>
 
       {expanded && (
-        <Stack mt="3" pt="3" borderTopWidth="1px" borderColor="border">
+        <Stack mt="3" pt="3" borderTopWidth="1px" borderColor="border" gap="3">
+          <Stack gap="1" flex="1" minWidth="0">
+            <Text textStyle="sm" color="fg.muted">Transform</Text>
+            <Combobox.Root size="sm" collection={transformCollection} value={transformValue} onValueChange={(details) => onUpdate(index, { transform: details.value[0] || undefined })}>
+              <Combobox.Control>
+                <Combobox.Input placeholder="— None (Identity) —" />
+                <Combobox.IndicatorGroup>
+                  <Combobox.Trigger />
+                </Combobox.IndicatorGroup>
+              </Combobox.Control>
+              <Combobox.Positioner>
+                <Combobox.Content css={{ maxHeight: '400px', overflowY: 'auto' }}>
+                  {transformCollection.items.map((item) => (
+                    <Combobox.Item key={item.value} item={item}>
+                      <Combobox.ItemText>{item.label}</Combobox.ItemText>
+                      <Combobox.ItemIndicator><CheckIcon /></Combobox.ItemIndicator>
+                    </Combobox.Item>
+                  ))}
+                </Combobox.Content>
+              </Combobox.Positioner>
+            </Combobox.Root>
+          </Stack>
           <ConditionEditor
             condition={rule.condition}
             onChange={cond => onUpdate(index, { condition: cond })}

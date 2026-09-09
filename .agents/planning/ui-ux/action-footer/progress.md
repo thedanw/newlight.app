@@ -19,8 +19,15 @@ Session log + error table. Update after EVERY subphase (mandatory).
 - Root-cause: "multiple Cancel buttons" was missing `cleanup()` in `afterEach` (renders accumulated across tests w/o vitest globals) — added `cleanup()`
 - Fixed incorrect disabled assertion: footer ALWAYS renders with `data-state="hidden"` (never removed from DOM) — asserted hidden+inert+no-button instead
 - Temporary `debug-footer.test.tsx` created+dumped DOM (confirmed single footer) then DELETED
-- Gates: `pnpm test` → 190 tests / 63 files?? -> 21 files / 191 tests GREEN
+- **Nested-footer fix (post-commit):** `ActionFooter` renders `<Page.Footer>` internally, so the `<Page.Footer>` wrapper in `app-shell.tsx` + `form-reorder.test.tsx` created a nested footer — removed the redundant wrapper (working tree, pending commit)
+- Gates: `pnpm test` → 21 files / 191 tests GREEN; action-footer + page-actions + form-reorder = 13 tests pass
 - Next: Batch 3.2 Integration
+
+### 2026-09-09 — Batch 3.2 + 3.3 complete (Integration + E2E)
+- 3.2 Integration: verified `useRegisterPageActions` registers on mount + clears on unmount via `useEffect` cleanup (stale-clear guard prevents older cleanup wiping newer registration); verified recipe `--footer-height` on root + `scrollPaddingBottom: var(--footer-height, 0)` on main prevents last-field occlusion
+- 3.3 E2E (browser `localhost:5173/settings/church-info`): pristine form → footer `data-state="hidden"` + `inert` + `aria-hidden="true"`; dirty form → `data-state="visible"` + enabled Cancel/Apply (user confirmed slide-in animation in real browser; automation transform mid-flight is a harness artifact); `inert` blocks focus on hidden buttons (`cancelBtn.focus()` no-op); reduced-motion guard + safe-area + scrollPaddingBottom verified in recipe
+- Note: `setChurchField` sets `isDirty` sticky (only resets on Apply/Cancel) — footer stays visible after edits until Apply/Cancel, by design
+- Next: Batch 4.1 Code quality (delete superseded actions-context)
 
 ### 2026-09-09 — Batch 1 complete (Setup & Foundation)
 - Baseline green: typecheck ✅ (fixed 5 pre-existing errors: 2 unused consts in `elvanto-sync/sync/transforms.ts`, 3 invalid `variant="ghost"` → `plain` in `JourneySettingsManager.tsx`), lint:pages ✅, build ✅, test ✅ (19 files / 177 tests)

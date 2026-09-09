@@ -67,26 +67,26 @@ Subagent: No
 Deliverable: `pnpm lint:pages` green with new checks.
 
 ## Batch 3: Testing & Quality
-Context: Goal: test context/footer, verify cross-route + browser UX. Prev: Batch 2 done — core + forms migrated, lint gate extended. Key: `findings.md#testing`, `#traps`. State: in progress.
+Context: Goal: test context/footer, verify cross-route + browser UX. Prev: Batch 2 done — core + forms migrated, lint gate extended. Key: `findings.md#testing`, `#traps`. State: done.
 
 ### Subphase 3.1: Unit coverage
-- [ ] Add `src/core/ui/__tests__/page-actions.test.tsx` — register/clear on unmount, dirty-driven visibility
-- [ ] Add `src/core/ui/__tests__/action-footer.test.tsx` — renders buttons when dirty; `inert`+`aria-hidden` when not
-- [ ] Verify: `pnpm test` green
+- [x] Add `src/core/ui/__tests__/page-actions.test.tsx` — register/clear on unmount, dirty-driven visibility
+- [x] Add `src/core/ui/__tests__/action-footer.test.tsx` — renders buttons when dirty; `inert`+`aria-hidden` when not
+- [x] Verify: `pnpm test` green
 Subagent: Yes (parallel)
 Deliverable: Unit tests green.
 
 ### Subphase 3.2: Integration
-- [ ] Verify `ChurchInformationPage` + `EditPersonPage` register on mount, clear on unmount (route change)
-- [ ] Verify `--footer-height` prevents last-field occlusion when footer visible
+- [x] Verify `ChurchInformationPage` + `EditPersonPage` register on mount, clear on unmount (route change)
+- [x] Verify `--footer-height` prevents last-field occlusion when footer visible
 Subagent: No
 Deliverable: Cross-route footer behavior verified.
 
 ### Subphase 3.3: E2E/Manual
-- [ ] Browser check `localhost:5173`: footer hidden + inert on pristine form; slides in on edit
-- [ ] Keyboard: Tab cannot reach hidden buttons
-- [ ] Reduced-motion: no slide
-- [ ] Mobile viewport + keyboard; last field not occluded
+- [x] Browser check `localhost:5173`: footer hidden + inert on pristine form; slides in on edit
+- [x] Keyboard: Tab cannot reach hidden buttons
+- [x] Reduced-motion: no slide
+- [x] Mobile viewport + keyboard; last field not occluded
 Subagent: No
 Deliverable: Verified user flows.
 

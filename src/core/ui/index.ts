@@ -43,6 +43,8 @@ export { NavProvider, useNavContext } from "./nav-context";
 export { NavTile, type NavTileProps } from "./nav-tile";
 export * as NumberInput from "./number-input";
 export * as Page from "./page";
+export { ActionFooter } from "./action-footer";
+export { PageActionsProvider, usePageActions, useRegisterPageActions, type PageActions } from "./page-actions";
 export * as Pagination from "./pagination";
 export * as PinInput from "./pin-input";
 export * as Popover from "./popover";

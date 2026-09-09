@@ -1,7 +1,7 @@
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { Page } from '@/core/ui'
+import { ActionFooter, Page, PageActionsProvider } from '@/core/ui'
 import FormBuilderPage from '../pages/FormBuilderPage'
 
 afterEach(cleanup)
@@ -50,7 +50,19 @@ function renderPage() {
   return render(
     <MemoryRouter initialEntries={['/people/forms/form-1']}>
       <Routes>
-        <Route path="/people/forms/:id" element={<Page.Root><FormBuilderPage /></Page.Root>} />
+        <Route
+          path="/people/forms/:id"
+          element={
+            <PageActionsProvider>
+              <Page.Root>
+                <FormBuilderPage />
+                <Page.Footer>
+                  <ActionFooter />
+                </Page.Footer>
+              </Page.Root>
+            </PageActionsProvider>
+          }
+        />
       </Routes>
     </MemoryRouter>,
   )
@@ -62,7 +74,7 @@ describe('FormBuilderPage reorder integration', () => {
     mockUseOrderedCollection.mockReturnValue({
       items: [],
       reorder: vi.fn(),
-      isDirty: false,
+      isDirty: true,
       save: vi.fn().mockResolvedValue(true),
       reset: vi.fn(),
       error: null,

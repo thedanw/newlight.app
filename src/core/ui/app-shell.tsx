@@ -2,9 +2,8 @@
 import { Suspense, type ReactNode } from 'react'
 import { useNavigate, useOutlet } from 'react-router-dom'
 import { css } from 'styled-system/css'
-import { Loader, Page, Sidebar } from '@/core/ui'
+import { ActionFooter, ErrorBoundary, Loader, Page, PageActionsProvider, Sidebar } from '@/core/ui'
 import { useSettings } from '@/core/settings/lib/provider'
-import { ErrorBoundary } from '@/core/ui'
 
 /**
  * AppShell — the single source of truth for the authenticated app chrome.
@@ -40,11 +39,16 @@ export function AppShell({ children }: { children?: ReactNode }) {
         onAccountNavigate={(path) => navigate(path)}
         logo={logoUrl}
       />
-      <Page.Root id="page-panel">
-        <ErrorBoundary>
-          <Suspense fallback={<Loader />}>{children ?? outlet}</Suspense>
-        </ErrorBoundary>
-      </Page.Root>
+      <PageActionsProvider>
+        <Page.Root id="page-panel">
+          <ErrorBoundary>
+            <Suspense fallback={<Loader />}>{children ?? outlet}</Suspense>
+          </ErrorBoundary>
+          <Page.Footer>
+            <ActionFooter />
+          </Page.Footer>
+        </Page.Root>
+      </PageActionsProvider>
     </div>
   )
 }

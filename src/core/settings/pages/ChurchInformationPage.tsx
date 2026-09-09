@@ -30,6 +30,7 @@ import {
   Slider,
   Text,
   toaster,
+  useRegisterPageActions,
 } from '@/core/ui'
 import { useSettings } from '../lib/provider'
 
@@ -359,6 +360,14 @@ export default function ChurchInformationPage() {
     navigate('/settings')
   }
 
+  useRegisterPageActions({
+    cancel: handleCancel,
+    apply: handleApply,
+    isSaving: saving,
+    isDirty,
+    applyLabel: 'Apply',
+  })
+
   const previewLogo = draftLogoUrl ?? logoUrl
 
   return (
@@ -684,22 +693,6 @@ export default function ChurchInformationPage() {
         </Stack>
       </Page.Body>
     </Page.Main>
-
-      <Page.Footer>
-        <Button
-          variant="outline"
-          onClick={handleCancel}
-          disabled={saving}
-        >
-          Cancel
-        </Button>
-        <Button
-          onClick={handleApply}
-          disabled={saving}
-        >
-          {saving ? 'Saving…' : 'Apply'}
-        </Button>
-      </Page.Footer>
     </>
   )
 }

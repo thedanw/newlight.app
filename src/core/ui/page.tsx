@@ -1,7 +1,7 @@
 'use client'
 import { ark } from '@ark-ui/react/factory'
 import { ChevronLeftIcon } from 'lucide-react'
-import { forwardRef, type ComponentProps, type ReactNode } from 'react'
+import { Children, forwardRef, isValidElement, type ComponentProps, type ReactNode } from 'react'
 import { css } from 'styled-system/css'
 import { createStyleContext } from 'styled-system/jsx'
 import { page } from 'styled-system/recipes'
@@ -47,7 +47,55 @@ Header.displayName = 'PageHeader'
 
 export const HeaderBottom = withContext(ark.header, 'headerBottom')
 export const Body = withContext(ark.div, 'body')
-export const Main = withContext(ark.main, 'main')
+
+const MainBase = withContext(ark.main, 'main')
+
+export type MainProps = ComponentProps<typeof MainBase>
+
+/**
+ * Page.Main — the scroll container for a routed page.
+ *
+ * Enforces the page scaffold contract at dev time: every page must render
+ * `<Page.Header>` and `<Page.Body>` as DIRECT children of `<Page.Main>` (the
+ * AppShell already provides the outer `<Page.Root>`). `Page.HeaderTop` /
+ * `Page.HeaderBottom` are optional siblings. `Page.Footer` is SHELL-OWNED:
+ * AppShell renders it once (with `ActionFooter`) directly under `Page.Root`;
+ * routed pages must NOT render it (enforced by `pnpm lint:pages`).
+ *
+ * Violations log a console warning so a page that forgets a slot is caught
+ * immediately in the browser during development, not in QA. The static gate
+ * is `pnpm lint:pages` (scripts/lint-pages.mjs).
+ */
+export const Main = forwardRef<HTMLElement, MainProps>(({ children, ...props }, ref) => {
+  if (import.meta.env.DEV) {
+    const flat = Children.toArray(children)
+    const hasHeader = flat.some((child) => isValidElement(child) && child.type === Header)
+    const hasBody = flat.some((child) => isValidElement(child) && child.type === Body)
+    const allowed = [Header, HeaderTop, HeaderBottom, Body]
+    const unexpected = flat.filter(
+      (child) => isValidElement(child) && !allowed.includes(child.type as never),
+    )
+    if (!hasHeader || !hasBody) {
+      console.warn(
+        '[Page.Main] Page scaffold violation: every page must render <Page.Header> and <Page.Body> inside <Page.Main>.',
+        { hasHeader, hasBody },
+      )
+    }
+    if (unexpected.length > 0) {
+      console.warn(
+        '[Page.Main] Page scaffold violation: only <Page.HeaderTop>/<Page.Header>/<Page.HeaderBottom>/<Page.Body> are allowed as direct children of <Page.Main>.',
+        unexpected,
+      )
+    }
+  }
+  return (
+    <MainBase ref={ref} {...props}>
+      {children}
+    </MainBase>
+  )
+})
+Main.displayName = 'PageMain'
+
 export const Footer = withContext(ark.div, 'footer')
 
 export type BreadcrumbLevel = 0 | 1 | 2

@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import type { CSSProperties } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Avatar, Button, Card, Field, Heading, Input, Page, Text } from '@/core/ui'
+import { Avatar, Button, Card, Field, Heading, Input, Page, Text, useRegisterPageActions } from '@/core/ui'
 import { Stack, VStack, HStack } from 'styled-system/jsx'
 import { useAuth } from './use-auth'
 import { UserRound } from 'lucide-react'
@@ -22,8 +22,7 @@ export default function AccountPage() {
     navigate('/login', { replace: true })
   }
 
-  const handleChangePassword = async (event: React.FormEvent) => {
-    event.preventDefault()
+  const changePassword = async () => {
     setPasswordError(null)
     setPasswordNotice(null)
     if (password.length < 6) {
@@ -40,6 +39,19 @@ export default function AccountPage() {
     setPassword('')
     setPasswordNotice('Password updated.')
   }
+
+  const handleChangePassword = (event: React.FormEvent) => {
+    event.preventDefault()
+    void changePassword()
+  }
+
+  useRegisterPageActions({
+    cancel: () => setPassword(''),
+    apply: changePassword,
+    isSaving: savingPassword,
+    isDirty: password.length > 0,
+    applyLabel: 'Update password',
+  })
 
   return (
     <Page.Main>
@@ -103,9 +115,6 @@ export default function AccountPage() {
                   </Field.Root>
                   {passwordError && <Text color="error">{passwordError}</Text>}
                   {passwordNotice && <Text>{passwordNotice}</Text>}
-                  <Button type="submit" disabled={savingPassword}>
-                    {savingPassword ? 'Saving…' : 'Update password'}
-                  </Button>
                 </Stack>
               </form>
             </Card.Body>

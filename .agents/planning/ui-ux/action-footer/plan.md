@@ -31,42 +31,43 @@ Subagent: No
 Deliverable: ADR notes in `findings.md`.
 
 ## Batch 2: Core Implementation
-Context: Goal: core mechanism + migrate forms + lint gate. Prev: Batch 1 done — baseline green, branch created, arch locked. Key: `findings.md#api`, `#positioning`, `#forms`, `#enforcement`. State: ready.
+Context: Goal: core mechanism + migrate forms + lint gate. Prev: Batch 1 done — baseline green, branch created, arch locked. Key: `findings.md#api`, `#positioning`, `#forms`, `#enforcement`. State: done.
 
 ### Subphase 2.1: Core mechanism
-- [ ] Add `src/core/ui/page-actions.tsx` — `PageActionsProvider` + `usePageActions` + `PageActions` type (`register` → cleanup)
-- [ ] Add `src/core/ui/action-footer.tsx` — `ActionFooter` (Cancel/Save, `data-state`, `inert`+`aria-hidden` when hidden, reduced-motion)
-- [ ] Export both from `src/core/ui/index.ts`
-- [ ] Update `src/core/theme/recipes/page.ts` — footer slot: absolute, off-screen transform, `data-state`, transition, `env(safe-area-inset-bottom)`; `main` `scrollPaddingBottom: var(--footer-height, 0)`; remove `footerVariant: 'fixed'`
-- [ ] Update `src/core/ui/app-shell.tsx` — wrap in `PageActionsProvider`; render `<Page.Footer><ActionFooter /></Page.Footer>` as direct child of `Page.Root`
-- [ ] Update `index.html` — viewport meta: `viewport-fit=cover, interactive-widget=resizes-content`
-- [ ] Update `src/core/ui/page.tsx` doc comment (footer shell-owned)
+- [x] Add `src/core/ui/page-actions.tsx` — `PageActionsProvider` + `usePageActions` + `PageActions` type (`register` → cleanup)
+- [x] Add `src/core/ui/action-footer.tsx` — `ActionFooter` (Cancel/Save, `data-state`, `inert`+`aria-hidden` when hidden, reduced-motion)
+- [x] Export both from `src/core/ui/index.ts`
+- [x] Update `src/core/theme/recipes/page.ts` — footer slot: absolute, off-screen transform, `data-state`, transition, `env(safe-area-inset-bottom)`; `main` `scrollPaddingBottom: var(--footer-height, 0)`; remove `footerVariant: 'fixed'`
+- [x] Update `src/core/ui/app-shell.tsx` — wrap in `PageActionsProvider`; render `<Page.Footer><ActionFooter /></Page.Footer>` as direct child of `Page.Root`
+- [x] Update `index.html` — viewport meta: `viewport-fit=cover, interactive-widget=resizes-content`
+- [x] Update `src/core/ui/page.tsx` doc comment (footer shell-owned)
 Subagent: Yes (independent file ops)
 Deliverable: Footer renders in shell, hidden + inert by default.
 
 ### Subphase 2.2: Migrate existing footer pages
-- [ ] `src/core/settings/pages/ChurchInformationPage.tsx` — delete `<Page.Footer>` (~688–702); `useEffect(() => register({ cancel: handleCancel, apply: handleApply, isSaving: saving, isDirty, applyLabel: 'Apply' }), [handleCancel, handleApply, saving, isDirty])`
-- [ ] `src/modules/people/pages/EditPersonPage.tsx` — delete `<Page.Footer>` (~133–138); register `{ cancel: handleCancel, apply: handleSaveAll, isSaving: false, isDirty: true }`
+- [x] `src/core/settings/pages/ChurchInformationPage.tsx` — delete `<Page.Footer>` (~688–702); register `{ cancel: handleCancel, apply: handleApply, isSaving: saving, isDirty, applyLabel: 'Apply' }`
+- [x] `src/modules/people/pages/EditPersonPage.tsx` — delete `<Page.Footer>` (~133–138); register `{ cancel: handleCancel, apply: handleSaveAll, isSaving: false, isDirty: true }`
 Subagent: No (sequential, shared pattern)
 Deliverable: Both pages use shell footer; behavior preserved.
 
 ### Subphase 2.3: Migrate remaining forms
-- [ ] `src/modules/people/components/PersonForm.tsx` — register actions (`isDirty` = value ≠ initial, `applyLabel` = `submitLabel`); remove inline buttons
-- [ ] `src/modules/people/pages/FormBuilderPage.tsx` — register actions (`isDirty` from draft vs loaded); remove inline "Save form" button
-- [ ] `src/core/auth/AccountPage.tsx` — register actions (`isDirty` = `password.length > 0`; `apply` = `handleChangePassword`)
+- [x] `src/modules/people/components/PersonForm.tsx` — register actions (`isDirty` = value ≠ initial, `applyLabel` = `submitLabel`); remove inline buttons
+- [x] `src/modules/people/pages/FormBuilderPage.tsx` — register actions (`isDirty` from `useOrderedCollection`); remove inline "Save form" button
+- [x] `src/core/auth/AccountPage.tsx` — register actions (`isDirty` = `password.length > 0`; `apply` = `changePassword`)
+- [x] **Design fix:** added `useRegisterPageActions` helper (ref-based) — prevents infinite re-registration loop
 Subagent: Yes (parallel per component)
 Deliverable: All in-scope forms use shell footer.
 
 ### Subphase 2.4: Linting enforcement
-- [ ] Extend `scripts/lint-pages.mjs` — check 1: ban `Page.Footer` in routed pages (allowlist `page.tsx` + `app-shell.tsx`)
-- [ ] Extend `scripts/lint-pages.mjs` — check 2: routed pages with `<form`/`onSubmit=` must import `usePageActions` (allowlist `LoginPage`/`FormPublicPage`)
-- [ ] Update `lint-pages.mjs` top doc comment (new contract)
-- [ ] Verify: `pnpm lint:pages` passes
+- [x] Extend `scripts/lint-pages.mjs` — check 3: ban `Page.Footer` in routed pages (allowlist `page.tsx` + `app-shell.tsx` + `action-footer.tsx`)
+- [x] Extend `scripts/lint-pages.mjs` — check 4: routed pages with `<form` must use `usePageActions`/`useRegisterPageActions` (allowlist `LoginPage`/`FormPublicPage`)
+- [x] Update `lint-pages.mjs` top doc comment (new contract)
+- [x] Verify: `pnpm lint:pages` passes
 Subagent: No
 Deliverable: `pnpm lint:pages` green with new checks.
 
 ## Batch 3: Testing & Quality
-Context: Goal: test context/footer, verify cross-route + browser UX. Prev: Batch 2 done — core + forms migrated, lint gate extended. Key: `findings.md#testing`, `#traps`. State: ready.
+Context: Goal: test context/footer, verify cross-route + browser UX. Prev: Batch 2 done — core + forms migrated, lint gate extended. Key: `findings.md#testing`, `#traps`. State: in progress.
 
 ### Subphase 3.1: Unit coverage
 - [ ] Add `src/core/ui/__tests__/page-actions.test.tsx` — register/clear on unmount, dirty-driven visibility

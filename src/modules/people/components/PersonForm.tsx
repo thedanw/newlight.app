@@ -1,6 +1,6 @@
-import { useState, type FormEvent } from 'react'
+import { useRef, useState, type FormEvent } from 'react'
 import { createListCollection } from '@ark-ui/react'
-import { Button, Card, Checkbox, Field, Input, Select, Text } from '@/core/ui'
+import { Button, Card, Checkbox, Field, Input, Select, Text, useRegisterPageActions } from '@/core/ui'
 import { Stack } from 'styled-system/jsx'
 import type { Person } from '../lib/types'
 import type { PersonInput } from '../lib/queries'
@@ -71,8 +71,7 @@ export function PersonForm({ initialValue, submitLabel, onSubmit, onCancel, allo
     setValue((current) => ({ ...current, [key]: nextValue }))
   }
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
+  const submit = async () => {
     const tracks = tracksQuery.data?.length ? journeyTracks : manualJourneyTracks.split(',').map((track) => track.trim()).filter(Boolean)
     const nextValue = { ...value, journey: Object.fromEntries(tracks.map((track) => [track, value.journey[track] ?? 'contact'])) }
     const result = personFormSchema.safeParse(nextValue)
@@ -90,6 +89,22 @@ export function PersonForm({ initialValue, submitLabel, onSubmit, onCancel, allo
       setSaving(false)
     }
   }
+
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    void submit()
+  }
+
+  const initialValueRef = useRef(value)
+  const isDirty = JSON.stringify(value) !== JSON.stringify(initialValueRef.current)
+
+  useRegisterPageActions({
+    cancel: onCancel,
+    apply: submit,
+    isSaving: saving,
+    isDirty,
+    applyLabel: submitLabel,
+  })
 
   return (
     <form onSubmit={handleSubmit}>
@@ -252,11 +267,6 @@ export function PersonForm({ initialValue, submitLabel, onSubmit, onCancel, allo
         )}
 
         {error && <Text color="error">{error}</Text>}
-
-        <Stack flexDirection="row" gap="3">
-          <Button type="submit" loading={saving} loadingText="Saving">{submitLabel}</Button>
-          <Button type="button" variant="outline" onClick={onCancel}>Cancel</Button>
-        </Stack>
       </Stack>
     </form>
   )

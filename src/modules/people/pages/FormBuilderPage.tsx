@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo, type CSSProperties } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { Button, Card, Checkbox, Field, Heading, Input, Page, Reorder, Select, Switch, Text, Textarea } from '@/core/ui'
+import { Button, Card, Checkbox, Field, Heading, Input, Page, Reorder, Select, Switch, Text, Textarea, useRegisterPageActions } from '@/core/ui'
 import { Stack } from 'styled-system/jsx'
 import { Users } from 'lucide-react'
 import { createListCollection } from '@ark-ui/react'
@@ -115,6 +115,27 @@ export default function FormBuilderPage() {
       })
   }, [id])
 
+  const save = async () => {
+    setSaving(true)
+    setMessage(null)
+    try {
+      if (id) await updateForm(id, draft)
+      else await createForm(draft)
+      navigate('/people/forms')
+    } catch (reason) {
+      setMessage(reason instanceof Error ? reason.message : 'Unable to save form.')
+      setSaving(false)
+    }
+  }
+
+  useRegisterPageActions({
+    cancel: () => navigate('/people/forms'),
+    apply: save,
+    isSaving: saving,
+    isDirty: fieldsCollection.isDirty,
+    applyLabel: 'Save form',
+  })
+
   if (!loaded) return (
     <Page.Main>
       <Page.Header style={{ '--module-number': 1 } as CSSProperties}>
@@ -142,19 +163,6 @@ export default function FormBuilderPage() {
     if (target < 0 || target >= next.length) return
     ;[next[index], next[target]] = [next[target], next[index]]
     reorderFields(next)
-  }
-
-  const save = async () => {
-    setSaving(true)
-    setMessage(null)
-    try {
-      if (id) await updateForm(id, draft)
-      else await createForm(draft)
-      navigate('/people/forms')
-    } catch (reason) {
-      setMessage(reason instanceof Error ? reason.message : 'Unable to save form.')
-      setSaving(false)
-    }
   }
 
   const headingTitle = id ? 'Edit form' : 'New form'
@@ -332,7 +340,6 @@ export default function FormBuilderPage() {
           <Card.Footer>
             <Stack flexDirection="row" gap="3">
               <Button onClick={() => setDraft((current) => ({ ...current, fields: [...current.fields, emptyField()] }))}>Add field</Button>
-              <Button onClick={() => void save()} disabled={saving}>{saving ? 'Saving...' : 'Save form'}</Button>
             </Stack>
           </Card.Footer>
         </Card.Root>

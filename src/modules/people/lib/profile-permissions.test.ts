@@ -3,10 +3,18 @@ import { deriveProfilePermissions } from './profile-permissions'
 
 describe('deriveProfilePermissions', () => {
   describe('admin operator viewing another person', () => {
-    const result = deriveProfilePermissions('admin', false)
+    const result = deriveProfilePermissions('admin', false, true)
 
     it('isAdmin is true', () => {
       expect(result.isAdmin).toBe(true)
+    })
+
+    it('isSuperAdmin is false', () => {
+      expect(result.isSuperAdmin).toBe(false)
+    })
+
+    it('isPublic is false', () => {
+      expect(result.isPublic).toBe(false)
     })
 
     it('canEdit is true (admin can edit any profile)', () => {
@@ -29,8 +37,8 @@ describe('deriveProfilePermissions', () => {
       expect(result.canEditChildSafety).toBe(true)
     })
 
-    it('canEditAdminFields is true', () => {
-      expect(result.canEditAdminFields).toBe(true)
+    it('canEditAdminFields is false (admin can view but not edit admin fields)', () => {
+      expect(result.canEditAdminFields).toBe(false)
     })
 
     it('canDelete is true (admin viewing another person)', () => {
@@ -39,10 +47,26 @@ describe('deriveProfilePermissions', () => {
   })
 
   describe('super_admin operator viewing another person', () => {
-    const result = deriveProfilePermissions('super_admin', false)
+    const result = deriveProfilePermissions('super_admin', false, true)
 
     it('isAdmin is true', () => {
       expect(result.isAdmin).toBe(true)
+    })
+
+    it('isSuperAdmin is true', () => {
+      expect(result.isSuperAdmin).toBe(true)
+    })
+
+    it('isPublic is false', () => {
+      expect(result.isPublic).toBe(false)
+    })
+
+    it('canEdit is true', () => {
+      expect(result.canEdit).toBe(true)
+    })
+
+    it('canEditAdminFields is true (super_admin can edit admin fields)', () => {
+      expect(result.canEditAdminFields).toBe(true)
     })
 
     it('canDelete is true', () => {
@@ -51,7 +75,7 @@ describe('deriveProfilePermissions', () => {
   })
 
   describe('self-view (user viewing own profile)', () => {
-    const result = deriveProfilePermissions('team_leaders', true)
+    const result = deriveProfilePermissions('team_leaders', true, true)
 
     it('isSelf is true', () => {
       expect(result.isSelf).toBe(true)
@@ -59,6 +83,10 @@ describe('deriveProfilePermissions', () => {
 
     it('isAdmin is false', () => {
       expect(result.isAdmin).toBe(false)
+    })
+
+    it('isPublic is false', () => {
+      expect(result.isPublic).toBe(false)
     })
 
     it('canEdit is true (self can edit their own profile)', () => {
@@ -91,10 +119,14 @@ describe('deriveProfilePermissions', () => {
   })
 
   describe('non-admin, non-self viewer', () => {
-    const result = deriveProfilePermissions('member_area', false)
+    const result = deriveProfilePermissions('member_area', false, true)
 
     it('isAdmin is false', () => {
       expect(result.isAdmin).toBe(false)
+    })
+
+    it('isPublic is false', () => {
+      expect(result.isPublic).toBe(false)
     })
 
     it('canEdit is false (not admin, not self)', () => {
@@ -127,10 +159,15 @@ describe('deriveProfilePermissions', () => {
   })
 
   describe('public permission viewer', () => {
-    const result = deriveProfilePermissions('public', false)
+    const result = deriveProfilePermissions('public', false, true)
 
-    it('everything is false', () => {
+    it('isPublic is false because viewer is authenticated', () => {
+      expect(result.isPublic).toBe(false)
+    })
+
+    it('admin flags are false', () => {
       expect(result.isAdmin).toBe(false)
+      expect(result.isSuperAdmin).toBe(false)
       expect(result.canEdit).toBe(false)
       expect(result.canManageTags).toBe(false)
       expect(result.canManageJourney).toBe(false)
@@ -141,11 +178,36 @@ describe('deriveProfilePermissions', () => {
     })
   })
 
-  describe('null operator permission (unknown)', () => {
-    const result = deriveProfilePermissions(null, false)
+  describe('null operator permission with authenticated viewer', () => {
+    const result = deriveProfilePermissions(null, false, true)
 
-    it('all flags are false (deny by default)', () => {
+    it('isPublic is false because viewer is authenticated', () => {
+      expect(result.isPublic).toBe(false)
+    })
+
+    it('all action flags are false by default', () => {
       expect(result.isAdmin).toBe(false)
+      expect(result.isSuperAdmin).toBe(false)
+      expect(result.canEdit).toBe(false)
+      expect(result.canManageTags).toBe(false)
+      expect(result.canManageJourney).toBe(false)
+      expect(result.canManageGuardians).toBe(false)
+      expect(result.canEditChildSafety).toBe(false)
+      expect(result.canEditAdminFields).toBe(false)
+      expect(result.canDelete).toBe(false)
+    })
+  })
+
+  describe('unauthenticated viewer', () => {
+    const result = deriveProfilePermissions(null, false, false)
+
+    it('isPublic is true', () => {
+      expect(result.isPublic).toBe(true)
+    })
+
+    it('all action flags are false', () => {
+      expect(result.isAdmin).toBe(false)
+      expect(result.isSuperAdmin).toBe(false)
       expect(result.canEdit).toBe(false)
       expect(result.canManageTags).toBe(false)
       expect(result.canManageJourney).toBe(false)

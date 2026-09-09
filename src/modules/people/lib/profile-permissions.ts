@@ -6,6 +6,7 @@ import type { Person } from './types'
 /** What a viewer (operator or self) is allowed to do on a person profile. */
 export type ProfilePermissions = {
   isAdmin: boolean
+  isSuperAdmin: boolean
   isSelf: boolean
   /** Can edit basic profile fields (name, email, demographics, contact). */
   canEdit: boolean
@@ -21,6 +22,8 @@ export type ProfilePermissions = {
   canEditAdminFields: boolean
   /** Can soft-delete this person. */
   canDelete: boolean
+  /** Viewer is public/not authenticated. */
+  isPublic: boolean
   /** Still loading operator permission or auth user. */
   loading: boolean
 }
@@ -34,17 +37,23 @@ export type ProfilePermissions = {
 export function deriveProfilePermissions(
   operatorPermission: Person['access_permission'] | null,
   isSelf: boolean,
+  isAuthenticated: boolean,
 ): Omit<ProfilePermissions, 'loading'> {
   const isAdmin = operatorPermission === 'admin' || operatorPermission === 'super_admin'
+  const isSuperAdmin = operatorPermission === 'super_admin'
+  const isPublic = !isAuthenticated
+
   return {
     isAdmin,
+    isSuperAdmin,
     isSelf,
+    isPublic,
     canEdit: isAdmin || isSelf,
     canManageTags: isAdmin,
     canManageJourney: isAdmin,
     canManageGuardians: isAdmin,
     canEditChildSafety: isAdmin,
-    canEditAdminFields: isAdmin,
+    canEditAdminFields: isSuperAdmin,
     canDelete: isAdmin && !isSelf,
   }
 }
@@ -66,13 +75,14 @@ export function useProfilePermissions(person: Pick<Person, 'id' | 'auth_user_id'
   const loading = operatorResult.loading || authUserResult.loading
   if (loading || !person) {
     return {
-      isAdmin: false, isSelf: false, canEdit: false, canManageTags: false,
-      canManageJourney: false, canManageGuardians: false, canEditChildSafety: false,
-      canEditAdminFields: false, canDelete: false, loading,
+      isAdmin: false, isSuperAdmin: false, isSelf: false, isPublic: false,
+      canEdit: false, canManageTags: false, canManageJourney: false,
+      canManageGuardians: false, canEditChildSafety: false, canEditAdminFields: false,
+      canDelete: false, loading,
     }
   }
 
   const authUserId = authUserResult.data ?? null
   const isSelf = person.auth_user_id === authUserId && authUserId !== null
-  return { ...deriveProfilePermissions(operatorResult.data ?? null, isSelf), loading }
+  return { ...deriveProfilePermissions(operatorResult.data ?? null, isSelf, authUserId !== null), loading }
 }

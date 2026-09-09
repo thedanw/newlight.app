@@ -369,7 +369,8 @@ Table journey_tracks {
 }
 
 Table journey_stages {
-  slug varchar [pk, note: 'seeded: contact|guest|linked|regular|archived|deleted_privacy_data (colors per peopleFields.md)']
+  id uuid [pk, note: 'UUID primary key — slug is now a unique, editable column']
+  slug varchar [not null, unique, note: 'seeded: contact|guest|linked|regular|archived|deleted_privacy_data (colors per peopleFields.md); editable — upsert by id (never orphaned by rename)']
   label varchar [not null]
   color varchar(7)
   sort_order integer

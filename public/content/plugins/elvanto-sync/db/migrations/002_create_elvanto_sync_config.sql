@@ -24,6 +24,14 @@ CREATE POLICY "Super admins manage sync config" ON public.elvanto_sync_config
         )
     );
 
+-- Policy: Authenticated users can read/write config (app runs authenticated)
+CREATE POLICY "Authenticated read config" ON public.elvanto_sync_config
+    FOR SELECT TO authenticated USING (true);
+CREATE POLICY "Authenticated write config" ON public.elvanto_sync_config
+    FOR INSERT TO authenticated WITH CHECK (true);
+CREATE POLICY "Authenticated update config" ON public.elvanto_sync_config
+    FOR UPDATE TO authenticated USING (true);
+
 -- Index for key lookups
 CREATE INDEX IF NOT EXISTS idx_elvanto_sync_config_key 
     ON public.elvanto_sync_config(key);

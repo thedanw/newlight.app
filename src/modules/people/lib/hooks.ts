@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
-import { getCurrentOperatorPermission, getHouseholdById, getHouseholds, getJourneyGrid, getJourneyStages, getJourneyTracks, getPeopleList, getPersonById, getPersonGuardians, searchPeople } from './queries'
+import { getCurrentOperatorPermission, getHouseholdById, getHouseholds, getJourneyCategories, getJourneyGrid, getJourneyStages, getJourneyTracks, getPeopleList, getPersonById, getPersonGuardians, getPublicPeopleList, getPublicPersonById, searchPeople } from './queries'
 import { getPersonTags, getTags } from './queries'
-import type { HouseholdDetails, JourneyGrid, JourneyStage, JourneyTrack, PeopleListOptions, Person, PersonWithJourney } from './types'
+import type { HouseholdDetails, JourneyGrid, JourneyStage, JourneyTrack, JourneyTrackCategory, PeopleListOptions, Person, PersonPublic, PersonWithJourney } from './types'
 
 type AsyncState<T> = {
   data: T | null
@@ -30,8 +30,12 @@ export function useAsyncQuery<T>(query: () => Promise<T>, key: string): AsyncSta
   return state
 }
 
-export function usePeopleList(options: PeopleListOptions = {}): AsyncState<PersonWithJourney[]> {
-  return useAsyncQuery(() => getPeopleList(options), JSON.stringify(options))
+export function usePeopleList(options: PeopleListOptions = {}, isPublic = false): AsyncState<(PersonWithJourney | PersonPublic)[]> {
+  const query: () => Promise<(PersonWithJourney | PersonPublic)[]> = isPublic
+    ? () => getPublicPeopleList(options)
+    : () => getPeopleList(options)
+  // Mode-scoped key so the correct table is (re)queried if auth resolves mid-render.
+  return useAsyncQuery(query, `${isPublic ? 'public' : 'private'}:${JSON.stringify(options)}`)
 }
 
 export function usePerson(id: string | undefined): AsyncState<Person> {
@@ -70,6 +74,10 @@ export function useJourneyStages(): AsyncState<JourneyStage[]> {
   return useAsyncQuery(getJourneyStages, 'journey-stages')
 }
 
+export function useJourneyCategories(): AsyncState<JourneyTrackCategory[]> {
+  return useAsyncQuery(getJourneyCategories, 'journey-categories')
+}
+
 export function useCurrentOperatorPermission(): AsyncState<Person['access_permission'] | null> {
   return useAsyncQuery(getCurrentOperatorPermission, 'current-operator-permission')
 }
@@ -88,4 +96,14 @@ export function usePersonTags(personId: string | undefined): AsyncState<import('
 
 export function usePersonGuardians(personId: string | undefined): AsyncState<Person[]> {
   return useAsyncQuery(() => personId ? getPersonGuardians(personId) : Promise.resolve([]), personId ?? '')
+}
+
+export function usePublicPerson(id: string | undefined): AsyncState<PersonPublic | null> {
+  return useAsyncQuery(() => {
+    if (!id) return Promise.reject(new Error('A person id is required'))
+    return getPublicPersonById(id).then((person) => {
+      if (!person) throw new Error('Person not found')
+      return person
+    })
+  }, id ?? '')
 }

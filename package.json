@@ -7,8 +7,9 @@
   "scripts": {
     "prepare": "panda codegen && node scripts/generate-theme-colors.mjs",
     "dev": "node scripts/generate-theme-colors.mjs && node scripts/copy-plugins.mjs && node scripts/copy-theme.mjs && vite",
-    "build": "node scripts/generate-theme-colors.mjs && node scripts/copy-plugins.mjs && node scripts/copy-theme.mjs && tsc -b && vite build",
+    "build": "node scripts/generate-theme-colors.mjs && node scripts/copy-plugins.mjs && node scripts/copy-theme.mjs && node scripts/lint-pages.mjs && tsc -b && vite build",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "lint:pages": "node scripts/lint-pages.mjs",
     "lint:tokens": "node scripts/lint-tokens.mjs",
     "preview": "vite preview",
     "typecheck": "tsc -b",

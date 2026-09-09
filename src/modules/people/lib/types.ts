@@ -1,5 +1,12 @@
 import type { Tables } from '@/core/lib/database.types'
 
+export type PersonPublic = {
+  id: string
+  firstname: string
+  lastname_initial: string | null
+  demographic: Person['demographic']
+}
+
 export type Person = Tables<'people'>
 export type PersonRelationship = Tables<'people_relationships'>
 export type Household = Tables<'households'>

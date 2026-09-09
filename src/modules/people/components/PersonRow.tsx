@@ -1,17 +1,31 @@
 import { useNavigate } from 'react-router-dom'
 import { Link, Badge, Table } from '@/core/ui'
-import type { PersonWithJourney } from '../lib/types'
+import type { PersonPublic, PersonWithJourney } from '../lib/types'
 
 type PersonRowProps = {
-  person: PersonWithJourney
+  person: PersonWithJourney | PersonPublic
+  isPublic?: boolean
 }
 
-export function PersonRow({ person }: PersonRowProps) {
+function isPersonPublic(person: PersonWithJourney | PersonPublic): person is PersonPublic {
+  return 'lastname_initial' in person
+}
+
+export function PersonRow({ person, isPublic = false }: PersonRowProps) {
   const navigate = useNavigate()
-  const displayName = person.preferred_name
-    ? `${person.preferred_name} ${person.lastname}`
-    : `${person.firstname} ${person.lastname}`
-  const primaryStage = Object.values(person.journey)[0]
+
+  let displayName: string
+  if (isPublic && isPersonPublic(person)) {
+    displayName = `${person.firstname} ${person.lastname_initial ?? ''}`.trim() || 'Hidden'
+  } else {
+    const fullPerson = person as PersonWithJourney
+    displayName = fullPerson.preferred_name
+      ? `${fullPerson.preferred_name} ${fullPerson.lastname}`
+      : `${fullPerson.firstname} ${fullPerson.lastname}`
+  }
+
+  const isPublicPerson = isPublic && isPersonPublic(person)
+  const primaryStage = !isPublicPerson && 'journey' in person ? Object.values((person as PersonWithJourney).journey)[0] : undefined
 
   const openProfile = () => navigate(`/people/${person.id}`)
 
@@ -34,9 +48,9 @@ export function PersonRow({ person }: PersonRowProps) {
           {person.demographic}
         </Badge>
       </Table.Cell>
-      <Table.Cell>{primaryStage ?? 'Archived'}</Table.Cell>
-      <Table.Cell>{person.household?.name ?? 'No household'}</Table.Cell>
-      <Table.Cell>{person.email ?? 'No email'}</Table.Cell>
+      {!isPublicPerson && <Table.Cell>{primaryStage ?? 'Archived'}</Table.Cell>}
+      {!isPublicPerson && <Table.Cell>{(person as PersonWithJourney).household?.name ?? 'No household'}</Table.Cell>}
+      {!isPublicPerson && <Table.Cell>{(person as PersonWithJourney).email ?? 'No email'}</Table.Cell>}
     </Table.Row>
   )
 }

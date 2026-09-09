@@ -239,7 +239,7 @@
 - [ ] **Write SQL** for:
   1. `journey_track_categories` — id PK, parent_id self-ref FK, name, sort_order
   2. `journey_tracks` — id PK, category_id FK, name, sort_order, elvanto_location_id UNIQUE, follow_elvanto boolean DEFAULT false, deleted_at
-  3. `journey_stages` — slug varchar PK, label, color varchar(7), sort_order, is_terminal boolean DEFAULT false
+   3. `journey_stages` — id uuid PK, slug varchar UNIQUE NOT NULL, label, color varchar(7), sort_order, is_terminal boolean DEFAULT false
   4. `people_audit` — id PK, person_id FK→people, field_changed varchar, old_value jsonb, new_value jsonb, change_reason audit_change_reason NOT NULL, changed_by uuid, changed_at timestamptz NOT NULL
   5. `people_categories` — MIRROR: id IS Elvanto UUID PK, name, color, _synced_at, _source_modified
   6. `custom_fields` — MIRROR: id PK, name, type custom_field_type NOT NULL, _synced_at
@@ -402,13 +402,13 @@
 - [ ] **Write SQL:**
   - **journey_stages** (per peopleFields.md):
     ```sql
-    INSERT INTO journey_stages (slug, label, color, sort_order, is_terminal) VALUES
-      ('contact', 'Contact', '#6B7280', 1, false),
-      ('guest', 'Guest', '#F59E0B', 2, false),
-      ('linked', 'Linked', '#3B82F6', 3, false),
-      ('regular', 'Regular', '#10B981', 4, false),
-      ('archived', 'Archived', '#9CA3AF', 5, true),
-      ('deleted_privacy_data', 'GDPR Erased', '#EF4444', 6, true);
+    INSERT INTO journey_stages (id, slug, label, color, sort_order, is_terminal) VALUES
+      ('a1b2c3d4-0000-4000-8000-000000000001', 'contact', 'Contact', '#6B7280', 1, false),
+      ('a1b2c3d4-0000-4000-8000-000000000002', 'guest', 'Guest', '#F59E0B', 2, false),
+      ('a1b2c3d4-0000-4000-8000-000000000003', 'linked', 'Linked', '#3B82F6', 3, false),
+      ('a1b2c3d4-0000-4000-8000-000000000004', 'regular', 'Regular', '#10B981', 4, false),
+      ('a1b2c3d4-0000-4000-8000-000000000005', 'archived', 'Archived', '#9CA3AF', 5, true),
+      ('a1b2c3d4-0000-4000-8000-000000000006', 'deleted_privacy_data', 'GDPR Erased', '#EF4444', 6, true);
     ```
   - **user_roles** (core #25):
     ```sql

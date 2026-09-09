@@ -8,7 +8,9 @@ import { applyMappings, getDateFilterForEntity, updateEntityWatermark, SYNC_ENTI
 import { loadWatermark as _loadWatermark } from './watermark'
 
 // Fallback journey when no track mappings produced updates (DB CHECK journey <> '{}')
-const DEFAULT_JOURNEY: Record<string, string> = { default: 'contact' }
+// The single value is the UUID of the seeded "contact" journey stage — stable across environments.
+const CONTACT_STAGE_ID = 'a1b2c3d4-0000-4000-8000-000000000001'
+const DEFAULT_JOURNEY: Record<string, string> = { default: CONTACT_STAGE_ID }
 
 // ============================================
 // Types

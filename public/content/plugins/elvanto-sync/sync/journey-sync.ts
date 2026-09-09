@@ -281,37 +281,47 @@ function computeJourneyUpdates(
   return updates
 }
 
+// Deterministic UUIDs for seeded journey stages (must match the migration seed values)
+const STAGE_UUIDS = {
+  contact: 'a1b2c3d4-0000-4000-8000-000000000001',
+  guest: 'a1b2c3d4-0000-4000-8000-000000000002',
+  linked: 'a1b2c3d4-0000-4000-8000-000000000003',
+  regular: 'a1b2c3d4-0000-4000-8000-000000000004',
+  archived: 'a1b2c3d4-0000-4000-8000-000000000005',
+  deleted_privacy_data: 'a1b2c3d4-0000-4000-8000-000000000006',
+}
+
 function computeSundayStage(person: ElvantoPerson, categoryName: string): string | null {
   // Status overrides (priority order)
   if (person.contact === 1 || person.suspended === 1) {
-    return 'archived'
+    return STAGE_UUIDS.archived
   }
   if (person.archived === 1 || person.deceased === 1) {
-    return 'deleted_privacy_data'
+    return STAGE_UUIDS.deleted_privacy_data
   }
-  
+
   // Category mapping
   const normalized = categoryName.trim().replace(/[*_]+$/, '').toLowerCase()
-  
+
   const mapping: Record<string, string> = {
-    'sunday guest': 'guest',
-    'sunday linked': 'linked',
-    'sunday regular': 'regular',
-    'community connection': 'contact',
+    'sunday guest': STAGE_UUIDS.guest,
+    'sunday linked': STAGE_UUIDS.linked,
+    'sunday regular': STAGE_UUIDS.regular,
+    'community connection': STAGE_UUIDS.contact,
   }
-  
-  return mapping[normalized] ?? 'contact'
+
+  return mapping[normalized] ?? STAGE_UUIDS.contact
 }
 
 function computeLocationStage(person: ElvantoPerson): string {
   // Same status overrides as Sunday Services
   if (person.contact === 1 || person.suspended === 1) {
-    return 'archived'
+    return STAGE_UUIDS.archived
   }
   if (person.archived === 1 || person.deceased === 1) {
-    return 'deleted_privacy_data'
+    return STAGE_UUIDS.deleted_privacy_data
   }
-  return 'contact' // Conservative default
+  return STAGE_UUIDS.contact // Conservative default
 }
 
 // ============================================

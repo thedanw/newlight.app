@@ -24,6 +24,14 @@ CREATE POLICY "Super admins manage Elvanto settings" ON public.elvanto_settings
         )
     );
 
+-- Policy: Authenticated users can read/write settings (app runs authenticated)
+CREATE POLICY "Authenticated read settings" ON public.elvanto_settings
+    FOR SELECT TO authenticated USING (true);
+CREATE POLICY "Authenticated write settings" ON public.elvanto_settings
+    FOR INSERT TO authenticated WITH CHECK (true);
+CREATE POLICY "Authenticated update settings" ON public.elvanto_settings
+    FOR UPDATE TO authenticated USING (true);
+
 -- Index for environment lookups
 CREATE INDEX IF NOT EXISTS idx_elvanto_settings_environment 
     ON public.elvanto_settings(environment);

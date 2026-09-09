@@ -28,6 +28,10 @@ CREATE POLICY "Admins read sync history" ON public.elvanto_sync_history
         )
     );
 
+-- Policy: Authenticated users can read history (app runs authenticated)
+CREATE POLICY "Authenticated read history" ON public.elvanto_sync_history
+    FOR SELECT TO authenticated USING (true);
+
 -- Policy: Service role can insert/update (for Edge Function)
 CREATE POLICY "Service role writes sync history" ON public.elvanto_sync_history
     FOR INSERT WITH CHECK (true);

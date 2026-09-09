@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from 'react'
 import { HStack, Stack } from 'styled-system/jsx'
 import { createListCollection } from '@ark-ui/react'
 import { CheckIcon } from 'lucide-react'
+import { DirectionSelect } from './DirectionSelect'
 
 interface MappingRule {
   appField: string
@@ -93,47 +94,15 @@ export function MappingRow({ rule, index, appFields, elvantoFields, dynamicElvan
   const transformValue = rule.transform ? [rule.transform] : []
 
   return (
-    <Stack gap="3" css={{ borderWidth: '1px', borderRadius: 'l2', p: '4' }}>
-      <HStack gap="3" alignItems="flex-start">
+    <Stack gap="3">
+      <HStack gap="3" alignItems="center" flexWrap="wrap" css={{ borderBottomWidth: '1px', borderColor: 'border', pb: '3' }}>
         <Text textStyle="sm" color="fg.muted" minWidth="40px" textAlign="center">
           {index + 1}
         </Text>
 
         <Stack gap="1" flex="1" minWidth="0">
-          <Text textStyle="xs" color="fg.muted">App Field</Text>
-          <Combobox.Root collection={appFieldCollection} value={appFieldValue} onValueChange={(details) => onUpdate(index, { appField: details.value[0] || '' })}>
-            <Combobox.Control>
-              <Combobox.Input placeholder="Select app field..." />
-              <Combobox.IndicatorGroup>
-                <Combobox.Trigger />
-              </Combobox.IndicatorGroup>
-            </Combobox.Control>
-            <Combobox.Positioner>
-              <Combobox.Content css={{ maxHeight: '400px', overflowY: 'auto' }}>
-                {appFieldCollection.items.map((item) => (
-                  <Combobox.Item key={item.value} item={item}>
-                    <Combobox.ItemText>{item.label}</Combobox.ItemText>
-                    <Combobox.ItemIndicator><CheckIcon /></Combobox.ItemIndicator>
-                  </Combobox.Item>
-                ))}
-              </Combobox.Content>
-            </Combobox.Positioner>
-          </Combobox.Root>
-        </Stack>
-
-        <Stack gap="1" alignItems="center" minWidth="80px">
-          <Text textStyle="xs" color="fg.muted">Direction</Text>
-          <Badge variant="solid" color={
-            rule.direction === 'pull' ? 'blue' :
-            rule.direction === 'push' ? 'orange' : 'green'
-          }>
-            {rule.direction}
-          </Badge>
-        </Stack>
-
-        <Stack gap="1" flex="1" minWidth="0">
-          <Text textStyle="xs" color="fg.muted">Elvanto Field</Text>
-          <Combobox.Root collection={elvantoFieldCollection} value={elvantoFieldValue} onValueChange={(details) => onUpdate(index, { elvantoField: details.value[0] || '' })}>
+          <Text textStyle="sm" color="fg.muted">Elvanto Field</Text>
+          <Combobox.Root size="sm" collection={elvantoFieldCollection} value={elvantoFieldValue} onValueChange={(details) => onUpdate(index, { elvantoField: details.value[0] || '' })}>
             <Combobox.Control>
               <Combobox.Input placeholder="Select Elvanto field..." />
               <Combobox.IndicatorGroup>
@@ -153,18 +122,25 @@ export function MappingRow({ rule, index, appFields, elvantoFields, dynamicElvan
           </Combobox.Root>
         </Stack>
 
+        <Stack gap="1" alignItems="center" minWidth="80px" alignSelf="flex-end">
+          <DirectionSelect
+            value={rule.direction}
+            onChange={(direction) => onUpdate(index, { direction })}
+          />
+        </Stack>
+
         <Stack gap="1" flex="1" minWidth="0">
-          <Text textStyle="xs" color="fg.muted">Transform</Text>
-          <Combobox.Root collection={transformCollection} value={transformValue} onValueChange={(details) => onUpdate(index, { transform: details.value[0] || undefined })}>
+          <Text textStyle="sm" color="fg.muted">App Field</Text>
+          <Combobox.Root size="sm" collection={appFieldCollection} value={appFieldValue} onValueChange={(details) => onUpdate(index, { appField: details.value[0] || '' })}>
             <Combobox.Control>
-              <Combobox.Input placeholder="— None (Identity) —" />
+              <Combobox.Input placeholder="Select app field..." />
               <Combobox.IndicatorGroup>
                 <Combobox.Trigger />
               </Combobox.IndicatorGroup>
             </Combobox.Control>
             <Combobox.Positioner>
               <Combobox.Content css={{ maxHeight: '400px', overflowY: 'auto' }}>
-                {transformCollection.items.map((item) => (
+                {appFieldCollection.items.map((item) => (
                   <Combobox.Item key={item.value} item={item}>
                     <Combobox.ItemText>{item.label}</Combobox.ItemText>
                     <Combobox.ItemIndicator><CheckIcon /></Combobox.ItemIndicator>
@@ -173,12 +149,12 @@ export function MappingRow({ rule, index, appFields, elvantoFields, dynamicElvan
               </Combobox.Content>
             </Combobox.Positioner>
           </Combobox.Root>
-          {transformDesc && <Text textStyle="xs" color="fg.muted">{transformDesc}</Text>}
         </Stack>
 
-        <Stack gap="1" alignItems="center" minWidth="70px">
-          <Text textStyle="xs" color="fg.muted">Priority</Text>
+        <Stack gap="1" alignItems="center" minWidth="70px" alignSelf="flex-end">
+          <Text textStyle="sm" color="fg.muted">Priority</Text>
           <Input
+            size="sm"
             type="number"
             value={rule.priority}
             onChange={e => onUpdate(index, { priority: parseInt(e.target.value) || 0 })}
@@ -186,11 +162,11 @@ export function MappingRow({ rule, index, appFields, elvantoFields, dynamicElvan
           />
         </Stack>
 
-        <Button variant="outline" size="sm" onClick={() => setExpanded(!expanded)}>
+        <Button variant="outline" size="sm" alignSelf="flex-end" onClick={() => setExpanded(!expanded)}>
           {expanded ? '▲' : '▼'}
         </Button>
 
-        <HStack gap="1">
+        <HStack gap="1" alignSelf="flex-end">
           <Button variant="outline" size="sm" onClick={() => onDuplicate(index)} title="Duplicate">
             📋
           </Button>
@@ -198,9 +174,32 @@ export function MappingRow({ rule, index, appFields, elvantoFields, dynamicElvan
             🗑
           </Button>
         </HStack>
+      </HStack>
 
       {expanded && (
-        <Stack mt="3" pt="3" borderTopWidth="1px" borderColor="border">
+        <Stack mt="3" pt="3" borderTopWidth="1px" borderColor="border" gap="3">
+          <Stack gap="1" flex="1" minWidth="0">
+            <Text textStyle="sm" color="fg.muted">Transform</Text>
+            <Combobox.Root size="sm" collection={transformCollection} value={transformValue} onValueChange={(details) => onUpdate(index, { transform: details.value[0] || undefined })}>
+              <Combobox.Control>
+                <Combobox.Input placeholder="— None (Identity) —" />
+                <Combobox.IndicatorGroup>
+                  <Combobox.Trigger />
+                </Combobox.IndicatorGroup>
+              </Combobox.Control>
+              <Combobox.Positioner>
+                <Combobox.Content css={{ maxHeight: '400px', overflowY: 'auto' }}>
+                  {transformCollection.items.map((item) => (
+                    <Combobox.Item key={item.value} item={item}>
+                      <Combobox.ItemText>{item.label}</Combobox.ItemText>
+                      <Combobox.ItemIndicator><CheckIcon /></Combobox.ItemIndicator>
+                    </Combobox.Item>
+                  ))}
+                </Combobox.Content>
+              </Combobox.Positioner>
+            </Combobox.Root>
+            {transformDesc && <Text textStyle="xs" color="fg.muted">{transformDesc}</Text>}
+          </Stack>
           <ConditionEditor
             condition={rule.condition}
             onChange={cond => onUpdate(index, { condition: cond })}
@@ -208,7 +207,6 @@ export function MappingRow({ rule, index, appFields, elvantoFields, dynamicElvan
           />
         </Stack>
       )}
-      </HStack>
     </Stack>
   )
 }

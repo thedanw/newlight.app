@@ -13,7 +13,7 @@ type JourneyGridCellProps = {
 
 export function JourneyGridCell({ people, trackId, stages, onStageChange }: JourneyGridCellProps) {
   const stageCollection = useMemo(() => createListCollection({
-    items: stages.map((stage) => ({ label: stage.label, value: stage.slug }))
+    items: stages.map((stage) => ({ label: stage.label, value: stage.id }))
   }), [stages])
 
   return <>

@@ -1,6 +1,6 @@
 import { supabase } from '@/core/lib/supabase'
 import type { Json } from '@/core/lib/database.types'
-import type { HouseholdDetails, JourneyGrid, JourneyStage, JourneyTrack, JourneyTrackCategory, PeopleListOptions, Person, PersonRelationship, PersonWithJourney, Tag } from './types'
+import type { HouseholdDetails, JourneyGrid, JourneyStage, JourneyTrack, JourneyTrackCategory, PeopleListOptions, Person, PersonPublic, PersonRelationship, PersonWithJourney, Tag } from './types'
 
 const DEFAULT_PAGE_SIZE = 50
 
@@ -12,7 +12,13 @@ export async function getCurrentOperatorPermission(): Promise<Person['access_per
   if (!userResult.user) return null
   const { data, error } = await supabase.from('people').select('access_permission').eq('auth_user_id', userResult.user.id).maybeSingle()
   if (error) throw error
-  return data?.access_permission ?? null
+  if (data?.access_permission) return data.access_permission
+
+  const email = userResult.user.email
+  if (!email) return null
+  const byEmail = await supabase.from('people').select('access_permission').eq('email', email)
+  if (byEmail.error) throw byEmail.error
+  return byEmail.data?.[0]?.access_permission ?? null
 }
 
 export async function createPerson(input: PersonInput): Promise<Person> {
@@ -151,6 +157,26 @@ export async function getPersonById(id: string): Promise<Person | null> {
   return data
 }
 
+export async function getPublicPersonById(id: string): Promise<PersonPublic | null> {
+  const { data, error } = await supabase.from('people_public').select('*').eq('id', id).maybeSingle()
+  if (error) throw error
+  return data
+}
+
+export async function getPublicPeopleList(options: PeopleListOptions = {}): Promise<PersonPublic[]> {
+  let query = supabase
+    .from('people_public')
+    .select('*')
+    .order('firstname', { ascending: true })
+    .range(options.offset ?? 0, (options.offset ?? 0) + (options.limit ?? DEFAULT_PAGE_SIZE) - 1)
+
+  if (options.demographic) query = query.eq('demographic', options.demographic)
+
+  const { data, error } = await query
+  if (error) throw error
+  return data ?? []
+}
+
 export async function getHouseholdById(id: string): Promise<HouseholdDetails | null> {
   const [householdResult, addressResult, membersResult] = await Promise.all([
     supabase.from('households').select('*').eq('id', id).is('deleted_at', null).maybeSingle(),
@@ -203,6 +229,12 @@ export async function getJourneyStages(): Promise<JourneyGrid['stages']> {
   return data ?? []
 }
 
+export async function getJourneyCategories(): Promise<JourneyTrackCategory[]> {
+  const { data, error } = await supabase.from('journey_track_categories').select('*').order('sort_order')
+  if (error) throw error
+  return data ?? []
+}
+
 export async function getJourneySettings(): Promise<{ tracks: JourneyTrack[]; categories: JourneyTrackCategory[]; stages: JourneyStage[] }> {
   const [tracks, categories, stages] = await Promise.all([
     supabase.from('journey_tracks').select('*').is('deleted_at', null).order('sort_order'),
@@ -246,14 +278,21 @@ export async function saveJourneyStage(stage: JourneyStage): Promise<JourneyStag
 }
 
 export async function createJourneyStage(slug: string, label: string, sortOrder: number): Promise<JourneyStage> {
-  return saveJourneyStage({ slug: slug.trim(), label: label.trim(), color: null, sort_order: sortOrder, is_terminal: false })
+  return saveJourneyStage({ id: crypto.randomUUID(), slug: slug.trim(), label: label.trim(), color: null, sort_order: sortOrder, is_terminal: false })
 }
 
-const seededJourneyStages = new Set(['contact', 'guest', 'linked', 'regular', 'archived', 'deleted_privacy_data'])
+const seededJourneyStageIds = new Set([
+  'a1b2c3d4-0000-4000-8000-000000000001', // contact
+  'a1b2c3d4-0000-4000-8000-000000000002', // guest
+  'a1b2c3d4-0000-4000-8000-000000000003', // linked
+  'a1b2c3d4-0000-4000-8000-000000000004', // regular
+  'a1b2c3d4-0000-4000-8000-000000000005', // archived
+  'a1b2c3d4-0000-4000-8000-000000000006', // deleted_privacy_data
+])
 
-export async function deleteJourneyStage(slug: string): Promise<void> {
-  if (seededJourneyStages.has(slug)) throw new Error('Seeded journey stages cannot be deleted.')
-  const { error } = await supabase.from('journey_stages').delete().eq('slug', slug)
+export async function deleteJourneyStage(stageId: string): Promise<void> {
+  if (seededJourneyStageIds.has(stageId)) throw new Error('Seeded journey stages cannot be deleted.')
+  const { error } = await supabase.from('journey_stages').delete().eq('id', stageId)
   if (error) throw error
 }
 
@@ -380,20 +419,142 @@ export async function setPersonTags(personId: string, tagIds: string[]): Promise
   }
 }
 
+/**
+ * ── Omni search ─────────────────────────────────────────────────────────────────
+ * The dashboard SearchInput searches people across every identifying field:
+ * first/middle/last/preferred name, email, phone, and tag names. Query terms are
+ * AND'd together so "Jane Bloggs" matches firstname=Jane + lastname=Bloggs in
+ * either order, and a single typo'd term still hits via pg_trgm trigram
+ * similarity. Fuzzy matching + relevance ranking live in the `search_people`
+ * RPC (supabase/migrations/20260908130000_create_people_search.sql); if that
+ * migration has not been applied we fall back to a multi-token ILIKE filter so
+ * combination search keeps working.
+ */
+
+/** Fields used when building the plain-ILIKE fallback filter. */
+const SEARCHABLE_NAME_FIELDS = ['firstname', 'preferred_name', 'middle_name', 'lastname', 'email'] as const
+
+/**
+ * Session-level guard for the `search_people` RPC.
+ *
+ * The first search of a page load always tries the RPC (it *is* the search —
+ * there is deliberately no separate availability probe request). If the RPC
+ * turns out to be missing/broken (PostgREST PGRST202 or Postgres 42883), we
+ * remember that for the rest of the session so the keyboard doesn't spam a
+ * 404 per keystroke, and use the plain ILIKE fallback instead. A page reload
+ * resets the guard, so a freshly-deployed RPC lights up automatically.
+ */
+let searchRpcBrokenThisSession = false
+
+/** @internal — exposed for tests. */
+export function __resetPeopleSearchRpcCache(): void {
+  searchRpcBrokenThisSession = false
+}
+
+function isSearchRpcBrokenThisSession(): boolean {
+  return searchRpcBrokenThisSession
+}
+
+function markSearchRpcBrokenThisSession(): void {
+  searchRpcBrokenThisSession = true
+}
+
+/** PostgREST/Postgres errors that mean "this function cannot be called here". */
+function isSearchRpcUnavailableError(error: unknown): boolean {
+  const candidate = error as { code?: unknown; message?: unknown } | null
+  if (!candidate) return false
+  const code = typeof candidate.code === 'string' ? candidate.code : ''
+  const message = typeof candidate.message === 'string' ? candidate.message : ''
+  return (
+    code === 'PGRST202' ||
+    code === '42883' ||
+    /could not find the function/i.test(message) ||
+    /does not exist/i.test(message)
+  )
+}
+
+/** Lowercase, whitespace-split search tokens with LIKE wildcards neutralised. */
+export function normalizeSearchTokens(searchTerm: string): string[] {
+  return searchTerm
+    .toLowerCase()
+    .split(/\s+/)
+    .map((token) => token.replace(/[%_\\]/g, ''))
+    .filter((token) => token.length > 0)
+    .slice(0, 4)
+}
+
+/**
+ * Build the value for `.or(...)` so that every token matches at least one
+ * searchable field, AND every token matches somewhere:
+ *
+ *   and(or(f1,t1 … f5,t1), or(f1,t2 … f5,t2), …)
+ *
+ * Each token is its own `or(...)` group over the fields (any field can
+ * satisfy the token — e.g. email alone is enough), and the groups are AND'd
+ * together. That is what makes "first last" combinations work while still
+ * matching a single distinctive field. Returns null when there is nothing to
+ * search for.
+ */
+export function buildPeopleSearchFilter(tokens: string[]): string | null {
+  if (!tokens.length) return null
+  const groups = tokens.map((token) => {
+    const pattern = `%${token}%`
+    const fields = SEARCHABLE_NAME_FIELDS.map((field) => `${field}.ilike.${pattern}`).join(',')
+    return `or(${fields})`
+  })
+  return `and(${groups.join(',')})`
+}
+
 export async function searchPeople(searchTerm: string, limit = DEFAULT_PAGE_SIZE): Promise<Person[]> {
   const normalizedTerm = searchTerm.trim()
   if (!normalizedTerm) return []
-  const pattern = `%${normalizedTerm}%`
-  const { data, error } = await supabase
-    .from('people')
-    .select('*')
-    .is('deleted_at', null)
-    .or(`firstname.ilike.${pattern},preferred_name.ilike.${pattern},lastname.ilike.${pattern},email.ilike.${pattern}`)
-    .order('lastname')
-    .order('firstname')
-    .limit(limit)
-  if (error) throw error
-  return data ?? []
+
+  // Preferred path: the fuzzy + ranked omni search RPC. The first search of
+  // a page load always tries it; if it turns out to be missing or broken
+  // (PGRST202 / 42883), the session guard kicks in and later keystrokes use
+  // the plain ILIKE fallback instead of spamming a 404.
+  if (!isSearchRpcBrokenThisSession()) {
+    try {
+      // Keep this a genuine method call: `supabase.rpc` internally references
+      // `this.rest`, so capturing the method into an alias (e.g.
+      // "const f = supabase.rpc; f(...)") drops `this` and throws in strict
+      // mode. Cast the client object and call `.rpc(...)` as a member instead.
+      const rpcResult = await (supabase as unknown as SearchPeopleRpcClient).rpc('search_people', {
+        search_query: normalizedTerm,
+        max_results: limit,
+      })
+      if (!rpcResult.error) return rpcResult.data ?? []
+      // Function missing or broken — remember for this session, then fall back.
+      if (isSearchRpcUnavailableError(rpcResult.error)) markSearchRpcBrokenThisSession()
+    } catch {
+      // Transient network/channel error: use the fallback for this call only;
+      // the next search may retry the RPC.
+    }
+  }
+
+  const filter = buildPeopleSearchFilter(normalizeSearchTokens(normalizedTerm))
+  if (!filter) return []
+  try {
+    const { data, error } = await supabase
+      .from('people')
+      .select('*')
+      .is('deleted_at', null)
+      .or(filter)
+      .order('lastname')
+      .order('firstname')
+      .limit(limit)
+    if (error) throw error
+    return data ?? []
+  } catch (error) {
+    // Search must never take the whole page down: surface a hard failure in
+    // the console and show an empty result set instead of throwing.
+    console.error('People search fallback failed', error)
+    return []
+  }
+}
+
+type SearchPeopleRpcClient = {
+  rpc: (functionName: string, args: { search_query: string; max_results: number }) => Promise<{ data: Person[] | null; error: unknown }>
 }
 
 export async function getPersonGuardians(personId: string): Promise<Person[]> {

@@ -103,7 +103,7 @@ type TagRow = { id: string; name: string; category: Database['public']['Enums'][
 type PeopleTagRow = { person_id: string; tag_id: string }
 type JourneyTrackRow = { id: string; category_id: string | null; name: string; sort_order: number; elvanto_location_id: string | null; follow_elvanto: boolean; deleted_at: string | null }
 type JourneyTrackCategoryRow = { id: string; parent_id: string | null; name: string; sort_order: number }
-type JourneyStageRow = { slug: string; label: string; color: string | null; sort_order: number; is_terminal: boolean }
+type JourneyStageRow = { id: string; slug: string; label: string; color: string | null; sort_order: number; is_terminal: boolean }
 type PeopleAuditRow = {
   id: string
   person_id: string

@@ -236,12 +236,12 @@ async function applyLocationTrackMappings(
 function computeLocationStage(elvantoRecord: Record<string, any>): string {
   // Status overrides (same as category mapping)
   if (elvantoRecord.contact === 1 || elvantoRecord.suspended === 1) {
-    return 'archived'
+    return 'a1b2c3d4-0000-4000-8000-000000000005'
   }
   if (elvantoRecord.archived === 1 || elvantoRecord.deceased === 1) {
-    return 'deleted_privacy_data'
+    return 'a1b2c3d4-0000-4000-8000-000000000006'
   }
-  return 'contact' // Conservative default
+  return 'a1b2c3d4-0000-4000-8000-000000000001' // Conservative default (contact)
 }
 
 /**

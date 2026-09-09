@@ -27,6 +27,7 @@ Rules:
 - Zero-runtime CSS: no inline `style={{}}`, no `css()`/`cva` outside rare shell recipes. Use Panda `defineRecipe`/`defineSlotRecipe`; atomic `css()` only for one-off shell layout.
 - Sidebar is left-pinned (`fixed; left:0`). `PagePanel` reserves space with `marginLeft`, not `marginRight`. Change both together if side ever flips.
 - Use semantic tokens (`fg.default`, `colorPalette.solid`); never raw palette values (`accent.9`, `gray.12`).
+- Every page/subpage is `Page.Main > Page.Header + Page.Body` (outer `Page.Root` from AppShell). Gate: `pnpm lint:pages` (hard-blocked in `pnpm build`). See `rules/design.md`.
 
 ## Routes
 - ONLY `src/core/router.tsx` calls `createBrowserRouter`. Core owns `src/core/routes.tsx` and spreads `coreRoutes` as children of `AppShell`; modules contribute their own `routes.tsx` children.

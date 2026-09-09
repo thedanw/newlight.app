@@ -20,37 +20,46 @@ import {
   listTransforms,
 } from './transforms'
 
+// UUIDs used by transforms.ts — kept here so tests stay in sync with the real values
+const CONTACT = 'a1b2c3d4-0000-4000-8000-000000000001'
+const GUEST = 'a1b2c3d4-0000-4000-8000-000000000002'
+const LINKED = 'a1b2c3d4-0000-4000-8000-000000000003'
+const REGULAR = 'a1b2c3d4-0000-4000-8000-000000000004'
+
 describe('Transform Functions', () => {
   describe('category_to_journey_stage', () => {
     it('maps Sunday Guest to guest', () => {
-      expect(category_to_journey_stage('Sunday Guest')).toBe('guest')
+      expect(category_to_journey_stage('Sunday Guest')).toBe(GUEST)
     })
     
     it('maps Sunday Linked to linked', () => {
-      expect(category_to_journey_stage('Sunday Linked')).toBe('linked')
+      expect(category_to_journey_stage('Sunday Linked')).toBe(LINKED)
     })
     
     it('maps Sunday Regular to regular', () => {
-      expect(category_to_journey_stage('Sunday Regular')).toBe('regular')
+      expect(category_to_journey_stage('Sunday Regular')).toBe(REGULAR)
     })
     
     it('maps Community Connection to contact', () => {
-      expect(category_to_journey_stage('Community Connection')).toBe('contact')
+      expect(category_to_journey_stage('Community Connection')).toBe(CONTACT)
     })
     
     it('handles trailing * and _', () => {
-      expect(category_to_journey_stage('Sunday Regular_')).toBe('regular')
-      expect(category_to_journey_stage('Community Connection*')).toBe('contact')
+      expect(category_to_journey_stage('Sunday Regular_')).toBe(REGULAR)
+      expect(category_to_journey_stage('Community Connection*')).toBe(CONTACT)
     })
     
     it('handles case insensitivity', () => {
-      expect(category_to_journey_stage('sunday guest')).toBe('guest')
-      expect(category_to_journey_stage('SUNDAY LINKED')).toBe('linked')
+      expect(category_to_journey_stage('sunday guest')).toBe(GUEST)
+      expect(category_to_journey_stage('SUNDAY LINKED')).toBe(LINKED)
     })
     
     it('defaults to contact for unknown categories', () => {
-      expect(category_to_journey_stage('Unknown Category')).toBe('contact')
-      expect(category_to_journey_stage('')).toBe('contact')
+      expect(category_to_journey_stage('Unknown Category')).toBe(CONTACT)
+    })
+    
+    it('returns contact UUID for empty category name', () => {
+      expect(category_to_journey_stage('')).toBe(CONTACT)
     })
   })
 
@@ -73,8 +82,8 @@ describe('Transform Functions', () => {
       }
       const result = location_to_journey_tracks(locations)
       expect(result).toEqual({
-        'location:loc-1': 'contact',
-        'location:loc-2': 'contact',
+        'location:loc-1': CONTACT,
+        'location:loc-2': CONTACT,
       })
     })
   })

@@ -110,6 +110,8 @@ export const tabs = defineSlotRecipe({
           color: 'fg.muted',
           _selected: {
             color: 'colorPalette.plain.fg',
+            borderBottomWidth: '3px',
+            borderBottomColor: 'colorPalette.solid.bg',
           },
         },
       },

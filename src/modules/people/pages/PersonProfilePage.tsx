@@ -1,30 +1,37 @@
 import { useNavigate, useParams } from 'react-router-dom'
 import type { CSSProperties } from 'react'
-import { Breadcrumb, Page, Text } from '@/core/ui'
-import { Stack } from 'styled-system/jsx'
+import { Breadcrumb, Page, Text, Button } from '@/core/ui'
+import { Stack, HStack } from 'styled-system/jsx'
 import { Users } from 'lucide-react'
-import { usePerson } from '../lib/hooks'
+import { usePerson, usePublicPerson } from '../lib/hooks'
 import { useProfilePermissions } from '../lib/profile-permissions'
+import { useAuth } from '@/core/auth'
 import { PersonHeader } from '../components/PersonHeader'
 import { PageSkeleton } from '../components/PageSkeleton'
-import { PersonalSection } from '../components/sections/PersonalSection'
-import { DemographicsSection } from '../components/sections/DemographicsSection'
-import { ContactSection } from '../components/sections/ContactSection'
-import { GuardiansSection } from '../components/sections/GuardiansSection'
-import { MedicalSection } from '../components/sections/MedicalSection'
-import { ConsentsSection } from '../components/sections/ConsentsSection'
-import { ChildSafetySection } from '../components/sections/ChildSafetySection'
-import { AdminSection } from '../components/sections/AdminSection'
-import { JourneySection } from '../components/sections/JourneySection'
-import { TagsSection } from '../components/sections/TagsSection'
+import { PersonalSection } from '../components/ProfileSections/PersonalSection/PersonalSection'
+import { DemographicsSection } from '../components/ProfileSections/DemographicsSection/DemographicsSection'
+import { ContactSection } from '../components/ProfileSections/ContactSection/ContactSection'
+import { GuardiansSection } from '../components/ProfileSections/GuardiansSection/GuardiansSection'
+import { MedicalSection } from '../components/ProfileSections/MedicalSection/MedicalSection'
+import { ConsentsSection } from '../components/ProfileSections/ConsentsSection/ConsentsSection'
+import { ChildSafetySection } from '../components/ProfileSections/ChildSafetySection/ChildSafetySection'
+import { JourneySection } from '../components/ProfileSections/JourneySection/JourneySection'
+import { TagsSection } from '../components/ProfileSections/TagsSection/TagsSection'
+import type { Person, PersonPublic } from '../lib/types'
+
+function capitalize(value: string): string {
+  return value.charAt(0).toUpperCase() + value.slice(1)
+}
 
 export default function PersonProfilePage() {
   const navigate = useNavigate()
   const { id } = useParams()
-  const { data: person, loading, error } = usePerson(id)
-  const permissions = useProfilePermissions(person)
+  const { user } = useAuth()
+  const isPublic = !user
+  const { data: person, loading, error } = isPublic ? usePublicPerson(id) : usePerson(id)
+  const permissions = useProfilePermissions(isPublic ? null : (person as Person | null))
 
-  if (loading) return (
+  if (loading || permissions.loading) return (
     <Page.Main>
       <Page.Header style={{ '--module-number': 1 } as CSSProperties}>
         <Page.Heading level={1} icon={Users} title="Profile" />
@@ -44,46 +51,53 @@ export default function PersonProfilePage() {
     </Page.Main>
   )
 
-  const isAdult = person.demographic === 'adult'
-  const isYouth = person.demographic === 'youth'
-  const isChild = person.demographic === 'child'
-  const showContact = isAdult
-  const showGuardians = isYouth || isChild
-  const showMedical = isYouth || isChild
-  const showConsents = isYouth || isChild
-  const showChildSafety = isAdult || isYouth
-  const showAdmin = ['admin', 'super_admin'].includes(person.access_permission)
+  const profileType = person.demographic
+
+  const lastNameDisplay = isPublic
+    ? (person as PersonPublic).lastname_initial ?? ''
+    : (person as Person).lastname
 
   return (
     <Page.Main>
       <Page.Header style={{ '--module-number': 1 } as CSSProperties}>
-        <Page.Heading level={1} icon={Users} title="Profile" />
+        <Page.Heading level={1} icon={Users} title={`${capitalize(profileType)} Profile`} />
       </Page.Header>
 
       <Page.Body>
         <Stack gap="6">
+          <HStack justifyContent="space-between" alignItems="center">
+            <Text textStyle="lg" color="fg.muted">Profile Type: {profileType}</Text>
+            {!isPublic && (
+              <Button variant="outline" size="sm" onClick={() => navigate(`/people/${person.id}`)}>
+                Change Type
+              </Button>
+            )}
+          </HStack>
           <Breadcrumb.Root>
             <Breadcrumb.List>
               <Breadcrumb.Item><Breadcrumb.Link href="/people">People</Breadcrumb.Link></Breadcrumb.Item>
               <Breadcrumb.Separator />
-              <Breadcrumb.Item><Breadcrumb.Link href={`/people/${person.id}`} aria-current="page">{person.firstname} {person.lastname}</Breadcrumb.Link></Breadcrumb.Item>
+              <Breadcrumb.Item>
+                <Breadcrumb.Link href={`/people/${person.id}/edit`}>
+                  {person.firstname} {lastNameDisplay}
+                </Breadcrumb.Link>
+              </Breadcrumb.Item>
+              <Breadcrumb.Separator />
+              <Breadcrumb.Item><Breadcrumb.Link href={`/people/${person.id}/view`} aria-current="page">View</Breadcrumb.Link></Breadcrumb.Item>
             </Breadcrumb.List>
           </Breadcrumb.Root>
 
-          <PersonHeader person={person} onEdit={() => navigate(`/people/${person.id}/edit`)} canEdit={permissions.canEdit} />
+          {!isPublic && <PersonHeader person={person as Person} onEdit={() => navigate(`/people/${person.id}`)} canEdit={false} />}
 
-          <PersonalSection person={person} canEdit={permissions.canEdit} />
-          <DemographicsSection person={person} canEdit={permissions.canEdit} />
-
-          {showContact && <ContactSection person={person} canEdit={permissions.canEdit} />}
-          {showGuardians && <GuardiansSection person={person} canManageGuardians={permissions.canManageGuardians} />}
-          {showMedical && <MedicalSection person={person} />}
-          {showConsents && <ConsentsSection person={person} />}
-          {showChildSafety && <ChildSafetySection person={person} canEditChildSafety={permissions.canEditChildSafety} />}
-          {showAdmin && <AdminSection person={person} />}
-
-          <JourneySection person={person} />
-          <TagsSection person={person} />
+          <PersonalSection person={person as Person} canEdit={false} />
+          <DemographicsSection person={person as Person} canEdit={false} />
+          <ContactSection person={person as Person} canEdit={false} />
+          <GuardiansSection person={person as Person} canManageGuardians={false} />
+          <MedicalSection person={person as Person} />
+          <ConsentsSection person={person as Person} />
+          <ChildSafetySection person={person as Person} canEditChildSafety={false} />
+          <JourneySection person={person as Person} />
+          <TagsSection person={person as Person} />
         </Stack>
       </Page.Body>
     </Page.Main>

@@ -1,75 +1,77 @@
 # Decision: Email Module — Send-Only Composer + Drag-Drop Editor
 
 ## Aliases
-- Email = foundation module under `src/modules/email` (always-on; exposes public API for other modules)
-- Composer = email creation UI (editor + audience + from + send), embeddable from other modules via public index
-- GrapesJS = BSD-3 drag-drop block editor framework (editor engine; `grapesjs-preset-newsletter`)
-- Block = draggable editor component (text, image, button, spacer, columns, custom/data blocks)
-- Data block = block populated by another module (e.g. calendar "upcoming events") — edit-time snapshot
-- Snapshot = rendered HTML captured at template save (dynamic data rendered at edit time, not send time)
-- Suppression = `email_unsubscribes` table (global; excluded from every send)
-- broadcasts = consent flag "Church news and updates" (church-wide / program / ministry / newsletter)
-- team_updates = consent flag "Team updates" (small groups, calendars, journey tracks)
+- Email = foundation module under `src/modules/email`
+- Composer = email creation UI (editor + audience + from + send), embeddable via public index
+- GrapesJS = BSD-3 drag-drop block editor (`grapesjs-preset-newsletter`)
+- Block = draggable editor component (text/image/button/spacer/columns/custom-data)
+- Data block = block fed by another module (cal. upcoming events) — edit-time snapshot
+- Snapshot = rendered HTML captured at template save (rendered at edit, not send)
+- Suppression = `email_unsubscribes` table (excluded from every send)
+- broadcasts = consent "Church news and updates" (church-wide/program/ministry/newsletter)
+- team_updates = consent "Team updates" (small groups, calendars, journey tracks)
 - SMTP = Google Workspace outbound (smtp.gmail.com) via Supabase Edge Fn
 - Edge Fn = Supabase Edge Function (Deno) — server-side send queue processor
-- Sender = global SMTP account (superadmin-configured in settings); per-user alias From override
+- Sender = global SMTP account (superadmin-configured); per-user alias From override
 
 ## What & Why
-Send-only email for the CRM: compose branded emails with a drag-drop block editor and send to people in the church database. No inbox. Foundation module so other modules (groups, calendar, services) can embed "email these people". The editor's block set is extensible — other modules contribute data blocks (edit-time snapshot). Send via Google Workspace SMTP from a Supabase Edge Function.
+Send-only email: compose branded emails with a drag-drop block editor, send to people in the DB. No inbox. Foundation module so others (groups, calendar, services) embed "email these people". Blocks extensible — other modules contribute data blocks (edit-time snapshot). Sent via Google Workspace SMTP from a Supabase Edge Function.
 
 ## Who
-Church admins/staff/team leaders composing; recipients = people in the DB (segmented by journey track, demographic, tags, households, groups); sender = global account with per-user alias option.
+Admins/staff/team leads compose; recipients = DB people (journey track, demos, tags, households, groups); sender = global account with per-user alias.
 
 ## Constraints
-- Foundation module pattern (core #13): email always-on like people; others import email public index via declared manifest deps (module-design #1-9)
-- No server bundle in client SPA (core #44) → all sending via Supabase Edge Fn (Deno + nodemailer)
-- Supabase free tier + RLS on all tables (core #5/#11); module-local migrations (core #46)
-- PWA offline read-only (core #33) → composer/editor online-only; drafts persisted in DB
-- SMTP volume: <50/day typical; ~200–300 monthly/fortnightly broadcast — within Workspace 2,000/day ceiling
-- Consent flags live in PEOPLE module (shared foundation, core #13) following `consent_status` Blank|Yes|No pattern (people decision/peopleFields.md)
-- AU Spam Act 2003: consent gate, sender identification, functional unsubscribe, suppression list
-- Secrets (SMTP app password) via env vars, not DB settings (core #18/#23)
-- UI via core/ui barrel + Park UI recipes (ui-ux decision); GrapesJS is a module-local dependency (not DS)
+- Foundation module: always-on like people; others import email public index via declared manifest deps
+- No server bundle in client SPA → all sending via Edge Fn (Deno + nodemailer)
+- Free tier + RLS on all tables; module-local migrations
+- PWA offline read-only → composer/editor online-only; drafts persisted in DB
+- Volume <50/day typ.; ~200–300 monthly/fortnightly broadcast (< Workspace 2,000/day cap)
+- Consent flags in PEOPLE module following `consent_status` Blank|Yes|No
+- AU Spam Act 2003: consent gate, sender ID, functional unsubscribe, suppression list
+- Secrets (SMTP app pw) via env vars, not DB settings
+- UI via core/ui barrel + Park UI recipes; GrapesJS module-local dep (not DS)
 
 ## Non-Goals
-- No inbox / read / reply / threading
-- No open/click tracking dashboards (SMTP has none; deferred)
-- No marketing automation / drip sequences / A/B testing / list management
-- No send-time server-side data binding (edit-time snapshot only; future upgrade path)
-- No multi-tenancy
-- No offline editing / write queue
+No inbox/read/reply/threading · no open/click dashboards (deferred) · no marketing automation/drip/A-B/list mgmt · no send-time server-side binding (future) · no multi-tenancy · no offline editing/write queue
 
 ## Assumptions
-- Church Workspace domain SPF/DKIM/DMARC present or arrangeable (verify at build)
-- A dedicated Workspace account + App Password is provisioned by the church admin for sends
-- Per-user "send as" aliases must be on the same Workspace domain (Google appends "on behalf of" for external From)
-- Recipients sourced from people-module preferred email channel (contact channels single source)
-- `broadcasts` / `team_updates` default Blank; sending gated on consent (Blank/No = excluded)
-- Unsubscribe = auto-appended footer link + suppression table + PWA one-click page
-- Sending roles = admins + designated managers via assignable permission (open detail)
+- Church Workspace SPF/DKIM/DMARC present or arrangeable (verify at build)
+- Dedicated Workspace account + App Password provisioned for sends
+- Per-user "send-as" aliases on same Workspace domain (external From ⇒ "on behalf of")
+- Recipients from people-preferred email channel (single source)
+- `broadcasts`/`team_updates` default Blank; sending gated on consent
+- Unsubscribe = auto-footer link + suppression table + PWA one-click page
+- Roles = admins + assigned managers (assignable permission)
 
-## Decision Log: decision → Rationale
-1 Email = foundation module under src/modules/email → embeddable by all modules; people-style foundation (core #13)
-2 Use GrapesJS (BSD-3) drag-drop editor → block manager + plugin/block system + newsletter preset + white-label; JSON storage
-3 Send via Google Workspace SMTP (smtp.gmail.com) from Edge Fn → church's own domain; fits <500/day volume; no per-email cost
-4 Sender = global account configured by superadmin in settings; per-user alias From override → consistent brand + personal touch
-5 Dynamic data blocks = edit-time snapshot (HTML saved with template) → simplest MVP; send-time binding = future upgrade
-6 MVP scope = reusable templates + send history/status → observable + repeatable without inbox
-7 Enforce unsubscribe + suppression + consent gate now → AU Spam Act compliance from day one
-8 Consent flags in people module: broadcasts + team_updates → shared consent source for all modules (core #13)
-9 broadcasts = "Church news and updates" → universal label for church-wide/program/ministry/newsletter sends
-10 team_updates = "Team updates" → small groups, calendars, journey-track notifications
-11 Store GrapesJS JSON + rendered snapshot HTML in Supabase → edit fidelity + send-time HTML ready
-12 Queue sends via Postgres email_sends/email_recipients + Edge Fn processor → async, RLS-safe, per-recipient status
-13 Composer online-only (PWA read-only) → RLS-safe writes; no offline queue (core #33)
-14 Send status = queued/sent/failed only → SMTP has no open/click; tracking deferred
+## Decision Log: decision → Rationale (hierarchical; parent = decision, sub = dependent)
+1 Module placement & embedding → foundation keeps email always-on and embeddable anywhere
+    1.1 Email = foundation module under src/modules/email → embeddable by all modules; people-style foundation
+2 Editor choice → drag-drop authoring with faithful, portable rendering
+    2.1 Use GrapesJS (BSD-3) drag-drop editor → block manager + plugin/block system + newsletter preset + white-label; JSON storage
+    2.2 Dynamic data blocks = edit-time snapshot (HTML saved with template) → simplest MVP; send-time binding = future upgrade
+3 Transport & sending → reliable low-volume outbound via owned domain
+    3.1 Send via Google Workspace SMTP (smtp.gmail.com) from Edge Fn → church's own domain; fits <500/day; no per-email cost
+    3.2 Sender = global account (superadmin-configured) + per-user alias From override → consistent brand + personal touch
+4 Recipient targeting & consent → segmented audiences gated on shared consent
+    4.1 Consent flags in people module: broadcasts + team_updates → shared consent source for all modules
+        4.1.1 broadcasts = "Church news and updates" → universal label for church-wide/program/ministry/newsletter
+        4.1.2 team_updates = "Team updates" → small groups, calendars, journey-track notifications
+5 Deliverability & compliance → lawful, trusted mail
+    5.1 Enforce unsubscribe + suppression + consent gate now → AU Spam Act compliance from day one
+6 Product scope → usable, verifiable MVP without inbox complexity
+    6.1 MVP scope = reusable templates + send history/status → observable + repeatable without inbox
+7 Persistence & queuing → durable records with safe asynchronous dispatch
+    7.1 Store GrapesJS JSON + rendered snapshot HTML in Supabase → edit fidelity + send-time HTML ready
+    7.2 Queue sends via Postgres email_sends/email_recipients + Edge Fn processor → async, RLS-safe, per-recipient status
+    7.3 Composer online-only (PWA read-only) → RLS-safe writes; no offline queue
+    7.4 Send status = queued/sent/failed only → SMTP has no open/click; tracking deferred
 
 ## Decision Gap Log
 1 Sending roles: admins-only vs assignable manager permission → open
-2 Recipient segment builder scope (simple filters vs full query builder) → open
-3 Unsubscribe UX details (footer format, PWA page, suppression granularity) → open
-4 Preferred email channel selection from people contact channels → open
-5 Consent-flag demographic gating (adult/youth; children via guardians) → open
-6 SMTP secret storage + per-user alias verification mechanics → open
-7 GrapesJS editor theming (light/dark) vs Park UI recipe surface → open
-8 Data-block extension point contract (registry shape, snapshot capture) → open
+2 Segment builder scope (simple filters vs full query builder) → open
+3 Unsubscribe UX (footer format, PWA page, suppression granularity) → open
+4 Preferred email-channel selection from people contacts → open
+5 Consent-flag demo gating (children via guardians) → open
+6 SMTP secret storage + alias verification mechanics → open
+7 GrapesJS theming (light/dark) vs Park UI recipe surface → open
+8 Data-block extension-point contract (registry shape, snapshot capture) → open

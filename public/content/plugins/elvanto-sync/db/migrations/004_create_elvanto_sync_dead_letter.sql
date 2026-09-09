@@ -27,6 +27,10 @@ CREATE POLICY "Admins manage dead letter queue" ON public.elvanto_sync_dead_lett
         )
     );
 
+-- Policy: Authenticated users can read dead letter queue (app runs authenticated)
+CREATE POLICY "Authenticated read dead letter" ON public.elvanto_sync_dead_letter
+    FOR SELECT TO authenticated USING (true);
+
 -- Policy: Service role can insert (for Edge Function)
 CREATE POLICY "Service role writes dead letters" ON public.elvanto_sync_dead_letter
     FOR INSERT WITH CHECK (true);

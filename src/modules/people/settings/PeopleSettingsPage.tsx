@@ -1,39 +1,64 @@
 'use client'
+import type { CSSProperties } from 'react'
 import { Stack } from 'styled-system/jsx'
-import { Card, Heading, Text } from '@/core/ui'
+import { Users } from 'lucide-react'
+import { Card, Heading, Page, Text } from '@/core/ui'
 import { useNavigate } from 'react-router-dom'
+import { useCurrentOperatorPermission } from '../lib/hooks'
 import { getSettingsLinks } from '@/core/plugins/HookRegistry'
+import { JourneySettingsManager } from '../components/JourneySettingsManager'
+import { PageSkeleton } from '../components/PageSkeleton'
 
 /**
- * PeopleSettingsPage — demo module-registered settings section (Batch 6).
+ * PeopleSettingsPage — the People module's settings section, rendered at
+ * `/settings/people` via the core #41 `settings-schema` extension point.
  *
- * Registered by `src/modules/people/settings.ts` as its own section,
- * proving the core #41 `settings-schema` extension point: any module can
- * declare its own settings section and deep-link to it via
- * `/settings/<sectionId>`.
- *
- * Plugins can hook into this section by registering a `SettingsLink` with
- * `sectionId: 'people'` (see the Elvanto Sync plugin). Those links render
- * below the module's own content.
+ * Includes the Journey Grid settings (tracks / categories / stages) so the
+ * journey grid on person profiles is configurable from the settings module.
  */
 export default function PeopleSettingsPage() {
   const navigate = useNavigate()
+  const permission = useCurrentOperatorPermission()
+  const canManage = permission.data === 'admin' || permission.data === 'super_admin'
   const links = getSettingsLinks('people')
 
   return (
-    <Stack gap="4">
-      <Card.Root>
-        <Card.Body>
-          <Stack gap="2">
-            <Heading textStyle="md">People module settings</Heading>
+    <Page.Main>
+      <Page.Header style={{ '--module-number': 0 } as CSSProperties}>
+        <Page.Heading level={1} icon={Users} title="People Settings" />
+      </Page.Header>
+      <Page.Body>
+        <Stack gap="6">
+          <Card.Root>
+            <Card.Body>
+              <Stack gap="2">
+                <Heading textStyle="md">People module settings</Heading>
             <Text color="fg.muted" textStyle="sm">
-              This section is registered by the <code>people</code> module through the settings
-              registry. It deep-links at <code>/settings/people</code> — a pattern any
-              module can use to expose its own settings surface.
+              Configure how the People module behaves. Journey grid tracks,
+              categories, and stages are managed below (admins only).
             </Text>
           </Stack>
         </Card.Body>
       </Card.Root>
+
+      {permission.loading && <PageSkeleton lines={2} />}
+      {!permission.loading && !canManage && (
+        <Text color="fg.muted">You do not have permission to manage journey settings.</Text>
+      )}
+      {!permission.loading && canManage && (
+        <Card.Root>
+          <Card.Header>
+            <Heading textStyle="md">Journey grid</Heading>
+            <Text color="fg.muted" textStyle="sm">
+              Manage journey tracks, categories, and stages. Tracks become the
+              rows of the journey grid shown on each person profile.
+            </Text>
+          </Card.Header>
+          <Card.Body>
+            <JourneySettingsManager />
+          </Card.Body>
+        </Card.Root>
+      )}
 
       {links.length > 0 && (
         <Stack gap="3">
@@ -63,6 +88,8 @@ export default function PeopleSettingsPage() {
           })}
         </Stack>
       )}
-    </Stack>
+        </Stack>
+      </Page.Body>
+    </Page.Main>
   )
 }

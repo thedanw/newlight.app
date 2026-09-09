@@ -43,7 +43,7 @@ export function PeopleFilters({ filters, onChange }: PeopleFiltersProps) {
   }), [tracks.data])
 
   const stageCollection = useMemo(() => createListCollection({
-    items: [{ label: 'All stages', value: '' }, ...(stages.data ?? []).map((stage: JourneyStage) => ({ label: stage.label, value: stage.slug }))]
+    items: [{ label: 'All stages', value: '' }, ...(stages.data ?? []).map((stage: JourneyStage) => ({ label: stage.label, value: stage.id }))]
   }), [stages.data])
 
   return (

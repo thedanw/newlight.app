@@ -1,113 +1,98 @@
 # Decision: New Light Anglican Church CRM — Base Platform
 
 ## Aliases
-- CRM = web app managing church people, groups, services, calendar
-- Module = self-contained feature folder under src/modules/* (logic self-contained; routes = own routes.tsx slice; router assembly stays in src/core/router.tsx)
+- Module = self-contained feature folder under src/modules/* (own routes.tsx slice; router assembly in src/core/router.tsx)
 - Core = base platform under src/core/* (manifest types, registry, navigation, settings, toggles, guards, design system)
 - Supabase = PostgreSQL + Auth + Realtime + Storage + Edge Fns backend
-- CF Pages = Cloudflare Pages edge hosting
 - RLS = Row Level Security
-- Realtime = Supabase Realtime broadcast
-- PWA = Progressive Web App (can be saved offline on devices)
+- PWA = Progressive Web App (installable/offline)
 
 ## What & Why
-Lightweight modular web CRM for New Light Anglican Church. Always-on "people" module plus independently developed, toggleable modules (groups, services, calendar). Storage on Supabase free tier. Login accepts a single "email or mobile" identifier, then password, SMS code, magic link, or OAuth — phone/SMS path via touchSMS for low-tech users.
-
-## Who
-Church admins, staff, team leaders, volunteers; household members self-viewing their own data. Phone login available to all users.
+Lightweight modular web CRM for New Light Anglican Church: always-on "people" module plus independently developed, toggleable modules (groups, services, calendar). Login uses a single "email or mobile" identifier, then password, SMS code, magic link, or OAuth — phone/SMS path via touchSMS for low-tech users. Users: church admins, staff, team leaders, volunteers; household members self-viewing their own data
 
 ## Constraints
 - Supabase free tier: 500MB DB, 2GB bandwidth, 50MB storage
 - Modules independently developed/toggled without system-wide impact
 - CF Pages free tier hosting; TypeScript strict; solo developer
 - Australian child-safety data handling (people module)
-- PWA built-in: installable + offline app shell + read-only offline data cache
-- Offline is read-only — editing requires online (RLS-safe writes)
-- Module structure: lib, components, server, migrations, manifest.ts, public index.ts; routes = own thin glue routes.tsx slice, assembled in src/core/router.tsx (single createBrowserRouter)
-- Themes: light + church-brand via CSS custom properties; module-scoped
-- Login: single identifier (email or mobile); then password or SMS code; phone path via touchSMS; OAuth/magic link retained
-
-## Non-Goals
-- Multi-tenancy (multi-church) for MVP — future-proofed only
-- Settings change audit trail (YAGNI)
-- Self-signup — admin invites only
+- Multi-tenancy for MVP — future-proofed only
+- Settings changYAGNI)
+- Self-signup — nly
 - Realtime for all settings — UI-critical only
-- No offline editing / write queue for MVP — offline is read-only
-- No native app builds for MVP — PWA only; native wrappers = future option
-- No enforced MFA (removed); SMS OTP is login-only, never a second factor
-- Financial/giving workflows are out of MVP scope; no financial module or financial tables are provisioned
+- Offline editing / write queue — offline is read-only
+- Native app builds — PWA only; wrappers = future option
+- Enforced MFA (removed); SMS OTP is login-only, never a second factor
+- Financial/giving workflows — no financial module or tables provisioned
 
 ## Assumptions
 - Single church tenant (multi-tenancy gap open)
-- Church-scale data fits supabase free tier (uncertain — verify)
-- PWA required & built-in; offline read-only cache; edits require online
+- Church-scale data fits Supabase free tier (uncertain — verify)
 - Offline cache stores all people fields incl. child-safety (WWCC/SMT/SMC) — device access not gated
 - "All users" = every user account (invite-only retained); unknown-phone registration not enabled
 - Phone identifiers sourced from people-module mobile channel (single source of truth)
 - Email/password remains the fallback when SMS delivery fails
 - Church qualifies for touchSMS NFP discount (verify)
 
-## Decision Log: decision → Rationale
-1 Use Vite + React + React Router (client SPA) on CF Pages → lightweight + edge deploy + best LLM codegen (Goal 3); SSR dropped (PWA shell)
-2 Use Panda config recipes (defineRecipe/defineSlotRecipe; hash:false) → zero-runtime typed tokens + BEM classes visible in compiled CSS; single cached global.css
-3 Use Park UI (Ark UI headless + Panda BEM recipes, CLI-vendored into src/core/ui) → free MIT design system, source-owned editable recipes, one semantic naming language app-wide (Goals 1-2)
-4 Use TypeScript strict + pnpm → type safety + fast installs
-5 Run backend on Supabase → PostgreSQL + Auth + Realtime + Edge Fns free tier
-6 Deploy on CF Pages → free unlimited bandwidth + 300+ edge locations
-7 Hide Supabase Auth; host auth UI in-app → brand + UX control
-8 Use Supabase auth surface: email/password, magic links, phone OTP, OAuth Google/Entra → full coverage incl. passwordless
-9 Restrict to admin invites; no self-signup → controlled church access
-11 Enable RLS on all tables via auth.uid() → DB-layer security
-12 Keep self-contained modules in src/modules/* + core in src/core/* → clear ownership + independent dev
-13 Keep people always-on; others import its API → shared types foundation
-14 Toggle modules runtime via module_config → on/off without redeploy
-15 Propagate toggles via Realtime → instant cross-client updates
-16 Validate module deps in server actions → friendly errors + complex rules
-17 Cache toggles 1min + client stores; route guards in layout → perf + security
-18 Use env vars for CI/staging secrets + non-settings config → dev parity without DB (settings stay DB-only per #23)
-19 Use direct DB access + shared TS types; no API layer → monorepo simplicity
-20 Store settings hybrid: typed core columns + per-module JSONB → type safety + flexibility
-21 Own settings per module (module_config + tables + platform_settings) → module autonomy
-22 Skip settings audit trail → no regulatory need; solo maintenance
-23 Keep settings DB-only with environment column → no env var drift
-24 Generate admin forms from Zod schemas + escape hatches → 80% auto; custom complex
-25 Use 5-level platform roles (public→super_admin) → consistent across modules
-26 Soft-delete core entities only (deleted_at); hard delete only for error entries → legal/child-safety + FK integrity
-27 Realtime only UI-critical settings → toggles/branding/public config
-28 Dev trunk-based main-only + feature flags → solo velocity
-29 CI GitHub Actions: check/lint/test/build/deploy → automated gates
-30 Test E2E-heavy (Playwright) + minimal unit → catches real regressions
-31 Use conventional commits + Husky pre-commit hooks → consistent history + local lint gates
-32 Build PWA via vite-plugin-pwa + Workbox → installable + offline app shell
-33 Cache people data read-only in IndexedDB; edits require online → offline view + RLS-safe writes
-34 Ship PWA only for MVP; native wrappers (Capacitor/TWA/Tauri) future option → single codebase
-35 Theme via CSS custom properties (light, church-brand, module-scoped) → token→semantic→pattern pipeline
-36 Preload Inter variable font via service worker (Workbox) → fast + consistent typography
-37 Use custom branded auth email templates (Supabase dashboard) → brand consistency
-38 Ship Local→Preview→Production via tagged releases → controlled rollouts
-39 Use ESLint + Prettier for lint/format gates → consistent code
-40 Use typed TypeScript manifest per module → type safety + tree-shakeable + strict TS/Zod integration (module static contract; runtime state stays in module_config #14)
-41 Base provides nav-menu + settings-schema + dashboard-widget extension points → required integration hooks; detail-page tabs + runtime event bus deferred
-42 Promote module component to base design system on 2nd reuse → shared lib stays lean (YAGNI)
-43 Use central typed module registry (registry.ts) auto-wired by create-module scaffold → type safety + tree-shaking; no manual registry edits
-44 Module API = public index.ts per module; base types in src/core/; no server bundle (client SPA) → minimal ceremony, cross-module types from owning module (#13/#19)
-45 Rely on React Router lazy route imports + CI bundle-size gate → edge size stays safe without build-time exclusion (YAGNI)
-46 Ship module migrations module-local + aggregation script into supabase/migrations → self-contained modules + native Supabase CLI
-47 Defer i18n; English-only MVP → YAGNI; add paraglide + messages field later if needed
-48 Use thin glue routes.tsx slice per module; only src/core/router.tsx calls createBrowserRouter → single app router; no /routes folder, no per-module router
-49 Enable phone login (SMS OTP) for all users → passwordless path for low-tech users; no per-user toggle
-50 Use single login identifier (email OR mobile) → users needn't recall registered email
-51 Offer password OR SMS code after identifier → user picks per-device convenience
-52 Retain Supabase OAuth + magic-link on login screen → full auth surface (#8) preserved
-53 Send SMS via touchSMS gateway → NFP (church) discount + ACMA-certified sender ID + prepaid credits
-54 Treat SMS OTP as login-only, never MFA → SMS-MFA weaker; skip for MVP
-55 Drop enforced MFA (supersedes removed #10) → invite-only + strong passwords + RLS suffice; Supabase TOTP/WebAuthn opt-in later
-56 Source phone identifiers from people-module mobile → single phone truth, no duplicate capture
-57 Implement phone login via Supabase phone auth + custom send-sms hook → OTP security handled by Supabase; touchSMS via Edge Fn
-58 Sync people-module mobile → auth user phone → OTP resolves to existing account (single identity)
-59 Block unknown phone numbers on OTP (before_user_created hook) → preserves invite-only (#9); no phone self-signup
+## Decision Log: decision → Rationale (hierarchical; parent = decision, sub = dependent)
+1 Tech stack: Vite + React + React Router (SPA) on CF Pages → lightweight edge deploy; SSR dropped (PWA shell)
+   1.1 TypeScript strict + pnpm → type safety + fast installs
+   1.2 Backend on Supabase → Postgres + Auth + Realtime + Edge Fns free tier
+   1.3 Deploy on CF Pages → free unlimited bandwidth + 300+ edge locations
+2 Design system: Panda recipes (defineRecipe/defineSlotRecipe; hash:false) → zero-runtime typed tokens + BEM classes; single cached global.css
+   2.1 Park UI (Ark UI + Panda recipes, vendored into src/core/ui) → free MIT design system, editable recipes, one semantic naming language
+   2.2 Theme via CSS custom properties (light, church-brand, module-scoped) → token→semantic→pattern pipeline
+   2.3 Preload Inter variable font via service worker → fast + consistent typography
+   2.4 Branded auth email templates (Supabase dashboard) → brand consistency
+3 Auth & login: hide Supabase Auth; host auth UI in-app → brand + UX control
+   3.1 Supabase auth surface: email/password, magic links, phone OTP, OAuth Google/Entra → full coverage incl. passwordless; OAuth + magic-link retained on login screen
+   3.2 Admin invites only; no self-signup → controlled church access
+   3.3 Phone login (SMS OTP) for all users → passwordless path for low-tech users
+       3.3.1 Single login identifier (email OR mobile) → users needn't recall registered email
+       3.3.2 Password OR SMS code after identifier → per-device convenience
+       3.3.3 SMS via touchSMS → NFP discount + ACMA-certified sender ID + prepaid credits
+       3.3.4 SMS OTP login-only, never MFA → SMS-MFA weaker; skip for MVP
+       3.3.5 Drop enforced MFA → invite-only + strong passwords + RLS suffice; TOTP/WebAuthn opt-in later
+       3.3.6 Phone identifiers from people-module mobile → single phone truth
+       3.3.7 Phone login via Supabase phone auth + custom send-sms hook → OTP security by Supabase; touchSMS via Edge Fn
+       3.3.8 Sync people-module mobile → auth user phone → OTP resolves to existing account
+       3.3.9 Block unknown phone numbers on OTP (before_user_created hook) → preserves invite-only
+4 Security & data: RLS on all tables via auth.uid() → DB-layer security
+   4.1 Soft-delete core entities (deleted_at); hard delete only for error entries → legal/child-safety + FK integrity
+5 Modules: self-contained in src/modules/* + core in src/core/* → clear ownership + independent dev
+   5.1 People always-on; others import its API → shared types foundation
+   5.2 Runtime toggle via module_config → on/off without redeploy
+       5.2.1 Propagate toggles via Realtime → instant cross-client updates
+       5.2.2 Validate module deps in server actions → friendly errors + complex rules
+       5.2.3 Cache toggles 1min + client stores; route guards in layout → perf + security
+   5.3 Typed TS manifest per module → type safety + tree-shakeable + strict TS/Zod; runtime state in module_config
+   5.4 Base extension points: nav-menu + settings-schema + dashboard-widget → required hooks; detail-page tabs + event bus deferred
+   5.5 Promote module component to base design system on 2nd reuse → shared lib stays lean (YAGNI)
+   5.6 Central typed module registry (registry.ts) auto-wired by create-module scaffold → type safety + tree-shaking; no manual edits
+   5.7 Module API = public index.ts; base types in src/core/; no server bundle → minimal ceremony; cross-module types from owning module
+   5.8 React Router lazy route imports + CI bundle-size gate → edge size safe without build-time exclusion (YAGNI)
+   5.9 Module-local migrations + aggregation script into supabase/migrations → self-contained modules + native Supabase CLI
+   5.10 Thin glue routes.tsx per module; only src/core/router.tsx calls createBrowserRouter → single app router
+6 Settings: direct DB access + shared TS types; no API layer → monorepo simplicity
+   6.1 Hybrid settings: typed core columns + per-module JSONB → type safety + flexibility
+   6.2 Per-module settings (module_config + tables + platform_settings) → module autonomy
+   6.3 Settings DB-only with environment column → no env var drift
+   6.4 Env vars for CI/staging secrets + non-settings config → dev parity without DB
+   6.5 Skip settings audit trail → no regulatory need; solo maintenance
+   6.6 Admin forms generated from Zod schemas + escape hatches → 80% auto; custom complex
+   6.7 Realtime only UI-critical settings → toggles/branding/public config
+7 Roles: 5-level platform roles (public→super_admin) → consistent across modules
+8 PWA: vite-plugin-pwa + Workbox → installable + offline app shell
+   8.1 Cache people data read-only in IndexedDB; edits require online → offline view + RLS-safe writes
+   8.2 PWA only for MVP; native wrappers (Capacitor/TWA/Tauri) future option → single codebase
+9 Dev workflow: trunk-based main-only + feature flags → solo velocity
+   9.1 CI GitHub Actions: check/lint/test/build/deploy → automated gates
+   9.2 E2E-heavy tests (Playwright) + minimal unit → catches real regressions
+   9.3 Conventional commits + Husky pre-commit hooks → consistent history + local lint gates
+   9.4 ESLint + Prettier for lint/format gates → consistent code
+   9.5 Local→Preview→Production via tagged releases → controlled rollouts
+10 i18n: defer; English-only MVP → YAGNI; paraglide + messages field later if needed
 
-## Findings (verified)
+## Findings
 - Supabase phone OTP: `signInWithOtp`/`verifyOtp`; 6-digit; 60s cooldown; 1h expiry; `auth.sms.test_otp` map for dev/CI
 - Native SMS providers only: Twilio, Twilio Verify, MessageBird, Vonage, TextLocal → touchSMS needs custom `send_sms` Auth Hook (Edge Fn → REST API)
 - WhatsApp OTP + SMS-as-MFA are separate paid entitlements (skip); CAPTCHA + rate limits recommended

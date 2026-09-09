@@ -16,12 +16,14 @@ CREATE TABLE journey_tracks (
 );
 
 CREATE TABLE journey_stages (
-  slug varchar PRIMARY KEY,
+  id uuid PRIMARY KEY,
+  slug varchar NOT NULL,
   label varchar NOT NULL,
   color varchar(7),
   sort_order integer,
   is_terminal boolean DEFAULT false
 );
+CREATE UNIQUE INDEX journey_stages_slug_unique ON journey_stages (slug);
 
 CREATE TABLE people_audit (
   id uuid PRIMARY KEY,

@@ -45,6 +45,12 @@ Every module page is built from the `Page` slot recipe (`src/core/ui/page.tsx`, 
 
 **Every page has `Page.Root` + `Page.Header` + `Page.Body`.** `Page.Footer` is optional (only when a whole-page save/apply action is needed).
 
+**Enforced scaffold shape (do not bypass):**
+- `Page.Root` is supplied by `AppShell` — pages never render it.
+- Every page/subpage renders `<Page.Main>` wrapping `<Page.Header>` (+ optional `Page.HeaderTop`/`Page.HeaderBottom`) and `<Page.Body>`.
+- `Page.Footer` (when used) is a SIBLING of `Page.Main` (directly under `Page.Root`), NOT a child of `Page.Main`.
+- Enforcement: `Page.Main` warns in the dev console on structural violations, and `pnpm lint:pages` (script `scripts/lint-pages.mjs`) is a hard gate wired into `pnpm build`. It checks BOTH partial compliance (any `Page.*` usage must include Main+Header+Body) AND total compliance (any file that looks like a routed page — `pages/` dir, `*Page.tsx`, or `dashboard.tsx` — must render the scaffold even if it renders zero `Page.*` slots). Add exceptions to `FILES_ALLOW_RAW` in that script only deliberately (e.g. `LoginPage`, `ErrorPage`).
+
 **Hero variant & module number:** `Page.Header headerVariant="hero"` renders a background with the same saturation/brightness as `--colors-color-palette-solid-bg` but hue shifted by `16deg × module number`. The module number is stored in the module manifest (`number` field, e.g. `peopleManifest.number`). Pass it to the header via Panda's `css` prop: `<Page.Header headerVariant="hero" css={{ '--module-number': peopleManifest.number }}>`. The hue shift is applied to a `::before` background layer so the header's own children (h1, back button) are NOT hue-shifted.
 
 ### Responsive spacing (padding & gaps)

@@ -44,9 +44,7 @@ export function AppShell({ children }: { children?: ReactNode }) {
           <ErrorBoundary>
             <Suspense fallback={<Loader />}>{children ?? outlet}</Suspense>
           </ErrorBoundary>
-          <Page.Footer>
-            <ActionFooter />
-          </Page.Footer>
+          <ActionFooter />
         </Page.Root>
       </PageActionsProvider>
     </div>

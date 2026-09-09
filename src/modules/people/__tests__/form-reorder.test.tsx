@@ -56,9 +56,7 @@ function renderPage() {
             <PageActionsProvider>
               <Page.Root>
                 <FormBuilderPage />
-                <Page.Footer>
-                  <ActionFooter />
-                </Page.Footer>
+                <ActionFooter />
               </Page.Root>
             </PageActionsProvider>
           }

@@ -53,6 +53,11 @@ describe('PageActionsProvider', () => {
       firstCleanup?.()
     })
     expect(result.current.actions).toEqual(expect.objectContaining({ cancel: second }))
+
+    act(() => {
+      secondCleanup?.()
+    })
+    expect(result.current.actions).toBeNull()
   })
 })
 

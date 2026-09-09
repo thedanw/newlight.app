@@ -47,6 +47,11 @@ Agents authoring modules; solo reviewer; future contributors.
 
 // Heading levels: 0 icon+title (home) · 1 ←back+icon+title (subpage) · 2 ←back+icon→title (deep).
 // Icon/title auto-read from ModuleBreadcrumbContext; explicit props override.
+
+// Action footer: shell-owned, rendered ONCE by AppShell as a direct child of
+// Page.Root (absolute, out of flow, `inert` when idle). Forms hook in via
+// `useRegisterPageActions({ cancel, apply, isSaving, isDirty, applyLabel? })`;
+// the footer slides in only while `isDirty`. See `ui-ux/action-footer/decision.md`.
 ```
 
 ## Decision Log: decision → Rationale (hierarchical; parent = decision, sub = dependent)
@@ -66,6 +71,10 @@ Agents authoring modules; solo reviewer; future contributors.
     7.1 thin routes.tsx glue → one routing surface
 8 Lifecycle → data retained
     8.1 disable-only via module_config → no uninstall (YAGNI)
+9 Shell-owned action footer → one dirty-driven Save/Cancel bar
+    9.1 PageActionsProvider + useRegisterPageActions (core/ui) → forms hook in, no per-page footer
+    9.2 ActionFooter rendered once by AppShell (absolute in Page.Root, inert when idle) → no duplicate bars
+    9.3 lint-pages.mjs bans Page.Footer in routed pages → single source of truth
 
 ## Decision Gap Log
 1. Module-local recipe authoring template + lint scope → open
@@ -73,3 +82,4 @@ Agents authoring modules; solo reviewer; future contributors.
 3. Recipe ownership before promotion (2nd-use flow) → open
 4. Module-owned Realtime/server routes beyond migrations → open
 5. Module API versioning field → deferred
+6. Multi-section dirty aggregation (EditPersonPage registers `isDirty: true` first pass) → open

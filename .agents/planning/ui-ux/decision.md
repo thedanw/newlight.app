@@ -138,9 +138,16 @@ Solo developer; small-context LLM agents building bolt-on modules; future contri
    16.2 `Page.Root` = outer wrapper: marginLeft 5px (sidebar pull-tab), page-gutter padding, vertical gap between header/body/footer → based on old PagePanel
    16.3 `Page.Header` = page chrome; scrolls WITH the page (never fixed); BackButton on sub pages, h1 on dashboard pages
    16.4 `Page.Body` = main content region
-   16.5 `Page.Footer` = OPTIONAL; `footerVariant="fixed"` pins to bottom of screen, always visible → whole-page save/apply forms
+   16.5 `Page.Footer` = shell-owned slot; rendered ONCE by AppShell inside `Page.Root` (absolute, out of flow, `inert` when idle) → whole-page save/apply forms hook in via `useRegisterPageActions` (supersedes `footerVariant="fixed"`; see 17)
    16.6 Every page has `Page.Root` + `Page.Header` + `Page.Body`; `Page.Footer` optional → mandatory scaffold, optional action bar
    16.7 Hero variant: `Page.Header headerVariant="hero"` tints header with module accent hue → same saturation/brightness as `--colors-color-palette-solid-bg`, hue shifted by `16deg × module number`
    16.8 Module number stored in module manifest (`number` field) → drives hero hue shift; passed to header via Panda's `css` prop (`css={{ '--module-number': peopleManifest.number }}`) keeps `Page.Header` a plain `withContext`
    16.9 Hero hue shift applied to a `::before` background layer (not the header itself) → children (h1, back button) NOT hue-shifted
    16.10 Responsive spacing: page padding/gaps collapse from `6` (24px) to `3` (12px) on small screens via `{ base: '3', md: '6' }` → mobile breathing room; mirror in card-like display components
+17 Shell-owned action footer (dirty-driven)
+   17.1 `PageActionsProvider` + `useRegisterPageActions` (core/ui) — forms register `{ cancel, apply, isSaving, isDirty, applyLabel? }`; cleanup on unmount → no stale footer across routes
+   17.2 `ActionFooter` rendered once by AppShell; visible = `actions && actions.isDirty`; `inert` + `aria-hidden` when hidden → keyboard/screen-reader safe
+   17.3 `position: absolute` in `Page.Root` (relative), NOT fixed → never overlaps sidebar; `--footer-height` → `Page.Main` `scrollPaddingBottom` → last field never occluded
+   17.4 `env(safe-area-inset-bottom)` + `interactive-widget=resizes-content` viewport → mobile keyboard safe
+   17.5 `prefers-reduced-motion` → no slide
+   17.6 lint-pages.mjs bans `Page.Footer` in routed pages → single source of truth

@@ -20,6 +20,7 @@ App-wide Settings dashboard (iOS-settings-style page) consolidates BrandForm dra
 8. Remove styleguide `BrandForm.tsx` + drawer wiring after migration → single source of truth; avoids drift (not parallel coexistence)
 9. Account menu "Brand settings" → "Settings" → consistency with new tile
 10. Verification: `pnpm typecheck` + `pnpm lint` + `pnpm build` + manual browser check → no test runner installed; Playwright E2E is separate future batch
+11. Church Information Apply/Cancel via shell-owned action footer → `useRegisterPageActions` (ui-ux 17); no per-page `Page.Footer`
 
 ## Approaches Considered
 

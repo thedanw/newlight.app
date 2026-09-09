@@ -11,8 +11,8 @@ Separate the Page.Header's dual role into a **hero banner** (visual identity) an
 1. Breadcrumbs live inside Page.Header, not Page.Body → requirement
    1.1 Page.Heading = sticky inner bar; Page.Header = scrolling background → component-first; siblings in Header scroll away with background
    1.2 Header background scrolls away; heading content sticks at top → requirement
-2. Page.Main scroll wrapper holds Page.Header + Page.Body → keeps Page.Footer outside scroll container (always visible)
-   2.1 Page.Footer stays outside scroll container → Save/Cancel must remain reachable
+2. Page.Main scroll wrapper holds Page.Header + Page.Body → scroll container is separate from the shell footer
+   2.1 Page.Footer is shell-owned (rendered once by AppShell, absolute in Page.Root, out of flow) → Save/Cancel always reachable, never duplicated per page (superseded by ui-ux 17)
 3. Breadcrumb rendered as 3 discrete patterns (Level 0/1/2) → requirement; avoids generic recursive complexity
    3.1 Level 0 (dashboard): icon + module name; icon from manifest → consistent with sidebar
    3.2 Level 1 (first subpage): icon + page title

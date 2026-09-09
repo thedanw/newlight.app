@@ -13,6 +13,7 @@ Primary app infrastructure and shared contracts.
 - Database schema and migrations
 - Shared UI primitives
 - Routing and app shell
+- Shell-owned action footer (dirty-driven Save/Cancel bar; forms hook in via `useRegisterPageActions`)
 - Settings and module registry
 - Audit and soft-delete patterns
 

@@ -91,20 +91,20 @@ Subagent: No
 Deliverable: Verified user flows.
 
 ## Batch 4: Polish & Delivery
-Context: Goal: remove superseded code, update docs, ship. Prev: Batch 3 done — tests green. Key: `findings.md#enforcement`, `#docs`. State: ready.
+Context: Goal: remove superseded code, update docs, ship. Prev: Batch 3 done — tests green. Key: `findings.md#enforcement`, `#docs`. State: 4.1 + 4.2 done; 4.3 pending.
 
 ### Subphase 4.1: Code quality
-- [ ] Delete `src/core/settings/lib/actions-context.tsx` + `section-actions.ts` (confirm zero consumers)
-- [ ] Remove `footerVariant: 'fixed'` from `page.ts` recipe (if superseded)
-- [ ] Run `pnpm typecheck` && `pnpm lint:pages` && `pnpm build` && `pnpm test`
+- [x] Delete `src/core/settings/lib/actions-context.tsx` + `section-actions.ts` (confirm zero consumers)
+- [x] Remove `footerVariant: 'fixed'` from `page.ts` recipe (if superseded)
+- [x] Run `pnpm typecheck` && `pnpm lint:pages` && `pnpm build` && `pnpm test`
 Subagent: Yes (parallel cleanup)
 Deliverable: Clean codebase, all gates green.
 
 ### Subphase 4.2: Documentation
-- [ ] Update `module-design/decision.md` (Page Layout Structure + Decision Log entry 9 + gap log)
-- [ ] Update `heading-breadcrumb/decision.md` (decision 2.1)
-- [ ] Update `ui-ux/decision.md` + `core/settings/decision.md` + `README.md`
-- [ ] Create `action-footer/decision.md` (canonical)
+- [x] Update `module-design/decision.md` (Page Layout Structure + Decision Log entry 9 + gap log)
+- [x] Update `heading-breadcrumb/decision.md` (decision 2.1)
+- [x] Update `ui-ux/decision.md` + `core/settings/decision.md` + `README.md`
+- [x] Create `action-footer/decision.md` (canonical)
 Subagent: Yes (parallel)
 Deliverable: Docs updated.
 

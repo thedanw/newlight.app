@@ -29,6 +29,12 @@ Session log + error table. Update after EVERY subphase (mandatory).
 - Note: `setChurchField` sets `isDirty` sticky (only resets on Apply/Cancel) — footer stays visible after edits until Apply/Cancel, by design
 - Next: Batch 4.1 Code quality (delete superseded actions-context)
 
+### 2026-09-09 — Batch 4.1 + 4.2 complete (Cleanup + Documentation)
+- 4.1 Cleanup: deleted `src/core/settings/lib/actions-context.tsx` + `src/core/settings/lib/section-actions.ts` (zero consumers confirmed via grep); `footerVariant: 'fixed'` already removed (verified via grep — no matches). Fixed typecheck error `page-actions.test.tsx:45` — `secondCleanup` declared but never read (TS6133) → added `act(() => { secondCleanup?.() }); expect(result.current.actions).toBeNull()`. All gates green (commit 7d586e2 + 446c035).
+- 4.2 Documentation: updated `module-design/decision.md` (Page Layout Structure footer note + Decision Log entry 9 + gap log item 6); updated `heading-breadcrumb/decision.md` (decision 2.1 superseded); updated `ui-ux/decision.md` (16.5 updated, decision 17 added); updated `core/settings/decision.md` (Decision Log entry 11); updated `.agents/planning/README.md` (Core platform list); created `action-footer/decision.md` (canonical ADR).
+- Gates: all green (carried from 4.1)
+- Next: Batch 4.3 Release prep (validate + commit + archive)
+
 ### 2026-09-09 — Batch 1 complete (Setup & Foundation)
 - Baseline green: typecheck ✅ (fixed 5 pre-existing errors: 2 unused consts in `elvanto-sync/sync/transforms.ts`, 3 invalid `variant="ghost"` → `plain` in `JourneySettingsManager.tsx`), lint:pages ✅, build ✅, test ✅ (19 files / 177 tests)
 - Branch: NONE — user decision: implement on current branch `feat/people-module`

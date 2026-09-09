@@ -11,8 +11,8 @@ Status: in_progress
 | 2 Core | 2.3 Migrate remaining forms | completed | PersonForm/FormBuilder/Account |
 | 2 Core | 2.4 Linting enforcement | completed | lint-pages.mjs |
 | 3 Quality | 3.1 Unit coverage | completed | page-actions (5) + action-footer (6) tests |
-| 3 Quality | 3.2 Integration | in_progress | route cleanup + occlusion |
-| 3 Quality | 3.3 E2E/Manual | not-started | browser + keyboard + mobile |
-| 4 Delivery | 4.1 Code quality | not-started | remove superseded files |
-| 4 Delivery | 4.2 Documentation | not-started | decision docs |
-| 4 Delivery | 4.3 Release prep | not-started | validate + commit + archive |
+| 3 Quality | 3.2 Integration | completed | route cleanup + occlusion |
+| 3 Quality | 3.3 E2E/Manual | completed | browser + keyboard + mobile (user-confirmed) |
+| 4 Delivery | 4.1 Code quality | completed | superseded files deleted; typecheck error fixed |
+| 4 Delivery | 4.2 Documentation | completed | 5 decision docs updated/created |
+| 4 Delivery | 4.3 Release prep | in-progress | validate + commit + archive |

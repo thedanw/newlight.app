@@ -20,20 +20,26 @@ type TransformFn = (value: any, context?: Record<string, any>) => any
  * are handled separately in mapping-engine.ts with higher priority
  */
 export function category_to_journey_stage(categoryName: string, _context?: Record<string, any>): string {
-  if (!categoryName) return 'contact'
-  
+  if (!categoryName) return CONTACT_STAGE_UUID
+
   // Normalize: trim whitespace, remove trailing * and _, lowercase for comparison
   const normalized = categoryName.trim().replace(/[*_]+$/, '').toLowerCase()
-  
+
   const mapping: Record<string, string> = {
-    'sunday guest': 'guest',
-    'sunday linked': 'linked',
-    'sunday regular': 'regular',
-    'community connection': 'contact',
+    'sunday guest': GUEST_STAGE_UUID,
+    'sunday linked': LINKED_STAGE_UUID,
+    'sunday regular': REGULAR_STAGE_UUID,
+    'community connection': CONTACT_STAGE_UUID,
   }
-  
-  return mapping[normalized] ?? 'contact'
+
+  return mapping[normalized] ?? CONTACT_STAGE_UUID
 }
+
+/** Stable UUIDs for seeded journey stages (must match migration seed values). */
+const CONTACT_STAGE_UUID = 'a1b2c3d4-0000-4000-8000-000000000001'
+const GUEST_STAGE_UUID = 'a1b2c3d4-0000-4000-8000-000000000002'
+const LINKED_STAGE_UUID = 'a1b2c3d4-0000-4000-8000-000000000003'
+const REGULAR_STAGE_UUID = 'a1b2c3d4-0000-4000-8000-000000000004'
 
 // ============================================
 // 1b. category_to_demographic
@@ -87,7 +93,7 @@ export function location_to_journey_tracks(locations: any, _context?: Record<str
       // The actual journey_track_id will be resolved by mapping-engine
       // using the location_track_pairings config (elvanto_location_id → journey_track_id)
       // For now, we use the location ID as a key that mapping-engine will translate
-      result[`location:${loc.id}`] = 'contact' // Conservative default
+      result[`location:${loc.id}`] = CONTACT_STAGE_UUID // Conservative default
     }
   }
   

@@ -1,6 +1,6 @@
 'use client'
 import { useRef, useState, useEffect, useCallback } from 'react'
-import { useDrag } from '@use-gesture/react'
+import { animate, motion, useMotionValue } from 'framer-motion'
 import { css } from 'styled-system/css'
 import { Avatar, NavTile, PullTab, NavProvider, useNavContext } from '@/core/ui'
 import { useAuth } from '@/core/auth'
@@ -36,9 +36,6 @@ const SIDEBAR_PADDING = 12 // px
 const PEEK_WIDTH = 5 // px
 const SNAP_VELOCITY_THRESHOLD = 100 // px/s
 const DRAG_CLICK_THRESHOLD = 6 // px of movement before a press counts as a drag
-// Spring-like easing approximating the spec's 400/35 spring
-const SLIDE_EASING = 'cubic-bezier(0.22, 1, 0.36, 1)'
-const SLIDE_DURATION = '340ms'
 
 // Calculate optimal column count and rows-per-column for given tile count and viewport height
 function calculateLayout(mainTileCount: number, viewportHeight: number) {
@@ -210,7 +207,6 @@ function SidebarInner({ onSettingsNavigate, onModuleNavigate, onAccountNavigate,
   const { user, initials, firstName } = useAuth()
   const sidebarRef = useRef<HTMLDivElement>(null)
   const [isDragging, setIsDragging] = useState(false)
-  const dragStartTimeRef = useRef(0)
   // True when a press has moved enough to count as a drag rather than a click
   const dragMovedRef = useRef(false)
   // Set after a real drag ends. The browser still fires a `click` on the tab
@@ -245,86 +241,12 @@ function SidebarInner({ onSettingsNavigate, onModuleNavigate, onAccountNavigate,
     return () => mq.removeEventListener?.('change', onChange)
   }, [])
 
-  // Current translateX (px) for narrow/overlay mode. On wide desktop we
-  // ignore this and always pin to 0 (open).
-  // Left-side sidebar: closed = negative (peeking off the left edge),
-  // open = 0 (flush with left edge).
-  // Initialize to closed position; sync effect will correct based on isOpen/isWide.
-  const [x, setX] = useState(-(sidebarWidth - PEEK_WIDTH))
-  // Live ref so drag-end can read the current position without stale closures
-  const xRef = useRef(x)
-  useEffect(() => {
-    xRef.current = x
-  }, [x])
-
-  // use-gesture drag handler for the pull tab. Tracking is intentionally NOT
-  // gated on reduced motion: dragging is direct manipulation (an essential
-  // interaction), so the sidebar follows the pointer 1:1 even when the user
-  // prefers reduced motion — positionStyle still disables the release animation
-  // in that case (instant snap).
-  const bindDrag = useDrag(
-    ({ down, offset: [ox], movement: [mx], first, last }) => {
-      if (first) {
-        setIsDragging(true)
-        dragStartTimeRef.current = performance.now()
-        dragMovedRef.current = false
-        // A new press clears any stale post-drag suppression (in case the
-        // release never produced a click, e.g. pointercancel).
-        suppressToggleRef.current = false
-      }
-
-      if (down) {
-        // Mark as a drag once the pointer moves meaningfully (distinguish from click)
-        if (Math.abs(mx) > DRAG_CLICK_THRESHOLD) {
-          dragMovedRef.current = true
-        }
-
-        // `offset` is seeded by `from` with the current resting x, so it is
-        // already the live sidebar position in px. Clamp it so the sidebar can
-        // never be dragged past the fully-open (0) or fully-closed edge.
-        // Left-side: openX=0, closedX=-(sidebarWidth-PEEK_WIDTH) (negative).
-        const clampedX = Math.min(openX, Math.max(closedX, ox))
-        xRef.current = clampedX
-        setX(clampedX)
-      }
-
-      if (last) {
-        // Always leave dragging state, even for a plain tap on the tab
-        setIsDragging(false)
-
-        // A press without meaningful movement is a click, not a drag
-        if (!dragMovedRef.current) return
-
-        // Real drag: swallow the click the browser fires after pointerup so it
-        // doesn't toggle the sidebar right back to its pre-drag state.
-        suppressToggleRef.current = true
-
-        // Real velocity in px/s so a fast flick beats the nearest-half rule
-        const elapsedMs = Math.max(performance.now() - dragStartTimeRef.current, 1)
-        const velocity = (mx / elapsedMs) * 1000
-
-        // Left-side snap logic: drag right (positive velocity) → OPEN,
-        // drag left (negative velocity) → CLOSED.
-        // |velocity| > 100 wins, else nearest half.
-        const shouldOpen =
-          Math.abs(velocity) > SNAP_VELOCITY_THRESHOLD
-            ? velocity > 0
-            : xRef.current > (closedX + openX) / 2
-
-        // Sync the NavContext open state with the snap result
-        if (shouldOpen) {
-          setX(openX)
-          open()
-        } else {
-          setX(closedX)
-          close()
-        }
-      }
-    },
-    { axis: 'x', from: () => [xRef.current, 0] },
-  )
-
-  // Determine if we're on wide desktop (xl breakpoint)
+  // The sidebar's translateX is a framer-motion value shared 1:1 by the
+  // sidebar and the pull-tab drag surface. Framer-motion owns drag + snap in
+  // this app (ui-ux design: drag/drop is framer-motion; @use-gesture/react
+  // is not used). Left-side: closed = negative (peeking off the left edge),
+  // open = 0. Narrow screens start closed; the sync effect below corrects
+  // based on isOpen / isWide.
   const [isWide, setIsWide] = useState(() => window.innerWidth >= 1280)
   useEffect(() => {
     const handleResize = () => setIsWide(window.innerWidth >= 1280)
@@ -332,17 +254,35 @@ function SidebarInner({ onSettingsNavigate, onModuleNavigate, onAccountNavigate,
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
-  // Calculate closed position (5px peek). Left-side: closed = negative
-  // offset (peeking off left edge).
   const closedX = -(sidebarWidth - PEEK_WIDTH)
   const openX = 0
 
-  // Sync position with open state (also on width/breakpoint changes)
+  const x = useMotionValue(isWide ? openX : closedX)
+
+  // Keep x in sync with open state / breakpoint / reduced-motion. While a
+  // drag is live framer drives x 1:1 (we bail), so this only animates the
+  // snap-back spring on release/click. Reduced motion -> instant (no spring).
   useEffect(() => {
-    if (!isDragging) {
-      setX(isOpen ? openX : closedX)
+    if (isDragging) return
+    const target = isWide ? openX : isOpen ? openX : closedX
+    if (Math.abs(x.get() - target) < 0.5) return
+    if (reduceMotion) {
+      x.set(target)
+      return
     }
-  }, [isOpen, isDragging, closedX, openX, isWide])
+    const controls = animate(x, target, { type: 'spring', stiffness: 400, damping: 35 })
+    return () => controls.stop()
+  }, [x, isOpen, isWide, isDragging, closedX, openX, reduceMotion])
+
+  // Drag handling lives on the pull-tab motion.div below (framer-motion's
+  // `drag` prop). Tracking is intentionally NOT gated on reduced motion:
+  // dragging is direct manipulation, so the sidebar follows the pointer 1:1;
+  // only the release snap animation is suppressed (instant) for reduced
+  // motion. Click-vs-drag suppression and the velocity snap are handled on
+  // the motion.div's onDragStart / onDrag / onDragEnd callbacks.
+
+  // Breakpoint + closedX/openX + snap state now live with the motion value
+  // above; wide desktop pins the sidebar at openX via the same sync effect.
 
   // Click outside to close (on body)
   useEffect(() => {
@@ -405,26 +345,14 @@ function SidebarInner({ onSettingsNavigate, onModuleNavigate, onAccountNavigate,
   }, [close, onAccountNavigate])
 
   // On wide desktop, sidebar is always pinned (ignore open state)
-  const displayX = isWide ? 0 : x
   const effectiveIsOpen = isWide ? true : isOpen
-
-  // Inline transform + spring-like slide; disabled while dragging (1:1
-  // tracking) and on wide desktop / reduced motion (instant).
-  // Left-side: negative translateX pushes sidebar off the left edge.
-  const positionStyle = (translate: number): React.CSSProperties => ({
-    transform: `translateX(${translate}px)`,
-    transition:
-      isWide || isDragging || reduceMotion
-        ? 'none'
-        : `transform ${SLIDE_DURATION} ${SLIDE_EASING}`,
-  })
 
   return (
     <>
-      <div
+      <motion.div
         ref={sidebarRef}
         className={sidebarCss}
-        style={positionStyle(displayX)}
+        style={{ x }}
         role="navigation"
         aria-label="Main navigation"
       >
@@ -499,17 +427,54 @@ function SidebarInner({ onSettingsNavigate, onModuleNavigate, onAccountNavigate,
             onClick={handleSettingsClick}
           />
         </nav>
-      </div>
+      </motion.div>
 
       {/* Pull tab - rendered OUTSIDE the sidebar so overflow:hidden can't crop
           it. The wrapper is fixed at left:0 and shares the sidebar's transform,
           so the tab hugs the sidebar's right edge as it slides. The wrapper is
           pointer-events:none; the tab button re-enables them. */}
       {!isWide && (
-        <div
+        <motion.div
           className={pullTabWrapperCss}
-          style={{ ...positionStyle(displayX), width: sidebarWidth }}
-          {...bindDrag()}
+          style={{ x, width: sidebarWidth }}
+          drag="x"
+          dragConstraints={{ left: closedX, right: openX }}
+          dragElastic={0}
+          dragMomentum={false}
+          onDragStart={() => {
+            setIsDragging(true)
+            suppressToggleRef.current = false
+            dragMovedRef.current = false
+          }}
+          onDrag={(_event, info) => {
+            // Mark as a drag once the pointer moves meaningfully (click vs drag)
+            if (Math.abs(info.offset.x) > DRAG_CLICK_THRESHOLD) {
+              dragMovedRef.current = true
+            }
+          }}
+          onDragEnd={(_event, info) => {
+            // Always leave dragging state, even for a plain tap on the tab
+            setIsDragging(false)
+
+            // A press without meaningful movement is a click, not a drag
+            if (!dragMovedRef.current) return
+
+            // Real drag: swallow the click the browser fires after pointerup so
+            // it doesn't toggle the sidebar right back to its pre-drag state.
+            suppressToggleRef.current = true
+
+            // framer's PanInfo.velocity is px/s — a fast flick beats the
+            // nearest-half rule. Snap rule unchanged: >100 px/s wins, else
+            // nearest half; the sync effect above animates the spring snap.
+            const velocity = info.velocity.x
+            const shouldOpen =
+              Math.abs(velocity) > SNAP_VELOCITY_THRESHOLD
+                ? velocity > 0
+                : x.get() > (closedX + openX) / 2
+
+            if (shouldOpen) open()
+            else close()
+          }}
         >
           <PullTab
             open={effectiveIsOpen}
@@ -518,7 +483,7 @@ function SidebarInner({ onSettingsNavigate, onModuleNavigate, onAccountNavigate,
           >
             <HamburgerIcon open={effectiveIsOpen} />
           </PullTab>
-        </div>
+        </motion.div>
       )}
     </>
   )

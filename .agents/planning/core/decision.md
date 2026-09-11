@@ -7,6 +7,8 @@
 - RLS = Row Level Security
 - PWA = Progressive Web App (installable/offline)
 
+> **Database architecture SSOT:** [`core/database/decision.md`](database/decision.md) — schema, RLS, settings storage, sync tables, seeds
+
 ## What & Why
 Lightweight modular web CRM for New Light Anglican Church: always-on "people" module plus independently developed, toggleable modules (groups, services, calendar). Login uses a single "email or mobile" identifier, then password, SMS code, magic link, or OAuth — phone/SMS path via touchSMS for low-tech users. Users: church admins, staff, team leaders, volunteers; household members self-viewing their own data
 
@@ -56,8 +58,7 @@ Lightweight modular web CRM for New Light Anglican Church: always-on "people" mo
        3.3.7 Phone login via Supabase phone auth + custom send-sms hook → OTP security by Supabase; touchSMS via Edge Fn
        3.3.8 Sync people-module mobile → auth user phone → OTP resolves to existing account
        3.3.9 Block unknown phone numbers on OTP (before_user_created hook) → preserves invite-only
-4 Security & data: RLS on all tables via auth.uid() → DB-layer security
-   4.1 Soft-delete core entities (deleted_at); hard delete only for error entries → legal/child-safety + FK integrity
+4 Security & data → DB-layer (RLS on all tables, soft-delete tombstones): [database/decision.md §A.2–A.3](database/decision.md)
 5 Modules: self-contained in src/modules/* + core in src/core/* → clear ownership + independent dev
    5.1 People always-on; others import its API → shared types foundation
    5.2 Runtime toggle via module_config → on/off without redeploy
@@ -70,17 +71,17 @@ Lightweight modular web CRM for New Light Anglican Church: always-on "people" mo
    5.6 Central typed module registry (registry.ts) auto-wired by create-module scaffold → type safety + tree-shaking; no manual edits
    5.7 Module API = public index.ts; base types in src/core/; no server bundle → minimal ceremony; cross-module types from owning module
    5.8 React Router lazy route imports + CI bundle-size gate → edge size safe without build-time exclusion (YAGNI)
-   5.9 Module-local migrations + aggregation script into supabase/migrations → self-contained modules + native Supabase CLI
+   5.9 Module-local migrations + aggregation script into supabase/migrations → [database/decision.md §D.1](database/decision.md)
    5.10 Thin glue routes.tsx per module; only src/core/router.tsx calls createBrowserRouter → single app router
-6 Settings: direct DB access + shared TS types; no API layer → monorepo simplicity
-   6.1 Hybrid settings: typed core columns + per-module JSONB → type safety + flexibility
-   6.2 Per-module settings (module_config + tables + platform_settings) → module autonomy
-   6.3 Settings DB-only with environment column → no env var drift
+6 Settings: direct DB access + shared TS types; no API layer → monorepo simplicity (DB storage → [database/decision.md §A.4](database/decision.md))
+       6.1 Hybrid settings (typed core cols + per-module JSONB) → [database/decision.md §A.4.1](database/decision.md)
+       6.2 module_config toggle (DB) + per-module tables → [database/decision.md §A.5](database/decision.md)
+       6.3 DB-only settings + environment column → [database/decision.md §A.4.1](database/decision.md)
    6.4 Env vars for CI/staging secrets + non-settings config → dev parity without DB
    6.5 Skip settings audit trail → no regulatory need; solo maintenance
    6.6 Admin forms generated from Zod schemas + escape hatches → 80% auto; custom complex
    6.7 Realtime only UI-critical settings → toggles/branding/public config
-7 Roles: 5-level platform roles (public→super_admin) → consistent across modules
+7 Roles: 5-level platform roles (public→super_admin) → consistent across modules (storage → [database/decision.md §B.3](database/decision.md))
 8 PWA: vite-plugin-pwa + Workbox → installable + offline app shell
    8.1 Cache people data read-only in IndexedDB; edits require online → offline view + RLS-safe writes
    8.2 PWA only for MVP; native wrappers (Capacitor/TWA/Tauri) future option → single codebase

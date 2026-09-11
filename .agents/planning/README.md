@@ -8,9 +8,9 @@ This app is a church operations platform built around a shared people-first core
 ### 1) Core platform
 Primary app infrastructure and shared contracts.
 
-- People core
-- Auth / identity
-- Database schema and migrations
+- People core → see `people/decision.md`
+- Auth / identity → see `core/login/decision.md`
+- **Database schema, migrations, and architecture** → `core/database/decision.md` *(single source of truth)*
 - Shared UI primitives
 - Routing and app shell
 - Shell-owned action footer (dirty-driven Save/Cancel bar; forms hook in via `useRegisterPageActions`)

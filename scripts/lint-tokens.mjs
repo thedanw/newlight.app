@@ -39,6 +39,10 @@ const FILES_ALLOW_RAW = [
   // thumb on a colored track); no semantic token exists for always-white.
   // Re-check if an fg.inverted-style token is ever introduced.
   'src/core/theme/recipes/switch.ts',
+  // Test fixture DATA, not styling: `color` fields on seeded JourneyStage
+  // objects are arbitrary DB-returned hex values, so they hold no token
+  // meaning and cannot be expressed semantically.
+  'src/modules/people/components/ProfileSections/JourneySection/JourneySection.test.tsx',
 ]
 
 /**
@@ -67,7 +71,21 @@ const RULES = [
     bad: /^\s*['"`](?:#[0-9a-fA-F]{3,8}\b|rgba?\(|hsla?\(|\b(?:red|blue|green|orange|yellow|purple|pink|gray|grey|black|white)\b(?![.\w-]))/,
     hint: 'use a semantic color token (fg.*, gray.*, colorPalette.*)',
   },
+  // Font weight → the heading var pair (ui-ux design rule): heading-style
+  // text outside an actual heading tag must consume the shell heading vars,
+  // never a raw numeric weight or hand-rolled font CSS.
+  {
+    prop: 'fontWeight|fw',
+    bad: /^\s*['"`]?\d+(?:\.\d+)?['"`]?\s*[,}]/,
+    hint: "use a token or, for heading-style text, the heading pair — fontWeight: 'var(--heading-font-weight, 700)' + fontFamily: 'var(--heading-font-family, inherit)'",
+  },
 ]
+
+// Drag & drop / gesture gate (ui-ux/dragdrop decision #16): framer-motion
+// owns all drag in this app (Reorder compound / useMotionValue). No module,
+// plugin, or core file may import @use-gesture/react. (Matches actual
+// import statements only, so docs/comments can mention the lib.)
+const BANNED_GESTURE_IMPORT = /from\s*['"]@use-gesture\/react['"]/
 
 // Bare Panda token names inside React inline `style={{ … }}` are INVALID CSS
 // (they only exist in Panda's object API). They must be `var(--radii-l2)` etc.
@@ -114,6 +132,11 @@ for (const file of ROOTS.flatMap((r) => walk(r))) {
     if (INLINE_TOKEN_NAME.test(line)) {
       violations.push(
         `${rel}:${i + 1}: Panda token name inside inline style={} is invalid CSS  →  use var(--radii-*)`,
+      )
+    }
+    if (BANNED_GESTURE_IMPORT.test(line)) {
+      violations.push(
+        `${rel}:${i + 1}: @use-gesture/react is banned — drag & drop must be framer-motion (ui-ux dragdrop #16)`,
       )
     }
   })

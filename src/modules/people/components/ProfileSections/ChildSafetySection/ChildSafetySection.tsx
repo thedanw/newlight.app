@@ -85,7 +85,14 @@ export const ChildSafetySection = forwardRef<ChildSafetySectionHandle, { person:
     <Collapsible.Root defaultOpen>
       <Collapsible.Trigger>
         <HStack gap="2">
-          <span style={{ fontWeight: 600 }}>Child Safety · WWCC · SMT · SMC</span>
+          <span
+              style={{
+                fontFamily: 'var(--heading-font-family, inherit)',
+                fontWeight: 'var(--heading-font-weight, 700)',
+              }}
+            >
+              Child Safety · WWCC · SMT · SMC
+            </span>
           <Collapsible.Indicator>⌄</Collapsible.Indicator>
         </HStack>
       </Collapsible.Trigger>

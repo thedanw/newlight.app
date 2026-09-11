@@ -116,7 +116,7 @@ export const JourneySection = forwardRef<JourneySectionHandle, JourneySectionPro
                 <Table.Row>
                   <Table.Header>Track</Table.Header>
                   {stages.map((stage) => (
-                    <Table.Header key={stage.id} style={{ textAlign: 'center' }}>
+                    <Table.Header key={stage.id} textAlign="center">
                       {stage.label || stage.slug}
                     </Table.Header>
                   ))}
@@ -127,7 +127,14 @@ export const JourneySection = forwardRef<JourneySectionHandle, JourneySectionPro
                   if (row.type === 'category') {
                     return (
                       <Table.Row key={row.key}>
-                        <Table.Cell colSpan={1 + stages.length} style={{ fontWeight: 600, color: '#6b7280' }}>
+                        <Table.Cell
+                          colSpan={1 + stages.length}
+                          style={{
+                            fontFamily: 'var(--heading-font-family, inherit)',
+                            fontWeight: 'var(--heading-font-weight, 700)',
+                            color: 'var(--colors-fg-muted)',
+                          }}
+                        >
                           {row.label}
                         </Table.Cell>
                       </Table.Row>
@@ -139,7 +146,7 @@ export const JourneySection = forwardRef<JourneySectionHandle, JourneySectionPro
                     <Table.Row key={row.key}>
                       <Table.Cell>{track.name}</Table.Cell>
                       {stages.map((stage) => (
-                        <Table.Cell key={stage.id} style={{ textAlign: 'center' }}>
+                        <Table.Cell key={stage.id} textAlign="center">
                           {interactive ? (
                             <HStack justifyContent="center">
                               <input
@@ -154,8 +161,8 @@ export const JourneySection = forwardRef<JourneySectionHandle, JourneySectionPro
                             </HStack>
                           ) : currentStage === stage.id ? (
                             <Badge
-                              colorPalette="gray"
-                              style={stage.color ? { backgroundColor: stage.color, color: '#ffffff' } : undefined}
+                            colorPalette="gray"
+                            style={stage.color ? { backgroundColor: stage.color, color: '#ffffff' } : undefined} // token-lint:ignore always-white badge text on arbitrary DB stage color
                             >
                               {stage.label || stage.slug}
                             </Badge>

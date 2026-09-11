@@ -50,8 +50,10 @@ export default function PeopleSettingsPage() {
           <Card.Header>
             <Heading textStyle="md">Journey grid</Heading>
             <Text color="fg.muted" textStyle="sm">
-              Manage journey tracks, categories, and stages. Tracks become the
-              rows of the journey grid shown on each person profile.
+              Journey tracks are designed to track a person's progress through visiting, returning and onboarding.<br/>
+              Tracks represent different pathways usually within a ministry or program.
+              Stages are the steps a person takes within a track and are designed to be universal language across all tracks.<br/>
+              Manage journey tracks, stages and categories below.
             </Text>
           </Card.Header>
           <Card.Body>

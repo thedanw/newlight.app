@@ -11,6 +11,7 @@
 ## Reference documents
 - **peopleFields.md** — SSOT for people field-level data
 - **schema.dbml** — canonical database schema
+- **core/database/decision.md** — DB architecture SSOT (schema, RLS, sync table ownership, seeds)
 - **core/decision.md** — platform architecture, auth, RLS, soft-delete
 - **core/elvanto/compatibility-design.md** — migration seeding, field ownership, limitations, runbook
 
@@ -59,21 +60,7 @@ Workflows, Reporting, Duplicate detection/merge, CSV import/export, PWA offline 
 
 ### 1 Foundational data model
 1.1 Keep people module always-on → foundation for all modules
-1.2 Model household-centric (people in households) → family-centric CRM
-1.3 Contact channels first-class: contact_channels table + phone_type enum (home/mobile/work/other) → replaces separate Phone/Mobile columns; communication priority
-1.4 JSONB custom_fields → church-specific extensibility (app-owned; Elvanto customs shadowed in elvanto_custom_fields)
-1.5 PG enums for fixed domains → data integrity
-    1.5.1 Active enums: demographic, gender, marital_status, phone_type, yes_no, tag_category, audit_change_reason, safe_ministry_leader_type, smt_type, smc_result, access_permission, relationship_type, address_kind, person_status (shadow), family_relationship (mirror)
-    1.15.2 Journey stages = table rows (journey_stages, id uuid PK + slug unique), not enum → admin-customizable; slug remains unique + editable (upsert by id); consent + school_email_permission use yes_no; wwcc_verification_outcome varchar; wwcc_exemption jsonb multi-select
-1.6 Demographic-gated field visibility → relevant data per person; admin fields (access_permissions, legacy_*, date_professed) restricted → privacy
-1.7 Child-safety fields (WWCC/SMT/SMC) → legal compliance; safe_ministry_start_date as DATE
-1.8 RLS: household sees own people + journeys; admin override; users update own profile; people_audit admin-only → privacy + control
-1.9 Guardians via people_relationships → child oversight
-1.10 Tags for custom locations/journey tracks → flexible categorization
-1.11 Journey grid (tracks × stages) replaces people_category + locations[] → per-track engagement; single status source (legacy category → elvanto_category_id; locations[] → elvanto_locations jsonb); universal stages contact→deleted_privacy_data; admin-customizable journey_tracks; rows named "journey tracks" (admin-replaceable label)
-1.12 One stage per track via JSONB key on people.journey → uniqueness by construction, no PK needed
-1.13 Unified people_audit: field_changed = journey_track | demographic | gdpr_deletion | email_sent; change_reason = manual | auto_progression | gdpr_request | migration | sync (field_changed varchar; changed_by uuid; changed_at timestamptz) → full audit trail; migration/sync events filterable from manual corrections
-1.14 Seed default stages with colors + terminal flags → consistent UI
+1.2–1.14 Foundational data model & schema (households, contact_channels, custom_fields jsonb, PG enums, journey stages as table rows, field visibility, child-safety, RLS, guardians, tags, journey grid, people_audit, seeds) → [core/database/decision.md §B.1–B.7](../core/database/decision.md)
 1.15 Expose journey grid + track APIs to modules → cross-module queries
 1.16 Soft-delete (deleted_at); hard delete only for error entries → never lose legitimate records (child safety)
 1.17 Demographic progression: Jan 1 pg_cron; Year 5→6 child→youth; post-Year 12 youth→adult; no admin confirmation; logged (auto_progression); admins notified in-app + email → mirrors Australian school structure, no manual effort
@@ -85,13 +72,13 @@ Workflows, Reporting, Duplicate detection/merge, CSV import/export, PWA offline 
 1.23 Contact-only (unregistered) parents as people rows; journey auto-reconciled from linked children ('contact' stage on each child's track); no active child links + no own journey → auto-archive (restorable/promotable), never hard-delete → one people table + JSONB single source; no orphan data or loss
 
 ### 2 Cross-module features
-2.1 Saved Lists: YES — saved_lists (id uuid, name, owner_id ref auth_users, conditions jsonb, is_shared, created_at/updated_at); ownership-aware CRUD; conditions = [{field, operator, value}]
-2.2 Forms: YES, BASIC — forms + form_fields + form_submissions; form_submit_action (create_person|update_person|add_to_tag|none); form_field_type (text|email|phone|number|select|multi_select|checkbox|textarea|date); admin builder, public URL (/forms/:formId), field-to-person mapping; submitForm() validates + creates/updates people + links tags
+2.1 Saved Lists: YES — schema + owner-scoped RLS → [core/database/decision.md §B.7](../core/database/decision.md)
+2.2 Forms: YES, BASIC — forms/form_fields/form_submissions + enums → [core/database/decision.md §B.8](../core/database/decision.md); admin builder, public URL (/forms/:formId), field-to-person mapping, submitForm() validates + creates/updates people + links tags
 2.3 Email: YES — core email service (src/core/lib/email.ts); bulk to saved lists, individual from profile; logged (field_changed='email_sent'); provider wiring deferred
 2.4 Deferred: Workflows (Elvanto mirror tables untouched), Reporting (counts/badges sufficient), Duplicate detection/merge (manual; future auto-suggest + merge UI), CSV import/export (Elvanto migration handles initial; export later), PWA offline (core #33), Self-service editing (RLS allows own-profile; Church Center deferred), Automation/triggers, In-app notifications (email done; in-app deferred to core), pg_cron free-tier (fallback = Edge Function + GH Actions cron), Contact-only parent UX (modelled; full dedup/promotion/guardian-listing UX deferred)
 
 ### 3 Migration & sync
-3.1 Dual-key identity: id (app UUID) + elvanto_id (uuid unique, nullable); sync joins use elvanto_id; migrated rows seed id = elvanto_id; app-origin rows excluded from pull-matches until first push
+3.1 Dual-key identity → [core/database/decision.md §C.2](../core/database/decision.md)
 3.2 Journey seeding (P4): demographic from People Category (name→enum; unmapped→'adult'+review queue); stage from People Category (Sunday track: archived/deleted_privacy_data/guest/linked/regular/contact) + Elvanto locations[] (Campus tracks: contact) + status flags; logged change_reason='migration'
 3.3 Journey ownership: app-owned after cutover; elvanto_locations shadowed, never written automatically; optional follow_elvanto (default off) toggles person on/off track at 'contact'; stages never pushed (deny-list)
 3.4 Demographic push: map enum→existing Elvanto category by name; no match → sync error (L-4)
@@ -110,7 +97,7 @@ Workflows, Reporting, Duplicate detection/merge, CSV import/export, PWA offline 
 4.5 Guardians display: read-only list with View (same profile component) + Add (modal); registered + contact-only parents
 4.6 Address: managed on HouseholdPage (HouseholdAddress); profile links to household, no inline address card
 4.7 Form field mapping scope: PersonForm covers Personal + Demographics + Household + Journey + Admin (admin-only); contact channels, child safety, consents, medical are profile-view-only; full contact_channels CRUD deferred
-4.8 Supabase privacy safeguard: Supabase controls privacy data incl. last name; public last_initial stored/extracted automatically on backend; full last name never exposed publicly
+4.8 Supabase privacy safeguard → `people_public` view exposes last_initial only → [core/database/decision.md §A.2.2](../core/database/decision.md)
 4.9 Person create/edit flow: ≥1 journey track required; household selection/creation (pick existing or create inline); Zod validation (names, email, DOB range); operator-aware admin fields (server-side RLS is authority; client gating is UX only); RLS allows own-profile updates; admin-only fields conditionally shown by operator role; mutations log journey/demographic changes to people_audit
 4.10 Search UX: global search bar + per-page filtering; debounced server-backed via searchPeople() hook; offset pagination
 4.11 Tag management UI: CRUD tags by category, assign to people (inline on profile), filter in directory

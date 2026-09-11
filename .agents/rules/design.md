@@ -21,6 +21,12 @@ Runtime: `<html data-color-scheme="..." data-accent-color="..." data-gray-color=
 - **Inter variable font** — preloaded, single typeface
 - Weight variants via recipes (no separate display font)
 - Semantic text tokens: `fg.default`, `fg.muted`, `fg.subtle` — pick by information importance
+- **Heading style outside a heading tag** (grid headers, section titles, labels that read like headings): NEVER hand-roll font CSS. Always consume the shell vars exactly:
+  ```ts
+  fontFamily: 'var(--heading-font-family, inherit)',
+  fontWeight: 'var(--heading-font-weight, 700)',
+  ```
+  So the BrandForm bold/uppercase/accent knobs re-theme them like real headings.
 
 ## Iconography
 
@@ -169,6 +175,7 @@ Is it a dashboard?
 ## Motion & Interaction
 
 - **Framer Motion** (`motion/react`) for drag/snap + panel push/pop
+- **Drag & drop is framer-motion only**: use the core `Reorder` compound (`Reorder.Root/Item/Handle`) for sortable lists, or `useMotionValue`/`animate` for shell drag (sidebar). `@use-gesture/react` is **banned** (no `useDrag` anywhere) — it is a gesture primitive, not a sortable-list primitive.
 - **useReducedMotion** respected (accessibility)
 - Spring physics: sidebar snap 400/35, SlidePanel 220/28
 - No waterfall mounting, no breathing loops (legacy patterns removed)
@@ -178,6 +185,8 @@ Is it a dashboard?
 | Do | Don't |
 |----|-------|
 | Use recipes + variants for all UI | Use atomic `css()`/`cva` except for rare one-offs |
+| Use framer-motion for drag/drop (`Reorder`, `useMotionValue`) | Import `@use-gesture/react` / `useDrag` |
+| Use the heading var pair for heading-style text outside `<h*>` | Hand-roll `fontWeight`/`fontFamily` numbers for heading text |
 | Import UI only from `@/core/ui` barrel | Import component files directly |
 | Use semantic tokens (`fg.default`, `colorPalette.solid`) | Reference raw palette values (`accent.9`, `gray.12`) |
 | Use Park UI components via CLI | Hand-edit vendored Park UI source |

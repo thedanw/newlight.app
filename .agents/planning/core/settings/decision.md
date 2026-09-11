@@ -10,13 +10,13 @@ App-wide Settings dashboard (iOS-settings-style page) consolidates BrandForm dra
 2. Sidebar `brand` tile → `settings` tile (label + icon), navigates to `/settings` → user requirement; app-wide surface
 3. BrandForm content → **Church Information** sub-section + 4 new fields (Church Name, App Name, Church Email, Website) → user requirement; theme knobs splittable later without breaking section pattern
 4. Live re-theme (5 knobs) + logo **save-on-apply** → ui-ux 10.9, decision #45; not persist-on-every-change
-5. Wire `platform_settings` persistence now → core #20/#21/#23 + ui-ux 10.4/10.7 require DB-backed settings; not local-only
+5. Wire `platform_settings` persistence now → core #20/#21/#23 + ui-ux 10.4/10.7; DB schema → [core/database/decision.md §A.4.1](../core/database/decision.md); not local-only
    5.1 `SettingsProvider` context in `src/core/settings/` for supabase client + session → lab needs fallback; final uses real auth; decouples settings page
    5.2 Logo → Supabase Storage public bucket (`brand-assets`) on Apply → favicon/login need public URL pre-auth; public bucket + CDN; super-admin writes, public reads
 6. Core exports `registerSettingsSection(section)` + `registerSettingsPage(page)` API → core #41 settings-schema extension point; modules self-register at startup
    6.1 Section registry = typed array; page registry = map by section ID → single source of truth for sidebar/nav; enables module discovery
 7. `platform_settings` = single `app-settings` key, nested JSON → atomic writes; simple Realtime payload; matches ui-ux 10.4 (not separate keys / flat keys)
-   7.1 Supabase Storage `brand-assets` bucket migration + RLS (public read, super_admin write) → ui-ux 10.7 requires Storage URL; reproducible via migration (not manual / deferred)
+   7.1 Supabase Storage `brand-assets` bucket + RLS → schema → [core/database/decision.md §A.4.3](../core/database/decision.md); reproducible via migration
 8. Remove styleguide `BrandForm.tsx` + drawer wiring after migration → single source of truth; avoids drift (not parallel coexistence)
 9. Account menu "Brand settings" → "Settings" → consistency with new tile
 10. Verification: `pnpm typecheck` + `pnpm lint` + `pnpm build` + manual browser check → no test runner installed; Playwright E2E is separate future batch

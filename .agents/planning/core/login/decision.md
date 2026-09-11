@@ -40,7 +40,7 @@ Admins/staff/leaders/volunteers/members (sign in for member data); anonymous vis
 1 Auth module: dedicated src/core/auth/ (AuthProvider+useAuth) → single auth owner
    1.1 AuthProvider owns session; SettingsProvider consumes → single source of truth
    1.2 Lab mock fallback lives in AuthProvider → styleguide runs without env vars
-2 Join key: people.auth_user_id = auth.users.id → schema FK exists, queries.ts uses it, closes auth↔people gap
+2 Join key: people.auth_user_id = auth.users.id → schema FK exists; joins → [core/database/decision.md §B.2](../core/database/decision.md); verified in queries.ts
 3 Entry points: /login full-page outside AppShell → matches /forms/:formId, no sidebar chrome
    3.1 /account page inside AppShell → user chose profile page
    3.2 Sign out on /account → co-located with profile
@@ -48,7 +48,7 @@ Admins/staff/leaders/volunteers/members (sign in for member data); anonymous vis
    3.4 Avatar initials first+last; label First name → user requirement; fallback user_metadata/email
 4 Identifier: email-only this phase → phone deferred, concept preserved
    4.1 Modes: password + magic-link toggle → core #8 surface
-5 RLS: anon sees access_permission='public' only → user requirement; access_permission gates
+5 RLS: anon sees access_permission='public' only → schema/RLS → [core/database/decision.md §A.2.4/B.2](../core/database/decision.md); access_permission gates role
    5.1 Authenticated sees all non-deleted (MVP) → any user ≥ member_area; matrix deferred
    5.2 RLS refinement = new idempotent migration → remote already applied; safe path
 

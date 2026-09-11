@@ -70,7 +70,7 @@ Agents authoring modules; solo reviewer; future contributors.
 7 Routing → single app router
     7.1 thin routes.tsx glue → one routing surface
 8 Lifecycle → data retained
-    8.1 disable-only via module_config → no uninstall (YAGNI)
+    8.1 disable-only via module_config → schema/migration → [core/database/decision.md §A.5](../core/database/decision.md); no uninstall (YAGNI)
 9 Shell-owned action footer → one dirty-driven Save/Cancel bar
     9.1 PageActionsProvider + useRegisterPageActions (core/ui) → forms hook in, no per-page footer
     9.2 ActionFooter rendered once by AppShell (absolute in Page.Root, inert when idle) → no duplicate bars

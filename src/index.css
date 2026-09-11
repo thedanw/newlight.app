@@ -22,24 +22,77 @@
   }
 }
 
-/* Reorder item enter/exit (Reorder compound component). Pure CSS so Ark UI
-   portal components inside reorder items never render inside a framer-motion
-   animated context (React 19 + Ark portal guardrail). Opacity-only so it
-   never conflicts with framer-motion's transform-based drag/layout. */
-@keyframes reorder-item-enter {
+/* Drag-and-drop keyframe animations */
+@keyframes dnd-drag-enter {
   from {
     opacity: 0;
+    transform: scale(0.95);
   }
   to {
     opacity: 1;
+    transform: scale(1);
   }
 }
 
-@keyframes reorder-item-exit {
+@keyframes dnd-drag-leave {
   from {
     opacity: 1;
+    transform: scale(1);
   }
   to {
     opacity: 0;
+    transform: scale(0.95);
+  }
+}
+
+@keyframes dnd-drag-over {
+  0%, 100% {
+    background-color: var(--dnd-drop-bg, transparent);
+    border-color: var(--dnd-drop-border, transparent);
+  }
+  50% {
+    background-color: var(--dnd-drop-bg-hover, rgba(59, 130, 246, 0.1));
+    border-color: var(--dnd-drop-border-hover, rgb(59, 130, 246));
+  }
+}
+
+@keyframes dnd-drag-preview {
+  from {
+    transform: scale(1);
+    box-shadow: var(--dnd-preview-shadow-sm, 0 1px 2px 0 rgb(0 0 0 / 0.05));
+  }
+  to {
+    transform: scale(1.02);
+    box-shadow: var(--dnd-preview-shadow-lg, 0 25px 50px -12px rgb(0 0 0 / 0.25));
+  }
+}
+
+/* Reduced motion support for drag-and-drop animations */
+@media (prefers-reduced-motion: reduce) {
+  [data-draggable-item], [data-tree-node] {
+    transition: none !important;
+  }
+
+  @keyframes dnd-drag-enter {
+    from { opacity: 1; transform: scale(1); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  @keyframes dnd-drag-leave {
+    from { opacity: 1; transform: scale(1); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  @keyframes dnd-drag-over {
+    0%, 100% {
+      background-color: var(--dnd-drop-bg, transparent);
+      border-color: var(--dnd-drop-border, transparent);
+    }
+    50% {
+      background-color: var(--dnd-drop-bg, transparent);
+      border-color: var(--dnd-drop-border, transparent);
+    }
+  }
+  @keyframes dnd-drag-preview {
+    from { transform: scale(1); box-shadow: var(--dnd-preview-shadow-sm, 0 1px 2px 0 rgb(0 0 0 / 0.05)); }
+    to { transform: scale(1); box-shadow: var(--dnd-preview-shadow-sm, 0 1px 2px 0 rgb(0 0 0 / 0.05)); }
   }
 }

@@ -1,6 +1,5 @@
 import { tagsInput } from "./tags-input";
 import { ratingGroup } from "./rating-group";
-import { reorder } from "./reorder";
 import { editable } from "./editable";
 import { datePicker } from "./date-picker";
 import { combobox } from "./combobox";
@@ -115,7 +114,6 @@ export const recipes = {
   datePicker,
   editable,
   ratingGroup,
-  reorder,
   tagsInput,
   navTile,
   pullTab

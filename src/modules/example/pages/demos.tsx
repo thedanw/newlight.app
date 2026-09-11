@@ -1,13 +1,12 @@
 'use client'
 import type { ReactNode } from 'react'
 import { buttonsDemos } from './demos/buttons'
-import { displayDemos } from './demos/display'
+import { dndTreeDemos } from './demos/dnd-tree'
 import { feedbackDemos } from './demos/feedback'
 import { formsDemos } from './demos/forms'
 import { layoutDemos } from './demos/layout'
 import { navigationDemos } from './demos/navigation'
 import { overlaysDemos } from './demos/overlays'
-import { reorderDemos } from './demos/reorder'
 import { typographyDemos } from './demos/typography'
 
 /* ---------------------------------------------------------------------------
@@ -27,6 +26,5 @@ export const DEMOS: Record<string, ReactNode> = {
   ...feedbackDemos,
   ...overlaysDemos,
   ...navigationDemos,
-  ...reorderDemos,
-  ...displayDemos,
+  ...dndTreeDemos,
 }

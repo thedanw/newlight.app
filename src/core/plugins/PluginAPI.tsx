@@ -1,7 +1,8 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/core/lib/database.types'
+import type { DndCollection } from '@/core/dragndrop/types'
 import { createContext, useContext, type ReactNode } from 'react'
-import { registerOrderedCollection, type OrderedCollection } from './HookRegistry'
+import { registerDndCollection } from './HookRegistry'
 
 export type TypedSupabaseClient = SupabaseClient<Database>
 
@@ -28,9 +29,9 @@ export interface PluginI18nAPI {
   t: (key: string, params?: Record<string, string | number>) => string
 }
 
-export interface PluginReorderAPI {
-  /** Declare a reorderable collection (consumed via the core `useOrderedCollection` hook). */
-  register: (collection: OrderedCollection) => void
+export interface PluginDragndropAPI {
+  /** Register a drag-and-drop collection (e.g. a sortable list or tree) */
+  register: (collection: DndCollection) => void
 }
 
 export interface PluginAPIContext {
@@ -39,7 +40,7 @@ export interface PluginAPIContext {
   router: PluginRouterAPI
   toast: PluginToastAPI
   i18n: PluginI18nAPI
-  reorder: PluginReorderAPI
+  dragndrop: PluginDragndropAPI
   pluginName: string
   pluginVersion: string
 }
@@ -147,9 +148,9 @@ export function createPluginI18nAPI(): PluginI18nAPI {
   }
 }
 
-export function createPluginReorderAPI(pluginName: string): PluginReorderAPI {
+export function createPluginDragndropAPI(pluginName: string): PluginDragndropAPI {
   return {
-    register: (collection: OrderedCollection) => registerOrderedCollection(collection, pluginName),
+    register: (collection: DndCollection) => registerDndCollection(collection, pluginName),
   }
 }
 
@@ -165,7 +166,7 @@ export function createPluginAPIContext(
     router: createPluginRouterAPI(navigate),
     toast: createPluginToastAPI(),
     i18n: createPluginI18nAPI(),
-    reorder: createPluginReorderAPI(pluginName),
+    dragndrop: createPluginDragndropAPI(pluginName),
     pluginName,
     pluginVersion,
   }

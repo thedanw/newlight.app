@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useDrag } from '@use-gesture/react'
-import { Button, Card, Field, Input, Reorder, Text } from '@/core/ui'
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
+import { CheckIcon, TrashIcon, PencilIcon, XIcon, PlusIcon } from 'lucide-react'
+import { Button, Field, IconButton, Input, Popover, Text } from '@/core/ui'
 import { HStack, Stack } from 'styled-system/jsx'
 import { useJourneySettings } from '../lib/settings-hooks'
 import {
@@ -23,6 +23,17 @@ import type { JourneyStage, JourneyTrack, JourneyTrackCategory } from '../lib/ty
 
 const STAGE_COL_MIN = 120
 const STAGE_COL_GAP = 4
+
+/**
+ * Heading-style text that lives outside a heading tag (grid header cells,
+ * category rows) must NOT hand-roll heading font CSS. Consume the shell
+ * heading vars so BrandForm's bold/uppercase/accent knobs re-theme the grid
+ * exactly like a real heading (ui-ux design rule).
+ */
+const headingCellStyle: CSSProperties = {
+  fontFamily: 'var(--heading-font-family, inherit)',
+  fontWeight: 'var(--heading-font-weight, 700)',
+}
 
 /** Auto-generate a slug from a human-readable label (e.g. "Not Started" → "not-started") */
 function slugify(label: string): string {
@@ -47,12 +58,38 @@ export function JourneySettingsManager() {
   const [rowOrder, setRowOrder] = useState<string[]>([])
   const [stageOrder, setStageOrder] = useState<string[]>([])
 
-  // Track which stage is being edited (slug/label inline edit) and the draft values
+  // Track which stage is being edited (label inline edit) and the draft value
   const [editingStageId, setEditingStageId] = useState<string | null>(null)
-  const [editSlug, setEditSlug] = useState('')
   const [editLabel, setEditLabel] = useState('')
 
-  const columnDragRef = useRef<{ draggedId: string; startOrder: string[] } | null>(null)
+  // Drag-and-drop visual feedback
+  const [dragOverId] = useState<string | null>(null)
+  const [dragPosition] = useState<'before' | 'after' | 'nest'>('after')
+
+/** Drop indicator:
+   *  - Nest (middle of category): transparent accent background (--colors-color-palette-a5)
+   *  *  - Line drop (before/after): primary color line (--colors-color-palette-solid-bg)
+   */
+  const getDropIndicator = useCallback((rowId: string, isCategory: boolean): CSSProperties => {
+    if (dragOverId !== rowId) return {}
+
+    const primary = 'var(--colors-color-palette-solid-bg, #3b82f6)'
+    const accentTransparent = 'var(--colors-color-palette-a5, color-mix(in srgb, var(--colors-accent, #3b82f6) 15%, transparent))'
+
+    if (isCategory && dragPosition === 'nest') {
+      return {
+        backgroundColor: accentTransparent,
+        boxShadow: `inset -3px 0 0 ${primary}`,
+      }
+    }
+
+    const line = dragPosition === 'before'
+      ? `inset 0 2px 0 ${primary}`
+      : `inset 0 -2px 0 ${primary}`
+    return isCategory
+      ? { boxShadow: `${line}, inset -3px 0 0 ${primary}` }
+      : { boxShadow: line }
+  }, [dragOverId, dragPosition])
 
   // Sync local state when data loads
   useEffect(() => {
@@ -71,20 +108,7 @@ export function JourneySettingsManager() {
   }, [data])
 
   const rows = useMemo(() => {
-    const categoriesById = new Map(localCategories.map((c) => [c.id, c]))
-    const ordered: { id: string; type: 'category' | 'track'; label: string }[] = []
-    for (const rowId of rowOrder) {
-      if (rowId.startsWith('category:')) {
-        const catId = rowId.slice('category:'.length)
-        const cat = categoriesById.get(catId)
-        if (cat) ordered.push({ id: rowId, type: 'category', label: cat.name })
-      } else {
-        const trackId = rowId.slice('track:'.length)
-        const track = localTracks.find((t) => t.id === trackId)
-        if (track) ordered.push({ id: rowId, type: 'track', label: track.name })
-      }
-    }
-    return ordered
+    return buildRows(localTracks, localCategories, rowOrder)
   }, [rowOrder, localTracks, localCategories])
 
   const stageMap = useMemo(() => {
@@ -156,24 +180,23 @@ export function JourneySettingsManager() {
     }
   }, [data])
 
-  const handleEditStage = useCallback((stage: JourneyStage) => {
-    setEditingStageId(stage.id)
-    setEditSlug(stage.slug)
-    setEditLabel(stage.label)
-  }, [])
+   const handleEditStage = useCallback((stage: JourneyStage) => {
+     setEditingStageId(stage.id)
+     setEditLabel(stage.label)
+   }, [])
 
-  const handleSaveEditStage = useCallback(async (stageId: string) => {
-    const stage = localStages.find((s) => s.id === stageId)
-    if (!stage || !editSlug.trim() || !editLabel.trim()) return
-    try {
-      await saveJourneyStage({ ...stage, slug: editSlug.trim(), label: editLabel.trim() })
-      setLocalStages((cur) => cur.map((s) => (s.id === stageId ? { ...s, slug: editSlug.trim(), label: editLabel.trim() } : s)))
-      setMessage('Stage updated.')
-    } catch (err) {
-      setMessage(err instanceof Error ? err.message : 'Unable to update stage.')
-    }
-    setEditingStageId(null)
-  }, [editSlug, editLabel, localStages])
+   const handleSaveEditStage = useCallback(async (stageId: string) => {
+     const stage = localStages.find((s) => s.id === stageId)
+     if (!stage || !editLabel.trim()) return
+     try {
+       await saveJourneyStage({ ...stage, label: editLabel.trim() })
+       setLocalStages((cur) => cur.map((s) => (s.id === stageId ? { ...s, label: editLabel.trim() } : s)))
+       setMessage('Stage updated.')
+     } catch (err) {
+       setMessage(err instanceof Error ? err.message : 'Unable to update stage.')
+     }
+     setEditingStageId(null)
+   }, [editLabel, localStages])
 
   const handleSave = useCallback(async () => {
     setMessage(null)
@@ -209,10 +232,9 @@ export function JourneySettingsManager() {
     setNewTrackName('')
     setNewCategoryName('')
     setNewStageLabel('')
-    setEditingStageId(null)
-    setEditSlug('')
-    setEditLabel('')
-  }, [data])
+     setEditingStageId(null)
+     setEditLabel('')
+   }, [data])
 
   const isDirty =
     JSON.stringify(localTracks) !== JSON.stringify(data?.tracks ?? []) ||
@@ -221,197 +243,240 @@ export function JourneySettingsManager() {
      JSON.stringify(rowOrder) !== JSON.stringify(buildRows(localTracks, localCategories).map((r) => r.id)) ||
      JSON.stringify(stageOrder) !== JSON.stringify(data?.stages.map((s) => s.id).sort((a, b) => (data!.stages.find((s) => s.id === a)!.sort_order) - (data!.stages.find((s) => s.id === b)!.sort_order)) ?? [])
 
-  // Column drag handler
-  const bindColumnDrag = useDrag(({ active: _active, movement: [_mx], down, first, last, target }) => {
-    if (first) {
-      const header = (target as HTMLElement | null)?.closest('[data-stage-id]')
-      if (!header) return
-      const stageId = header.getAttribute('data-stage-id')
-      if (!stageId) return
-      columnDragRef.current = {
-        draggedId: stageId,
-        startOrder: stageOrder,
-      }
-    }
-    if (!down || !columnDragRef.current) return
-    const pointerX = (target as HTMLElement).getBoundingClientRect().left
-    const headers = Array.from(document.querySelectorAll('[data-stage-id]'))
-    const draggedIdx = columnDragRef.current.startOrder.indexOf(columnDragRef.current.draggedId)
-    if (draggedIdx === -1) return
-    let insertIdx = draggedIdx
-    headers.forEach((h, i) => {
-      const rect = h.getBoundingClientRect()
-      const mid = rect.left + rect.width / 2
-      if (pointerX > mid) insertIdx = i
-    })
-    if (insertIdx !== draggedIdx) {
-      const next = [...columnDragRef.current.startOrder]
-      next.splice(draggedIdx, 1)
-      next.splice(insertIdx, 0, columnDragRef.current.draggedId)
-      columnDragRef.current.startOrder = next
-      setStageOrder(next)
-    }
-    if (last) {
-      columnDragRef.current = null
-    }
-  })
+   if (loading) return <Text>Loading journey settings...</Text>
+   if (error || !data) return <Text>{error?.message ?? 'Unable to load journey settings.'}</Text>
 
-  if (loading) return <Text>Loading journey settings...</Text>
-  if (error || !data) return <Text>{error?.message ?? 'Unable to load journey settings.'}</Text>
-
-  // Shared grid column template — every row (header + <Reorder.Item>)
-  // must use the same columns so cells align vertically.
-  const gridColumns = `32px minmax(180px, 1fr) repeat(${orderedStages.length}, minmax(${STAGE_COL_MIN}px, 1fr)) 48px`
+   // Shared grid column template — every row (header + <Reorder.Item>)
+   // must use the same columns so cells align vertically.
+   const gridColumns = `32px minmax(180px, 1fr) repeat(${orderedStages.length}, minmax(${STAGE_COL_MIN}px, 1fr)) 48px`
 
   return (
-    <Card.Root>
-      <Card.Header>
-        <Card.Title>Journey grid</Card.Title>
-      </Card.Header>
-      <Card.Body>
         <Stack gap="4">
           {message && <Text>{message}</Text>}
 
-          {/* Add buttons */}
+          {/* Add buttons — popover with save/cancel */}
           <HStack gap="2" flexWrap="wrap">
-            <Field.Root flex="1" minWidth="160px">
-              <Field.Label>New track</Field.Label>
-              <HStack>
-                <Input value={newTrackName} onChange={(e) => setNewTrackName(e.target.value)} placeholder="Track name" />
-                <Button type="button" onClick={handleAddTrack}>Add</Button>
-              </HStack>
-            </Field.Root>
-            <Field.Root flex="1" minWidth="160px">
-              <Field.Label>New category</Field.Label>
-              <HStack>
-                <Input value={newCategoryName} onChange={(e) => setNewCategoryName(e.target.value)} placeholder="Category name" />
-                <Button type="button" onClick={handleAddCategory}>Add</Button>
-              </HStack>
-            </Field.Root>
-            <Field.Root flex="1" minWidth="160px">
-              <Field.Label>New stage</Field.Label>
-              <HStack>
-                <Input value={newStageLabel} onChange={(e) => setNewStageLabel(e.target.value)} placeholder="Stage label" />
-                <Button type="button" onClick={handleAddStage}>Add</Button>
-              </HStack>
-            </Field.Root>
+            <Popover.Root>
+              <Popover.Trigger asChild>
+                <Button variant="solid">
+                  <HStack gap="1"><PlusIcon size={14} />Track</HStack>
+                </Button>
+              </Popover.Trigger>
+              <Popover.Content style={{ minWidth: '200px' }}>
+                <Field.Root>
+                  <Field.Label>Track name</Field.Label>
+                  <HStack gap="1">
+                    <Input
+                      value={newTrackName}
+                      onChange={(e) => setNewTrackName(e.target.value)}
+                      placeholder="Track name"
+                    />
+                    <IconButton variant="plain" aria-label="Save" onClick={handleAddTrack}>
+                      <CheckIcon size={14} />
+                    </IconButton>
+                    <Popover.CloseTrigger asChild>
+                      <IconButton variant="plain" aria-label="Cancel" onClick={() => { setNewTrackName(''); }}>
+                        <XIcon size={14} />
+                      </IconButton>
+                    </Popover.CloseTrigger>
+                  </HStack>
+                </Field.Root>
+              </Popover.Content>
+            </Popover.Root>
+
+            <Popover.Root>
+              <Popover.Trigger asChild>
+                <Button variant="solid">
+                  <HStack gap="1"><PlusIcon size={14} />Category</HStack>
+                </Button>
+              </Popover.Trigger>
+              <Popover.Content style={{ minWidth: '200px' }}>
+                <Field.Root>
+                  <Field.Label>Category name</Field.Label>
+                  <HStack gap="1">
+                    <Input
+                      value={newCategoryName}
+                      onChange={(e) => setNewCategoryName(e.target.value)}
+                      placeholder="Category name"
+                    />
+                    <IconButton variant="plain" aria-label="Save" onClick={handleAddCategory}>
+                      <CheckIcon size={14} />
+                    </IconButton>
+                    <Popover.CloseTrigger asChild>
+                      <IconButton variant="plain" aria-label="Cancel" onClick={() => { setNewCategoryName(''); }}>
+                        <XIcon size={14} />
+                      </IconButton>
+                    </Popover.CloseTrigger>
+                  </HStack>
+                </Field.Root>
+              </Popover.Content>
+            </Popover.Root>
+
+            <Popover.Root>
+              <Popover.Trigger asChild>
+                <Button variant="solid">
+                  <HStack gap="1"><PlusIcon size={14} />Stage</HStack>
+                </Button>
+              </Popover.Trigger>
+              <Popover.Content style={{ minWidth: '200px' }}>
+                <Field.Root>
+                  <Field.Label>Stage label</Field.Label>
+                  <HStack gap="1">
+                    <Input
+                      value={newStageLabel}
+                      onChange={(e) => setNewStageLabel(e.target.value)}
+                      placeholder="Stage label"
+                    />
+                    <IconButton variant="plain" aria-label="Save" onClick={handleAddStage}>
+                      <CheckIcon size={14} />
+                    </IconButton>
+                    <Popover.CloseTrigger asChild>
+                      <IconButton variant="plain" aria-label="Cancel" onClick={() => { setNewStageLabel(''); }}>
+                        <XIcon size={14} />
+                      </IconButton>
+                    </Popover.CloseTrigger>
+                  </HStack>
+                </Field.Root>
+              </Popover.Content>
+            </Popover.Root>
           </HStack>
 
-          {/* Grid */}
-          <div style={{ overflowX: 'auto' }}>
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: gridColumns,
-                gap: STAGE_COL_GAP,
-                alignItems: 'center',
-                minWidth: 'max-content',
-              }}
-            >
-              {/* Header row */}
-              <div />
-              <div style={{ fontWeight: 600 }}>Track / Category</div>
-              {orderedStages.map((stage) => (
+{/* Grid */}
+           <div style={{ overflowX: 'auto' }}>
+              <div
+                style={{
+                   display: 'grid',
+                   gridTemplateColumns: gridColumns,
+                   gap: STAGE_COL_GAP,
+                   alignItems: 'center',
+                   width: '100%',
+                 }}
+              >
+                {/* Header row */}
+                <div />
+                <div style={headingCellStyle}>Track / Category</div>
                 <div
-                  key={stage.id}
-                  data-stage-id={stage.id}
                   style={{
-                    fontWeight: 600,
-                    textAlign: 'center',
-                    cursor: 'grab',
-                    userSelect: 'none',
-                    touchAction: 'none',
-                    padding: '8px 4px',
-                    borderBottom: '2px solid var(--color-border, #e5e7eb)',
+                    display: 'flex',
+                    flexDirection: 'row',
+                    gap: STAGE_COL_GAP,
+                    gridColumn: '3 / -2',
+                    alignItems: 'center',
                   }}
-                  {...bindColumnDrag()}
                 >
-                  <HStack gap="1" justifyContent="center">
-                    {editingStageId === stage.id ? (
-                      <>
-                        <Input
-                          size="xs"
-                          value={editSlug}
-                          onChange={(e) => setEditSlug(e.target.value)}
-                          placeholder="slug"
-                          style={{ width: 'auto', minWidth: '80px' }}
-                        />
-                        <Input
-                          size="xs"
-                          value={editLabel}
-                          onChange={(e) => setEditLabel(e.target.value)}
-                          placeholder="Label"
-                          style={{ width: 'auto', minWidth: '80px' }}
-                        />
-                        <Button size="xs" variant="plain" onClick={() => handleSaveEditStage(stage.id)}>Save</Button>
-                        <Button size="xs" variant="plain" onClick={() => setEditingStageId(null)}>Cancel</Button>
-                      </>
-                    ) : (
-                      <>
-                        <span>{stage.label || stage.slug}</span>
-                        <Button size="xs" variant="plain" onClick={() => handleEditStage(stage)}>Edit</Button>
-                        <Button size="xs" variant="plain" onClick={() => handleDeleteStage(stage.id)}>×</Button>
-                      </>
-                    )}
-                  </HStack>
+                  {orderedStages.map((stage) => (
+                        <div
+                        key={stage.id}
+                        style={{
+                          flex: '1 1 0',
+                          minWidth: STAGE_COL_MIN,
+                          textAlign: 'center',
+                          ...headingCellStyle,
+                        }}
+                      >
+                      <HStack gap="1" justifyContent="center" style={{ width: '100%' }}>
+                        {editingStageId === stage.id ? (
+                          <>
+                            <Input
+                              size="xs"
+                              value={editLabel}
+                              onChange={(e) => setEditLabel(e.target.value)}
+                              placeholder="Label"
+                            />
+                            <IconButton size="xs" variant="plain" aria-label="Save stage" onClick={() => handleSaveEditStage(stage.id)}>
+                              <CheckIcon />
+                            </IconButton>
+                            <IconButton size="xs" variant="plain" aria-label="Cancel edit" onClick={() => setEditingStageId(null)}>
+                              <XIcon />
+                            </IconButton>
+                          </>
+                        ) : (
+                          <>
+                             <span style={{ userSelect: 'none', padding: '4px 8px' }}>{stage.label || stage.slug}</span>
+                             <IconButton 
+                               size="xs" variant="plain" aria-label="Edit stage" 
+                               onClick={() => handleEditStage(stage)}>
+                               <PencilIcon size="xs" />
+                             </IconButton>
+                             <IconButton
+                               size="xs"
+                               variant="plain"
+                               aria-label="Delete stage"
+                               onClick={() => handleDeleteStage(stage.id)}
+                               colorPalette="red"
+                             >
+                               <TrashIcon />
+                             </IconButton>
+                           </>
+                         )}
+                       </HStack>
+                    </div>
+                  ))}
                 </div>
-              ))}
-              <div /> {/* header placeholder for actions column */}
+                <div /> {/* header placeholder for actions column */}
 
               {/* Rows */}
-              <Reorder.Root
-                values={rowOrder}
-                onReorder={setRowOrder}
-                style={{ gridColumn: '1 / -1', display: 'flex', flexDirection: 'column' }}
-              >
-                {rows.map((row) => {
-                  if (row.type === 'category') {
+                <div style={{ gridColumn: '1 / -1', display: 'flex', flexDirection: 'column' }}>
+{rows.map((row) => {
+                    if (row.type === 'category') {
+                      return (
+                        <div
+                          key={row.id}
+                          style={{
+                            ...headingCellStyle,
+                            display: 'grid',
+                            gridTemplateColumns: gridColumns,
+                            gap: STAGE_COL_GAP,
+                            alignItems: 'center',
+                            borderTop: '2px solid var(--colors-border)',
+                            color: 'var(--colors-fg-muted)',
+                            ...getDropIndicator(row.id, true),
+                          }}
+                        >
+                          <div style={{ gridColumn: '2 / -1' }}>
+                            <span style={{ color: 'var(--colors-color-palette-a8)', fontSize: '2xl', fontFamily: 'ui-monospace', marginRight: '4px', opacity: 0.6 }} suppressContentEditableWarning>{row.connector}</span>
+                            {row.label}
+                          </div>
+                        </div>
+                      )
+                    }
+                    const trackId = row.id.slice('track:'.length)
+                    const track = localTracks.find((t) => t.id === trackId)!
                     return (
-                      <Reorder.Item
+                      <div
                         key={row.id}
-                        value={row.id}
                         style={{
                           display: 'grid',
                           gridTemplateColumns: gridColumns,
                           gap: STAGE_COL_GAP,
                           alignItems: 'center',
-                          fontWeight: 600,
-                          borderTop: '2px solid var(--color-border, #e5e7eb)',
-                          color: '#6b7280',
+                          ...getDropIndicator(row.id, false),
                         }}
                       >
-                        <div style={{ padding: '8px 4px 0' }} />
-                        <div style={{ gridColumn: '2 / -1' }}>{row.label}</div>
-                      </Reorder.Item>
-                    )
-                  }
-                  const trackId = row.id.slice('track:'.length)
-                  const track = localTracks.find((t) => t.id === trackId)!
-                  return (
-                    <Reorder.Item
-                      key={row.id}
-                      value={row.id}
-                      style={{
-                        display: 'grid',
-                        gridTemplateColumns: gridColumns,
-                        gap: STAGE_COL_GAP,
-                        alignItems: 'center',
-                      }}
-                    >
-                      <Reorder.Handle style={{ cursor: 'grab', padding: '4px' }} />
-                      <div style={{ padding: '4px' }}>{track.name}</div>
-                      {orderedStages.map((stage) => (
-                        <div key={stage.id} style={{ textAlign: 'center', padding: '4px' }}>
-                          {stageMap.get(stage.id)?.label || stage.slug}
+                        <div style={{ }}>
+                          <span style={{ color: 'var(--colors-color-palette-a8)', fontSize: '2xl', fontFamily: 'ui-monospace', marginRight: '4px', opacity: 0.6 }} suppressContentEditableWarning>{row.connector}</span>
+                          {track.name}
                         </div>
-                      ))}
-                      <div style={{ justifyContent: 'flex-end' }}>
-                        <Button size="xs" variant="plain" onClick={() => handleDeleteTrack(track.id)}>Delete</Button>
+                        {orderedStages.map((stage) => (
+                          <div key={stage.id} style={{ textAlign: 'center', padding: '4px' }}>
+                            {stageMap.get(stage.id)?.label || stage.slug}
+                          </div>
+                        ))}
+                        <div style={{ justifyContent: 'flex-end' }}>
+                          <IconButton
+                            size="xs"
+                            variant="plain"
+                            aria-label="Delete track"
+                            onClick={() => handleDeleteTrack(track.id)}
+                            colorPalette="red"
+                          >
+                            <TrashIcon />
+                          </IconButton>
+                        </div>
                       </div>
-                    </Reorder.Item>
-                  )
-                })}
-              </Reorder.Root>
+                    )
+                  })}
+              </div>
             </div>
           </div>
 
@@ -421,7 +486,5 @@ export function JourneySettingsManager() {
             <Button onClick={handleSave} disabled={!isDirty}>Save</Button>
           </HStack>
         </Stack>
-      </Card.Body>
-    </Card.Root>
   )
 }

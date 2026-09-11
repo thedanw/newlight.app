@@ -1,11 +1,10 @@
 'use client'
-import { Heading, Text, Input, Button, Badge, Card, Combobox, NumberInput, Reorder } from '@/core/ui'
+import { Heading, Text, Input, Button, Badge, Card, Combobox, NumberInput } from '@/core/ui'
 import { usePluginAPIContext } from '@/core/plugins/PluginAPI'
-import { useState, useEffect, useMemo, type ReactNode } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { HStack, Stack } from 'styled-system/jsx'
 import { createListCollection } from '@ark-ui/react'
 import { CheckIcon } from 'lucide-react'
-import { useOrderedCollection } from '@/core/lib'
 import { DirectionSelect } from './DirectionSelect'
 
 interface MappingRule {
@@ -115,37 +114,12 @@ function uniqueFields(names: string[]): string[] {
 }
 
 export function FieldMappingTable({ disabled = false, dynamicFieldOptions = [] }: FieldMappingTableProps) {
-  const { settings, toast, reorder } = usePluginAPIContext()
+  const { settings, toast } = usePluginAPIContext()
   const [mappings, setMappings] = useState<MappingRule[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [appFields] = useState<string[]>(APP_FIELDS)
   const [elvantoFields, setElvantoFields] = useState<string[]>(ELVANTO_FIELDS)
-
-  // Stable id list (memoized) so `useOrderedCollection` syncs from state.
-  const mappingIds = useMemo(() => mappings.map((rule) => rule.id), [mappings])
-
-  const mappingsCollection = useOrderedCollection({
-    definition: { collectionId: 'elvanto:field-mappings', table: 'elvanto_sync_config' },
-    initialItems: mappingIds,
-    persist: (ids) => {
-      const byId = new Map(mappings.map((rule) => [rule.id, rule]))
-      const reordered = ids
-        .map((id) => byId.get(id))
-        .filter((rule): rule is MappingRule => Boolean(rule))
-        // Drag order = priority order: top row gets the highest priority.
-        .map((rule, index) => ({ ...rule, priority: (ids.length - index) * 10 }))
-      return settings.setConfig('field_mappings', reordered).then(() => true).catch(() => false)
-    },
-  })
-
-  useEffect(() => {
-    reorder.register({
-      id: 'elvanto:field-mappings',
-      definition: { collectionId: 'elvanto:field-mappings', table: 'elvanto_sync_config' },
-      label: 'Field mappings',
-    })
-  }, [reorder])
 
   useEffect(() => {
     if (dynamicFieldOptions.length > 0) {
@@ -179,7 +153,8 @@ export function FieldMappingTable({ disabled = false, dynamicFieldOptions = [] }
   const saveMappings = async () => {
     setSaving(true)
     try {
-      const ok = await mappingsCollection.save()
+      const reordered = mappings.map((rule, index) => ({ ...rule, priority: (mappings.length - index) * 10 }))
+      const ok = await settings.setConfig('field_mappings', reordered).then(() => true).catch(() => false)
       if (ok) toast.success('Field mappings saved')
       else toast.error('Failed to save field mappings')
     } catch (err) {
@@ -205,15 +180,6 @@ export function FieldMappingTable({ disabled = false, dynamicFieldOptions = [] }
   const duplicateMapping = (index: number) => {
     const duplicated = { ...mappings[index], id: crypto.randomUUID(), priority: mappings[index].priority - 1 }
     setMappings([...mappings.slice(0, index + 1), duplicated, ...mappings.slice(index + 1)])
-  }
-
-  const reorderMappings = (next: string[]) => {
-    const byId = new Map(mappings.map((rule) => [rule.id, rule]))
-    const reordered = next
-      .map((id) => byId.get(id))
-      .filter((rule): rule is MappingRule => Boolean(rule))
-    setMappings(reordered)
-    mappingsCollection.reorder(next)
   }
 
   if (loading) {
@@ -259,10 +225,9 @@ export function FieldMappingTable({ disabled = false, dynamicFieldOptions = [] }
             </Stack>
           ) : (
             <Stack gap="3">
-              <Reorder.Root values={mappingsCollection.items} onReorder={reorderMappings}>
                 {mappings.map((rule, index) => (
-                  <Reorder.Item key={rule.id} value={rule.id}>
                     <MappingRuleCard
+                      key={rule.id}
                       rule={rule}
                       index={index}
                       appFields={appFields}
@@ -271,11 +236,8 @@ export function FieldMappingTable({ disabled = false, dynamicFieldOptions = [] }
                       onUpdate={updateMapping}
                       onDelete={deleteMapping}
                       onDuplicate={duplicateMapping}
-                      handle={<Reorder.Handle />}
                     />
-                  </Reorder.Item>
                 ))}
-              </Reorder.Root>
             </Stack>
           )}
         </Card.Body>
@@ -299,10 +261,9 @@ interface MappingRuleCardProps {
   onUpdate: (index: number, updates: Partial<MappingRule>) => void
   onDelete: (index: number) => void
   onDuplicate: (index: number) => void
-  handle: ReactNode
 }
 
-function MappingRuleCard({ rule, index, appFields, elvantoFields, dynamicElvantoFieldOptions, onUpdate, onDelete, onDuplicate, handle }: MappingRuleCardProps) {
+function MappingRuleCard({ rule, index, appFields, elvantoFields, dynamicElvantoFieldOptions, onUpdate, onDelete, onDuplicate }: MappingRuleCardProps) {
   const [expanded, setExpanded] = useState(false)
 
   const appFieldCollection = useMemo(() => createListCollection({
@@ -344,7 +305,6 @@ function MappingRuleCard({ rule, index, appFields, elvantoFields, dynamicElvanto
   return (
     <Stack gap="3">
       <HStack gap="3" alignItems="center" flexWrap="wrap" css={{ borderBottomWidth: '1px', borderColor: 'border', pb: '3' }}>
-        {handle}
         <Stack gap="1" flex="1" minWidth="0">
           <Text textStyle="sm" color="fg.muted">Elvanto Field</Text>
           <Combobox.Root size="sm" collection={elvantoFieldCollection} value={elvantoFieldValue} onValueChange={(details) => onUpdate(index, { elvantoField: details.value[0] || '' })}>

@@ -63,24 +63,22 @@ export const PluginNavItemSchema = z.object({
 
 export type PluginNavItem = z.infer<typeof PluginNavItemSchema>
 
-// Ordered collection a plugin can declare (drives the core reorder API)
-export const PluginOrderedCollectionDefinitionSchema = z.object({
-  collectionId: z.string(),
-  table: z.string(),
-  orderColumn: z.string().optional(),
-  scope: z.record(z.string(), z.unknown()).optional(),
-  primaryKey: z.string().optional(),
-})
-
-export type PluginOrderedCollectionDefinition = z.infer<typeof PluginOrderedCollectionDefinitionSchema>
-
-export const PluginOrderedCollectionSchema = z.object({
+// Drag-and-drop collection a plugin can register
+// Items may be declared statically in the manifest or registered at runtime
+// via `api.dragndrop.register()`.
+export const PluginDndCollectionSchema = z.object({
   id: z.string(),
-  definition: PluginOrderedCollectionDefinitionSchema,
-  label: z.string().optional(),
+  label: z.string(),
+  items: z.array(z.object({
+    id: z.string(),
+    label: z.string(),
+    data: z.record(z.string(), z.unknown()).optional(),
+    disabled: z.boolean().optional(),
+  })).optional(),
+  isActive: z.boolean().optional(),
 })
 
-export type PluginOrderedCollection = z.infer<typeof PluginOrderedCollectionSchema>
+export type PluginDndCollection = z.infer<typeof PluginDndCollectionSchema>
 
 // Hooks that a plugin can implement
 export const PluginHooksSchema = z.object({
@@ -107,7 +105,7 @@ export const PluginManifestSchema = z.object({
   }).optional(),
   dashboardWidgets: z.array(PluginDashboardWidgetSchema).optional(),
   navItems: z.array(PluginNavItemSchema).optional(),
-  orderedCollections: z.array(PluginOrderedCollectionSchema).optional(),
+  dndCollections: z.array(PluginDndCollectionSchema).optional(),
   hooks: PluginHooksSchema.optional(),
   permissions: z.array(PluginPermissionSchema),
 })

@@ -1,13 +1,12 @@
 import { useEffect, useState, useMemo, type CSSProperties } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { Button, Card, Checkbox, Field, Heading, Input, Page, Reorder, Select, Switch, Text, Textarea, useRegisterPageActions } from '@/core/ui'
-import { Stack } from 'styled-system/jsx'
+import { Button, Card, Checkbox, Field, Heading, Input, Page, Select, Switch, Text, Textarea, useRegisterPageActions } from '@/core/ui'
+import { Box, Stack } from 'styled-system/jsx'
 import { Users } from 'lucide-react'
 import { createListCollection } from '@ark-ui/react'
 import { createForm, getFormById, MAPPABLE_PERSON_FIELDS, updateForm } from '../lib/form-queries'
 import { getTags } from '../lib/queries'
 import { PageSkeleton } from '../components/PageSkeleton'
-import { useOrderedCollection } from '@/core/lib'
 import type { FormDraft, FormFieldDraft } from '../lib/form-queries'
 import type { FormFieldOption, FormFieldType, FormSubmitAction, Tag } from '../lib/types'
 
@@ -60,24 +59,8 @@ export default function FormBuilderPage() {
     items: [{ label: 'Select a tag', value: '' }, ...tags.map((tag) => ({ label: tag.name, value: tag.id }))]
   }), [tags])
 
-  // Stable id list (memoized) so `useOrderedCollection` syncs from the draft.
+  // Stable id list (memoized)
   const fieldIds = useMemo(() => draft.fields.map((field) => field.id), [draft.fields])
-
-  const fieldsCollection = useOrderedCollection({
-    definition: { collectionId: 'forms:fields', table: 'form_fields' },
-    initialItems: fieldIds,
-    persist: (ids) => {
-      setDraft((current) => {
-        const byId = new Map(current.fields.map((field) => [field.id, field]))
-        const fields = ids
-          .map((fieldId) => byId.get(fieldId))
-          .filter((field): field is FormFieldDraft => Boolean(field))
-          .map((field, index) => ({ ...field, sort_order: index }))
-        return { ...current, fields }
-      })
-      return Promise.resolve(true)
-    },
-  })
 
   useEffect(() => {
     getTags().then(setTags).catch(() => undefined)
@@ -132,7 +115,7 @@ export default function FormBuilderPage() {
     cancel: () => navigate('/people/forms'),
     apply: save,
     isSaving: saving,
-    isDirty: fieldsCollection.isDirty,
+    isDirty: true,
     applyLabel: 'Save form',
   })
 
@@ -153,8 +136,14 @@ export default function FormBuilderPage() {
   }
 
   const reorderFields = (next: string[]) => {
-    fieldsCollection.reorder(next)
-    void fieldsCollection.save(next)
+    setDraft((current) => {
+      const byId = new Map(current.fields.map((field) => [field.id, field]))
+      const fields = next
+        .map((fieldId) => byId.get(fieldId))
+        .filter((field): field is FormFieldDraft => Boolean(field))
+        .map((field, index) => ({ ...field, sort_order: index }))
+      return { ...current, fields }
+    })
   }
 
   const moveField = (index: number, direction: -1 | 1) => {
@@ -259,10 +248,8 @@ export default function FormBuilderPage() {
           <Card.Body>
             <Stack gap="6">
               {draft.fields.length === 0 && <Text color="fg.muted">No fields yet. Add one below.</Text>}
-              <Reorder.Root values={fieldIds} onReorder={reorderFields}>
               {draft.fields.map((field, index) => (
-                <Reorder.Item key={field.id} value={field.id}>
-                  <Reorder.Handle />
+                  <Box key={field.id}>
                   <Stack flex="1" gap="4">
                   <Heading textStyle="md">Field {index + 1}</Heading>
                   <Field.Root>
@@ -332,9 +319,8 @@ export default function FormBuilderPage() {
                     <Button variant="outline" onClick={() => setDraft((current) => ({ ...current, fields: current.fields.filter((item) => item.id !== field.id) }))}>Remove</Button>
                   </Stack>
                   </Stack>
-                </Reorder.Item>
+                  </Box>
               ))}
-              </Reorder.Root>
             </Stack>
           </Card.Body>
           <Card.Footer>

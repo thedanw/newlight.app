@@ -1,0 +1,66 @@
+# Decision Log: @dnd-kit Core Utility
+
+Implementation decisions and lessons learned, captured 2026-09-11.
+
+## Key Decisions
+
+| # | Decision | Rationale | Impact |
+|---|----------|-----------|--------|
+| 1 | Use `@dnd-kit` v2 over framer-motion Reorder | Superior keyboard a11y, tree support, sensor abstraction | Required learning v2 API (significant differences from v1) |
+| 2 | Core utility in `src/core/dragndrop/` | Single source of truth, tree-shakeable, plugin-consumable | Semantic namespace `Dragndrop` exported from `@/core/ui` |
+| 3 | Flatten tree to single SortableContext | Nested SortableContext causes collision detection conflicts | flattenTree + reorderTree utilities handle the transformation |
+| 4 | CSS keyframe animations only | Ark UI portals break in AnimatePresence under React 19 | DragOverlay drop animation set to null; CSS keyframes in index.css |
+| 5 | Handle-only drag by default | Mobile-first: prevents scroll interference, 44px touch target | All draggable components use handleRef pattern |
+| 6 | Export `Dragndrop` namespace from `@/core/ui` | Consistency with Park UI pattern — modules import from `@/core/ui` | `import { Dragndrop } from '@/core/ui'` |
+| 7 | v2 API is ref-based, not v1 attributes/listeners | `useSortable` returns refs + state flags; no `attributes`/`listeners` | All hooks and components rewritten for v2 |
+| 8 | `useDragDropMonitor` for drag-end wiring | Cleanest way to subscribe to lifecycle events from any component | Used in `useSortableTree` and `DragStatusAnnouncer` |
+| 9 | Unique `useId()` group per SortableTree | Prevents cross-tree reordering when multiple trees share a provider | Each SortableTree gets an isolated sortable group |
+
+## Lessons Learned
+
+### Sensor Configuration
+- **v2 PointerSensor handles mouse + touch + pen** — no separate TouchSensor in v2. Configure via `PointerSensor.configure({ activationConstraints })` with per-pointer-type branching.
+- **Touch needs 250ms long-press delay** (not distance) to coexist with scroll. Mouse uses 8px distance.
+- **KeyboardSensor auto-registered** — `keyboardCodes` config replaces v1's `coordinateGetter`.
+
+### Tree Flattening
+- **Move-between-branches is the trickiest case** — item must be removed from source parent's children AND re-inserted at target's position. Insert as sibling when target has a parent; insert as child of target when target is root.
+- **Descendant detection must check both directions** — can't move a node into its own descendant.
+- **TypeScript closure-CFA bug** — a `let` variable assigned only inside a nested function gets narrowed to `never` after the closure call. Fix: return values instead of mutating captured `let`s.
+
+### CSS Keyframes
+- **Direct-manipulation drag tracking must NEVER be gated on reduced motion** — only release animation suppressed.
+- **`touch-action: none` on handle only** — not on the whole item, to preserve scroll on non-drag areas.
+- **Panda CSS `css()` is build-time-only** — inline styles required for `transition: none` under `@media (prefers-reduced-motion)`.
+
+### Plugin API Integration
+- **Plugin API shape is `{ supabase, settings, router, toast, i18n, pluginName, pluginVersion }`** — `dragndrop` API slots in alongside existing properties.
+- **Manifest schema uses Zod v4** — `z.record(z.string(), z.unknown())` requires key schema (v4 breaking change).
+
+### Testing
+- **`npx tsc --noEmit` on root tsconfig is a FALSE POSITIVE** — root `tsconfig.json` has `files: []` (solution-style). The real gate is `tsc -b`.
+- **vitest and Vite don't typecheck** — tests passing ≠ types correct. Must run `tsc -b` separately.
+- **Browser-level drag testing is unreliable** — dnd-kit v2 PointerSensor doesn't activate with synthetic PointerEvents dispatched via `page.evaluate`. KeyboardSensor is more testable but also has limitations under automation.
+- **Synthetic pointer events DO start drags** (via `dispatchEvent(new PointerEvent(...))`), but collision detection doesn't reliably find the drop target under automation.
+
+### Accessibility
+- **Drag handles must be `<button>`** (not `<div>`) for keyboard focusability.
+- **44px touch targets** on all interactive drag elements (minimum for WCAG 2.5.8).
+- **`aria-live="polite"` region** for drag state announcements — auto-clear after 3s to avoid stale text.
+
+## Deviations from Plan
+
+| # | Deviation | Reason |
+|---|-----------|--------|
+| 1 | Did NOT add explicit `/example/category/drag-drop` route | Existing generic `category/:categoryId` route already serves this URL |
+| 2 | Consolidated sensor files into single `sensors/index.ts` | v2 API doesn't need separate sensor files — configuration is inline |
+| 3 | Used `useDragDropMonitor` in `useSortableTree` instead of passing `onDragEnd` through the component tree | More reliable wiring to dnd-kit lifecycle events; avoids N subscriptions when moved to SortableTree level |
+| 4 | `DraggableItem` compound component uses `ForwardRefExoticComponent` intersection type | TypeScript couldn't see `.Handle`/`.Preview` sub-components on the compound component |
+| 5 | `reorderTree` operates on nested tree directly (not flat array) | Simplifies the API — callers don't need to flatten before reordering |
+
+## Performance Observations
+
+- **Build time:** ~8-9s (Vite 7.3.6), no significant regression
+- **Bundle size:** `index-D7YHFASV.js` at 1,753 kB (gzipped 508 kB) — pre-existing chunk-size warning, not caused by dnd-kit
+- **Test suite:** 250 tests in ~17s (vitest 4.1.11), 26 test files
+- **dnd-kit tree shaking:** `@dnd-kit/react` tree-shakes well — only used modules included in bundle

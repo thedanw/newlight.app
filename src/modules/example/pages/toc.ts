@@ -1,5 +1,6 @@
 import {
   BellRing,
+  GripVertical,
   Layers,
   LayoutGrid,
   Monitor,
@@ -39,6 +40,7 @@ export type TocCategoryId =
   | 'feedback'
   | 'overlays'
   | 'display'
+  | 'drag-drop'
 
 export type TocCategory = {
   id: TocCategoryId
@@ -128,7 +130,6 @@ export const tocCategories: TocCategory[] = [
       { name: 'NumberInput', description: 'Stepper numeric input.', group: 'Advanced & composite', shipped: true },
       { name: 'PinInput', description: 'Code/OTP digit input.', group: 'Advanced & composite', shipped: true },
       { name: 'RatingGroup', description: 'Star rating input.', group: 'Advanced & composite', shipped: true },
-      { name: 'Reorder', description: 'Handle-only drag-to-reorder list.', group: 'Advanced & composite', shipped: true },
       { name: 'Select', description: 'Dropdown selector.', group: 'Advanced & composite', shipped: true },
       { name: 'TagsInput', description: 'Chip/tag multi-input.', group: 'Advanced & composite', shipped: true },
     ],
@@ -170,6 +171,15 @@ export const tocCategories: TocCategory[] = [
       { name: 'Avatar', description: 'User avatar / initials.', shipped: true },
       { name: 'Badge', description: 'Status / label chip.', shipped: true },
       { name: 'Icon', description: 'Icon wrapper for SVG icons.', shipped: true },
+    ],
+  },
+  {
+    id: 'drag-drop',
+    name: 'Drag & Drop',
+    icon: GripVertical,
+    description: 'Sortable lists, trees and hierarchical reordering.',
+    components: [
+      { name: 'SortableTree', description: 'Hierarchical tree with drag reorder.', shipped: true },
     ],
   },
 ]

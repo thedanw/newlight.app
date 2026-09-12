@@ -4,10 +4,10 @@ import { Button, Card, Checkbox, Field, Heading, Input, Page, Select, Switch, Te
 import { Box, Stack } from 'styled-system/jsx'
 import { Users } from 'lucide-react'
 import { createListCollection } from '@ark-ui/react'
-import { createForm, getFormById, MAPPABLE_PERSON_FIELDS, updateForm } from '../lib/form-queries'
-import { getTags } from '../lib/queries'
-import { PageSkeleton } from '../components/PageSkeleton'
-import type { FormDraft, FormFieldDraft } from '../lib/form-queries'
+import { createForm, getFormById, MAPPABLE_PERSON_FIELDS, updateForm } from '../lib/queries'
+import { getTags } from '../../../people/lib/queries'
+import { PageSkeleton } from '../../../people/components/PageSkeleton'
+import type { FormDraft, FormFieldDraft } from '../lib/queries'
 import type { FormFieldOption, FormFieldType, FormSubmitAction, Tag } from '../lib/types'
 
 const FIELD_TYPES: FormFieldType[] = ['text', 'email', 'phone', 'number', 'select', 'multi_select', 'checkbox', 'textarea', 'date', 'title', 'radio', 'scale', 'nps', 'column_container']

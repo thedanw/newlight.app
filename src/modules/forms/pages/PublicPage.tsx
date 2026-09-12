@@ -4,8 +4,8 @@ import { useParams } from 'react-router-dom'
 import { Button, Card, Field, Heading, Input, Page, Text, Textarea } from '@/core/ui'
 import { Stack } from 'styled-system/jsx'
 import { FileText } from 'lucide-react'
-import { getFormById, submitForm } from '../lib/form-queries'
-import { PageSkeleton } from '../components/PageSkeleton'
+import { getFormById, submitForm } from '../lib/queries'
+import { PageSkeleton } from '../../../people/components/PageSkeleton'
 import type { FormWithFields } from '../lib/types'
 
 export default function FormPublicPage() {

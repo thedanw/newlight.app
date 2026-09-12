@@ -15,9 +15,9 @@ const PersonProfilePage = lazy(() => import('./pages/PersonProfilePage'))
 const HouseholdPage = lazy(() => import('./pages/HouseholdPage'))
 const JourneyGridPage = lazy(() => import('./pages/JourneyGridPage'))
 const TagsPage = lazy(() => import('./pages/TagsPage'))
-const FormsListPage = lazy(() => import('./pages/FormsListPage'))
-const FormBuilderPage = lazy(() => import('./pages/FormBuilderPage'))
-const FormSubmissionsPage = lazy(() => import('./pages/FormSubmissionsPage'))
+const FormsListPage = lazy(() => import('@/modules/forms/pages/ListPage'))
+const FormBuilderPage = lazy(() => import('@/modules/forms/pages/BuilderPage'))
+const FormSubmissionsPage = lazy(() => import('@/modules/forms/pages/SubmissionsPage'))
 
 function PeopleLayout() {
   return (

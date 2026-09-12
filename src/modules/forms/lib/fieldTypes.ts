@@ -1,5 +1,5 @@
-import type { FormFieldDraft } from '@/modules/people/lib/form-queries'
-import type { FormFieldType } from '@/modules/people/lib/types'
+import type { FormFieldDraft } from './queries'
+import type { FormFieldType } from './types'
 
 export interface FormFieldSpec {
   type: FormFieldType

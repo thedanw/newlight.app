@@ -216,7 +216,7 @@ for (const file of ROOTS.flatMap((r) => walk(r))) {
   // child component like PersonForm, which registers its own actions).
   const FORM_PAGE_ALLOWLIST = [
     'src/core/auth/LoginPage.tsx',
-    'src/modules/people/pages/FormPublicPage.tsx',
+    'src/modules/forms/pages/PublicPage.tsx',
   ]
   const hasForm = /<form\b/.test(stripped)
   if (isRoutedPage && hasForm && !/use(?:Register)?PageActions/.test(stripped)) {

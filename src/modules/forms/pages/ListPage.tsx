@@ -4,8 +4,8 @@ import { useNavigate } from 'react-router-dom'
 import { Badge, Button, Card, Page, Table, Text } from '@/core/ui'
 import { Stack } from 'styled-system/jsx'
 import { Users } from 'lucide-react'
-import { deleteForm, getFormSubmissionCounts, getForms } from '../lib/form-queries'
-import { PageSkeleton } from '../components/PageSkeleton'
+import { deleteForm, getFormSubmissionCounts, getForms } from '../lib/queries'
+import { PageSkeleton } from '../../../people/components/PageSkeleton'
 import type { Form } from '../lib/types'
 
 export default function FormsListPage() {

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { formFieldDraftSchema } from '../schema'
 import { createDefaultField, getAllFieldTypes, getFieldSpec } from '../fieldTypes'
-import type { FormFieldType } from '@/modules/people/lib/types'
+import type { FormFieldType } from '../types'
 
 const EXPECTED_TYPES: FormFieldType[] = [
   'title', 'text', 'email', 'phone', 'number', 'textarea', 'date',

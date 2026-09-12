@@ -6,7 +6,7 @@ import { exampleRoutes } from '@/modules/example/routes'
 import { peopleRoutes } from '@/modules/people/routes'
 import { coreRoutes } from '@/core/routes'
 
-const FormPublicPage = lazy(() => import('@/modules/people/pages/FormPublicPage'))
+const FormPublicPage = lazy(() => import('@/modules/forms/pages/PublicPage'))
 const LoginPage = lazy(() => import('@/core/auth/LoginPage'))
 const AccountPage = lazy(() => import('@/core/auth/AccountPage'))
 

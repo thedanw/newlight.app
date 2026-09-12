@@ -271,12 +271,14 @@ See `.agents/skills/boss/code-plan/03_optimise-planning/refs/PARTITIONING.md`
 #### Subphase 3.1: Component
 **Context:** Header stage columns are a flex row (`flex: 1 1 0; minWidth: STAGE_COL_MIN`); need horizontal reorder; `SortableList` is vertical + double-registers.
 **Todo:**
-- [ ] Write failing test: renders columns, reorder via mocked handlers, preserves flex layout
-- [ ] Implement `SortableStageColumns.tsx` — own `DragDropProvider` + `DragOverlay dropAnimation={null}`, `useSortable` per column, `move()` on drag end
-- [ ] Refactor: extract `StageColumn` sub-component
+- [x] Write failing test: renders columns, reorder via mocked handlers, preserves flex layout
+- [x] Implement `SortableStageColumns.tsx` — own `DragDropProvider` + `DragOverlay dropAnimation={null}`, `useSortable` per column, `move()` on drag end
+- [x] Refactor: extract `StageColumn` sub-component
 **Subagent:** No
 **Deliverable:** Passing SortableStageColumns tests
 **Commit:** `feat(people): horizontal sortable stage columns`
+
+> **Batch 3 DONE (commit `412631a`)** — `SortableStageColumns.tsx` (own DragDropProvider, useSortable per column, move() on drag end, `flex: 1 1 0; minWidth` preserved, `renderColumn` render prop with handle helpers); 5 tests pass; full suite 304/304; `tsc -b` clean.
 
 ## Batch 3 Compaction
 - If context > 70%: compact before next batch — never exceed 80%

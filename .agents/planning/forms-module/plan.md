@@ -127,8 +127,18 @@ Keeps existing CRUD query logic, page scaffolding, and field editing patterns �
 - [ ] Register in `src/core/router.tsx`: `{ path: 'forms', children: formsRoutes }`.
 - [ ] Legacy redirects in `peopleRoutes`: `/people/forms/*` → `/forms/*` via `<Navigate replace>`.
 - [ ] Verify: `tsc`, forms tests, `pnpm build` (new route chunk resolves).
-- [ ] Commit: `feat(forms): standalone module shell + routes + legacy redirects (R4)`.
-- [ ] End gate: `src/modules/people/form-builder/` GONE; people `Form*.{ts,tsx}` GONE; zero forms paths outside `src/modules/forms/`, migration, planning.
+- [x] Commit: ba86609 `feat(forms): module shell + redirects (batch R4)` — module #2, /forms route, legacy redirects
+- [x] End gate: `src/modules/people/form-builder/` GONE; people `Form*.{ts,tsx}` GONE; zero forms paths outside `src/modules/forms/`, migration, planning.
+
+## Batches R0–R4 Complete — 2026-09-12
+- R0: triage confirmed expected forms files in tree
+- R1: stray `]` removed from fieldTypes.ts; tsc clean; 21 tests pass
+- R2: builder lib relocated → src/modules/forms/lib/ (7c69d58)
+- R3: domain lib + pages migrated (bf63f45)
+- R4: module shell (manifest, routes, public, dashboard) + /forms route + legacy redirects (ba86609)
+- End gate met: src/modules/people/form-builder/ gone; no Form* files in people/lib or people/pages; zero forms paths outside src/modules/forms/ + migration + planning
+- Errors: none
+- Branch: feat/people-module (cut feat/forms-module after Batch 14)
 
 ## Batch 8: Field Type Registry + Tests (resumed in forms module)
 ## Batch 8 Start: Sync
@@ -146,6 +156,13 @@ Keeps existing CRUD query logic, page scaffolding, and field editing patterns �
 - TDD: registry tests (lookup, defaults, validation)
 - Verify + commit
 
+## Batch 8 Complete — 2026-09-12
+- `fieldTypes.ts` + `schema.ts` relocated to `src/modules/forms/lib/` in R2 (`7c69d58`)
+- `getFieldSpec`, `getAllFieldTypes`, `createDefaultField` all present
+- 14 FIELD_TYPE_SPECS verified; 21 tests pass; `tsc --noEmit` clean
+- Errors: none (stray `]` fixed in R1)
+- Commit: `7c69d58` `feat(forms): relocate builder lib to forms module (batch R2)`
+
 ## Batch 9: Conditional Logic Engine + Tests
 ## Batch 9 Start: Sync
 - [ ] Mark Batch 8 tasks complete in plan.md
@@ -162,9 +179,21 @@ Keeps existing CRUD query logic, page scaffolding, and field editing patterns �
 - Pure functions, no framework deps
 - Verify + commit
 
+## Batch 9 Complete — 2026-09-12
+- `formLogic.ts` created: evaluateCondition, isVisible, isRequired (pure functions, 5 ops x 3 effects)
+- 23 tests pass; `tsc --noEmit` clean
+- Errors: none
+- Commit: `212f4c6` `feat(forms): conditional logic engine + 23 tests (batch 9)`
+
 ## Batch 10: DnD Reorder + Column Container
 ## Batch 10 Start: Sync
 - [ ] Mark Batch 9 tasks complete in plan.md
+- [x] Verify + commit
+
+## Batch 10: DnD Reorder + Column Container
+## Batch 10 Start: Sync
+ - [x] Mark Batch 9 tasks complete in plan.md
+ - [x] Read findings.md#dnd-kit-v3-api
 - [ ] Read findings.md#dnd-kit-v3-api
 ## Batch 10 Context
 - Goal: Standalone `src/modules/forms/` drag-and-drop builder.

@@ -1,77 +1,101 @@
-# Decision: Email Module — Send-Only Composer + Drag-Drop Editor
+# Decision: Core Email Utility — Send-Only Composer + Drag-Drop Editor
+
+## Status
+
+Planning lock confirmed 2026-08-08; architecture and compatibility review refreshed 2026-09-12. This document governs implementation planning only. No email implementation is authorized by this file.
 
 ## Aliases
-- Email = foundation module under `src/modules/email`
-- Composer = email creation UI (editor + audience + from + send), embeddable via public index
-- GrapesJS = BSD-3 drag-drop block editor (`grapesjs-preset-newsletter`)
-- Block = draggable editor component (text/image/button/spacer/columns/custom-data)
-- Data block = block fed by another module (cal. upcoming events) — edit-time snapshot
-- Snapshot = rendered HTML captured at template save (rendered at edit, not send)
-- Suppression = `email_unsubscribes` table (excluded from every send)
-- broadcasts = consent "Church news and updates" (church-wide/program/ministry/newsletter)
-- team_updates = consent "Team updates" (small groups, calendars, journey tracks)
-- SMTP = Google Workspace outbound (smtp.gmail.com) via Supabase Edge Fn
-- Edge Fn = Supabase Edge Function (Deno) — server-side send queue processor
-- Sender = global SMTP account (superadmin-configured); per-user alias From override
+
+- Email = always-on core utility under `src/core/email`, not `src/modules/email`
+- Core Email API = `src/core/email/public.ts` plus the compatibility surface in `src/core/lib/email.ts`
+- Composer = email creation UI (editor + audience + sender + send)
+- GrapesJS = drag-and-drop editor (`grapesjs` + `grapesjs-preset-newsletter`)
+- Block = editor component such as text, image, button, spacer, columns, or a module-provided data block
+- Data block = block populated by another module and captured as an edit-time HTML snapshot
+- Snapshot = rendered HTML stored with a template; no send-time data binding in the MVP
+- Suppression = `email_unsubscribes` table; suppressed addresses are excluded from every send
+- broadcasts = consent "Church news and updates" for church-wide, program, ministry, and newsletter mail
+- team_updates = consent "Team updates" for small groups, calendars, and journey-track mail
+- SMTP = Google Workspace outbound via a Supabase Edge Function
+- Edge Fn = Supabase Edge Function (Deno) that owns SMTP credentials and queue processing
+- Sender = global SMTP account configured by a Super Admin, with same-domain per-user alias override
 
 ## What & Why
-Send-only email: compose branded emails with a drag-drop block editor, send to people in the DB. No inbox. Foundation module so others (groups, calendar, services) embed "email these people". Blocks extensible — other modules contribute data blocks (edit-time snapshot). Sent via Google Workspace SMTP from a Supabase Edge Function.
+
+Build a send-only email capability for church staff to compose branded messages, select people from existing saved lists or a person profile, and send through Google Workspace SMTP. The capability is a core utility so every module can consume one typed API without creating a new module dependency. The MVP includes reusable templates, a GrapesJS block editor, audience selection, send history/status, consent and suppression enforcement, and a public one-click unsubscribe page.
 
 ## Who
-Admins/staff/team leads compose; recipients = DB people (journey track, demos, tags, households, groups); sender = global account with per-user alias.
+
+- Senders: Admin, Super Admin, and Team Leader operators.
+- Template/settings managers: Admin and Super Admin; SMTP settings are Super Admin-only.
+- Recipients: people stored in the People data model, using `people.email` as the MVP source of truth.
+- Consumers: People and future Groups, Calendar, Services, and Journey surfaces through `src/core/email/public.ts`.
 
 ## Constraints
-- Foundation module: always-on like people; others import email public index via declared manifest deps
-- No server bundle in client SPA → all sending via Edge Fn (Deno + nodemailer)
-- Free tier + RLS on all tables; module-local migrations
-- PWA offline read-only → composer/editor online-only; drafts persisted in DB
-- Volume <50/day typ.; ~200–300 monthly/fortnightly broadcast (< Workspace 2,000/day cap)
-- Consent flags in PEOPLE module following `consent_status` Blank|Yes|No
-- AU Spam Act 2003: consent gate, sender ID, functional unsubscribe, suppression list
-- Secrets (SMTP app pw) via env vars, not DB settings
-- UI via core/ui barrel + Park UI recipes; GrapesJS module-local dep (not DS)
+
+- Core utility placement: `src/core/email`; do not create `src/modules/email`.
+- Mirror the module contract where useful: `manifest.ts`, `public.ts`, `routes.tsx`, `index.tsx`, `pages/`, `components/`, `lib/`, and `settings.ts`.
+- Core router ownership remains in `src/core/router.tsx`; email routes are thin children and public unsubscribe routes remain outside `AppShell`.
+- UI imports come only from `src/core/ui`; module-local recipes are allowed for email-specific editor chrome.
+- Template HTML is sanitized before storage and send. Use `sanitize-html@2.17.7` after a Deno/browser compatibility check; if Deno cannot import it, use a small allowlist sanitizer with identical tests.
+- No SMTP credentials or service-role keys in the client, database settings, logs, or source code.
+- Supabase Edge Function uses Deno and pins `npm:nodemailer@9.1.1`; Google Workspace SMTP uses port 465 for the MVP.
+- All email tables use RLS. The Edge Function uses a service-role client only for server-side queue writes and SMTP processing.
+- Send history is durable: `email_sends` and `email_recipients` record queued/sent/failed/suppressed/skipped outcomes.
+- Templates store GrapesJS JSON plus rendered snapshot HTML. Data blocks are edit-time snapshots.
+- Audience selection is saved-list, explicit-person, or registered preset based. No arbitrary query builder.
+- Consent fields live in the People model: `consent_broadcasts` and `consent_team_updates`, using the existing `yes_no` domain with Blank represented by null.
+- Youth/child consent is admin-managed. A parent-facing consent flow is out of scope.
+- AU Spam Act requirements are enforced at send time: consent gate, sender identity, functional unsubscribe, and suppression exclusion.
+- PWA remains read-only offline; composer/editor and send operations are online-only.
+- Expected volume is low (<50/day typical; 200–300 per periodic broadcast), within the planned Workspace limits.
 
 ## Non-Goals
-No inbox/read/reply/threading · no open/click dashboards (deferred) · no marketing automation/drip/A-B/list mgmt · no send-time server-side binding (future) · no multi-tenancy · no offline editing/write queue
+
+- No inbox, replies, threading, open tracking, click tracking, or analytics.
+- No marketing automation, drip campaigns, A/B tests, or arbitrary segment query builder.
+- No send-time server-side data binding; future dynamic blocks may add it.
+- No multi-tenancy, offline write queue, or native app wrapper.
+- No parent-facing consent-management flow.
+- No direct client SMTP/provider credentials.
+- No migration of the stale `src/modules/email` concept.
 
 ## Assumptions
-- Church Workspace SPF/DKIM/DMARC present or arrangeable (verify at build)
-- Dedicated Workspace account + App Password provisioned for sends
-- Per-user "send-as" aliases on same Workspace domain (external From ⇒ "on behalf of")
-- Recipients from people-preferred email channel (single source)
-- `broadcasts`/`team_updates` default Blank; sending gated on consent
-- Unsubscribe = auto-footer link + suppression table + PWA one-click page
-- Roles = admins + assigned managers (assignable permission)
 
-## Decision Log: decision → Rationale (hierarchical; parent = decision, sub = dependent)
-1 Module placement & embedding → foundation keeps email always-on and embeddable anywhere
-    1.1 Email = foundation module under src/modules/email → embeddable by all modules; people-style foundation
-2 Editor choice → drag-drop authoring with faithful, portable rendering
-    2.1 Use GrapesJS (BSD-3) drag-drop editor → block manager + plugin/block system + newsletter preset + white-label; JSON storage
-    2.2 Dynamic data blocks = edit-time snapshot (HTML saved with template) → simplest MVP; send-time binding = future upgrade
-3 Transport & sending → reliable low-volume outbound via owned domain
-    3.1 Send via Google Workspace SMTP (smtp.gmail.com) from Edge Fn → church's own domain; fits <500/day; no per-email cost
-    3.2 Sender = global account (superadmin-configured) + per-user alias From override → consistent brand + personal touch
-4 Recipient targeting & consent → segmented audiences gated on shared consent
-    4.1 Consent flags in people module: broadcasts + team_updates → shared consent source for all modules
-        4.1.1 broadcasts = "Church news and updates" → universal label for church-wide/program/ministry/newsletter
-        4.1.2 team_updates = "Team updates" → small groups, calendars, journey-track notifications
-5 Deliverability & compliance → lawful, trusted mail
-    5.1 Enforce unsubscribe + suppression + consent gate now → AU Spam Act compliance from day one
-6 Product scope → usable, verifiable MVP without inbox complexity
-    6.1 MVP scope = reusable templates + send history/status → observable + repeatable without inbox
-7 Persistence & queuing → durable records with safe asynchronous dispatch
-    7.1 Store GrapesJS JSON + rendered snapshot HTML in Supabase → edit fidelity + send-time HTML ready
-    7.2 Queue sends via Postgres email_sends/email_recipients + Edge Fn processor → async, RLS-safe, per-recipient status
-    7.3 Composer online-only (PWA read-only) → RLS-safe writes; no offline queue
-    7.4 Send status = queued/sent/failed only → SMTP has no open/click; tracking deferred
+- A dedicated Google Workspace account and app password can be provisioned. ⚠️ Verify before deployment.
+- Workspace SPF, DKIM, and DMARC are configured or can be arranged. ⚠️ Verify before production send.
+- Same-domain per-user aliases are configured in Workspace; the Edge Function rejects external alias domains.
+- `people.email` is the MVP preferred email source because `contact_channels` is designed but not migrated.
+- Consent defaults to Blank/null; a send is rejected or skips recipients unless the relevant consent is Yes.
+- The Edge Function can import npm dependencies and reach SMTP port 465. ⚠️ Verify in local and hosted runtime.
+- Existing hand-maintained `src/core/lib/database.types.ts` is updated alongside the migration.
+
+## Decision Log
+
+| # | Decision | Rationale |
+|---|---|---|
+| 1 | Place the capability in `src/core/email` and expose `public.ts` | Makes email an always-on typed utility without a stale feature-module directory. |
+| 1.1 | Keep `src/core/lib/email.ts` as a compatibility wrapper | Existing People code imports this path; preserving it avoids a breaking migration. |
+| 1.2 | Add thin authenticated and public route slices | `src/core/router.tsx` remains the only router assembly point; unsubscribe stays outside the shell. |
+| 2 | Use GrapesJS with the newsletter preset and `@grapesjs/react` v2 | Provides drag-and-drop blocks, portable HTML/CSS, React 19 compatibility, and an extension surface. |
+| 2.1 | Store editor JSON and rendered snapshot HTML | Preserves edit fidelity and avoids send-time module coupling. |
+| 2.2 | Use a typed block registry with built-ins and future module registrations | Lets other modules contribute data blocks without importing email internals. |
+| 3 | Send through a Supabase Edge Function using Google Workspace SMTP | Keeps secrets server-side and fits the existing Supabase architecture. |
+| 3.1 | Use port 465 and `secure: true` for the MVP | Avoids commonly blocked SMTP ports and matches Workspace relay guidance. |
+| 3.2 | Use a global sender plus same-domain alias override | Provides consistent branding and a personal sender without accepting arbitrary From addresses. |
+| 4 | Persist templates, sends, recipients, and suppression in PostgreSQL | Provides durable history, retryable status, and auditable recipient outcomes. |
+| 4.1 | Edge Function validates authorization and applies consent/suppression before SMTP | Database permissions alone cannot safely enforce every send-time rule. |
+| 5 | Use People consent fields `consent_broadcasts` and `consent_team_updates` | Gives all modules one shared consent source. |
+| 5.1 | Use `people.email` for the MVP | Avoids depending on the unimplemented `contact_channels` table. |
+| 5.2 | Use saved lists, explicit people, and registered presets only | Supports useful targeting without building a query language. |
+| 6 | Provide a public one-click unsubscribe route with an opaque token hash | Prevents email addresses from being exposed in unsubscribe URLs and creates a durable suppression record. |
+| 7 | Role surface: Team Leaders may send within their visible audience; Admins manage templates; Super Admins manage sender settings | Matches the locked UX roles while keeping settings and broad access restricted. |
+| 8 | Store non-secret email settings in `platform_settings`; store SMTP credentials only in Edge Function environment variables | Follows existing settings architecture and prevents secret leakage. |
+| 9 | Use Park UI chrome and a light-only editor | Keeps the feature consistent with the existing design system and avoids dark-theme editor work in the MVP. |
+| 10 | Test pure logic with Vitest and Edge Function behavior with Deno tests; run Supabase migration checks separately | Matches the repository's current test and backend tooling. |
 
 ## Decision Gap Log
-1 Sending roles: admins-only vs assignable manager permission → open
-2 Segment builder scope (simple filters vs full query builder) → open
-3 Unsubscribe UX (footer format, PWA page, suppression granularity) → open
-4 Preferred email-channel selection from people contacts → open
-5 Consent-flag demo gating (children via guardians) → open
-6 SMTP secret storage + alias verification mechanics → open
-7 GrapesJS theming (light/dark) vs Park UI recipe surface → open
-8 Data-block extension-point contract (registry shape, snapshot capture) → open
+
+- Resolved: placement, editor, transport, sender model, audience scope, consent fields, unsubscribe UX, roles, settings ownership, and data-block contract.
+- Verify during implementation: Deno/npm import behavior for `nodemailer@^9`, hosted reachability of SMTP port 465, Workspace app-password requirements, and production SPF/DKIM/DMARC.
+- Track separately: full `contact_channels` migration, send-time dynamic data blocks, granular unsubscribe categories, open/click analytics, and parent-facing consent management.

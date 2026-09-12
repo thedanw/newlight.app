@@ -1,7 +1,7 @@
 'use client'
 import { lazy } from 'react'
 import type { RouteObject } from 'react-router-dom'
-import { Outlet } from 'react-router-dom'
+import { Navigate, Outlet } from 'react-router-dom'
 import { ModuleBreadcrumbProvider } from '@/core/ui'
 import { peopleManifest } from './manifest'
 
@@ -15,9 +15,6 @@ const PersonProfilePage = lazy(() => import('./pages/PersonProfilePage'))
 const HouseholdPage = lazy(() => import('./pages/HouseholdPage'))
 const JourneyGridPage = lazy(() => import('./pages/JourneyGridPage'))
 const TagsPage = lazy(() => import('./pages/TagsPage'))
-const FormsListPage = lazy(() => import('@/modules/forms/pages/ListPage'))
-const FormBuilderPage = lazy(() => import('@/modules/forms/pages/BuilderPage'))
-const FormSubmissionsPage = lazy(() => import('@/modules/forms/pages/SubmissionsPage'))
 
 function PeopleLayout() {
   return (
@@ -39,10 +36,9 @@ export const peopleRoutes: RouteObject[] = [
       { path: ':id/view', element: <PersonProfilePage /> },
       { path: 'journey', element: <JourneyGridPage /> },
       { path: 'tags', element: <TagsPage /> },
-      { path: 'forms', element: <FormsListPage /> },
-      { path: 'forms/new', element: <FormBuilderPage /> },
-      { path: 'forms/:id/edit', element: <FormBuilderPage /> },
-      { path: 'forms/:id/submissions', element: <FormSubmissionsPage /> },
+      // Legacy forms routes — redirect to the standalone forms module.
+      { path: 'forms', element: <Navigate to="/forms" replace /> },
+      { path: 'forms/*', element: <Navigate to="/forms" replace /> },
       { path: 'households/:id', element: <HouseholdPage /> },
     ],
   },

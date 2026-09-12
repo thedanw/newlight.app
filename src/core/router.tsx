@@ -3,6 +3,7 @@ import { lazy } from 'react'
 import ErrorPage from '@/core/errors/ErrorPage'
 import { AppShell } from '@/core/ui'
 import { exampleRoutes } from '@/modules/example/routes'
+import { formsRoutes } from '@/modules/forms/routes'
 import { peopleRoutes } from '@/modules/people/routes'
 import { coreRoutes } from '@/core/routes'
 
@@ -21,6 +22,7 @@ export const router = createBrowserRouter([
       { index: true, element: <Navigate to="/people" replace /> },
       { path: 'account', element: <AccountPage /> },
       { path: 'example', children: exampleRoutes },
+      { path: 'forms', children: formsRoutes },
       { path: 'people', children: peopleRoutes },
       { path: 'settings', children: coreRoutes },
     ],

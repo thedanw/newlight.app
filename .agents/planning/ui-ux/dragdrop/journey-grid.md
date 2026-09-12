@@ -319,21 +319,23 @@ See `.agents/skills/boss/code-plan/03_optimise-planning/refs/PARTITIONING.md`
 #### Subphase 4.1: Wire tree + stage sortable
 **Context:** `localTracks`/`localCategories`/`localStages` + `rowOrder`/`stageOrder` state; need `treeNodes` + `handleTreeReorder` + `SortableStageColumns`.
 **Todo:**
-- [ ] Write failing test: renders `SortableTree` + `SortableStageColumns`, reorder updates local state
-- [ ] Add `treeNodes` useMemo + `handleTreeReorder` (`treeToJourneyData` → `setLocalTracks`/`setLocalCategories`)
-- [ ] Replace header stage columns with `SortableStageColumns`
+- [x] Write failing test: renders `SortableTree` + `SortableStageColumns`, reorder updates local state
+- [x] Add `treeNodes` useMemo + `handleTreeReorder` (`treeToJourneyData` → `setLocalTracks`/`setLocalCategories`)
+- [x] Replace header stage columns with `SortableStageColumns`
 **Subagent:** No
 **Deliverable:** JourneySettingsManager renders dnd grid
 
 #### Subphase 4.2: Remove stub + fix isDirty/save
 **Context:** dead `dragOverId`/`dragPosition`/`getDropIndicator`; `rowOrder` redundant; save uses `deriveAssignments`.
 **Todo:**
-- [ ] Write failing test: save payload reflects reordered tree (`parent_id`/`category_id`/`sort_order`)
-- [ ] Remove dead stub; update `isDirty` (drop `rowOrder`); keep save via `deriveAssignments(buildRows(...))` or `treeToJourneyData` output
-- [ ] Refactor: extract `renderGridRow` (connector + label + stage cells + delete)
+- [x] Write failing test: save payload reflects reordered tree (`parent_id`/`category_id`/`sort_order`)
+- [x] Remove dead stub; update `isDirty` (drop `rowOrder`); keep save via `deriveAssignments(buildRows(...))` or `treeToJourneyData` output
+- [x] Refactor: extract `renderGridRow` (connector + label + stage cells + delete)
 **Subagent:** No
 **Deliverable:** Full dnd grid with correct save
 **Commit:** `feat(people): dnd-kit journey grid manager`
+
+> **Batch 4 DONE (commit pending)** — `JourneySettingsManager.tsx` rewired for dnd-kit: `treeNodes` memo + `handleTreeReorder` (`treeToJourneyData` → `setLocalTracks`/`setLocalCategories`), `SortableStageColumns` in header, `SortableTree` with `renderRow` grid rows (44px handle, depth padding, connector glyph, stage cells, delete), dead `rowOrder`/`dragOverId`/`dragPosition`/`getDropIndicator` removed, `isDirty`/`handleSave` use tree-derived assignments. 4 component tests pass (renders grid, stage reorder, tree nest, tree-derived save). Test gotchas: re-fetch latest DragDropProvider handlers after each state update (stale `flattenedItems` closure in `handleDragEnd`), explicit `cleanup()` after each test (auto-cleanup not active), Save button queried by text not role (popover IconButtons share `aria-label="Save"`). Full suite 308/308 pass for my files (5 ProfileSections suites fail — pre-existing Cline forms-migration missing files, untouched). `tsc -b` clean for journey/dragndrop files (only pre-existing `PeopleSettingsPage.tsx` broken import remains, Cline's).
 
 ## Batch 4 Compaction
 - If context > 70%: compact before next batch — never exceed 80%

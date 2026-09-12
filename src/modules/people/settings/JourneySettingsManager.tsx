@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
-import { CheckIcon, TrashIcon, PencilIcon, XIcon, PlusIcon } from 'lucide-react'
+import { CheckIcon, TrashIcon, PencilIcon, XIcon, PlusIcon, GripVertical, ChevronDown } from 'lucide-react'
 import { Button, Field, IconButton, Input, Popover, Text } from '@/core/ui'
 import { HStack, Stack } from 'styled-system/jsx'
 import { useJourneySettings } from '../lib/settings-hooks'
@@ -13,13 +13,11 @@ import {
   saveJourneyStage,
   saveJourneyTrack,
 } from '../lib/queries'
-import {
-  buildRows,
-  deriveAssignments,
-  gridCategoryId,
-  gridTrackId,
-} from '../lib/journey-grid-helpers'
+import { buildRows } from '../lib/journey-grid-helpers'
 import type { JourneyStage, JourneyTrack, JourneyTrackCategory } from '../lib/types'
+import { SortableTree } from '@/core/dragndrop/components/SortableTree'
+import { tracksAndCategoriesToTree, treeToJourneyData } from '../lib/journey-tree-helpers'
+import { SortableStageColumns } from './SortableStageColumns'
 
 const STAGE_COL_MIN = 120
 const STAGE_COL_GAP = 4
@@ -55,41 +53,11 @@ export function JourneySettingsManager() {
   const [localTracks, setLocalTracks] = useState<JourneyTrack[]>([])
   const [localCategories, setLocalCategories] = useState<JourneyTrackCategory[]>([])
   const [localStages, setLocalStages] = useState<JourneyStage[]>([])
-  const [rowOrder, setRowOrder] = useState<string[]>([])
   const [stageOrder, setStageOrder] = useState<string[]>([])
 
   // Track which stage is being edited (label inline edit) and the draft value
   const [editingStageId, setEditingStageId] = useState<string | null>(null)
   const [editLabel, setEditLabel] = useState('')
-
-  // Drag-and-drop visual feedback
-  const [dragOverId] = useState<string | null>(null)
-  const [dragPosition] = useState<'before' | 'after' | 'nest'>('after')
-
-/** Drop indicator:
-   *  - Nest (middle of category): transparent accent background (--colors-color-palette-a5)
-   *  *  - Line drop (before/after): primary color line (--colors-color-palette-solid-bg)
-   */
-  const getDropIndicator = useCallback((rowId: string, isCategory: boolean): CSSProperties => {
-    if (dragOverId !== rowId) return {}
-
-    const primary = 'var(--colors-color-palette-solid-bg, #3b82f6)'
-    const accentTransparent = 'var(--colors-color-palette-a5, color-mix(in srgb, var(--colors-accent, #3b82f6) 15%, transparent))'
-
-    if (isCategory && dragPosition === 'nest') {
-      return {
-        backgroundColor: accentTransparent,
-        boxShadow: `inset -3px 0 0 ${primary}`,
-      }
-    }
-
-    const line = dragPosition === 'before'
-      ? `inset 0 2px 0 ${primary}`
-      : `inset 0 -2px 0 ${primary}`
-    return isCategory
-      ? { boxShadow: `${line}, inset -3px 0 0 ${primary}` }
-      : { boxShadow: line }
-  }, [dragOverId, dragPosition])
 
   // Sync local state when data loads
   useEffect(() => {
@@ -98,8 +66,6 @@ export function JourneySettingsManager() {
     setLocalTracks(data.tracks)
     setLocalCategories(data.categories)
     setLocalStages(data.stages)
-    const rows = buildRows(data.tracks, data.categories)
-    setRowOrder(rows.map((r) => r.id))
     setStageOrder(
       data.stages
         .map((s) => s.id)
@@ -107,9 +73,18 @@ export function JourneySettingsManager() {
     )
   }, [data])
 
-  const rows = useMemo(() => {
-    return buildRows(localTracks, localCategories, rowOrder)
-  }, [rowOrder, localTracks, localCategories])
+  const rows = useMemo(() => buildRows(localTracks, localCategories), [localTracks, localCategories])
+
+  const rowById = useMemo(() => {
+    const map = new Map(rows.map((r) => [r.id, r]))
+    return map
+  }, [rows])
+
+  // Nested tree for SortableTree (source of truth for row order + nesting)
+  const treeNodes = useMemo(
+    () => tracksAndCategoriesToTree(localTracks, localCategories),
+    [localTracks, localCategories],
+  )
 
   const stageMap = useMemo(() => {
     const map = new Map<string, JourneyStage>()
@@ -125,11 +100,20 @@ export function JourneySettingsManager() {
   }, [stageOrder, stageMap])
 
   // Handlers
+  const handleTreeReorder = useCallback((newTree: Parameters<typeof treeToJourneyData>[0]) => {
+    const { tracks, categories } = treeToJourneyData(newTree, localTracks, localCategories)
+    setLocalTracks(tracks)
+    setLocalCategories(categories)
+  }, [localTracks, localCategories])
+
+  const handleStageReorder = useCallback((reorderedStages: JourneyStage[]) => {
+    setLocalStages(reorderedStages)
+    setStageOrder(reorderedStages.map((s) => s.id))
+  }, [])
   const handleAddTrack = useCallback(async () => {
     if (!newTrackName.trim() || !data) return
     const saved = await createJourneyTrack(newTrackName.trim(), null, localTracks.length)
     setLocalTracks((cur) => [...cur, saved])
-    setRowOrder((cur) => [...cur, gridTrackId(saved.id)])
     setNewTrackName('')
     setMessage('Track added.')
   }, [newTrackName, localTracks, data])
@@ -138,7 +122,6 @@ export function JourneySettingsManager() {
     if (!newCategoryName.trim() || !data) return
     const saved = await createJourneyCategory(newCategoryName.trim(), null, localCategories.length)
     setLocalCategories((cur) => [...cur, saved])
-    setRowOrder((cur) => [...cur, gridCategoryId(saved.id)])
     setNewCategoryName('')
     setMessage('Category added.')
   }, [newCategoryName, localCategories, data])
@@ -161,7 +144,6 @@ export function JourneySettingsManager() {
     try {
       await deleteJourneyTrack(trackId, target)
       setLocalTracks((cur) => cur.filter((t) => t.id !== trackId))
-      setRowOrder((cur) => cur.filter((id) => id !== gridTrackId(trackId)))
       setMessage('Track deleted.')
     } catch (err) {
       setMessage(err instanceof Error ? err.message : 'Unable to delete track.')
@@ -201,7 +183,7 @@ export function JourneySettingsManager() {
   const handleSave = useCallback(async () => {
     setMessage(null)
     try {
-      const derived = deriveAssignments(rows, localTracks, localCategories)
+      const derived = treeToJourneyData(treeNodes, localTracks, localCategories)
       const categoryPromises = derived.categories.map((cat) => saveJourneyCategory(cat))
       const trackPromises = derived.tracks.map((track) => saveJourneyTrack({ id: track.id, name: track.name, category_id: track.category_id, sort_order: track.sort_order }))
       const stagePromises = orderedStages.map((s, i) => saveJourneyStage({ ...s, sort_order: i }))
@@ -213,15 +195,13 @@ export function JourneySettingsManager() {
     } catch (err) {
       setMessage(err instanceof Error ? err.message : 'Unable to save.')
     }
-  }, [rowOrder, localTracks, localCategories, localStages, data])
+  }, [treeNodes, localTracks, localCategories, orderedStages, data])
 
   const handleCancel = useCallback(() => {
     if (data) {
       setLocalTracks(data.tracks)
       setLocalCategories(data.categories)
       setLocalStages(data.stages)
-      const rows = buildRows(data.tracks, data.categories)
-      setRowOrder(rows.map((r) => r.id))
       setStageOrder(
         data.stages
           .map((s) => s.id)
@@ -240,7 +220,6 @@ export function JourneySettingsManager() {
     JSON.stringify(localTracks) !== JSON.stringify(data?.tracks ?? []) ||
     JSON.stringify(localCategories) !== JSON.stringify(data?.categories ?? []) ||
     JSON.stringify(localStages) !== JSON.stringify(data?.stages ?? []) ||
-     JSON.stringify(rowOrder) !== JSON.stringify(buildRows(localTracks, localCategories).map((r) => r.id)) ||
      JSON.stringify(stageOrder) !== JSON.stringify(data?.stages.map((s) => s.id).sort((a, b) => (data!.stages.find((s) => s.id === a)!.sort_order) - (data!.stages.find((s) => s.id === b)!.sort_order)) ?? [])
 
    if (loading) return <Text>Loading journey settings...</Text>
@@ -364,119 +343,166 @@ export function JourneySettingsManager() {
                     alignItems: 'center',
                   }}
                 >
-                  {orderedStages.map((stage) => (
-                        <div
-                        key={stage.id}
-                        style={{
-                          flex: '1 1 0',
-                          minWidth: STAGE_COL_MIN,
-                          textAlign: 'center',
-                          ...headingCellStyle,
-                        }}
-                      >
-                      <HStack gap="1" justifyContent="center" style={{ width: '100%' }}>
-                        {editingStageId === stage.id ? (
-                          <>
-                            <Input
-                              size="xs"
-                              value={editLabel}
-                              onChange={(e) => setEditLabel(e.target.value)}
-                              placeholder="Label"
-                            />
-                            <IconButton size="xs" variant="plain" aria-label="Save stage" onClick={() => handleSaveEditStage(stage.id)}>
-                              <CheckIcon />
-                            </IconButton>
-                            <IconButton size="xs" variant="plain" aria-label="Cancel edit" onClick={() => setEditingStageId(null)}>
-                              <XIcon />
-                            </IconButton>
-                          </>
-                        ) : (
-                          <>
-                             <span style={{ userSelect: 'none', padding: '4px 8px' }}>{stage.label || stage.slug}</span>
-                             <IconButton 
-                               size="xs" variant="plain" aria-label="Edit stage" 
-                               onClick={() => handleEditStage(stage)}>
-                               <PencilIcon size="xs" />
-                             </IconButton>
-                             <IconButton
-                               size="xs"
-                               variant="plain"
-                               aria-label="Delete stage"
-                               onClick={() => handleDeleteStage(stage.id)}
-                               colorPalette="red"
-                             >
-                               <TrashIcon />
-                             </IconButton>
-                           </>
-                         )}
-                       </HStack>
-                    </div>
-                  ))}
+                  <SortableStageColumns
+                    stages={orderedStages}
+                    onReorder={handleStageReorder}
+                    gap={STAGE_COL_GAP}
+                    minWidth={STAGE_COL_MIN}
+                    renderColumn={(stage) => (
+                      <div style={{ ...headingCellStyle }}>
+                        <HStack gap="1" justifyContent="center" style={{ width: '100%' }}>
+                          {editingStageId === stage.id ? (
+                            <>
+                              <Input
+                                size="xs"
+                                value={editLabel}
+                                onChange={(e) => setEditLabel(e.target.value)}
+                                placeholder="Label"
+                              />
+                              <IconButton size="xs" variant="plain" aria-label="Save stage" onClick={() => handleSaveEditStage(stage.id)}>
+                                <CheckIcon />
+                              </IconButton>
+                              <IconButton size="xs" variant="plain" aria-label="Cancel edit" onClick={() => setEditingStageId(null)}>
+                                <XIcon />
+                              </IconButton>
+                            </>
+                          ) : (
+                            <>
+                              <span style={{ userSelect: 'none', padding: '4px 8px' }}>{stage.label || stage.slug}</span>
+                              <IconButton
+                                size="xs"
+                                variant="plain"
+                                aria-label="Edit stage"
+                                onClick={() => handleEditStage(stage)}
+                              >
+                                <PencilIcon size="xs" />
+                              </IconButton>
+                              <IconButton
+                                size="xs"
+                                variant="plain"
+                                aria-label="Delete stage"
+                                onClick={() => handleDeleteStage(stage.id)}
+                                colorPalette="red"
+                              >
+                                <TrashIcon />
+                              </IconButton>
+                            </>
+                          )}
+                        </HStack>
+                      </div>
+                    )}
+                  />
                 </div>
                 <div /> {/* header placeholder for actions column */}
 
               {/* Rows */}
-                <div style={{ gridColumn: '1 / -1', display: 'flex', flexDirection: 'column' }}>
-{rows.map((row) => {
-                    if (row.type === 'category') {
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <SortableTree
+                    tree={treeNodes}
+                    onReorder={handleTreeReorder}
+                    gap="0"
+                    indentation={24}
+                    renderRow={(node, depth, helpers) => {
+                      const isCategory = node.data?.kind === 'category'
+                      const row = rowById.get(node.id as string)
                       return (
                         <div
-                          key={row.id}
                           style={{
-                            ...headingCellStyle,
                             display: 'grid',
                             gridTemplateColumns: gridColumns,
                             gap: STAGE_COL_GAP,
                             alignItems: 'center',
-                            borderTop: '2px solid var(--colors-border)',
-                            color: 'var(--colors-fg-muted)',
-                            ...getDropIndicator(row.id, true),
+                            borderTop: isCategory ? '2px solid var(--colors-border)' : undefined,
+                            color: isCategory ? 'var(--colors-fg-muted)' : undefined,
                           }}
                         >
-                          <div style={{ gridColumn: '2 / -1' }}>
-                            <span style={{ color: 'var(--colors-color-palette-a8)', fontSize: '2xl', fontFamily: 'ui-monospace', marginRight: '4px', opacity: 0.6 }} suppressContentEditableWarning>{row.connector}</span>
-                            {row.label}
+                          {/* Handle column */}
+                          <button
+                            ref={helpers.handleRef}
+                            aria-label={`Reorder ${node.label}`}
+                            type="button"
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              width: '44px',
+                              height: '44px',
+                              flexShrink: 0,
+                              border: 'none',
+                              background: 'transparent',
+                              cursor: helpers.isDragging ? 'grabbing' : 'grab',
+                              touchAction: 'none',
+                            }}
+                          >
+                            <GripVertical size={16} />
+                          </button>
+
+                          {/* Label column */}
+                          <div style={{ paddingLeft: depth * 24, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            {isCategory && helpers.hasChildren ? (
+                              <button
+                                aria-label={helpers.isExpanded ? 'Collapse' : 'Expand'}
+                                type="button"
+                                data-testid="tree-toggle"
+                                onClick={() => helpers.onToggle(node.id as string)}
+                                style={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  width: '32px',
+                                  height: '32px',
+                                  flexShrink: 0,
+                                  border: 'none',
+                                  background: 'transparent',
+                                  cursor: 'pointer',
+                                }}
+                              >
+                                <ChevronDown
+                                  size={16}
+                                  style={{
+                                    transform: helpers.isExpanded ? 'rotate(0deg)' : 'rotate(-90deg)',
+                                    transition: 'transform 150ms ease',
+                                  }}
+                                />
+                              </button>
+                            ) : (
+                              <div style={{ width: '32px', height: '32px', flexShrink: 0 }} />
+                            )}
+                            <span
+                              style={{ color: 'var(--colors-color-palette-a8)', fontSize: '2xl', fontFamily: 'ui-monospace', marginRight: '4px', opacity: 0.6 }}
+                              suppressContentEditableWarning
+                            >
+                              {row?.connector ?? ''}
+                            </span>
+                            {node.label}
                           </div>
+
+                          {/* Stage cells (track only) */}
+                          {!isCategory && orderedStages.map((stage) => (
+                            <div key={stage.id} style={{ textAlign: 'center', padding: '4px' }}>
+                              {stageMap.get(stage.id)?.label || stage.slug}
+                            </div>
+                          ))}
+
+                          {/* Delete button (track only) */}
+                          {!isCategory && (
+                            <div style={{ justifyContent: 'flex-end' }}>
+                              <IconButton
+                                size="xs"
+                                variant="plain"
+                                aria-label="Delete track"
+                                onClick={() => handleDeleteTrack((node.id as string).slice('track:'.length))}
+                                colorPalette="red"
+                              >
+                                <TrashIcon />
+                              </IconButton>
+                            </div>
+                          )}
                         </div>
                       )
-                    }
-                    const trackId = row.id.slice('track:'.length)
-                    const track = localTracks.find((t) => t.id === trackId)!
-                    return (
-                      <div
-                        key={row.id}
-                        style={{
-                          display: 'grid',
-                          gridTemplateColumns: gridColumns,
-                          gap: STAGE_COL_GAP,
-                          alignItems: 'center',
-                          ...getDropIndicator(row.id, false),
-                        }}
-                      >
-                        <div style={{ }}>
-                          <span style={{ color: 'var(--colors-color-palette-a8)', fontSize: '2xl', fontFamily: 'ui-monospace', marginRight: '4px', opacity: 0.6 }} suppressContentEditableWarning>{row.connector}</span>
-                          {track.name}
-                        </div>
-                        {orderedStages.map((stage) => (
-                          <div key={stage.id} style={{ textAlign: 'center', padding: '4px' }}>
-                            {stageMap.get(stage.id)?.label || stage.slug}
-                          </div>
-                        ))}
-                        <div style={{ justifyContent: 'flex-end' }}>
-                          <IconButton
-                            size="xs"
-                            variant="plain"
-                            aria-label="Delete track"
-                            onClick={() => handleDeleteTrack(track.id)}
-                            colorPalette="red"
-                          >
-                            <TrashIcon />
-                          </IconButton>
-                        </div>
-                      </div>
-                    )
-                  })}
-              </div>
+                    }}
+                  />
+                </div>
             </div>
           </div>
 

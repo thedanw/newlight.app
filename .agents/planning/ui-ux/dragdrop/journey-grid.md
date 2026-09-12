@@ -154,21 +154,23 @@ See `.agents/skills/boss/code-plan/03_optimise-planning/refs/PARTITIONING.md`
 #### Subphase 1.1: `tracksAndCategoriesToTree`
 **Context:** No tree helpers exist; `buildRows`/`deriveAssignments` operate on flat `GridRow[]`; `SortableTree` needs `TreeNode[]` (category nodes with children = sub-categories + tracks).
 **Todo:**
-- [ ] Write failing test: nested tree from tracks/categories (category → sub-category → track), prefixed ids `category:`/`track:`, `data.kind`
-- [ ] Implement `tracksAndCategoriesToTree(tracks, categories)` in `src/modules/people/lib/journey-tree-helpers.ts`
-- [ ] Refactor: reuse `gridCategoryId`/`gridTrackId` from `journey-grid-helpers`
+- [x] Write failing test: nested tree from tracks/categories (category → sub-category → track), prefixed ids `category:`/`track:`, `data.kind`
+- [x] Implement `tracksAndCategoriesToTree(tracks, categories)` in `src/modules/people/lib/journey-tree-helpers.ts`
+- [x] Refactor: reuse `gridCategoryId`/`gridTrackId` from `journey-grid-helpers`
 **Subagent:** No (sequential, <5 min each)
 **Deliverable:** Passing tree-build tests
 
 #### Subphase 1.2: `treeToJourneyData`
 **Context:** `SortableTree.onReorder` returns `TreeNode[]`; need tracks/categories with `parent_id`/`category_id`/`sort_order`.
 **Todo:**
-- [ ] Write failing test: round-trip (tree → data → tree), sibling `sort_order`, parent assignment, self-parent cycle guard
-- [ ] Implement `treeToJourneyData(tree)` — depth-first walk, per-sibling-group counters, cycle guard
-- [ ] Refactor: extract shared sibling-group logic
+- [x] Write failing test: round-trip (tree → data → tree), sibling `sort_order`, parent assignment, self-parent cycle guard
+- [x] Implement `treeToJourneyData(tree, tracks, categories)` — depth-first walk, per-sibling-group counters, cycle guard. **Refinement:** takes originals to preserve full objects (matches `deriveAssignments` pattern); preserves unseen originals unchanged.
+- [x] Refactor: extract shared sibling-group logic
 **Subagent:** No
 **Deliverable:** Passing round-trip + guard tests
 **Commit:** `feat(people): journey tree helpers for dnd grid`
+
+> **Batch 1 DONE (commit `14cdf60`)** — `journey-tree-helpers.ts` + 9 tests pass; full suite 296/296; `tsc -b` clean for journey files (pre-existing forms-module errors untouched). Test colocated per convention (not `__tests__/`).
 
 ## Batch 1 Compaction
 - If context > 70%: compact before next batch — never exceed 80%

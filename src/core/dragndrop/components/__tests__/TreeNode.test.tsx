@@ -131,6 +131,48 @@ describe('TreeNode', () => {
     expect(container.querySelector('[data-testid="custom"]')).toBeInTheDocument();
   });
 
+  it('renders custom row via renderRow instead of default layout', () => {
+    const renderRow = (node: { label: string }, depth: number) => (
+      <div data-testid="custom-row">
+        {node.label} @ {depth}
+      </div>
+    );
+    const { container } = renderTreeNode({ renderRow });
+    expect(container.querySelector('[data-testid="custom-row"]')).toBeInTheDocument();
+    // Default toggle/handle/label are replaced
+    expect(container.querySelector('[data-testid="tree-handle"]')).not.toBeInTheDocument();
+    expect(container.querySelector('[data-testid="tree-toggle"]')).not.toBeInTheDocument();
+    // No default depth-based paddingLeft
+    const node = container.querySelector('[data-tree-node="1"]');
+    expect(node).not.toHaveStyle({ paddingLeft: '48px' });
+  });
+
+  it('passes helpers to renderRow', () => {
+    const onToggle = vi.fn();
+    const renderRow = (
+      _node: unknown,
+      _depth: number,
+      helpers: { handleRef: unknown; isDragging: boolean; isExpanded: boolean; hasChildren: boolean }
+    ) => (
+      <div data-testid="custom-row">
+        <button data-testid="custom-handle" ref={helpers.handleRef as React.Ref<HTMLButtonElement>}>
+          handle
+        </button>
+        <span data-testid="helper-flags">
+          {String(helpers.isDragging)}|{String(helpers.isExpanded)}|{String(helpers.hasChildren)}
+        </span>
+      </div>
+    );
+    const { container } = renderTreeNode({
+      hasChildren: true,
+      isExpanded: true,
+      onToggle,
+      renderRow,
+    });
+    expect(container.querySelector('[data-testid="custom-handle"]')).toBeInTheDocument();
+    expect(container.querySelector('[data-testid="helper-flags"]')!.textContent).toBe('false|true|true');
+  });
+
   it('has data-tree-node attribute', () => {
     const { container } = renderTreeNode();
     const node = container.querySelector('[data-tree-node="1"]');

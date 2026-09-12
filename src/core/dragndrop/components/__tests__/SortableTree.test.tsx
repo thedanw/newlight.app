@@ -264,4 +264,17 @@ describe('SortableTree', () => {
     const { container } = renderTree({ renderNode });
     expect(container.querySelectorAll('[data-testid="custom-node"]').length).toBeGreaterThan(0);
   });
+
+  it('passes renderRow through to TreeNode for custom rows', () => {
+    const renderRow = (node: { label: string }, depth: number) => (
+      <div data-testid="custom-row">
+        {node.label} @ {depth}
+      </div>
+    );
+    const { container } = renderTree({ renderRow });
+    // Every visible node renders via renderRow
+    expect(container.querySelectorAll('[data-testid="custom-row"]').length).toBeGreaterThan(0);
+    // Default toggle/handle are replaced
+    expect(container.querySelector('[data-testid="tree-handle"]')).not.toBeInTheDocument();
+  });
 });

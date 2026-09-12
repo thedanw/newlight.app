@@ -15,6 +15,7 @@ import {
 } from '../utils/tree';
 import { TreeNode } from './TreeNode';
 import type { TreeNode as TreeNodeType } from '../types';
+import type { TreeNodeRenderRow } from './TreeNode';
 
 export interface SortableTreeProps<TData = unknown> {
   /** The nested tree data */
@@ -23,6 +24,8 @@ export interface SortableTreeProps<TData = unknown> {
   onReorder: (tree: TreeNodeType<TData>[]) => void;
   /** Optional render prop for custom node content */
   renderNode?: (node: TreeNodeType<TData>, depth: number) => ReactNode;
+  /** Optional render prop for a fully custom row (replaces default layout) */
+  renderRow?: TreeNodeRenderRow;
   /** Optional gap between nodes */
   gap?: string;
   /** Indentation width per depth level in px */
@@ -49,6 +52,7 @@ export function SortableTree<TData = unknown>({
   tree,
   onReorder,
   renderNode,
+  renderRow,
   gap = '0',
   indentation = DEFAULT_INDENTATION,
 }: SortableTreeProps<TData>) {
@@ -235,6 +239,7 @@ export function SortableTree<TData = unknown>({
             isExpanded={expanded[item.id] ?? true}
             onToggle={handleToggle}
             renderNode={renderNode}
+            renderRow={renderRow}
           />
         ))}
       </VStack>

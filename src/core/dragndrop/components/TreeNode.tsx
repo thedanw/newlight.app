@@ -4,6 +4,35 @@ import { Text } from '@/core/ui';
 import { useSortable } from '@dnd-kit/react/sortable';
 import type { TreeNode as TreeNodeType } from '../types';
 
+/** Helpers passed to a custom `renderRow` so callers can build full grid rows
+ * (drag handle, expand/collapse, drag state) while keeping the sortable wiring
+ * inside `TreeNode`.
+ */
+export interface TreeNodeRowHelpers {
+  /** Ref to attach to the caller's drag handle element */
+  handleRef: (el: HTMLElement | null) => void;
+  /** Whether this row is currently being dragged */
+  isDragging: boolean;
+  /** Whether this row is the drag source */
+  isDragSource: boolean;
+  /** Whether the node is expanded */
+  isExpanded: boolean;
+  /** Whether the node has children */
+  hasChildren: boolean;
+  /** Toggle expand/collapse for the node */
+  onToggle: (id: string) => void;
+}
+
+/** Custom row renderer. Replaces the entire default row (toggle + handle +
+ * label + indentation) — the caller controls the full layout. Uses `any` for
+ * the node type to match the `renderNode` callback-variance convention.
+ */
+export type TreeNodeRenderRow = (
+  node: any,
+  depth: number,
+  helpers: TreeNodeRowHelpers
+) => ReactNode;
+
 export interface TreeNodeProps<T = unknown> {
   /** The tree node data */
   node: TreeNodeType<T>;
@@ -21,6 +50,8 @@ export interface TreeNodeProps<T = unknown> {
   onToggle: (id: string) => void;
   /** Optional render prop for custom node content (uses `any` for callback variance) */
   renderNode?: (node: any, depth: number) => ReactNode;
+  /** Optional render prop for a fully custom row (replaces the default layout) */
+  renderRow?: TreeNodeRenderRow;
 }
 
 /**
@@ -32,7 +63,7 @@ export interface TreeNodeProps<T = unknown> {
  * projection, reorder) — this row is purely presentational.
  */
 export const TreeNode = forwardRef<HTMLDivElement, TreeNodeProps>(
-  ({ node, depth, index, parentId, hasChildren = false, isExpanded, onToggle, renderNode }, ref) => {
+  ({ node, depth, index, parentId, hasChildren = false, isExpanded, onToggle, renderNode, renderRow }, ref) => {
     const {
       isDragging,
       isDragSource,
@@ -53,6 +84,33 @@ export const TreeNode = forwardRef<HTMLDivElement, TreeNodeProps>(
     };
 
     const indentSize = 24; // px per depth level
+
+    // A custom renderRow replaces the whole row — the caller owns the layout
+    // (indentation, toggle, handle, content). The outer wrapper still carries
+    // the sortable ref and drag-state attributes.
+    if (renderRow) {
+      return (
+        <div
+          ref={combinedRef}
+          data-tree-node={node.id}
+          data-depth={depth}
+          aria-hidden={isDragSource}
+          style={{
+            opacity: isDragging ? 0.5 : 1,
+            transition: 'opacity 150ms ease',
+          }}
+        >
+          {renderRow(node, depth, {
+            handleRef,
+            isDragging,
+            isDragSource,
+            isExpanded,
+            hasChildren,
+            onToggle,
+          })}
+        </div>
+      );
+    }
 
     return (
       <div

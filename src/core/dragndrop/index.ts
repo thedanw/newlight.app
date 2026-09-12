@@ -28,8 +28,5 @@ export { SortableList } from './components/SortableList';
 export { TreeNode, type TreeNodeProps } from './components/TreeNode';
 export { SortableTree, type SortableTreeProps } from './components/SortableTree';
 
-// Hooks
-export { useSortableTree } from './hooks/useSortableTree';
-
 // Utilities
 export * from './utils';

@@ -1,51 +1,49 @@
 import { forwardRef, type ReactNode } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { Text } from '@/core/ui';
-import { useSortableTree } from '../hooks/useSortableTree';
+import { useSortable } from '@dnd-kit/react/sortable';
+import type { TreeNode as TreeNodeType } from '../types';
 
 export interface TreeNodeProps<T = unknown> {
   /** The tree node data */
-  node: {
-    id: string;
-    label: string;
-    children?: Array<{ id: string; label: string; children?: unknown[] }>;
-    data?: T;
-  };
+  node: TreeNodeType<T>;
   /** Current depth in the tree (for indentation) */
   depth: number;
   /** The index of the node within its flattened sortable group */
-  index?: number;
-  /** Sortable group — isolates this tree's items from other SortableTree instances */
-  group?: string | number;
+  index: number;
+  /** Parent node ID (null for root) */
+  parentId: string | null;
   /** Whether the node has children (shows expand/collapse toggle) */
   hasChildren?: boolean;
   /** Whether the node is expanded */
   isExpanded: boolean;
   /** Callback when expand/collapse is toggled */
   onToggle: (id: string) => void;
-  /** Callback when drag ends */
-  onDragEnd: (event: { active: { id: string }; over: { id: string } | null }) => void;
-  /** Optional render prop for custom node content */
-  renderNode?: (node: TreeNodeProps['node'], depth: number) => ReactNode;
+  /** Optional render prop for custom node content (uses `any` for callback variance) */
+  renderNode?: (node: any, depth: number) => ReactNode;
 }
 
 /**
  * Tree node row component with drag-and-drop, expand/collapse, and indentation.
- * This is the non-recursive row; SortableTree renders flattened rows and
- * manages expanded state to include/exclude children.
+ *
+ * Uses `useSortable` directly with the node's depth/parentId in its data so the
+ * container (`SortableTree`) can compute nesting from the horizontal drag offset.
+ * The container handles all drag lifecycle events (descendant handling, depth
+ * projection, reorder) — this row is purely presentational.
  */
 export const TreeNode = forwardRef<HTMLDivElement, TreeNodeProps>(
-  ({ node, depth, index, group, hasChildren = false, isExpanded, onToggle, onDragEnd, renderNode }, ref) => {
+  ({ node, depth, index, parentId, hasChildren = false, isExpanded, onToggle, renderNode }, ref) => {
     const {
       isDragging,
+      isDragSource,
       ref: sortableRef,
       handleRef,
-    } = useSortableTree({
+    } = useSortable({
       id: node.id,
-      depth,
       index,
-      group,
-      onDragEnd,
+      data: { depth, parentId, label: node.label },
+      alignment: { x: 'start', y: 'center' },
+      transition: { idle: true },
     });
 
     const combinedRef = (el: HTMLDivElement | null) => {
@@ -61,6 +59,7 @@ export const TreeNode = forwardRef<HTMLDivElement, TreeNodeProps>(
         ref={combinedRef}
         data-tree-node={node.id}
         data-depth={depth}
+        aria-hidden={isDragSource}
         style={{
           paddingLeft: `${depth * indentSize}px`,
           opacity: isDragging ? 0.5 : 1,
@@ -76,7 +75,7 @@ export const TreeNode = forwardRef<HTMLDivElement, TreeNodeProps>(
             paddingBottom: '8px',
             paddingLeft: '12px',
             paddingRight: '12px',
-            borderRadius: 'l2',
+            borderRadius: 'var(--radii-l2)',
           }}
         >
           {/* Expand/collapse toggle */}

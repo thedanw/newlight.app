@@ -55,6 +55,10 @@ newlight.app church administrators and staff who build forms to collect member i
    - Rationale: Debounced Supabase upsert, optimistic UI updates
 9. **Fill UX (A)**
    - Rationale: Preview tab in builder + public /forms/:id page sharing one renderer component
+10. **Standalone forms module** (2026-09-12)
+    - Rationale: User decision — forms is a business-capability module per planning README
+      (Module = feature users interact with), not a people-subfolder; own manifest/routes/API,
+      legacy /people/forms/* redirects preserved
 
 ## Decision Gap Log
 (none — all gaps resolved)

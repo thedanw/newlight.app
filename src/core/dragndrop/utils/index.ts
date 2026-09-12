@@ -3,7 +3,14 @@
  */
 
 // Tree utilities
-export { flattenTree, type FlattenedTreeNode, type FlattenTreeResult } from './flattenTree';
+export {
+  flattenTree,
+  buildTree,
+  getDragDepth,
+  getProjection,
+  getDescendants,
+  type FlattenedTreeNode,
+} from './tree';
 export { reorderTree } from './reorderTree';
 export { cssKeyframes } from './cssKeyframes';
 

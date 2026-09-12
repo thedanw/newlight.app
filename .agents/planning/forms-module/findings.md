@@ -5,7 +5,7 @@
 - Panda CSS + Ark UI (@ark-ui/react), Zod, Supabase client + serverless
 - lucide-react for icons
 
-## dnd-kit v3 API (critical)
+## dnd-kit v3 API
 Imports: `useDraggable`/`useDroppable` from `@dnd-kit/react`, `useSortable` from `@dnd-kit/react/sortable`
 Provider: `DragDropProvider` from `@dnd-kit/react` (not `@dnd-kit/core`)
 Event API: `event.operation.source` / `event.operation.target` (not `event.active` / `event.over`)
@@ -19,7 +19,7 @@ Reusable components already built:
 - `SortableTree` / `TreeNode` — tree-based nesting
 - `DragDropProvider` — context wrapper with sensors, drag overlay, screen-reader announcements
 
-## Existing People Module Form Infrastructure
+## Existing People Form Infrastructure
 Database tables: `forms`, `form_fields`, `form_submissions`
 Current field types: text, email, phone, number, select, multi_select, checkbox, textarea, date
 Current FormFieldRow: id, form_id, field_type, label, placeholder, options (JSON), required, maps_to_field, sort_order
@@ -42,31 +42,36 @@ Form status: draft/published/closed, form-level settings (colors, covers, thank_
 - RJSF/JSON Forms: INCOMPATIBLE (no visual builder, schema-driven only)
 - Recommendation: BUILD NATIVELY using your existing dnd-kit v3 infra + survey-react's data model as blueprint
 
-## Architecture: Form Field Registry Pattern (from survey-react adaptation)
+## Architecture: Registry Pattern (from survey-react adaptation)
 Each field type has 4 layers:
 1. **Construct** — default field config object
 2. **Designer Component** — how the field appears in the builder canvas (drag handle, inline edit, delete)
 3. **Properties Component** — inline property controls on the field card (label, placeholder, options, required, min/max, column span)
 4. **Form Component** — how the field renders in form preview/submission (using Ark UI)
 
-## File Structure (proposed)
+## File Structure (standalone module — revised 2026-09-12)
 ```
-src/modules/people/form-builder/
-  fieldTypes.ts              -- 14 field type specs + FormFieldSpec interface
-  formLogic.ts               -- Pure functions: evaluateCondition, isVisible, isRequired
-  types.ts                   -- Builder-specific types (BuilderField, LogicRule, etc.)
-  components/
-    FieldPalette.tsx         -- Top panel: draggable field type tiles
-    FieldCanvas.tsx          -- Main: SortableList of fields with ColumnContainer nesting
-    FieldCard.tsx            -- Individual field card with DraggableHandle + inline props
-    ColumnContainer.tsx      -- CSS grid wrapper with nested DroppableZone
-    LogicTab.tsx             -- Central condition rule manager
-    ConditionInline.tsx      -- Per-field "Show when..." quick-add toggle
-  __tests__/
-    fieldTypes.test.ts
-    formLogic.test.ts
-    FieldBuilder.test.tsx
+src/modules/forms/
+  manifest.ts                -- id 'forms', own nav + module number
+  routes.tsx                 -- /forms children (index→List, new/edit→Builder, :id/submissions)
+  public.ts                  -- manifest + FormsModuleApi
+  dashboard.tsx              -- thin link list (mirror example pattern)
+  lib/
+    queries.ts               -- moved from people/lib/form-queries.ts (CRUD, submitForm)
+    types.ts                 -- re-exports form types from people/lib/types (people rows stay there)
+    schema.ts                -- Zod schemas (renamed from forms-schema.ts per naming-convention.md)
+    fieldTypes.ts            -- 14 field type specs + factory + lookup
+    formLogic.ts             -- pure evaluateCondition/isVisible/isRequired (Batch 9)
+    __tests__/schema.test.ts -- moved from forms-schema.test.ts (Batch 7, 11 tests)
+    __tests__/fieldTypes.test.ts -- (Batch 8, 10 tests)
+  pages/
+    ListPage.tsx             -- moved from FormsListPage.tsx
+    BuilderPage.tsx          -- moved from FormBuilderPage.tsx
+    SubmissionsPage.tsx      -- moved from FormSubmissionsPage.tsx
+    PublicPage.tsx           -- moved from FormPublicPage.tsx (imported by core/router.tsx outside AppShell)
+  components/                -- (Batches 10–11) FieldPalette, FieldCanvas, FieldCard, ColumnContainer, LogicTab, ConditionInline
 ```
+Legacy: `/people/forms/*` routes become `<Navigate replace>` redirects to `/forms/*`.
 
 ## Fill UX Decision (UX-A, locked)
 - Builder gets a Preview tab + standalone mobile-first public fill page at /forms/:id

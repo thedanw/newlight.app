@@ -1,40 +1,32 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render } from '@testing-library/react';
 import { TreeNode } from '../TreeNode';
-import { DragDropProvider } from '../../provider';
 
-// Mock useSortableTree
-vi.mock('../../hooks/useSortableTree', () => ({
-  useSortableTree: vi.fn(),
+// Mock useSortable (used by TreeNode internally)
+vi.mock('@dnd-kit/react/sortable', () => ({
+  useSortable: vi.fn(),
 }));
 
-import { useSortableTree } from '../../hooks/useSortableTree';
-const mockUseSortableTree = vi.mocked(useSortableTree);
+import { useSortable } from '@dnd-kit/react/sortable';
+const mockUseSortable = vi.mocked(useSortable);
 
 const defaultProps = {
-  node: {
-    id: '1',
-    label: 'Test Node',
-    children: [],
-  },
+  node: { id: '1', label: 'Test Node', children: [] },
   depth: 0,
+  index: 0,
+  parentId: null as string | null,
   isExpanded: true,
   onToggle: vi.fn(),
-  onDragEnd: vi.fn(),
 };
 
 const renderTreeNode = (props = {}) => {
-  return render(
-    <DragDropProvider>
-      <TreeNode {...defaultProps} {...props} />
-    </DragDropProvider>
-  );
+  return render(<TreeNode {...defaultProps} {...props} />);
 };
 
 describe('TreeNode', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockUseSortableTree.mockReturnValue({
+    mockUseSortable.mockReturnValue({
       sortable: {},
       isDragging: false,
       isDropping: false,
@@ -44,9 +36,7 @@ describe('TreeNode', () => {
       ref: vi.fn(),
       sourceRef: vi.fn(),
       targetRef: vi.fn(),
-      depth: 0,
-      parentId: null,
-    } as unknown as ReturnType<typeof useSortableTree>);
+    } as unknown as ReturnType<typeof useSortable>);
   });
 
   it('renders node label', () => {
@@ -100,22 +90,24 @@ describe('TreeNode', () => {
   });
 
   it('calls onToggle when expand/collapse icon is clicked', () => {
+    const onToggle = vi.fn();
     const { container } = renderTreeNode({
       hasChildren: true,
+      onToggle,
     });
     const toggle = container.querySelector('[data-testid="tree-toggle"]') as HTMLButtonElement;
     toggle.click();
-    expect(defaultProps.onToggle).toHaveBeenCalledWith('1');
+    expect(onToggle).toHaveBeenCalledWith('1');
   });
 
   it('forwards ref to root element', () => {
     const ref = { current: null };
-    renderTreeNode({ ref });
+    render(<TreeNode ref={ref} {...defaultProps} />);
     expect(ref.current).toBeInstanceOf(HTMLDivElement);
   });
 
   it('applies dragging styles when isDragging', () => {
-    mockUseSortableTree.mockReturnValue({
+    mockUseSortable.mockReturnValue({
       sortable: {},
       isDragging: true,
       isDropping: false,
@@ -125,9 +117,7 @@ describe('TreeNode', () => {
       ref: vi.fn(),
       sourceRef: vi.fn(),
       targetRef: vi.fn(),
-      depth: 0,
-      parentId: null,
-    } as unknown as ReturnType<typeof useSortableTree>);
+    } as unknown as ReturnType<typeof useSortable>);
     const { container } = renderTreeNode();
     const node = container.querySelector('[data-tree-node="1"]');
     expect(node).toHaveStyle({ opacity: 0.5 });

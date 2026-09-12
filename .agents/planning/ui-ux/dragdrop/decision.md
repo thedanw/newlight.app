@@ -15,8 +15,18 @@ Implementation decisions and lessons learned, captured 2026-09-11.
 | 7 | v2 API is ref-based, not v1 attributes/listeners | `useSortable` returns refs + state flags; no `attributes`/`listeners` | All hooks and components rewritten for v2 |
 | 8 | `useDragDropMonitor` for drag-end wiring | Cleanest way to subscribe to lifecycle events from any component | Used in `useSortableTree` and `DragStatusAnnouncer` |
 | 9 | Unique `useId()` group per SortableTree | Prevents cross-tree reordering when multiple trees share a provider | Each SortableTree gets an isolated sortable group |
+| 10 | Guard against self-parent in `getProjection` | Dragging a parent over the next item + horizontal offset yields `parentId === source.id`; official example tolerates it, our parent-chain walk froze | `handleDragOver` skips update when `parentId === source.id`; `visibleItems` walk is cycle-safe |
 
 ## Lessons Learned
+
+### Verified v2 API Facts (from installed source — no need to re-read)
+- **`useSortable`** (`@dnd-kit/react/sortable`): `{ id, index (required), group, data, alignment, transition, plugins, modifiers, disabled, handle, element, target, type, accept, sensors, collisionDetector, collisionPriority }` → `{ sortable, isDragging, isDropping, isDragSource, isDropTarget, handleRef, ref, sourceRef, targetRef }`.
+- **`entity.data` is the PLAIN object** (NOT `.current` wrapper) — `source.data.depth` works directly; `source.data.current?.x` is a latent bug.
+- **`move(items, event)`** (helpers, array case): if `source.index !== items.findIndex(source.id)` → `arrayMove(items, sourceIndex2, source.index)`; else `arrayMove(items, sourceIndex2, targetIndex2)`.
+- **`onDragOver` + `event.preventDefault()`** blocks OptimisticSortingPlugin — you own reordering.
+- **`dropAnimation={null}`** → Feedback plugin `cleanup()` immediately, NO WAAPI animation (avoids AnimatePresence crash).
+- **PointerSensor**: handle → activates on pointerdown (no constraints); non-handle → 200ms delay + 5px distance.
+- **Scheduler uses `requestAnimationFrame`** — rAF never fires in hidden automation browsers → move never flushes.
 
 ### Sensor Configuration
 - **v2 PointerSensor handles mouse + touch + pen** — no separate TouchSensor in v2. Configure via `PointerSensor.configure({ activationConstraints })` with per-pointer-type branching.
@@ -27,6 +37,11 @@ Implementation decisions and lessons learned, captured 2026-09-11.
 - **Move-between-branches is the trickiest case** — item must be removed from source parent's children AND re-inserted at target's position. Insert as sibling when target has a parent; insert as child of target when target is root.
 - **Descendant detection must check both directions** — can't move a node into its own descendant.
 - **TypeScript closure-CFA bug** — a `let` variable assigned only inside a nested function gets narrowed to `never` after the closure call. Fix: return values instead of mutating captured `let`s.
+
+### Hard-Freeze: Self-Parent Projection (2026-09-12)
+- **`getProjection(items, target.id, projectedDepth)` returns `parentId === source.id`** when the source is the item directly above the target + horizontal offset. Official example tolerates it (renders flat); ANY parent-chain walk must be cycle-safe (visited set) or guarded.
+- **Guard:** in `handleDragOver`, skip the update when `parentId === source.id`.
+- **Pass `index` from `flattenedItems` flat position** (docs: "position in the list"), NOT the visible index — visible index corrupts `move` when nodes are collapsed.
 
 ### CSS Keyframes
 - **Direct-manipulation drag tracking must NEVER be gated on reduced motion** — only release animation suppressed.
@@ -42,6 +57,9 @@ Implementation decisions and lessons learned, captured 2026-09-11.
 - **vitest and Vite don't typecheck** — tests passing ≠ types correct. Must run `tsc -b` separately.
 - **Browser-level drag testing is unreliable** — dnd-kit v2 PointerSensor doesn't activate with synthetic PointerEvents dispatched via `page.evaluate`. KeyboardSensor is more testable but also has limitations under automation.
 - **Synthetic pointer events DO start drags** (via `dispatchEvent(new PointerEvent(...))`), but collision detection doesn't reliably find the drop target under automation.
+- **Synthetic pointer events CANNOT complete a drag** — `setPointerCapture` throws for synthetic pointerIds → drag cancels (`dragend {canceled:true}`).
+- **rAF never fires in hidden automation browsers** → `manager.actions.move()` never flushes → position/collision never update. Verify drag state via React state/DOM, not animation.
+- **Physical clicks can be swallowed by drag handlers** — use `dispatchEvent('click')`/programmatic clicks.
 
 ### Accessibility
 - **Drag handles must be `<button>`** (not `<div>`) for keyboard focusability.
@@ -62,5 +80,5 @@ Implementation decisions and lessons learned, captured 2026-09-11.
 
 - **Build time:** ~8-9s (Vite 7.3.6), no significant regression
 - **Bundle size:** `index-D7YHFASV.js` at 1,753 kB (gzipped 508 kB) — pre-existing chunk-size warning, not caused by dnd-kit
-- **Test suite:** 250 tests in ~17s (vitest 4.1.11), 26 test files
+- **Test suite:** 260 tests in ~9-23s (vitest 4.1.11), 26 test files
 - **dnd-kit tree shaking:** `@dnd-kit/react` tree-shakes well — only used modules included in bundle

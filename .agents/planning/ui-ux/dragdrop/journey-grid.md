@@ -10,6 +10,8 @@ triggers: [journey-grid, journey-settings, journey-tracks, journey-stages, journ
 
 # Journey Grid Manager dnd-kit Implementation Plan
 
+> **Status: `in_progress`** — executing via 04_executing-plans skill. Batch 1 (Journey Tree Helpers) in progress.
+
 **Goal:** Replace the dead HTML5 DnD stub in `JourneySettingsManager.tsx` with dnd-kit — hierarchical row nesting for journey tracks + categories, and horizontal reordering of journey stage columns.
 
 **Approach:** Two independent dnd contexts. **Rows:** convert `localTracks`/`localCategories` → `TreeNode[]` and render via the existing `SortableTree` (extended with a `renderRow` prop for full grid-row control); on reorder, convert back via a new `treeToJourneyData` helper. **Columns:** new `SortableStageColumns` horizontal sortable using `useSortable` directly. Remove the dead `dragOverId`/`dragPosition`/`getDropIndicator` stub.

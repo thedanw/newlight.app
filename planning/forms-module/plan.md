@@ -32,7 +32,7 @@ Keeps existing route, CRUD queries, page scaffolding, and field editing patterns
 - DB types, FormFieldDraft, condition types, FIELD_TYPES all extended
 - Zod schemas + 11 tests; vitest + tsc clean
 - Errors: none
-- Commit: (pending — selective add below)
+- Commit: cfe1d1b `feat(forms): batch 7 schema migration + DB types + Zod tests` (selective add — unrelated dragndrop work left uncommitted in tree)
 
 ## Batch 8: Field Type Registry + Tests
 - Create src/modules/people/form-builder/fieldTypes.ts

@@ -215,20 +215,22 @@ See `.agents/skills/boss/code-plan/03_optimise-planning/refs/PARTITIONING.md`
 #### Subphase 2.1: `TreeNode.renderRow`
 **Context:** `TreeNode` renders default toggle + handle + label; journey grid rows need full grid-column control (connector + label + stage cells + delete).
 **Todo:**
-- [ ] Write failing test: `renderRow` replaces default layout, receives helpers (`handleRef`, `isDragging`, `isExpanded`, `hasChildren`, `onToggle`), no default `paddingLeft`
-- [ ] Implement `renderRow` prop in `TreeNode.tsx`
-- [ ] Refactor: keep `renderNode` backward-compatible
+- [x] Write failing test: `renderRow` replaces default layout, receives helpers (`handleRef`, `isDragging`, `isExpanded`, `hasChildren`, `onToggle`), no default `paddingLeft`
+- [x] Implement `renderRow` prop in `TreeNode.tsx`
+- [x] Refactor: keep `renderNode` backward-compatible
 **Subagent:** No
 **Deliverable:** Passing TreeNode renderRow tests
 
 #### Subphase 2.2: `SortableTree.renderRow` passthrough
 **Context:** `SortableTree` renders `TreeNode`; must forward `renderRow`.
 **Todo:**
-- [ ] Write failing test: `SortableTree` passes `renderRow` to `TreeNode`
-- [ ] Implement passthrough in `SortableTree.tsx`
+- [x] Write failing test: `SortableTree` passes `renderRow` to `TreeNode`
+- [x] Implement passthrough in `SortableTree.tsx`
 **Subagent:** No
 **Deliverable:** Passing SortableTree renderRow tests
 **Commit:** `feat(dragndrop): renderRow prop for custom tree rows`
+
+> **Batch 2 DONE (commit `7b7353f`)** — `renderRow` prop on `TreeNode` + `SortableTree` passthrough; 3 new tests pass; full suite 299/299; `tsc -b` clean for dragndrop. `TreeNodeRenderRow` uses `any` node type (matches `renderNode` callback-variance convention — `TreeNode` is a non-generic forwardRef).
 
 ## Batch 2 Compaction
 - If context > 70%: compact before next batch — never exceed 80%

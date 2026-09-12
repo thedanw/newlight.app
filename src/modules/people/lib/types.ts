@@ -52,6 +52,10 @@ export type PeopleListOptions = {
 
 export type FormFieldOption = { label: string; value: string }
 
+export type FormFieldCondition = Tables<'form_field_conditions'>
+export type FormConditionOperator = FormFieldCondition['operator']
+export type FormConditionEffect = FormFieldCondition['effect']
+
 export type FormWithFields = Form & {
   fields: FormField[]
 }

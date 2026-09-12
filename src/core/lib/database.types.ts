@@ -145,6 +145,21 @@ type FormFieldRow = {
   required: boolean
   maps_to_field: string | null
   sort_order: number
+  min_value: number | null
+  max_value: number | null
+  column_span: number
+  parent_id: string | null
+}
+type FormFieldConditionRow = {
+  id: string
+  form_id: string
+  field_id: string
+  source_field_id: string
+  operator: Database['public']['Enums']['form_condition_operator']
+  value: string
+  effect: Database['public']['Enums']['form_condition_effect']
+  created_at: string
+  updated_at: string
 }
 type FormSubmissionRow = {
   id: string
@@ -184,8 +199,9 @@ export type Database = {
       people_audit: TableDefinition<PeopleAuditRow>
       people_tags: TableDefinition<PeopleTagRow>
       saved_lists: TableDefinition<SavedListRow>
-      forms: TableDefinition<FormRow>
+            forms: TableDefinition<FormRow>
       form_fields: TableDefinition<FormFieldRow>
+      form_field_conditions: TableDefinition<FormFieldConditionRow>
       form_submissions: TableDefinition<FormSubmissionRow>
       platform_settings: TableDefinition<PlatformSettingsRow>
       plugins: TableDefinition<PluginRow>
@@ -207,7 +223,9 @@ export type Database = {
       smc_result: 'age_13_17_application_approved' | 'over_18_application_approved'
       audit_change_reason: 'manual' | 'auto_progression' | 'gdpr_request' | 'migration' | 'sync'
       form_submit_action: 'create_person' | 'update_person' | 'add_to_tag' | 'none'
-      form_field_type: 'text' | 'email' | 'phone' | 'number' | 'select' | 'multi_select' | 'checkbox' | 'textarea' | 'date'
+            form_field_type: 'text' | 'email' | 'phone' | 'number' | 'select' | 'multi_select' | 'checkbox' | 'textarea' | 'date' | 'title' | 'radio' | 'scale' | 'nps' | 'column_container'
+      form_condition_operator: 'equals' | 'not_equals' | 'greater_than' | 'less_than' | 'contains'
+      form_condition_effect: 'show' | 'hide' | 'require'
     }
     CompositeTypes: Record<string, never>
   }

@@ -26,6 +26,10 @@ export type FormFieldDraft = {
   required: boolean
   maps_to_field: string | null
   sort_order: number
+  min_value: number | null
+  max_value: number | null
+  column_span: number
+  parent_id: string | null
 }
 
 export type FormDraft = {
@@ -67,6 +71,10 @@ async function upsertFormFields(formId: string, drafts: FormFieldDraft[]): Promi
     required: draft.required,
     maps_to_field: draft.maps_to_field || null,
     sort_order: index,
+    min_value: draft.min_value,
+    max_value: draft.max_value,
+    column_span: draft.column_span,
+    parent_id: draft.parent_id,
   }))
   const { data, error } = await supabase.from('form_fields').insert(rows).select('*').order('sort_order')
   if (error) throw error

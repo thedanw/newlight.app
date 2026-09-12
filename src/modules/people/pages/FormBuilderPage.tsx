@@ -10,7 +10,7 @@ import { PageSkeleton } from '../components/PageSkeleton'
 import type { FormDraft, FormFieldDraft } from '../lib/form-queries'
 import type { FormFieldOption, FormFieldType, FormSubmitAction, Tag } from '../lib/types'
 
-const FIELD_TYPES: FormFieldType[] = ['text', 'email', 'phone', 'number', 'select', 'multi_select', 'checkbox', 'textarea', 'date']
+const FIELD_TYPES: FormFieldType[] = ['text', 'email', 'phone', 'number', 'select', 'multi_select', 'checkbox', 'textarea', 'date', 'title', 'radio', 'scale', 'nps', 'column_container']
 const SUBMIT_ACTIONS: FormSubmitAction[] = ['none', 'create_person', 'update_person', 'add_to_tag']
 
 const emptyField = (): FormFieldDraft => ({
@@ -22,6 +22,10 @@ const emptyField = (): FormFieldDraft => ({
   required: false,
   maps_to_field: null,
   sort_order: 0,
+  min_value: null,
+  max_value: null,
+  column_span: 12,
+  parent_id: null,
 })
 
 const emptyDraft = (): FormDraft => ({

@@ -1,7 +1,7 @@
 import { forwardRef, type ReactNode } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { Text } from '@/core/ui';
-import { useSortable } from '@dnd-kit/react/sortable';
+import { useSortable } from '@dnd-kit/sortable';
 import type { TreeNode as TreeNodeType } from '../types';
 
 /** Helpers passed to a custom `renderRow` so callers can build full grid rows

@@ -22,7 +22,7 @@ import { DragDropProvider } from '@/core/dragndrop'
 import { createForm, getFormById, MAPPABLE_PERSON_FIELDS, updateForm } from '../lib/queries'
 import { getTags } from '../../people/lib/queries'
 import { PageSkeleton } from '../../people/components/PageSkeleton'
-import { ColumnContainer } from './ColumnContainer'
+import { ColumnContainer } from '../components/ColumnContainer'
 import { createDefaultField, getFieldSpec } from '../lib/fieldTypes'
 import type { FormDraft, FormFieldDraft } from '../lib/queries'
 import type { FormFieldOption, FormFieldType, FormSubmitAction, Tag } from '../lib/types'
@@ -53,6 +53,17 @@ function fieldToDragItem(field: FormFieldDraft): DragItem {
     label: field.label || spec?.defaultLabel || field.field_type,
     data: { field_type: field.field_type, parent_id: field.parent_id ?? undefined },
   }
+}
+
+function renderFieldCardItem(
+  field: FormFieldDraft,
+  index: number,
+  isDragging: boolean,
+  draft: FormDraft,
+  setField: (fieldId: string, patch: Partial<FormFieldDraft>) => void,
+  removeField: (fieldId: string) => void
+) {
+  return renderFieldCard(field, index, isDragging, draft, setField, removeField)
 }
 
 export default function FormBuilderPage() {
@@ -200,6 +211,8 @@ export default function FormBuilderPage() {
 
   const headingTitle = id ? 'Edit form' : 'New form'
 
+  const renderFieldCardItem = () => <div>Field</div>
+
   return (
     <Page.Main>
       <Page.Header style={{ '--module-number': 1 } as CSSProperties}>
@@ -289,7 +302,7 @@ export default function FormBuilderPage() {
             <Card.Header>
               <Card.Title>Fields</Card.Title>
             </Card.Header>
-                        <Card.Body>
+            <Card.Body>
               <DragDropProvider>
                 <Stack gap="4">
                   <Text>Drag a field type below onto the canvas:</Text>
@@ -310,8 +323,8 @@ export default function FormBuilderPage() {
                     })}
                   </Box>
                 </Stack>
-                            </DragDropProvider>
-                        </Card.Body>
+              </DragDropProvider>
+            </Card.Body>
           </Card.Root>
 
           {/* Field Canvas — SortableList replaces button reorder (Batch 10) */}
@@ -326,59 +339,14 @@ export default function FormBuilderPage() {
                   <Dragndrop.SortableList
                     items={rootFields.map(fieldToDragItem)}
                     onReorder={(next: DragItem[]) => reorderFields(next.map((item) => item.id))}
-                    renderItem={(item, index, isDragging) => {
-                      const field = rootFields[index]
-                      if (!field) return null
-                      const spec = getFieldSpec(field.field_type)
-                      const childFields = draft.fields.filter((child) => child.parent_id === field.id)
-                      return (
-                        <Box
-                          key={field.id}
-                          data-field-card={field.id}
-                          data-field-type={field.field_type}
-                          data-dragging={isDragging ? 'true' : 'false'}
-                          borderWidth="1px"
-                          borderStyle="solid"
-                          borderColor={isDragging ? 'var(--colors-border-emphasized)' : 'var(--colors-border)'}
-                          borderRadius="l2"
-                          p="3"
-                        >
-                          <Stack flexDirection="row" alignItems="center" gap="2" mb="2">
-                            <Dragndrop.DraggableHandle item={fieldToDragItem(field)} />
-                            <Heading textStyle="sm" fontWeight="medium">{field.label || spec?.defaultLabel}</Heading>
-                            <Text textStyle="xs" color="fg.muted">({field.field_type})</Text>
-                          </Stack>
-
-                          <Stack gap="2">
-                            {field.field_type === 'column_container' ? (
-                              <ColumnContainer container={field}>
-                                {childFields.map((child) => (
-                                  <Box
-                                    key={child.id}
-                                    data-column-child={child.id}
-                                    gridColumn={`span ${child.column_span}`}
-                                    borderWidth="1px"
-                                    borderStyle="dashed"
-                                    borderColor="var(--colors-border)"
-                                    borderRadius="l1"
-                                    p="2"
-                                  >
-                                    <Stack flexDirection="row" alignItems="center" gap="1">
-                                      <GripVertical size={14} aria-hidden="true" />
-                                      <Text textStyle="sm">{child.label || getFieldSpec(child.field_type)?.defaultLabel}</Text>
-                                    </Stack>
-                                  </Box>
-                                ))}
-                              </ColumnContainer>
-                            ) : (
-                              <>
-                                <Field.Root>
-                                  <Field.Label>Label</Field.Label>
-                                  <Input value={field.label} onChange={(event) => setField(field.id, { label: event.target.value })} />
-                                </Field.Root>
+                    renderItem={renderFieldCardItem}
+                  </Dragndrop.SortableList>
+                </DragDropProvider>
+              </Stack>
+            </Card.Body>
+          </Card.Root>
+        </Stack>
       </Page.Body>
     </Page.Main>
   )
 }
-
-

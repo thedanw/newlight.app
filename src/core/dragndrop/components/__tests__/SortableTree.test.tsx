@@ -9,43 +9,67 @@ const { capturedHandlers } = vi.hoisted(() => ({
 
 // Mock @dnd-kit/react so DragDropProvider renders children and captures handlers,
 // and DragOverlay renders its render-prop output.
-vi.mock('@dnd-kit/react', () => ({
-  DragDropProvider: ({ children, onDragStart, onDragMove, onDragOver, onDragEnd }: any) => {
-    capturedHandlers.onDragStart = onDragStart;
-    capturedHandlers.onDragMove = onDragMove;
-    capturedHandlers.onDragOver = onDragOver;
-    capturedHandlers.onDragEnd = onDragEnd;
-    return <div data-testid="drag-drop-provider">{children}</div>;
-  },
-  DragOverlay: ({ children }: any) => {
-    const content = typeof children === 'function' ? children(null) : children;
-    return <div data-testid="drag-overlay">{content}</div>;
-  },
+// Also mock useSensors and useSensor for v8+
+vi.mock('@dnd-kit/react', () => {
+  return {
+    DragDropProvider: ({ children, onDragStart, onDragMove, onDragOver, onDragEnd }: any) => {
+      capturedHandlers.onDragStart = onDragStart;
+      capturedHandlers.onDragMove = onDragMove;
+      capturedHandlers.onDragOver = onDragOver;
+      capturedHandlers.onDragEnd = onDragEnd;
+      return <div data-testid="drag-drop-provider">{children}</div>;
+    },
+    DragOverlay: ({ children }: any) => {
+      const content = typeof children === 'function' ? children(null) : children;
+      return <div data-testid="drag-overlay">{content}</div>;
+    },
+    useSensors: vi.fn(() => []),
+    useSensor: vi.fn(() => []),
+  };
+});
+
+// Mock @dnd-kit/dom for sensors
+vi.mock('@dnd-kit/dom', () => ({
+  PointerSensor: class PointerSensor {},
+  KeyboardSensor: class KeyboardSensor {},
 }));
 
-// Mock useSortable (used by TreeNode internally)
-vi.mock('@dnd-kit/react/sortable', () => ({
-  useSortable: vi.fn(() => ({
-    sortable: {},
-    isDragging: false,
-    isDropping: false,
-    isDragSource: false,
-    isDropTarget: false,
-    handleRef: vi.fn(),
-    ref: vi.fn(),
-    sourceRef: vi.fn(),
-    targetRef: vi.fn(),
-  })),
-}));
-
-// Mock move helper (identity — reorder logic is covered by tree utils)
-vi.mock('@dnd-kit/helpers', () => ({
-  move: vi.fn((items: any[]) => items),
-}));
+// Mock @dnd-kit/sortable for hooks and utilities
+vi.mock('@dnd-kit/sortable', () => {
+  return {
+    useSortable: vi.fn(() => ({
+      sortable: {},
+      isDragging: false,
+      isDropping: false,
+      isDragSource: false,
+      isDropTarget: false,
+      handleRef: vi.fn(),
+      ref: vi.fn(),
+      sourceRef: vi.fn(),
+      targetRef: vi.fn(),
+    })),
+    sortableKeyboardCoordinates: vi.fn(),
+    move: vi.fn((items: any[]) => items),
+  };
+});
 
 // Mock sensors to avoid real sensor construction in JSDOM
 vi.mock('../../sensors', () => ({
   createDefaultSensors: vi.fn(() => []),
+}));
+
+// Mock tree utils
+vi.mock('../../utils/tree', () => ({
+  flattenTree: vi.fn((tree: any[]) => [
+    { id: '1', label: 'Root 1', depth: 0, path: ['1'], parentId: null, children: [] },
+    { id: '1-1', label: 'Child 1-1', depth: 1, path: ['1', '1-1'], parentId: '1', children: [] },
+    { id: '1-2', label: 'Child 1-2', depth: 1, path: ['1', '1-2'], parentId: '1', children: [] },
+    { id: '2', label: 'Root 2', depth: 0, path: ['2'], parentId: null, children: [] },
+  ]),
+  buildTree: vi.fn((items: any[]) => items),
+  getDescendants: vi.fn(() => new Set()),
+  getDragDepth: vi.fn(() => 1),
+  getProjection: vi.fn(() => ({ depth: 1, parentId: '1' })),
 }));
 
 const tree = [

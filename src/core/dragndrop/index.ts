@@ -13,13 +13,6 @@ export {
   sensorPresets,
 } from './sensors';
 
-// Hooks (legacy v2 wrappers - deprecated)
-export {
-  useDragndropDraggable,
-  useDragndropDroppable,
-  useDragndropSortable,
-} from './hooks/useDragndrop';
-
 // Hooks (modern v8+)
 export {
   useSortableTree,
@@ -41,10 +34,6 @@ export {
 } from './hooks/useSensors';
 
 // Components
-export { DraggableHandle } from './components/DraggableHandle';
-export { DraggableItem } from './components/DraggableItem';
-export { DroppableZone } from './components/DroppableZone';
-export { SortableList } from './components/SortableList';
 export { TreeNode, type TreeNodeProps } from './components/TreeNode';
 export { SortableTree, type SortableTreeProps } from './components/SortableTree';
 

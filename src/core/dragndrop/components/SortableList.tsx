@@ -1,7 +1,6 @@
-import { forwardRef, useState } from 'react';
+import { forwardRef, type ReactNode } from 'react';
 import { Box, VStack } from 'styled-system/jsx';
-import { useSortable } from '@dnd-kit/react/sortable';
-import { useDragndropDraggable } from '../hooks/useDragndrop';
+import { useSortableList, type UseSortableListReturn } from '../hooks/useSortableList';
 import type { DragItem } from '../types';
 
 interface SortableListProps {
@@ -10,82 +9,34 @@ interface SortableListProps {
   /** Callback fired when items are reordered */
   onReorder: (items: DragItem[]) => void;
   /** Optional custom renderer for each item */
-  renderItem?: (item: DragItem, index: number, isDragging: boolean) => React.ReactNode;
+  renderItem?: (item: DragItem, index: number, isDragging: boolean) => ReactNode;
   /** Optional custom className */
   className?: string;
   /** Optional gap between items */
   gap?: string;
 }
 
-interface SortableItemProps {
-  item: DragItem;
-  index: number;
-  renderItem?: (item: DragItem, index: number, isDragging: boolean) => React.ReactNode;
-}
-
 /**
- * SortableItem - Individual sortable item within a SortableList
- */
-const SortableItem = forwardRef<HTMLDivElement, SortableItemProps>(
-  ({ item, index, renderItem }, ref) => {
-    const { ref: itemRef, isDragging, isDragSource } = useDragndropDraggable(item);
-    const { ref: sortableRef, isDragging: sortableDragging, isDragSource: sortableSource } = useSortable({ 
-      id: item.id,
-      index,
-    });
-
-    // Combine refs: forwardRef + draggable ref + sortable ref
-    const combinedRef = (element: HTMLDivElement | null) => {
-      if (typeof ref === 'function') ref(element);
-      else if (ref) (ref as React.MutableRefObject<HTMLDivElement | null>).current = element;
-      itemRef(element);
-      sortableRef(element);
-    };
-
-    const mergedDragging = isDragging || sortableDragging;
-    const mergedDragSource = isDragSource || sortableSource;
-
-    return (
-      <Box
-        ref={combinedRef}
-        data-draggable-item={item.id}
-        data-dragging={mergedDragging ? 'true' : 'false'}
-        data-drag-source={mergedDragSource ? 'true' : 'false'}
-        role="listitem"
-      >
-        {renderItem ? renderItem(item, index, mergedDragging) : item.label}
-      </Box>
-    );
-  }
-);
-
-SortableItem.displayName = 'SortableItem';
-
-/**
- * SortableList - A sortable list component using @dnd-kit
- * Provides drag-and-drop reordering with keyboard accessibility
+ * SortableList - A sortable list component using dnd-kit v8+ hooks.
+ * 
+ * Uses the `useSortableList` hook which provides a `getItemProps` function
+ * returning refs and drag state for each item. This replaces the old
+ * `renderItem` prop pattern that caused parser bugs.
  * 
  * Usage:
+ * ```tsx
  * <SortableList 
  *   items={items} 
  *   onReorder={setItems}
  *   renderItem={(item, index, isDragging) => (
- *     <DraggableItem item={item}>
- *       <DraggableItem.Handle item={item} />
- *       {item.label}
- *     </DraggableItem>
+ *     <div>Custom rendering</div>
  *   )}
  * />
+ * ```
  */
 export const SortableList = forwardRef<HTMLDivElement, SortableListProps>(
   ({ items, onReorder, renderItem, className = '', gap = '2', ...props }, ref) => {
-    // Handle reorder - we need to track items locally to compute new order
-    const [localItems, setLocalItems] = useState(items);
-    
-    // Sync local items with props
-    if (localItems.length !== items.length || localItems.some((item, i) => item.id !== items[i].id)) {
-      setLocalItems(items);
-    }
+    const list = useSortableList({ items, onReorder }) as UseSortableListReturn;
 
     return (
       <Box
@@ -95,14 +46,53 @@ export const SortableList = forwardRef<HTMLDivElement, SortableListProps>(
         {...props}
       >
         <VStack gap={gap} role="list" aria-label="Sortable list">
-          {localItems.map((item, index) => (
-            <SortableItem
-              key={item.id}
-              item={item}
-              index={index}
-              renderItem={renderItem}
-            />
-          ))}
+          {list.items.map((item, index) => {
+            const { ref: itemRef, handleRef, isDragging, isDragSource } = list.getItemProps(item, index);
+            return (
+              <Box
+                key={item.id}
+                ref={itemRef}
+                data-draggable-item={item.id}
+                data-dragging={isDragging ? 'true' : 'false'}
+                data-drag-source={isDragSource ? 'true' : 'false'}
+                role="listitem"
+              >
+                {renderItem
+                  ? renderItem(item, index, isDragging)
+                  : (
+                    <>
+                      <button
+                        ref={handleRef}
+                        type="button"
+                        aria-label="Reorder item"
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          width: '44px',
+                          height: '44px',
+                          flexShrink: 0,
+                          border: 'none',
+                          background: 'transparent',
+                          cursor: isDragging ? 'grabbing' : 'grab',
+                          touchAction: 'none',
+                        }}
+                      >
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                          <circle cx="9" cy="5" r="1" />
+                          <circle cx="9" cy="12" r="1" />
+                          <circle cx="9" cy="19" r="1" />
+                          <circle cx="15" cy="5" r="1" />
+                          <circle cx="15" cy="12" r="1" />
+                          <circle cx="15" cy="19" r="1" />
+                        </svg>
+                      </button>
+                      <span>{item.label}</span>
+                    </>
+                  )}
+              </Box>
+            );
+          })}
         </VStack>
       </Box>
     );

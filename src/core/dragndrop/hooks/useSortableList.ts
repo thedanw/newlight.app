@@ -1,10 +1,9 @@
 import React from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
-import { useSensor, useSensors } from '@dnd-kit/react';
-import { PointerSensor, KeyboardSensor } from '@dnd-kit/dom';
-import { move } from '@dnd-kit/sortable';
+import { move } from '@dnd-kit/helpers';
 import type { DragItem } from '../types';
+import { createDefaultSensors } from '../sensors';
 import type { DragStartEvent, DragMoveEvent, DragOverEvent, DragEndEvent } from '@dnd-kit/react';
 import type { DragDropManager } from '@dnd-kit/abstract';
 
@@ -22,7 +21,7 @@ export interface UseSortableListReturn {
   /** The items (synced with props) */
   items: DragItem[];
   /** Sensors for DragDropProvider */
-  sensors: ReturnType<typeof useSensors>;
+  sensors: ReturnType<typeof createDefaultSensors>;
   /** Drag start handler */
   handleDragStart: (event: DragStartEvent) => void;
   /** Drag move handler */
@@ -41,7 +40,7 @@ export interface UseSortableListReturn {
 }
 
 /**
- * Hook for sortable flat list functionality using dnd-kit v8+ hooks directly.
+ * Hook for sortable flat list functionality using dnd-kit hooks directly.
  * 
  * This replaces the old SortableList wrapper component. Consumers should:
  * 1. Call this hook to get item props and handlers
@@ -81,18 +80,8 @@ export function useSortableList({
     setLocalItems(items);
   }, [items]);
 
-  // Sensors (v8+ pattern)
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 8,
-        tolerance: 5,
-      },
-    }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
+  // Sensors (use createDefaultSensors for v2/v8 compatibility)
+  const sensors = createDefaultSensors();
 
   // Drag lifecycle handlers
   const handleDragStart = React.useCallback((event: DragStartEvent) => {

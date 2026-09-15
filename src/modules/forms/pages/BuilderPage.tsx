@@ -4,7 +4,6 @@ import {
   Button,
   Card,
   Checkbox,
-  Dragndrop,
   Field,
   Heading,
   Input,
@@ -19,6 +18,7 @@ import { Box, Stack } from 'styled-system/jsx'
 import { Users, GripVertical } from 'lucide-react'
 import { createListCollection } from '@ark-ui/react'
 import { DragDropProvider } from '@/core/dragndrop'
+import { useSortableList } from '@/core/dragndrop/hooks/useSortableList'
 import { createForm, getFormById, MAPPABLE_PERSON_FIELDS, updateForm } from '../lib/queries'
 import { getTags } from '../../people/lib/queries'
 import { PageSkeleton } from '../../people/components/PageSkeleton'
@@ -211,7 +211,17 @@ export default function FormBuilderPage() {
 
   const headingTitle = id ? 'Edit form' : 'New form'
 
-  const renderFieldCardItem = () => <div>Field</div>
+  // Convert root fields to DragItem for useSortableList
+  const dragItems = useMemo(() =>
+    rootFields.map(fieldToDragItem),
+    [rootFields]
+  )
+
+  // Use the new useSortableList hook (v8+ pattern)
+  const { items: sortableItems, sensors, handleDragStart, handleDragMove, handleDragOver, handleDragEnd, getItemProps } = useSortableList({
+    items: dragItems,
+    onReorder: (reorderedItems) => reorderFields(reorderedItems.map((item) => item.id)),
+  })
 
   return (
     <Page.Main>
@@ -333,16 +343,101 @@ export default function FormBuilderPage() {
               <Card.Title>Canvas</Card.Title>
             </Card.Header>
             <Card.Body>
-              <DragDropProvider>
+              <DragDropProvider
+                sensors={sensors}
+                onDragStart={handleDragStart}
+                onDragMove={handleDragMove}
+                onDragOver={handleDragOver}
+                onDragEnd={handleDragEnd}
+              >
                 <Stack gap="4">
                   {draft.fields.length === 0 && <Text color="fg.muted">No fields yet. Add one from the palette above.</Text>}
-                  <Dragndrop.SortableList
-                    items={rootFields.map(fieldToDragItem)}
-                    onReorder={(next: DragItem[]) => reorderFields(next.map((item) => item.id))}
-                    renderItem={renderFieldCardItem}
-                  </Dragndrop.SortableList>
-                </DragDropProvider>
-              </Stack>
+                  {sortableItems.map((item, index) => {
+                    const field = rootFields[index]
+                    if (!field) return null
+                    const { ref, handleRef, isDragging, isDragSource } = getItemProps(item, index)
+                    const spec = getFieldSpec(field.field_type)
+                    const childFields = draft.fields.filter((child) => child.parent_id === field.id)
+                    return (
+                      <Box
+                        key={field.id}
+                        ref={ref}
+                        data-field-card={field.id}
+                        data-field-type={field.field_type}
+                        data-dragging={isDragging ? 'true' : 'false'}
+                        data-drag-source={isDragSource ? 'true' : 'false'}
+                        borderWidth="1px"
+                        borderStyle="solid"
+                        borderColor={isDragging ? 'var(--colors-border-emphasized)' : 'var(--colors-border)'}
+                        borderRadius="l2"
+                        p="3"
+                      >
+                        <Stack gap="2">
+                          <Stack flexDirection="row" alignItems="center" gap="2" mb="2">
+                            <button
+                              ref={handleRef}
+                              type="button"
+                              aria-label="Reorder item"
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                width: '44px',
+                                height: '44px',
+                                flexShrink: 0,
+                                border: 'none',
+                                background: 'transparent',
+                                cursor: isDragging ? 'grabbing' : 'grab',
+                                touchAction: 'none',
+                              }}
+                            >
+                              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                                <circle cx="9" cy="5" r="1" />
+                                <circle cx="9" cy="12" r="1" />
+                                <circle cx="9" cy="19" r="1" />
+                                <circle cx="15" cy="5" r="1" />
+                                <circle cx="15" cy="12" r="1" />
+                                <circle cx="15" cy="19" r="1" />
+                              </svg>
+                            </button>
+                            <Heading textStyle="sm" fontWeight="medium">{field.label || spec?.defaultLabel}</Heading>
+                            <Text textStyle="xs" color="fg.muted">({field.field_type})</Text>
+                          </Stack>
+
+                          {field.field_type === 'column_container' ? (
+                            <ColumnContainer container={field}>
+                              {childFields.map((child) => (
+                                <Box
+                                  key={child.id}
+                                  data-column-child={child.id}
+                                  gridColumn={`span ${child.column_span}`}
+                                  borderWidth="1px"
+                                  borderStyle="dashed"
+                                  borderColor="var(--colors-border)"
+                                  borderRadius="l1"
+                                  p="2"
+                                >
+                                  <Stack flexDirection="row" alignItems="center" gap="1">
+                                    <GripVertical size={14} aria-hidden="true" />
+                                    <Text textStyle="sm">{child.label || getFieldSpec(child.field_type)?.defaultLabel}</Text>
+                                  </Stack>
+                                </Box>
+                              ))}
+                            </ColumnContainer>
+                          ) : (
+                            <>
+                              <Field.Root>
+                                <Field.Label>Label</Field.Label>
+                                <Input value={field.label} onChange={(event) => setField(field.id, { label: event.target.value })} />
+                              </Field.Root>
+                            </>
+                          )}
+                        </Stack>
+                      </Box>
+                    )
+                  })}
+                </Stack>
+              </DragDropProvider>
             </Card.Body>
           </Card.Root>
         </Stack>

@@ -1,10 +1,9 @@
 import React from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
-import { useSensor, useSensors } from '@dnd-kit/react';
-import { PointerSensor, KeyboardSensor } from '@dnd-kit/dom';
-import { move } from '@dnd-kit/sortable';
+import { move } from '@dnd-kit/helpers';
 import { flattenTree, buildTree, getDescendants, getDragDepth, getProjection, type FlattenedTreeNode } from '../utils/tree';
+import { createDefaultSensors } from '../sensors';
 import type { TreeNode as TreeNodeType } from '../types';
 import type { DragStartEvent, DragMoveEvent, DragOverEvent, DragEndEvent } from '@dnd-kit/react';
 import type { DragDropManager } from '@dnd-kit/abstract';
@@ -153,18 +152,8 @@ export function useSortableTree<TData = unknown>({
     });
   }, [flattenedItems, expanded, itemById]);
 
-  // Sensors (v8+ pattern)
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 8,
-        tolerance: 5,
-      },
-    }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
+  // Sensors (use createDefaultSensors for v2/v8 compatibility)
+  const sensors = createDefaultSensors();
 
   // Drag lifecycle
   const handleDragStart = React.useCallback((event: DragStartEvent) => {

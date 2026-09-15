@@ -3,10 +3,10 @@ import { createListCollection } from '@ark-ui/react'
 import { Field, Page, Select, Text } from '@/core/ui'
 import { Stack } from 'styled-system/jsx'
 import { Users } from 'lucide-react'
-import { useJourneyGrid } from '../lib/hooks'
-import { JourneyGrid } from '../components/JourneyGrid'
-import { PageSkeleton } from '../components/PageSkeleton'
-import { updatePersonJourney } from '../lib/queries'
+import { useJourneyGrid } from '../../lib/hooks'
+import { JourneyGrid } from './Grid'
+import { PageSkeleton } from '../../components/PageSkeleton'
+import { updatePersonJourney } from '../../lib/queries'
 
 export default function JourneyGridPage() {
   const { data, loading, error } = useJourneyGrid()

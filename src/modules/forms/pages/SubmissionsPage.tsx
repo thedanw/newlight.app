@@ -5,7 +5,7 @@ import { Button, Card, Page, Table, Text } from '@/core/ui'
 import { Stack } from 'styled-system/jsx'
 import { Users } from 'lucide-react'
 import { getFormById, getFormSubmissions } from '../lib/queries'
-import { PageSkeleton } from '../../../people/components/PageSkeleton'
+import { PageSkeleton } from '../../people/components/PageSkeleton'
 import type { Form, FormSubmissionWithPerson } from '../lib/types'
 
 export default function FormSubmissionsPage() {

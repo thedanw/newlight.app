@@ -1,4 +1,4 @@
-import { Stack } from 'styled-system/jsx'
+import { Stack, HStack } from 'styled-system/jsx'
 import { Heading, Text, Button, Alert, Card } from '@/core/ui'
 import { usePluginAPIContext } from '@/core/plugins/PluginAPI'
 import { useState, useEffect } from 'react'
@@ -111,13 +111,16 @@ export function FieldMappingTab() {
       <Card.Root>
         <Card.Header>
           <Card.Title>Elvanto Field Discovery</Card.Title>
-          <Card.Description>
-            Discover dynamic fields like categories, custom fields, and locations from your Elvanto account.
-          </Card.Description>
         </Card.Header>
         <Card.Body>
-          <Stack gap="4">
+
+          <HStack justify="space-between" alignItems="start" flexDirection={{ base: 'column', sm: 'row' }}>
+            <Text fontSize="sm">
+              Discover dynamic fields like categories, custom fields, and locations from your Elvanto account.
+            </Text>
+            <Stack gap="4">
             <Button 
+              size="sm"
               onClick={handleDiscoverFields} 
               loading={discovering}
               disabled={discovering}
@@ -134,7 +137,8 @@ export function FieldMappingTab() {
                 {discoveredCatalog.locations.length} locations
               </Text>
             )}
-          </Stack>
+            </Stack>
+          </HStack>
         </Card.Body>
       </Card.Root>
 

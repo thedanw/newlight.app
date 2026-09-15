@@ -36,18 +36,28 @@ const coreSections: SettingsSection[] = []
 const corePages: SettingsPage[] = []
 
 export function registerSettingsSection(section: SettingsSection) {
-  if (coreSections.some((s) => s.id === section.id)) {
-    throw new Error(`Settings section "${section.id}" is already registered.`)
+  const existing = coreSections.find((s) => s.id === section.id)
+  if (existing) {
+    // Idempotent re-registration: module-load side effects re-run on Vite HMR,
+    // so a duplicate id must replace in place (last wins) instead of throwing.
+    // New modules still register fresh sections via the push path below.
+    Object.assign(existing, section)
+  } else {
+    coreSections.push(section)
   }
-  coreSections.push(section)
   coreSections.sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
 }
 
 export function registerSettingsPage(page: SettingsPage) {
-  if (corePages.some((p) => p.sectionId === page.sectionId && p.id === page.id)) {
-    throw new Error(`Settings page "${page.sectionId}/${page.id}" is already registered.`)
+  const existing = corePages.find(
+    (p) => p.sectionId === page.sectionId && p.id === page.id,
+  )
+  if (existing) {
+    // Idempotent re-registration (see registerSettingsSection).
+    Object.assign(existing, page)
+  } else {
+    corePages.push(page)
   }
-  corePages.push(page)
   corePages.sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
 }
 

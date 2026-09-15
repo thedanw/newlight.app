@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { Button, Card, Field, Input, Text } from '@/core/ui'
 import { Stack } from 'styled-system/jsx'
-import { createTag, deleteTag, updateTag } from '../lib/queries'
-import { useTags } from '../lib/hooks'
-import type { Tag } from '../lib/types'
+import { createTag, deleteTag, updateTag } from '../../lib/queries'
+import { useTags } from '../../lib/hooks'
+import type { Tag } from '../../lib/types'
 
 export function TagManager() {
   const { data, loading, error } = useTags()

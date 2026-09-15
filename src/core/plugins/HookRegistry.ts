@@ -63,17 +63,17 @@ const pluginRegistrations = new Map<string, {
  * Register a settings section from a plugin
  */
 export function registerPluginSettingsSection(section: SettingsSection, pluginName: string): void {
-  if (pluginSections.some((s) => s.id === section.id)) {
-    console.warn(`[HookRegistry] Settings section "${section.id}" already registered (by ${pluginName})`)
-    return
+  const idx = pluginSections.findIndex((s) => s.id === section.id)
+  if (idx >= 0) {
+    // Idempotent under HMR: replace in place (last wins) instead of warning
+    pluginSections[idx] = section
+  } else {
+    pluginSections.push(section)
+    const reg = pluginRegistrations.get(pluginName) ?? { sections: [], pages: [], widgets: [], navItems: [], settingsLinks: [], dndCollections: [] }
+    reg.sections.push(section.id)
+    pluginRegistrations.set(pluginName, reg)
   }
-  pluginSections.push(section)
   pluginSections.sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
-  
-  // Track registration
-  const reg = pluginRegistrations.get(pluginName) ?? { sections: [], pages: [], widgets: [], navItems: [], settingsLinks: [], dndCollections: [] }
-  reg.sections.push(section.id)
-  pluginRegistrations.set(pluginName, reg)
 }
 
 /**
@@ -81,47 +81,50 @@ export function registerPluginSettingsSection(section: SettingsSection, pluginNa
  */
 export function registerPluginSettingsPage(page: SettingsPage, pluginName: string): void {
   const key = `${page.sectionId}/${page.id}`
-  if (pluginPages.some((p) => p.sectionId === page.sectionId && p.id === page.id)) {
-    console.warn(`[HookRegistry] Settings page "${key}" already registered (by ${pluginName})`)
-    return
+  const idx = pluginPages.findIndex((p) => p.sectionId === page.sectionId && p.id === page.id)
+  if (idx >= 0) {
+    // Idempotent under HMR: replace in place (last wins) instead of warning
+    pluginPages[idx] = page
+  } else {
+    pluginPages.push(page)
+    const reg = pluginRegistrations.get(pluginName) ?? { sections: [], pages: [], widgets: [], navItems: [], settingsLinks: [], dndCollections: [] }
+    reg.pages.push(key)
+    pluginRegistrations.set(pluginName, reg)
   }
-  pluginPages.push(page)
   pluginPages.sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
-  
-  const reg = pluginRegistrations.get(pluginName) ?? { sections: [], pages: [], widgets: [], navItems: [], settingsLinks: [], dndCollections: [] }
-  reg.pages.push(key)
-  pluginRegistrations.set(pluginName, reg)
 }
 
 /**
  * Register a dashboard widget from a plugin
  */
 export function registerPluginDashboardWidget(widget: DashboardWidget, pluginName: string): void {
-  if (pluginWidgets.some((w) => w.id === widget.id)) {
-    console.warn(`[HookRegistry] Dashboard widget "${widget.id}" already registered (by ${pluginName})`)
-    return
+  const idx = pluginWidgets.findIndex((w) => w.id === widget.id)
+  if (idx >= 0) {
+    // Idempotent under HMR: replace in place (last wins) instead of warning
+    pluginWidgets[idx] = widget
+  } else {
+    pluginWidgets.push(widget)
+    const reg = pluginRegistrations.get(pluginName) ?? { sections: [], pages: [], widgets: [], navItems: [], settingsLinks: [], dndCollections: [] }
+    reg.widgets.push(widget.id)
+    pluginRegistrations.set(pluginName, reg)
   }
-  pluginWidgets.push(widget)
-  
-  const reg = pluginRegistrations.get(pluginName) ?? { sections: [], pages: [], widgets: [], navItems: [], settingsLinks: [], dndCollections: [] }
-  reg.widgets.push(widget.id)
-  pluginRegistrations.set(pluginName, reg)
 }
 
 /**
  * Register a navigation item from a plugin
  */
 export function registerPluginNavItem(item: NavItem, pluginName: string): void {
-  if (pluginNavItems.some((n) => n.id === item.id)) {
-    console.warn(`[HookRegistry] Nav item "${item.id}" already registered (by ${pluginName})`)
-    return
+  const idx = pluginNavItems.findIndex((n) => n.id === item.id)
+  if (idx >= 0) {
+    // Idempotent under HMR: replace in place (last wins) instead of warning
+    pluginNavItems[idx] = item
+  } else {
+    pluginNavItems.push(item)
+    const reg = pluginRegistrations.get(pluginName) ?? { sections: [], pages: [], widgets: [], navItems: [], settingsLinks: [], dndCollections: [] }
+    reg.navItems.push(item.id)
+    pluginRegistrations.set(pluginName, reg)
   }
-  pluginNavItems.push(item)
   pluginNavItems.sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
-  
-  const reg = pluginRegistrations.get(pluginName) ?? { sections: [], pages: [], widgets: [], navItems: [], settingsLinks: [], dndCollections: [] }
-  reg.navItems.push(item.id)
-  pluginRegistrations.set(pluginName, reg)
 }
 
 /**
@@ -129,31 +132,33 @@ export function registerPluginNavItem(item: NavItem, pluginName: string): void {
  */
 export function registerPluginSettingsLink(link: SettingsLink, pluginName: string): void {
   const key = `${link.sectionId}/${link.targetSectionId}/${link.targetPageId ?? ''}`
-  if (pluginSettingsLinks.some((l) => l.sectionId === link.sectionId && l.targetSectionId === link.targetSectionId && l.targetPageId === link.targetPageId)) {
-    console.warn(`[HookRegistry] Settings link "${key}" already registered (by ${pluginName})`)
-    return
+  const idx = pluginSettingsLinks.findIndex((l) => l.sectionId === link.sectionId && l.targetSectionId === link.targetSectionId && l.targetPageId === link.targetPageId)
+  if (idx >= 0) {
+    // Idempotent under HMR: replace in place (last wins) instead of warning
+    pluginSettingsLinks[idx] = link
+  } else {
+    pluginSettingsLinks.push(link)
+    const reg = pluginRegistrations.get(pluginName) ?? { sections: [], pages: [], widgets: [], navItems: [], settingsLinks: [], dndCollections: [] }
+    reg.settingsLinks.push(key)
+    pluginRegistrations.set(pluginName, reg)
   }
-  pluginSettingsLinks.push(link)
   pluginSettingsLinks.sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
-
-  const reg = pluginRegistrations.get(pluginName) ?? { sections: [], pages: [], widgets: [], navItems: [], settingsLinks: [], dndCollections: [] }
-  reg.settingsLinks.push(key)
-  pluginRegistrations.set(pluginName, reg)
 }
 
 /**
  * Register a drag-and-drop collection from a plugin
  */
 export function registerDndCollection(collection: DndCollection, pluginName: string): void {
-  if (pluginDndCollections.some((c) => c.id === collection.id)) {
-    console.warn(`[HookRegistry] Dnd collection "${collection.id}" already registered (by ${pluginName})`)
-    return
+  const idx = pluginDndCollections.findIndex((c) => c.id === collection.id)
+  if (idx >= 0) {
+    // Idempotent under HMR: replace in place (last wins) instead of warning
+    pluginDndCollections[idx] = collection
+  } else {
+    pluginDndCollections.push(collection)
+    const reg = pluginRegistrations.get(pluginName) ?? { sections: [], pages: [], widgets: [], navItems: [], settingsLinks: [], dndCollections: [] }
+    reg.dndCollections.push(collection.id)
+    pluginRegistrations.set(pluginName, reg)
   }
-  pluginDndCollections.push(collection)
-
-  const reg = pluginRegistrations.get(pluginName) ?? { sections: [], pages: [], widgets: [], navItems: [], settingsLinks: [], dndCollections: [] }
-  reg.dndCollections.push(collection.id)
-  pluginRegistrations.set(pluginName, reg)
 }
 
 /**

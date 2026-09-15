@@ -1,7 +1,7 @@
 import { render, screen, cleanup } from '@testing-library/react'
 import { describe, it, expect, afterEach } from 'vitest'
-import type { Person } from '../../../lib/types'
-import { ChildSafetySection } from './ChildSafetySection'
+import type { Person } from '../../lib/types'
+import { ChildSafetySection } from './ChildSafety'
 
 describe('ChildSafetySection', () => {
   afterEach(cleanup)

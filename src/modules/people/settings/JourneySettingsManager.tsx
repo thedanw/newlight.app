@@ -234,7 +234,7 @@ export function JourneySettingsManager() {
           {message && <Text>{message}</Text>}
 
           {/* Add buttons — popover with save/cancel */}
-          <HStack gap="2" flexWrap="wrap">
+          <HStack gap="2" flexWrap="wrap" justify="end">
             <Popover.Root>
               <Popover.Trigger asChild>
                 <Button variant="solid">
@@ -375,7 +375,7 @@ export function JourneySettingsManager() {
                                 aria-label="Edit stage"
                                 onClick={() => handleEditStage(stage)}
                               >
-                                <PencilIcon size="xs" />
+                                <PencilIcon size={16} />
                               </IconButton>
                               <IconButton
                                 size="xs"

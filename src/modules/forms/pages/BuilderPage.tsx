@@ -1,32 +1,39 @@
 import { useEffect, useState, useMemo, type CSSProperties } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { Button, Card, Checkbox, Field, Heading, Input, Page, Select, Switch, Text, Textarea, useRegisterPageActions } from '@/core/ui'
+import {
+  Button,
+  Card,
+  Checkbox,
+  Dragndrop,
+  Field,
+  Heading,
+  Input,
+  Page,
+  Select,
+  Switch,
+  Text,
+  Textarea,
+  useRegisterPageActions,
+} from '@/core/ui'
 import { Box, Stack } from 'styled-system/jsx'
-import { Users } from 'lucide-react'
+import { Users, GripVertical } from 'lucide-react'
 import { createListCollection } from '@ark-ui/react'
+import { DragDropProvider } from '@/core/dragndrop'
 import { createForm, getFormById, MAPPABLE_PERSON_FIELDS, updateForm } from '../lib/queries'
-import { getTags } from '../../../people/lib/queries'
-import { PageSkeleton } from '../../../people/components/PageSkeleton'
+import { getTags } from '../../people/lib/queries'
+import { PageSkeleton } from '../../people/components/PageSkeleton'
+import { ColumnContainer } from './ColumnContainer'
+import { createDefaultField, getFieldSpec } from '../lib/fieldTypes'
 import type { FormDraft, FormFieldDraft } from '../lib/queries'
 import type { FormFieldOption, FormFieldType, FormSubmitAction, Tag } from '../lib/types'
+import type { DragItem } from '@/core/dragndrop'
 
-const FIELD_TYPES: FormFieldType[] = ['text', 'email', 'phone', 'number', 'select', 'multi_select', 'checkbox', 'textarea', 'date', 'title', 'radio', 'scale', 'nps', 'column_container']
+const FIELD_TYPES: FormFieldType[] = [
+  'text', 'email', 'phone', 'number', 'select', 'multi_select', 'checkbox',
+  'textarea', 'date', 'title', 'radio', 'scale', 'nps', 'column_container',
+]
 const SUBMIT_ACTIONS: FormSubmitAction[] = ['none', 'create_person', 'update_person', 'add_to_tag']
-
-const emptyField = (): FormFieldDraft => ({
-  id: crypto.randomUUID(),
-  field_type: 'text',
-  label: '',
-  placeholder: '',
-  options: null,
-  required: false,
-  maps_to_field: null,
-  sort_order: 0,
-  min_value: null,
-  max_value: null,
-  column_span: 12,
-  parent_id: null,
-})
+const PALETTE_TYPES: FormFieldType[] = FIELD_TYPES
 
 const emptyDraft = (): FormDraft => ({
   name: '',
@@ -37,6 +44,16 @@ const emptyDraft = (): FormDraft => ({
   settings: {},
   fields: [],
 })
+
+/** Convert a field draft to a DragItem for SortableList. */
+function fieldToDragItem(field: FormFieldDraft): DragItem {
+  const spec = getFieldSpec(field.field_type)
+  return {
+    id: field.id,
+    label: field.label || spec?.defaultLabel || field.field_type,
+    data: { field_type: field.field_type, parent_id: field.parent_id ?? undefined },
+  }
+}
 
 export default function FormBuilderPage() {
   const { id } = useParams()
@@ -63,8 +80,11 @@ export default function FormBuilderPage() {
     items: [{ label: 'Select a tag', value: '' }, ...tags.map((tag) => ({ label: tag.name, value: tag.id }))]
   }), [tags])
 
-  // Stable id list (memoized)
-  const fieldIds = useMemo(() => draft.fields.map((field) => field.id), [draft.fields])
+  // Root-level fields (parent_id IS NULL) shown in the main SortableList.
+  const rootFields = useMemo(
+    () => draft.fields.filter((field) => !field.parent_id),
+    [draft.fields],
+  )
 
   useEffect(() => {
     getTags().then(setTags).catch(() => undefined)
@@ -91,6 +111,10 @@ export default function FormBuilderPage() {
               required: field.required,
               maps_to_field: field.maps_to_field,
               sort_order: field.sort_order,
+              min_value: field.min_value ?? null,
+              max_value: field.max_value ?? null,
+              column_span: field.column_span ?? 12,
+              parent_id: field.parent_id ?? null,
             })),
           })
         }
@@ -139,31 +163,47 @@ export default function FormBuilderPage() {
     }))
   }
 
-  const reorderFields = (next: string[]) => {
+  /**
+   * Reorder handler for the root SortableList (Batch 10).
+   * Replaces the old button-based `moveField`. Accepts the new id order and
+   * re-numbers sort_order; column_container children keep their nested order.
+   */
+  const reorderFields = (nextIds: string[]) => {
     setDraft((current) => {
       const byId = new Map(current.fields.map((field) => [field.id, field]))
-      const fields = next
+      const fields = nextIds
         .map((fieldId) => byId.get(fieldId))
         .filter((field): field is FormFieldDraft => Boolean(field))
         .map((field, index) => ({ ...field, sort_order: index }))
-      return { ...current, fields }
+      const movedIds = new Set(nextIds)
+      const children = current.fields.filter((f) => !movedIds.has(f.id))
+      return { ...current, fields: [...fields, ...children] }
     })
   }
 
-  const moveField = (index: number, direction: -1 | 1) => {
-    const next = [...fieldIds]
-    const target = index + direction
-    if (target < 0 || target >= next.length) return
-    ;[next[index], next[target]] = [next[target], next[index]]
-    reorderFields(next)
+  const addField = (type: FormFieldType) => {
+    const newField = createDefaultField({ field_type: type }, draft.fields.length)
+    setDraft((current) => ({
+      ...current,
+      fields: [...current.fields, newField],
+    }))
+  }
+
+  const removeField = (fieldId: string) => {
+    setDraft((current) => ({
+      ...current,
+      fields: current.fields
+        .filter((field) => field.id !== fieldId)
+        .filter((field) => field.parent_id !== fieldId),
+    }))
   }
 
   const headingTitle = id ? 'Edit form' : 'New form'
 
   return (
     <Page.Main>
-        <Page.Header style={{ '--module-number': 1 } as CSSProperties}>
-          <Page.Heading level={1} icon={Users} title={headingTitle} />
+      <Page.Header style={{ '--module-number': 1 } as CSSProperties}>
+        <Page.Heading level={1} icon={Users} title={headingTitle} />
       </Page.Header>
       <Page.Body>
         <Stack gap="6">
@@ -172,60 +212,38 @@ export default function FormBuilderPage() {
           </Stack>
           {message && <Text color="error">{message}</Text>}
 
-        {/* Form Settings */}
-        <Card.Root>
-          <Card.Header>
-            <Card.Title>Form Settings</Card.Title>
-          </Card.Header>
-          <Card.Body>
-            <Stack gap="4">
-              <Field.Root>
-                <Field.Label>Form name</Field.Label>
-                <Input value={draft.name} onChange={(event) => setDraft({ ...draft, name: event.target.value })} />
-              </Field.Root>
-              <Field.Root>
-                <Field.Label>Description</Field.Label>
-                <Textarea value={draft.description} onChange={(event) => setDraft({ ...draft, description: event.target.value })} />
-              </Field.Root>
-              <Switch.Root checked={draft.is_public} onCheckedChange={(details) => setDraft({ ...draft, is_public: details.checked })}>
-                <Switch.HiddenInput />
-                <Switch.Control><Switch.Thumb /></Switch.Control>
-                <Switch.Label>Public (anyone with the link can submit)</Switch.Label>
-              </Switch.Root>
-              <Field.Root>
-                <Field.Label>Submit action</Field.Label>
-                <Select.Root collection={submitActionCollection} value={[draft.submit_action]} onValueChange={(details) => setDraft({ ...draft, submit_action: details.value[0] as FormSubmitAction })}>
-                  <Select.Control>
-                    <Select.Trigger>
-                      <Select.ValueText placeholder="Select action" />
-                      <Select.Indicator />
-                    </Select.Trigger>
-                  </Select.Control>
-                  <Select.Positioner>
-                    <Select.Content>
-                      {submitActionCollection.items.map((item) => (
-                        <Select.Item key={item.value} item={item}>
-                          <Select.ItemText>{item.label}</Select.ItemText>
-                          <Select.ItemIndicator />
-                        </Select.Item>
-                      ))}
-                    </Select.Content>
-                  </Select.Positioner>
-                </Select.Root>
-              </Field.Root>
-              {draft.submit_action === 'add_to_tag' && (
+          {/* Form Settings */}
+          <Card.Root>
+            <Card.Header>
+              <Card.Title>Form Settings</Card.Title>
+            </Card.Header>
+            <Card.Body>
+              <Stack gap="4">
                 <Field.Root>
-                  <Field.Label>Tag to add</Field.Label>
-                  <Select.Root collection={tagCollection} value={[(draft.submit_target as { tag_id?: string } | null)?.tag_id ?? '']} onValueChange={(details) => setDraft({ ...draft, submit_target: details.value[0] ? { tag_id: details.value[0] } : null })}>
+                  <Field.Label>Form name</Field.Label>
+                  <Input value={draft.name} onChange={(event) => setDraft({ ...draft, name: event.target.value })} />
+                </Field.Root>
+                <Field.Root>
+                  <Field.Label>Description</Field.Label>
+                  <Textarea value={draft.description} onChange={(event) => setDraft({ ...draft, description: event.target.value })} />
+                </Field.Root>
+                <Switch.Root checked={draft.is_public} onCheckedChange={(details) => setDraft({ ...draft, is_public: details.checked })}>
+                  <Switch.HiddenInput />
+                  <Switch.Control><Switch.Thumb /></Switch.Control>
+                  <Switch.Label>Public (anyone with the link can submit)</Switch.Label>
+                </Switch.Root>
+                <Field.Root>
+                  <Field.Label>Submit action</Field.Label>
+                  <Select.Root collection={submitActionCollection} value={[draft.submit_action]} onValueChange={(details) => setDraft({ ...draft, submit_action: details.value[0] as FormSubmitAction })}>
                     <Select.Control>
                       <Select.Trigger>
-                        <Select.ValueText placeholder="Select a tag" />
+                        <Select.ValueText placeholder="Select action" />
                         <Select.Indicator />
                       </Select.Trigger>
                     </Select.Control>
                     <Select.Positioner>
                       <Select.Content>
-                        {tagCollection.items.map((item) => (
+                        {submitActionCollection.items.map((item) => (
                           <Select.Item key={item.value} item={item}>
                             <Select.ItemText>{item.label}</Select.ItemText>
                             <Select.ItemIndicator />
@@ -235,106 +253,132 @@ export default function FormBuilderPage() {
                     </Select.Positioner>
                   </Select.Root>
                 </Field.Root>
-              )}
-              <Field.Root>
-                <Field.Label>Thank-you message</Field.Label>
-                <Input value={draft.settings.thank_you_message ?? ''} onChange={(event) => setDraft({ ...draft, settings: { ...draft.settings, thank_you_message: event.target.value } })} placeholder="Thanks for submitting!" />
-              </Field.Root>
-            </Stack>
-          </Card.Body>
-        </Card.Root>
+                {draft.submit_action === 'add_to_tag' && (
+                  <Field.Root>
+                    <Field.Label>Tag to add</Field.Label>
+                    <Select.Root collection={tagCollection} value={[(draft.submit_target as { tag_id?: string } | null)?.tag_id ?? '']} onValueChange={(details) => setDraft({ ...draft, submit_target: details.value[0] ? { tag_id: details.value[0] } : null })}>
+                      <Select.Control>
+                        <Select.Trigger>
+                          <Select.ValueText placeholder="Select a tag" />
+                          <Select.Indicator />
+                        </Select.Trigger>
+                      </Select.Control>
+                      <Select.Positioner>
+                        <Select.Content>
+                          {tagCollection.items.map((item) => (
+                            <Select.Item key={item.value} item={item}>
+                              <Select.ItemText>{item.label}</Select.ItemText>
+                              <Select.ItemIndicator />
+                            </Select.Item>
+                          ))}
+                        </Select.Content>
+                      </Select.Positioner>
+                    </Select.Root>
+                  </Field.Root>
+                )}
+                <Field.Root>
+                  <Field.Label>Thank-you message</Field.Label>
+                  <Input value={draft.settings.thank_you_message ?? ''} onChange={(event) => setDraft({ ...draft, settings: { ...draft.settings, thank_you_message: event.target.value } })} placeholder="Thanks for submitting!" />
+                </Field.Root>
+              </Stack>
+            </Card.Body>
+          </Card.Root>
 
-        {/* Form Fields */}
-        <Card.Root>
-          <Card.Header>
-            <Card.Title>Fields</Card.Title>
-          </Card.Header>
-          <Card.Body>
-            <Stack gap="6">
-              {draft.fields.length === 0 && <Text color="fg.muted">No fields yet. Add one below.</Text>}
-              {draft.fields.map((field, index) => (
-                  <Box key={field.id}>
-                  <Stack flex="1" gap="4">
-                  <Heading textStyle="md">Field {index + 1}</Heading>
-                  <Field.Root>
-                    <Field.Label>Type</Field.Label>
-                    <Select.Root collection={fieldTypeCollection} value={[field.field_type]} onValueChange={(details) => setField(field.id, { field_type: details.value[0] as FormFieldType })}>
-                      <Select.Control>
-                        <Select.Trigger>
-                          <Select.ValueText placeholder="Select type" />
-                          <Select.Indicator />
-                        </Select.Trigger>
-                      </Select.Control>
-                      <Select.Positioner>
-                        <Select.Content>
-                          {fieldTypeCollection.items.map((item) => (
-                            <Select.Item key={item.value} item={item}>
-                              <Select.ItemText>{item.label}</Select.ItemText>
-                              <Select.ItemIndicator />
-                            </Select.Item>
-                          ))}
-                        </Select.Content>
-                      </Select.Positioner>
-                    </Select.Root>
-                  </Field.Root>
-                  <Field.Root>
-                    <Field.Label>Label</Field.Label>
-                    <Input value={field.label} onChange={(event) => setField(field.id, { label: event.target.value })} />
-                  </Field.Root>
-                  <Field.Root>
-                    <Field.Label>Placeholder</Field.Label>
-                    <Input value={field.placeholder} onChange={(event) => setField(field.id, { placeholder: event.target.value })} />
-                  </Field.Root>
-                  {(field.field_type === 'select' || field.field_type === 'multi_select') && (
-                    <Field.Root>
-                      <Field.Label>Options (one per line)</Field.Label>
-                      <Textarea value={(field.options ?? []).map((option) => option.value).join('\n')} onChange={(event) => setField(field.id, { options: event.target.value.split('\n').filter((line) => line.trim()).map((line) => ({ label: line.trim(), value: line.trim() })) })} />
-                    </Field.Root>
-                  )}
-                  <Field.Root>
-                    <Field.Label>Maps to person field</Field.Label>
-                    <Select.Root collection={mappableObjectFieldsCollection} value={[field.maps_to_field ?? '']} onValueChange={(details) => setField(field.id, { maps_to_field: details.value[0] || null })}>
-                      <Select.Control>
-                        <Select.Trigger>
-                          <Select.ValueText placeholder="None" />
-                          <Select.Indicator />
-                        </Select.Trigger>
-                      </Select.Control>
-                      <Select.Positioner>
-                        <Select.Content>
-                          {mappableObjectFieldsCollection.items.map((item) => (
-                            <Select.Item key={item.value} item={item}>
-                              <Select.ItemText>{item.label}</Select.ItemText>
-                              <Select.ItemIndicator />
-                            </Select.Item>
-                          ))}
-                        </Select.Content>
-                      </Select.Positioner>
-                    </Select.Root>
-                  </Field.Root>
-                  <Checkbox.Root checked={field.required} onCheckedChange={(details) => setField(field.id, { required: details.checked === true })}>
-                    <Checkbox.HiddenInput />
-                    <Checkbox.Control />
-                    <Checkbox.Label>Required</Checkbox.Label>
-                  </Checkbox.Root>
-                  <Stack flexDirection="row" gap="2">
-                    <Button variant="outline" onClick={() => moveField(index, -1)}>Up</Button>
-                    <Button variant="outline" onClick={() => moveField(index, 1)}>Down</Button>
-                    <Button variant="outline" onClick={() => setDraft((current) => ({ ...current, fields: current.fields.filter((item) => item.id !== field.id) }))}>Remove</Button>
-                  </Stack>
-                  </Stack>
+          {/* Field Palette */}
+          <Card.Root>
+            <Card.Header>
+              <Card.Title>Fields</Card.Title>
+            </Card.Header>
+                        <Card.Body>
+              <DragDropProvider>
+                <Stack gap="4">
+                  <Text>Drag a field type below onto the canvas:</Text>
+                  <Box data-field-palette display="flex" flexWrap="wrap" gap="2">
+                    {PALETTE_TYPES.map((type) => {
+                      const spec = getFieldSpec(type)
+                      return (
+                        <Button
+                          key={type}
+                          variant="outline"
+                          size="sm"
+                          data-palette-type={type}
+                          onClick={() => addField(type)}
+                        >
+                          {spec?.label ?? type}
+                        </Button>
+                      )
+                    })}
                   </Box>
-              ))}
-            </Stack>
-          </Card.Body>
-          <Card.Footer>
-            <Stack flexDirection="row" gap="3">
-              <Button onClick={() => setDraft((current) => ({ ...current, fields: [...current.fields, emptyField()] }))}>Add field</Button>
-            </Stack>
-          </Card.Footer>
-        </Card.Root>
-        </Stack>
+                </Stack>
+                            </DragDropProvider>
+                        </Card.Body>
+          </Card.Root>
+
+          {/* Field Canvas — SortableList replaces button reorder (Batch 10) */}
+          <Card.Root>
+            <Card.Header>
+              <Card.Title>Canvas</Card.Title>
+            </Card.Header>
+            <Card.Body>
+              <DragDropProvider>
+                <Stack gap="4">
+                  {draft.fields.length === 0 && <Text color="fg.muted">No fields yet. Add one from the palette above.</Text>}
+                  <Dragndrop.SortableList
+                    items={rootFields.map(fieldToDragItem)}
+                    onReorder={(next: DragItem[]) => reorderFields(next.map((item) => item.id))}
+                    renderItem={(item, index, isDragging) => {
+                      const field = rootFields[index]
+                      if (!field) return null
+                      const spec = getFieldSpec(field.field_type)
+                      const childFields = draft.fields.filter((child) => child.parent_id === field.id)
+                      return (
+                        <Box
+                          key={field.id}
+                          data-field-card={field.id}
+                          data-field-type={field.field_type}
+                          data-dragging={isDragging ? 'true' : 'false'}
+                          borderWidth="1px"
+                          borderStyle="solid"
+                          borderColor={isDragging ? 'var(--colors-border-emphasized)' : 'var(--colors-border)'}
+                          borderRadius="l2"
+                          p="3"
+                        >
+                          <Stack flexDirection="row" alignItems="center" gap="2" mb="2">
+                            <Dragndrop.DraggableHandle item={fieldToDragItem(field)} />
+                            <Heading textStyle="sm" fontWeight="medium">{field.label || spec?.defaultLabel}</Heading>
+                            <Text textStyle="xs" color="fg.muted">({field.field_type})</Text>
+                          </Stack>
+
+                          <Stack gap="2">
+                            {field.field_type === 'column_container' ? (
+                              <ColumnContainer container={field}>
+                                {childFields.map((child) => (
+                                  <Box
+                                    key={child.id}
+                                    data-column-child={child.id}
+                                    gridColumn={`span ${child.column_span}`}
+                                    borderWidth="1px"
+                                    borderStyle="dashed"
+                                    borderColor="var(--colors-border)"
+                                    borderRadius="l1"
+                                    p="2"
+                                  >
+                                    <Stack flexDirection="row" alignItems="center" gap="1">
+                                      <GripVertical size={14} aria-hidden="true" />
+                                      <Text textStyle="sm">{child.label || getFieldSpec(child.field_type)?.defaultLabel}</Text>
+                                    </Stack>
+                                  </Box>
+                                ))}
+                              </ColumnContainer>
+                            ) : (
+                              <>
+                                <Field.Root>
+                                  <Field.Label>Label</Field.Label>
+                                  <Input value={field.label} onChange={(event) => setField(field.id, { label: event.target.value })} />
+                                </Field.Root>
       </Page.Body>
     </Page.Main>
   )
 }
+
+

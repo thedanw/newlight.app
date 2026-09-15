@@ -1,6 +1,6 @@
 import { Badge, Card, Link, Text } from '@/core/ui'
 import { Stack } from 'styled-system/jsx'
-import type { Person } from '../lib/types'
+import type { Person } from '../../lib/types'
 
 export function HouseholdMembers({ members }: { members: Person[] }) {
   return (

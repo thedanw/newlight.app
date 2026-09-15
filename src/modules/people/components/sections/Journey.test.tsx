@@ -1,14 +1,14 @@
 import { render, screen, cleanup } from '@testing-library/react'
 import { describe, it, expect, afterEach, beforeEach, vi } from 'vitest'
 import userEvent from '@testing-library/user-event'
-import type { Person, JourneyTrack, JourneyStage, JourneyTrackCategory } from '../../../lib/types'
-import { JourneySection } from './JourneySection'
-import type { JourneySectionHandle } from './JourneySection'
-import { useJourneyTracks, useJourneyStages, useJourneyCategories } from '../../../lib/hooks'
-import { updatePersonJourney, writePeopleAudit } from '../../../lib/queries'
+import type { Person, JourneyTrack, JourneyStage, JourneyTrackCategory } from '../../lib/types'
+import { JourneySection } from './Journey'
+import type { JourneySectionHandle } from './Journey'
+import { useJourneyTracks, useJourneyStages, useJourneyCategories } from '../../lib/hooks'
+import { updatePersonJourney, writePeopleAudit } from '../../lib/queries'
 
-vi.mock('../../../lib/hooks')
-vi.mock('../../../lib/queries')
+vi.mock('../../lib/hooks')
+vi.mock('../../lib/queries')
 
 const mockUseJourneyTracks = vi.mocked(useJourneyTracks)
 const mockUseJourneyStages = vi.mocked(useJourneyStages)

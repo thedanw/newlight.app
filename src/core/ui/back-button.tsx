@@ -9,10 +9,10 @@ export const BackButton = forwardRef<HTMLButtonElement, BackButtonProps>(
     return (
       <IconButton
         variant="plain"
-        marginLeft="-3"
         colorPalette="gray"
         aria-label="Back"
         boxSize="12"
+        minW="12"
         boxShadow="none"
         css={{ _icon: { boxSize: '10' } }}
         ref={ref}

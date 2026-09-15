@@ -3,11 +3,11 @@ import type { CSSProperties } from 'react'
 import { Breadcrumb, Card, Heading, Page, Text } from '@/core/ui'
 import { Stack } from 'styled-system/jsx'
 import { Users } from 'lucide-react'
-import { useHousehold } from '../lib/hooks'
-import { saveHouseholdAddress } from '../lib/queries'
-import { HouseholdAddress } from '../components/HouseholdAddress'
-import { HouseholdMembers } from '../components/HouseholdMembers'
-import { PageSkeleton } from '../components/PageSkeleton'
+import { useHousehold } from '../../lib/hooks'
+import { saveHouseholdAddress } from '../../lib/queries'
+import { HouseholdAddress } from './Address'
+import { HouseholdMembers } from './Members'
+import { PageSkeleton } from '../../components/PageSkeleton'
 
 export default function HouseholdPage() {
   const { id } = useParams()

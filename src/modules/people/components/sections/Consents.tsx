@@ -1,5 +1,5 @@
-import type { Person, PersonPublic } from '../../../lib/types'
-import { ProfileField, ProfileSection } from '../ProfileSection'
+import type { Person, PersonPublic } from '../../lib/types'
+import { ProfileField, ProfileSection } from './ProfileSection'
 
 export function ConsentsSection({ person }: { person: Person | PersonPublic }) {
   const p = person as Person

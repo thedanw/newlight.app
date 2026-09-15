@@ -1,10 +1,10 @@
 import { useState, useMemo, forwardRef, useImperativeHandle } from 'react'
-import type { Person, PersonPublic } from '../../../lib/types'
+import type { Person, PersonPublic } from '../../lib/types'
 import { Button, Card, Field, Input } from '@/core/ui'
 import { HStack, Stack } from 'styled-system/jsx'
 import { Grid } from 'styled-system/jsx'
 import { Collapsible } from '@/core/ui'
-import { updatePerson, writePeopleAudit } from '../../../lib/queries'
+import { updatePerson, writePeopleAudit } from '../../lib/queries'
 
 interface ChildSafetyField {
   key: keyof Person

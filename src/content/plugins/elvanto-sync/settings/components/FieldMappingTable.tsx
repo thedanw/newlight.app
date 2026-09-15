@@ -1,10 +1,10 @@
 'use client'
-import { Heading, Text, Input, Button, Badge, Card, Combobox, NumberInput } from '@/core/ui'
+import { Heading, Text, Input, Button, Badge, Card, Combobox, NumberInput, IconButton } from '@/core/ui'
 import { usePluginAPIContext } from '@/core/plugins/PluginAPI'
 import { useState, useEffect, useMemo } from 'react'
 import { HStack, Stack } from 'styled-system/jsx'
 import { createListCollection } from '@ark-ui/react'
-import { CheckIcon } from 'lucide-react'
+import { CheckIcon, ClipboardPaste, TrashIcon } from 'lucide-react'
 import { DirectionSelect } from './DirectionSelect'
 
 interface MappingRule {
@@ -371,12 +371,12 @@ function MappingRuleCard({ rule, index, appFields, elvantoFields, dynamicElvanto
           <Button variant="outline" size="sm" onClick={() => setExpanded(!expanded)}>
             {expanded ? '−' : '+'}
           </Button>
-          <Button variant="outline" size="sm" onClick={() => onDuplicate(index)} title="Duplicate">
-            📋
-          </Button>
-          <Button variant="solid" size="sm" onClick={() => onDelete(index)} title="Delete">
-            🗑
-          </Button>
+          <IconButton variant="outline" size="sm" onClick={() => onDuplicate(index)} title="Duplicate">
+            <ClipboardPaste />
+          </IconButton>
+          <IconButton variant="solid" size="sm" colorPalette="red" onClick={() => onDelete(index)} title="Delete">
+            <TrashIcon />
+          </IconButton>
         </HStack>
       </HStack>
 

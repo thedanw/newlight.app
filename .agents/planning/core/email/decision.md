@@ -40,6 +40,7 @@ Build a send-only email capability for church staff to compose branded messages,
 - Template HTML is sanitized before storage and send. Use `sanitize-html@2.17.7` after a Deno/browser compatibility check; if Deno cannot import it, use a small allowlist sanitizer with identical tests.
 - No SMTP credentials or service-role keys in the client, database settings, logs, or source code.
 - Supabase Edge Function uses Deno and pins `npm:nodemailer@9.1.1`; Google Workspace SMTP uses port 465 for the MVP.
+- GrapesJS uses `^0.22.5` (resolved 0.22.16) because `@grapesjs/react@2.0.0` declares `grapesjs@^0.22.5`; 0.23.x is outside that peer range.
 - All email tables use RLS. The Edge Function uses a service-role client only for server-side queue writes and SMTP processing.
 - Send history is durable: `email_sends` and `email_recipients` record queued/sent/failed/suppressed/skipped outcomes.
 - Templates store GrapesJS JSON plus rendered snapshot HTML. Data blocks are edit-time snapshots.

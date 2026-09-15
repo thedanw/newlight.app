@@ -66,6 +66,7 @@ export * as Splitter from "./splitter";
 export { SearchInput, type SearchInputProps } from "./search-input";
 export * as Switch from "./switch";
 export * as Table from "./table";
+export { TabScroller } from "./tab-scroller";
 export * as Tabs from "./tabs";
 export * as TagsInput from "./tags-input";
 export { Text, type TextProps } from "./text";

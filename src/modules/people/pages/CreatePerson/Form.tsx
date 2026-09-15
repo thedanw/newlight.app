@@ -2,11 +2,11 @@ import { useRef, useState, type FormEvent } from 'react'
 import { createListCollection } from '@ark-ui/react'
 import { Button, Card, Checkbox, Field, Input, Select, Text, useRegisterPageActions } from '@/core/ui'
 import { Stack } from 'styled-system/jsx'
-import type { Person } from '../lib/types'
-import type { PersonInput } from '../lib/queries'
-import { createHousehold } from '../lib/queries'
-import { useCurrentOperatorPermission, useHouseholds, useJourneyTracks } from '../lib/hooks'
-import { personFormSchema } from '../lib/validation'
+import type { Person } from '../../lib/types'
+import type { PersonInput } from '../../lib/queries'
+import { createHousehold } from '../../lib/queries'
+import { useCurrentOperatorPermission, useHouseholds, useJourneyTracks } from '../../lib/hooks'
+import { personFormSchema } from '../../lib/validation'
 
 type PersonFormProps = {
   initialValue?: Partial<Person>

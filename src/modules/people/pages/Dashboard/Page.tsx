@@ -3,14 +3,14 @@ import { ChevronLeft, ChevronRight, Plus, SlidersHorizontal, Users } from 'lucid
 import { useNavigate } from 'react-router-dom'
 import { Button, Dialog, Input, Page, Pagination, SearchInput, Text } from '@/core/ui'
 import { HStack, Stack } from 'styled-system/jsx'
-import { peopleManifest } from './manifest'
-import type { PeopleListOptions, Person, PersonPublic, PersonWithJourney } from './lib/types'
-import { useCurrentOperatorPermission, usePeopleList } from './lib/hooks'
+import { peopleManifest } from '../../manifest'
+import type { PeopleListOptions, Person, PersonPublic, PersonWithJourney } from '../../lib/types'
+import { useCurrentOperatorPermission, usePeopleList } from '../../lib/hooks'
 import { useAuth } from '@/core/auth'
-import { PeopleFilters } from './components/PeopleFilters'
-import { PeopleTable } from './components/PeopleTable'
-import { createSavedList, searchPeople } from './lib/queries'
-import { SavedListSidebar } from './components/SavedListSidebar'
+import { PeopleFilters } from './Filters'
+import { PeopleTable } from './Table'
+import { createSavedList, searchPeople } from '../../lib/queries'
+import { SavedListSidebar } from './SavedListSidebar'
 
 const PAGE_SIZE = 50
 const MODULE_NUMBER_STYLE = { '--module-number': peopleManifest.number } as CSSProperties

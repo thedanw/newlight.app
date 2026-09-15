@@ -1,6 +1,6 @@
 import { Card, Skeleton, Table, Text } from '@/core/ui'
-import type { PersonPublic, PersonWithJourney } from '../lib/types'
-import { PersonRow } from './PersonRow'
+import type { PersonPublic, PersonWithJourney } from '../../lib/types'
+import { PersonRow } from './Row'
 
 type PeopleTableProps = {
   people: (PersonWithJourney | PersonPublic)[]

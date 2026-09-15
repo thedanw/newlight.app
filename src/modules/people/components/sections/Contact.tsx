@@ -1,10 +1,10 @@
 import { useState, useMemo, forwardRef, useImperativeHandle } from 'react'
-import type { Person, PersonPublic } from '../../../lib/types'
+import type { Person, PersonPublic } from '../../lib/types'
 import { Button, Field, Input } from '@/core/ui'
 import { Stack } from 'styled-system/jsx'
 import { Grid } from 'styled-system/jsx'
-import { ProfileSection } from '../ProfileSection'
-import { updatePerson, writePeopleAudit } from '../../../lib/queries'
+import { ProfileSection } from './ProfileSection'
+import { updatePerson, writePeopleAudit } from '../../lib/queries'
 
 interface ContactField {
   key: keyof Person

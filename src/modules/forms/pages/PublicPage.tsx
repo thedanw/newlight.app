@@ -5,7 +5,7 @@ import { Button, Card, Field, Heading, Input, Page, Text, Textarea } from '@/cor
 import { Stack } from 'styled-system/jsx'
 import { FileText } from 'lucide-react'
 import { getFormById, submitForm } from '../lib/queries'
-import { PageSkeleton } from '../../../people/components/PageSkeleton'
+import { PageSkeleton } from '../../people/components/PageSkeleton'
 import type { FormWithFields } from '../lib/types'
 
 export default function FormPublicPage() {

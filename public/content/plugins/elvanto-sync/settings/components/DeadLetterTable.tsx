@@ -1,7 +1,7 @@
 import { Heading, Text, Card, Table, Badge, Button, Dialog, Select } from '@/core/ui'
 import { usePluginAPIContext } from '@/core/plugins/PluginAPI'
 import { useState, useEffect, useMemo } from 'react'
-import { HStack, Stack } from 'styled-system/jsx'
+import { Box, HStack, Stack } from 'styled-system/jsx'
 import { createListCollection } from '@ark-ui/react'
 import { ChevronsUpDownIcon, CheckIcon } from 'lucide-react'
 
@@ -234,6 +234,7 @@ export function DeadLetterTable() {
             <Text color="fg.muted" p="6" textAlign="center">No failed items. Great job!</Text>
           ) : (
             <>
+              <Box overflowX="auto" minW="0">
               <Table.Root>
                 <Table.Head>
                   <Table.Row>
@@ -284,6 +285,7 @@ export function DeadLetterTable() {
                   ))}
                 </Table.Body>
               </Table.Root>
+              </Box>
 
               {totalPages > 1 && (
                 <HStack gap="2" justify="center" mt="4">

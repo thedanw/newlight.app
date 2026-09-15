@@ -53,6 +53,8 @@ type PersonRow = {
   consent_internal_photo: Database['public']['Enums']['yes_no'] | null
   consent_biscuit_under5: Database['public']['Enums']['yes_no'] | null
   consent_girl_guide_offsite: Database['public']['Enums']['yes_no'] | null
+  consent_broadcasts: Database['public']['Enums']['yes_no'] | null
+  consent_team_updates: Database['public']['Enums']['yes_no'] | null
   date_professed: string | null
   legacy_date_added: string | null
   legacy_member_id: string | null
@@ -169,6 +171,73 @@ type FormSubmissionRow = {
   created_at: string
 }
 
+type EmailTemplateRow = {
+  id: string
+  name: string
+  subject: string | null
+  html_content: string | null
+  editor_json: Json | null
+  status: Database['public']['Enums']['email_template_status']
+  from_email: string | null
+  from_name: string | null
+  created_by: string | null
+  created_at: string
+  updated_at: string
+}
+
+type EmailSendRow = {
+  id: string
+  template_id: string | null
+  subject: string
+  body: string
+  from_email: string
+  from_name: string | null
+  consent_category: Database['public']['Enums']['email_consent_category']
+  audience_type: Database['public']['Enums']['email_audience_type']
+  audience_ref: string | null
+  recipient_count: number
+  accepted_count: number
+  status: Database['public']['Enums']['email_send_status']
+  provider: string | null
+  provider_message_id: string | null
+  error_message: string | null
+  sent_at: string | null
+  created_by: string | null
+  created_at: string
+  updated_at: string
+}
+
+type EmailRecipientRow = {
+  id: string
+  send_id: string
+  person_id: string | null
+  email: string
+  name: string | null
+  status: Database['public']['Enums']['email_recipient_status']
+  provider_message_id: string | null
+  error_message: string | null
+  sent_at: string | null
+  created_at: string
+}
+
+type EmailUnsubscribeRow = {
+  id: string
+  email_hash: string
+  token_hash: string
+  send_id: string | null
+  reason: string | null
+  unsubscribed_at: string
+}
+
+type EmailSenderAliasRow = {
+  id: string
+  email: string
+  name: string
+  is_default: boolean
+  created_by: string | null
+  created_at: string
+}
+
 type PlatformSettingsRow = {
   id: string
   key: string
@@ -205,6 +274,11 @@ export type Database = {
       form_submissions: TableDefinition<FormSubmissionRow>
       platform_settings: TableDefinition<PlatformSettingsRow>
       plugins: TableDefinition<PluginRow>
+      email_templates: TableDefinition<EmailTemplateRow>
+      email_sends: TableDefinition<EmailSendRow>
+      email_recipients: TableDefinition<EmailRecipientRow>
+      email_unsubscribes: TableDefinition<EmailUnsubscribeRow>
+      email_sender_aliases: TableDefinition<EmailSenderAliasRow>
     }
     Views: Record<string, never>
     Functions: Record<string, never>
@@ -223,9 +297,14 @@ export type Database = {
       smc_result: 'age_13_17_application_approved' | 'over_18_application_approved'
       audit_change_reason: 'manual' | 'auto_progression' | 'gdpr_request' | 'migration' | 'sync'
       form_submit_action: 'create_person' | 'update_person' | 'add_to_tag' | 'none'
-            form_field_type: 'text' | 'email' | 'phone' | 'number' | 'select' | 'multi_select' | 'checkbox' | 'textarea' | 'date' | 'title' | 'radio' | 'scale' | 'nps' | 'column_container'
+      form_field_type: 'text' | 'email' | 'phone' | 'number' | 'select' | 'multi_select' | 'checkbox' | 'textarea' | 'date' | 'title' | 'radio' | 'scale' | 'nps' | 'column_container'
       form_condition_operator: 'equals' | 'not_equals' | 'greater_than' | 'less_than' | 'contains'
       form_condition_effect: 'show' | 'hide' | 'require'
+      email_template_status: 'draft' | 'published' | 'archived'
+      email_send_status: 'queued' | 'sending' | 'sent' | 'failed' | 'partial' | 'suppressed'
+      email_recipient_status: 'queued' | 'sent' | 'failed' | 'suppressed' | 'skipped'
+      email_consent_category: 'broadcasts' | 'team_updates'
+      email_audience_type: 'saved_list' | 'explicit' | 'preset'
     }
     CompositeTypes: Record<string, never>
   }

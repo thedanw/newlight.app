@@ -2,8 +2,8 @@ import { useMemo } from 'react'
 import { createListCollection } from '@ark-ui/react'
 import { Field, Select } from '@/core/ui'
 import { Stack } from 'styled-system/jsx'
-import type { JourneyStage, PeopleListOptions } from '../lib/types'
-import { useTags, useJourneyTracks, useJourneyStages } from '../lib/hooks'
+import type { JourneyStage, PeopleListOptions } from '../../lib/types'
+import { useTags, useJourneyTracks, useJourneyStages } from '../../lib/hooks'
 
 type PeopleFiltersProps = {
   filters: PeopleListOptions

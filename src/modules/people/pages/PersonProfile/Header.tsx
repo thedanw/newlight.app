@@ -2,8 +2,8 @@ import { useState } from 'react'
 import { Badge, Button, Card, Heading, Text } from '@/core/ui'
 import { HStack, Stack } from 'styled-system/jsx'
 import type { EmailRecipient } from '@/core/lib/email'
-import type { Person } from '../lib/types'
-import { SendEmailDialog } from './SendEmailDialog'
+import type { Person } from '../../lib/types'
+import { SendEmailDialog } from '../../components/SendEmailDialog'
 
 type PersonHeaderProps = {
   person: Person

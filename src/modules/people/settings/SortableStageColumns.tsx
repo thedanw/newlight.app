@@ -125,7 +125,17 @@ export function SortableStageColumns({
   )
 
   return (
-    <DragDropProvider sensors={sensors} onDragEnd={handleDragEnd}>
+    <DragDropProvider
+      sensors={sensors}
+      onDragEnd={handleDragEnd}
+      onBeforeDragStart={() => {
+        // Blur any focused element before the drag starts so the source can be
+        // marked aria-hidden without React 19's "focused descendant" warning.
+        if (document.activeElement instanceof HTMLElement) {
+          document.activeElement.blur()
+        }
+      }}
+    >
       <div style={{ display: 'flex', flexDirection: 'row', gap, alignItems: 'center' }}>
         {stages.map((stage, index) => (
           <StageColumn

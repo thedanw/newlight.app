@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { Link, Badge, Table } from '@/core/ui'
-import type { PersonPublic, PersonWithJourney } from '../lib/types'
+import type { PersonPublic, PersonWithJourney } from '../../lib/types'
 
 type PersonRowProps = {
   person: PersonWithJourney | PersonPublic

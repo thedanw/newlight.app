@@ -2,11 +2,11 @@ import { useEffect, useState } from 'react'
 import { Button, Heading, Dialog, Input, Switch, Text } from '@/core/ui'
 import { Stack } from 'styled-system/jsx'
 import type { EmailRecipient } from '@/core/lib/email'
-import { deleteSavedList, updateSavedList } from '../lib/queries'
-import { useSavedLists } from '../lib/saved-list-hooks'
-import { getEmailRecipients } from '../lib/email'
-import type { PeopleListOptions } from '../lib/types'
-import { SendEmailDialog } from './SendEmailDialog'
+import { deleteSavedList, updateSavedList } from '../../lib/queries'
+import { useSavedLists } from '../../lib/saved-list-hooks'
+import { getEmailRecipients } from '../../lib/email'
+import type { PeopleListOptions } from '../../lib/types'
+import { SendEmailDialog } from '../../components/SendEmailDialog'
 
 export function SavedListSidebar({ onLoad, refreshKey = 0 }: { onLoad: (conditions: PeopleListOptions) => void; refreshKey?: number }) {
   const { data, loading, error, refresh } = useSavedLists()

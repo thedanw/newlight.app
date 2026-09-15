@@ -8,13 +8,13 @@ import { peopleManifest } from './manifest'
 // Registers the people module's settings page (core #41 settings-schema demo).
 import './settings'
 
-const PeopleDashboardPage = lazy(() => import('./dashboard'))
-const CreatePersonPage = lazy(() => import('./pages/CreatePersonPage'))
-const EditPersonPage = lazy(() => import('./pages/EditPersonPage'))
-const PersonProfilePage = lazy(() => import('./pages/PersonProfilePage'))
-const HouseholdPage = lazy(() => import('./pages/HouseholdPage'))
-const JourneyGridPage = lazy(() => import('./pages/JourneyGridPage'))
-const TagsPage = lazy(() => import('./pages/TagsPage'))
+const PeopleDashboardPage = lazy(() => import('./pages/Dashboard/Page'))
+const CreatePersonPage = lazy(() => import('./pages/CreatePerson/Page'))
+const EditPersonPage = lazy(() => import('./pages/EditPerson/Page'))
+const PersonProfilePage = lazy(() => import('./pages/PersonProfile/Page'))
+const HouseholdPage = lazy(() => import('./pages/Household/Page'))
+const JourneyGridPage = lazy(() => import('./pages/JourneyGrid/Page'))
+const TagsPage = lazy(() => import('./pages/Tags/Page'))
 
 function PeopleLayout() {
   return (

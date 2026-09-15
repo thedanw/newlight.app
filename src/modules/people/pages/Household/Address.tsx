@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Button, Field, Input, Text } from '@/core/ui'
 import { Stack } from 'styled-system/jsx'
-import type { Address } from '../lib/types'
+import type { Address } from '../../lib/types'
 
 type HouseholdAddressProps = {
   address: Address | null

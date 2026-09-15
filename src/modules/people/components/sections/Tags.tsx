@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { Button, Text } from '@/core/ui'
-import type { Person, PersonPublic } from '../../../lib/types'
-import { setPersonTags } from '../../../lib/queries'
-import { usePersonTags, useTags } from '../../../lib/hooks'
-import { TagBadge } from '../../TagBadge'
-import { ProfileField, ProfileSection } from '../ProfileSection'
+import type { Person, PersonPublic } from '../../lib/types'
+import { setPersonTags } from '../../lib/queries'
+import { usePersonTags, useTags } from '../../lib/hooks'
+import { TagBadge } from './TagBadge'
+import { ProfileField, ProfileSection } from './ProfileSection'
 
 export function TagsSection({ person }: { person: Person | PersonPublic }) {
   const assigned = usePersonTags(person.id)

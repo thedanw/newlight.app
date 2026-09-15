@@ -3,8 +3,8 @@ import type { CSSProperties } from 'react'
 import { Page } from '@/core/ui'
 import { Stack } from 'styled-system/jsx'
 import { Users } from 'lucide-react'
-import { createPerson } from '../lib/queries'
-import { PersonForm } from '../components/PersonForm'
+import { createPerson } from '../../lib/queries'
+import { PersonForm } from './Form'
 
 export default function CreatePersonPage() {
   const navigate = useNavigate()

@@ -17,7 +17,7 @@ const sharedHeaderStyles = {
     zIndex: '-1',
     pointerEvents: 'none',
     background: 'var(--colors-color-palette-solid-bg)',
-    filter: 'hue-rotate(calc(60deg * var(--module-number, 0)))',
+    /* filter: 'hue-rotate(calc(60deg * var(--module-number, 0)))', -- future color palette extension */
   },
 }
 

@@ -1,10 +1,10 @@
 import { forwardRef, useImperativeHandle, useMemo, useState } from 'react'
-import type { Person, PersonPublic, JourneyStage, JourneyTrack, JourneyTrackCategory } from '../../../lib/types'
+import type { Person, PersonPublic, JourneyStage, JourneyTrack, JourneyTrackCategory } from '../../lib/types'
 import { Badge, Button, Table, Text } from '@/core/ui'
 import { HStack, Stack } from 'styled-system/jsx'
-import { useJourneyCategories, useJourneyStages, useJourneyTracks } from '../../../lib/hooks'
-import { updatePersonJourney, writePeopleAudit } from '../../../lib/queries'
-import { ProfileSection } from '../ProfileSection'
+import { useJourneyCategories, useJourneyStages, useJourneyTracks } from '../../lib/hooks'
+import { updatePersonJourney, writePeopleAudit } from '../../lib/queries'
+import { ProfileSection } from './ProfileSection'
 
 export type JourneySectionHandle = {
   save: () => Promise<void>

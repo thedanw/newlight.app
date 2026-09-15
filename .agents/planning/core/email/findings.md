@@ -63,12 +63,12 @@ Verified: 2026-09-12
 
 ## Editor and Transport Research
 
-- `pnpm view` confirms package availability:
-  - `grapesjs@0.23.6`
+- `pnpm view` confirms package availability and peer compatibility:
+  - `grapesjs@0.22.16` with `^0.22.5`; required by `@grapesjs/react@2.0.0` (`grapesjs@^0.22.5`)
   - `@grapesjs/react@2.0.0`
   - `grapesjs-preset-newsletter@1.0.2`
   - `nodemailer@9.1.1` and `nodemailer@9.0.5`; npm also reports a newer `10.0.9` line.
-- `@grapesjs/react@2.0.0` supports React 18/19 and GrapesJS `>=0.22.5`; the planned GrapesJS `0.23.6` combination is compatible.
+- `@grapesjs/react@2.0.0` supports React 18/19 and GrapesJS `^0.22.5`; the resolved GrapesJS `0.22.16` combination is compatible. GrapesJS `0.23.6` was rejected because it is outside the wrapper peer range.
 - GrapesJS and the newsletter preset are BSD-3-Clause; `@grapesjs/react` is the official React wrapper.
 - Supabase Edge Functions are Deno/TypeScript functions and support npm imports. The existing `supabase/functions/elvanto-sync-worker/index.ts` demonstrates remote imports and service-role usage.
 - Supabase documentation and current package metadata support using `nodemailer` from an Edge Function, but Deno/npm compatibility and Gmail port `465` must be verified in the local Edge runtime before deployment.
@@ -130,6 +130,36 @@ Verified: 2026-09-12
 - `supabase/config.toml` or function-specific config for public unsubscribe JWT behavior
 - Environment-variable documentation/configuration outside source control for SMTP and unsubscribe secrets
 
+## Core Utility Pattern (from dragndrop + module-design)
+
+- `src/core/dragndrop/` is the existing model for a core utility: it has `index.ts` (barrel), `types.ts`, `provider.tsx`, `components/`, `hooks/`, `sensors/`, `utils/`, and is exported as `* as Dragndrop` from `src/core/ui/index.ts` (line 23).
+- Module manifest pattern (from `src/modules/forms/manifest.ts`, `src/modules/example/manifest.ts`):
+  - `id` (kebab), `name` (display), `icon` (LucideIcon), `number` (drives hero hue, 16deg × n), `alwaysOn`, `basePath`, `nav: { label, route }`
+  - Module numbers used: settings=0, people=1, forms=2, example=3 → email=4
+- Module contract (from `naming-convention.md` + `boilerplate/`): `manifest.ts`, `public.ts` (re-export manifest + ModuleApi type), `routes.tsx` (thin RouteObject glue), `dashboard.tsx` (Page.Main pattern with `--module-number` CSS var), `settings.ts` (calls `registerSettingsSection`), `components/`, `lib/` (kebab-case: types.ts, queries.ts, schema.ts, hooks.ts)
+- Core settings registration: `src/core/settings/lib/schema.ts` — `registerSettingsSection({ id, title, description, component, order })` — imported from `routes.tsx` for side-effect
+- Core router assembly: `src/core/router.tsx` — `createBrowserRouter` with `AppShell` + children; public routes outside shell (e.g. `/forms/:formId`)
+- Plugin API context: `src/core/plugins/PluginAPI.tsx` — `PluginAPIContext` interface with `supabase`, `settings`, `router`, `toast`, `i18n`, `dragndrop`, `pluginName`, `pluginVersion`
+- Plugin hook registration: `src/core/plugins/HookRegistry.ts` — in-memory arrays per hook type, `pluginHooks.*` wrappers, `clearPluginRegistrations` for testing
+- Plugin manifest schema: `src/core/plugins/manifest-schema.ts` — Zod schema with permissions, hooks, dashboard widgets, nav items, dnd collections
+- Naming convention: `naming-convention.md` — `+page<Domain>` for page entry, `section<Domain>`, `widget<Domain>`, `dialog<Domain>`, `field<Domain>`; non-component lib files are kebab-case (types.ts, queries.ts); tests colocated next to source
+- DB types: `src/core/lib/database.types.ts` — hand-maintained, uses `TableDefinition<Row>` generic with Insert/Update; `Tables<T>` helper; enums inline; `Json` type exported
+- Edge Function pattern: `supabase/functions/elvanto-sync-worker/index.ts` — Deno, `serve()`, `SUPABASE_SERVICE_ROLE_KEY` env, service-role client, CORS headers, `config.toml` Edge Runtime v2
+
+## Existing People Email Infrastructure (confirmed)
+
+- `src/core/lib/email.ts` — stub contract: `EmailRecipient`, `SendEmailInput` (to/subject/body/from), `SendEmailResult` (messageId, acceptedCount); `sendEmail()` throws "not yet configured"
+- `src/modules/people/lib/email.ts` — full adapter:
+  - `getEmailRecipients(listId)` — resolves saved-list conditions → queries people → returns distinct EmailRecipient[] (dedupes by lowercase email)
+  - `sendPeopleEmail(recipients, subject, body)` — validates → calls `sendEmail` → `logEmailActivity()` writes one `people_audit` row per recipient
+  - `canChat(person)` — returns false for child, true if email or mobile present
+- `src/modules/people/components/SendEmailDialog.tsx` — basic Dialog with subject Input + body Textarea + send/close; NOT named per naming convention (should be `dialogSendEmail.tsx`)
+- `src/modules/people/pages/Dashboard/SavedListSidebar.tsx` — calls `getEmailRecipients(listId)` for email action
+- `src/modules/people/pages/PersonProfile/Header.tsx` — exposes Email action on person profile
+- `src/modules/people/lib/types.ts` — `Person = Tables<'people'>`; no consent fields yet
+
+---
+
 ## Open Gaps and Risks
 
 - Confirm the exact Supabase Edge Runtime behavior for `npm:nodemailer@9.1.1`, including import syntax, TLS, and outbound port `465`.
@@ -138,6 +168,7 @@ Verified: 2026-09-12
 - Resolve whether per-user sender aliases come from a new `email_sender_aliases` table or another existing identity source. A dedicated table is the safer design because `people.email` is a recipient field.
 - Define retry semantics for failed recipients and whether a separate processor invocation is required; the MVP can process the queue synchronously inside `email-send` while retaining durable queued/failed rows.
 - Define the exact audience condition subset supported from `saved_lists.conditions`; core email must not silently accept unsupported query shapes.
-- Add HTML sanitization and data escaping before storing or sending template output. No sanitizer dependency currently exists.
+- Add HTML sanitization and data escaping before storing or sending template output. No sanitizer dependency currently exists (`sanitize-html` to be installed in Batch 1).
 - Decide whether the hand-maintained database type file remains the source of truth or is regenerated after migration; do not mix generated and manual types without a documented convention.
 - Existing broad `platform_settings` write policies are a security risk. Email settings must use Super Admin gating plus server-side validation, and a later core security cleanup should tighten those policies.
+- GrapesJS React 19 compatibility: `@grapesjs/react@2.0.0` is the official wrapper supporting React 18/19; verify in Batch 7.

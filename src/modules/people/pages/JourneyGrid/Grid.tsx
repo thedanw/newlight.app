@@ -1,6 +1,6 @@
 import { Card, Table, Text } from '@/core/ui'
-import type { JourneyGrid as JourneyGridData } from '../lib/types'
-import { JourneyGridCell } from './JourneyGridCell'
+import type { JourneyGrid as JourneyGridData } from '../../lib/types'
+import { JourneyGridCell } from './Cell'
 
 export function JourneyGrid({ grid, onStageChange }: { grid: JourneyGridData; onStageChange: (personId: string, trackId: string, stage: string) => Promise<void> }) {
   if (grid.tracks.length === 0) {

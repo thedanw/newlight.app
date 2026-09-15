@@ -1,10 +1,10 @@
 import { useState } from 'react'
-import type { Person, PersonPublic } from '../../../lib/types'
+import type { Person, PersonPublic } from '../../lib/types'
 import { Link, Button, Dialog, Field, Input, Text } from '@/core/ui'
 import { Stack } from 'styled-system/jsx'
-import { ProfileSection } from '../ProfileSection'
-import { usePersonGuardians } from '../../../lib/hooks'
-import { createContactOnlyParent, createPersonRelationship } from '../../../lib/queries'
+import { ProfileSection } from './ProfileSection'
+import { usePersonGuardians } from '../../lib/hooks'
+import { createContactOnlyParent, createPersonRelationship } from '../../lib/queries'
 
 export function GuardiansSection({ person, canManageGuardians = true }: { person: Person | PersonPublic; canManageGuardians?: boolean }) {
   const guardiansState = usePersonGuardians(person.id)

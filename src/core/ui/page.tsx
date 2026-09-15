@@ -1,7 +1,7 @@
 'use client'
 import { ark } from '@ark-ui/react/factory'
 import { ChevronLeftIcon } from 'lucide-react'
-import { Children, forwardRef, isValidElement, type ComponentProps, type ReactNode } from 'react'
+import { Children, forwardRef, isValidElement, useRef, type ComponentProps, type ReactNode } from 'react'
 import { css } from 'styled-system/css'
 import { createStyleContext } from 'styled-system/jsx'
 import { page } from 'styled-system/recipes'
@@ -67,7 +67,14 @@ export type MainProps = ComponentProps<typeof MainBase>
  * is `pnpm lint:pages` (scripts/lint-pages.mjs).
  */
 export const Main = forwardRef<HTMLElement, MainProps>(({ children, ...props }, ref) => {
-  if (import.meta.env.DEV) {
+  // Validate the scaffold contract once per mounted instance. Gating on a ref
+  // (preserved by React Fast Refresh) prevents false positives during HMR of
+  // this file: hot-reloading swaps the Header/Body references used here, but
+  // already-mounted pages still render the previous references, so reference
+  // equality checks would fail on every re-render until the page remounts.
+  const validatedRef = useRef(false)
+  if (import.meta.env.DEV && !validatedRef.current) {
+    validatedRef.current = true
     const flat = Children.toArray(children)
     const hasHeader = flat.some((child) => isValidElement(child) && child.type === Header)
     const hasBody = flat.some((child) => isValidElement(child) && child.type === Body)
@@ -120,6 +127,7 @@ const HeadingRootBase = forwardRef<HTMLDivElement, HeadingRootProps>(
         marginRight="-2"
         marginLeft="0"
         boxSize="8"
+        minW="8"
         boxShadow="none"
         opacity="0.5"
         css={{ _icon: { boxSize: '7' } }}
@@ -132,7 +140,7 @@ const HeadingRootBase = forwardRef<HTMLDivElement, HeadingRootProps>(
     return (
       <div className={headerInnerCss} ref={ref}>
         {backButton}
-        <Icon size="sm">
+        <Icon size="xl" boxSize="7">
           <ActualIcon />
         </Icon>
         <PageHeading truncate>

@@ -2,11 +2,12 @@ import { createClient } from '@supabase/supabase-js'
 import type { Database } from './database.types'
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-// Fallback to publishable key if anon key is not set (for development)
+// Fallback to publishable key if anon key is not set (for development).
+// Supabase renamed the anon key to publishable key, so this is the same
+// client-safe credential — the fallback is expected, not a misconfiguration.
 let supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 if (!supabaseAnonKey) {
   supabaseAnonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY
-  console.warn('Using VITE_SUPABASE_PUBLISHABLE_KEY as fallback for VITE_SUPABASE_ANON_KEY')
 }
 
 if (!supabaseUrl || !supabaseAnonKey) {

@@ -29,6 +29,7 @@ class PluginManager {
   private supabase: TypedSupabaseClient | null = null
   private loadedPlugins: LoadedPlugin[] = []
   private listeners = new Set<() => void>()
+  private loadPromise: Promise<void> | null = null
 
   /** Initialise with the app's Supabase client (called once by PluginLoader). */
   init(supabase: TypedSupabaseClient): void {
@@ -58,30 +59,47 @@ class PluginManager {
   /**
    * Load all enabled plugins (called at startup). Clears any previous
    * registrations first so hot-reloads stay consistent.
+   *
+   * Guarded by a shared promise so concurrent calls (e.g. React StrictMode
+   * double-invoking the PluginLoader effect in dev) only load once.
    */
   async loadAll(): Promise<void> {
     if (!this.supabase) return
-    clearPluginRegistrations()
-    const pluginNames = await discoverPluginNames()
-    const enabledStates = await this.getEnabledPluginStates()
-    const loaded: LoadedPlugin[] = []
-    for (const pluginName of pluginNames) {
-      if (!enabledStates[pluginName]) {
-        console.log(`[PluginManager] Plugin ${pluginName} is disabled — skipping`)
-        continue
-      }
-      try {
-        const plugin = await this.loadPlugin(pluginName)
-        if (plugin) {
-          loaded.push(plugin)
-          console.log(`[PluginManager] Loaded plugin: ${pluginName} v${plugin.manifest.version}`)
-        }
-      } catch (err) {
-        console.error(`[PluginManager] Failed to load plugin ${pluginName}:`, err)
-      }
+    if (this.loadPromise) return this.loadPromise
+    this.loadPromise = this.performLoadAll()
+    try {
+      await this.loadPromise
+    } finally {
+      this.loadPromise = null
     }
-    this.loadedPlugins = loaded
-    this.notify()
+  }
+
+  private async performLoadAll(): Promise<void> {
+    try {
+      clearPluginRegistrations()
+      const pluginNames = await discoverPluginNames()
+      const enabledStates = await this.getEnabledPluginStates()
+      const loaded: LoadedPlugin[] = []
+      for (const pluginName of pluginNames) {
+        if (!enabledStates[pluginName]) {
+          console.log(`[PluginManager] Plugin ${pluginName} is disabled — skipping`)
+          continue
+        }
+        try {
+          const plugin = await this.loadPlugin(pluginName)
+          if (plugin) {
+            loaded.push(plugin)
+            console.log(`[PluginManager] Loaded plugin: ${pluginName} v${plugin.manifest.version}`)
+          }
+        } catch (err) {
+          console.error(`[PluginManager] Failed to load plugin ${pluginName}:`, err)
+        }
+      }
+      this.loadedPlugins = loaded
+      this.notify()
+    } catch (err) {
+      console.error('[PluginManager] Failed to load plugins:', err)
+    }
   }
 
   /**

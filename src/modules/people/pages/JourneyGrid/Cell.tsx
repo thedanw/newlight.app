@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { createListCollection } from '@ark-ui/react'
 import { Link, Select, Text } from '@/core/ui'
 import { Stack } from 'styled-system/jsx'
-import type { JourneyStage, Person } from '../lib/types'
+import type { JourneyStage, Person } from '../../lib/types'
 
 type JourneyGridCellProps = {
   people: Person[]

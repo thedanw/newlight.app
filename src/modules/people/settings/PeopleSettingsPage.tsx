@@ -6,7 +6,7 @@ import { Card, Heading, Page, Text } from '@/core/ui'
 import { useNavigate } from 'react-router-dom'
 import { useCurrentOperatorPermission } from '../lib/hooks'
 import { getSettingsLinks } from '@/core/plugins/HookRegistry'
-import { JourneySettingsManager } from '../components/JourneySettingsManager'
+import { JourneySettingsManager } from './JourneySettingsManager'
 import { PageSkeleton } from '../components/PageSkeleton'
 
 /**

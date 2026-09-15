@@ -1,4 +1,4 @@
-import { Stack } from 'styled-system/jsx'
+import { Box, Stack } from 'styled-system/jsx'
 import { Heading, Text, Card, Table, Badge, Button, Input, Dialog, Alert, Select } from '@/core/ui'
 import { usePluginAPIContext } from '@/core/plugins/PluginAPI'
 import { useState, useEffect, useMemo } from 'react'
@@ -259,6 +259,7 @@ export function SyncHistoryTable() {
             <Text color="fg.muted" textAlign="center" p="6">No sync history found</Text>
           ) : (
             <>
+              <Box overflowX="auto" minW="0">
               <Table.Root>
                 <Table.Head>
                   <Table.Row>
@@ -293,6 +294,7 @@ export function SyncHistoryTable() {
                   ))}
                 </Table.Body>
               </Table.Root>
+              </Box>
 
               {/* Pagination */}
               {totalPages > 1 && (

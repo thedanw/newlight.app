@@ -1,7 +1,7 @@
 import type { CSSProperties } from 'react'
 import { Page } from '@/core/ui'
 import { Users } from 'lucide-react'
-import { TagManager } from '../components/TagManager'
+import { TagManager } from './Manager'
 
 export default function TagsPage() {
   return (

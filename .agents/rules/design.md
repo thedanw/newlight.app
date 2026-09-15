@@ -32,6 +32,7 @@ Runtime: `<html data-color-scheme="..." data-accent-color="..." data-gray-color=
 
 - **Lucide React** — consistent 24px stroke-based icons
 - No Material Symbols (legacy)
+- **Icon buttons**: use `IconButton` from `@/core/ui` with lucide icon children (e.g. `<TrashIcon />`, `<CopyIcon />`). Do not use emoji as button icons (e.g. `🗑`, `📋`) — always use the corresponding lucide icon.
 
 ## Layout & Navigation
 
@@ -69,6 +70,50 @@ gap: { base: '3', md: '6' },
 ```
 
 Apply the same pattern to other display components (cards, sections) so padding/gaps collapse from `6` (24px) on wide screens to `3` (12px) on small screens. The `Page` recipe already does this for root/header/body; mirror it in card-like components that need to breathe on mobile.
+
+### Tables on small screens
+Tables can exceed viewport width. Wrap tables in a scrollable container to prevent layout breakage:
+
+```tsx
+<Box overflowX="auto" minW="0">
+  <Table>...</Table>
+</Box>
+```
+
+Do not shrink table columns to fit — let the container scroll horizontally. Cells use `whiteSpace: nowrap` (from the table recipe) which preserves readability.
+
+### Tabs on small screens
+Tabs with many triggers can overflow the viewport. Use `TabScroller` from `@/core/ui` to wrap `Tabs.List` — it provides horizontal scroll with fixed chevron navigation buttons that fade based on scroll position:
+
+```tsx
+<TabScroller>
+  <Tabs.List>
+    <Tabs.Trigger .../>
+    ...
+  </Tabs.List>
+</TabScroller>
+```
+
+Each trigger should have `flexShrink: 0` to prevent squishing. `TabScroller` handles scroll detection and chevron rendering — do not manually wrap `Tabs.List` in scroll containers when `TabScroller` is used.
+
+#### Icon tabs
+For tab bars with many items, use icon + short text labels. Landscape layout on md+ (icon left, text inline), portrait on small screens (icon above, text below, larger icon). Use `Box` with responsive `display` to swap icon sizes:
+
+```tsx
+<Tabs.Trigger value={id} css={{ flexShrink: 0, justifyContent: 'center', ... }}>
+  <Stack alignItems="center" gap={{ base: '1', md: '2' }}>
+    <Box display={{ base: 'block', md: 'none' }}>
+      <Icon size={32} />
+    </Box>
+    <Box display={{ base: 'none', md: 'block' }}>
+      <Icon size={16} />
+    </Box>
+    <Text textStyle={{ base: '2xs', md: 'sm' }}>{label}</Text>
+  </Stack>
+</Tabs.Trigger>
+```
+
+Use short labels (1-2 words). Pick a lucide icon that concisely describes each tab's content.
 
 ### Sidebar (Primary Nav)
 - Mobile-first **left-side** module grid (icons + labels)

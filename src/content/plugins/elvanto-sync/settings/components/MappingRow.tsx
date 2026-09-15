@@ -1,6 +1,7 @@
 'use client'
-import { Text, Input, Button, Badge, Combobox } from '@/core/ui'
+import { Text, Input, Button, Badge, Combobox, IconButton } from '@/core/ui'
 import { useState, useEffect, useMemo } from 'react'
+import { CheckIcon, TrashIcon, ClipboardPaste } from 'lucide-react'
 import { HStack, Stack } from 'styled-system/jsx'
 import { createListCollection } from '@ark-ui/react'
 import { CheckIcon } from 'lucide-react'
@@ -167,12 +168,20 @@ export function MappingRow({ rule, index, appFields, elvantoFields, dynamicElvan
         </Button>
 
         <HStack gap="1" alignSelf="flex-end">
-          <Button variant="outline" size="sm" onClick={() => onDuplicate(index)} title="Duplicate">
-            📋
-          </Button>
-          <Button variant="solid" size="sm" color="red" onClick={() => onDelete(index)} title="Delete">
-            🗑
-          </Button>
+          <IconButton size="sm" onClick={() => onDuplicate(index)} title="Duplicate">
+            <ClipboardPaste />
+          </IconButton>
+          <IconButton
+            size="sm"
+            onClick={() => onDelete(index)} 
+            title="Delete"
+            colorPalette="red"
+          >
+            <TrashIcon />
+          </IconButton>
+          <IconButton size="sm" onClick={() => onDelete(index)} title="Delete" colorPalette="red">
+            <TrashIcon />
+          </IconButton>
         </HStack>
       </HStack>
 

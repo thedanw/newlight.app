@@ -1,7 +1,7 @@
 import { Heading, Text, Card, Alert, Button, Table, Select } from '@/core/ui'
 import { usePluginAPIContext } from '@/core/plugins/PluginAPI'
 import { useState, useEffect, useMemo } from 'react'
-import { HStack, Stack } from 'styled-system/jsx'
+import { Box, HStack, Stack } from 'styled-system/jsx'
 import { createListCollection } from '@ark-ui/react'
 import { ChevronsUpDownIcon, CheckIcon } from 'lucide-react'
 import { decrypt } from '../../utils/encryption'
@@ -230,6 +230,7 @@ export function LocationTrackPairing() {
               </HStack>
             </Stack>
           ) : (
+            <Box overflowX="auto" minW="0">
             <Table.Root>
               <Table.Head>
                 <Table.Row>
@@ -306,6 +307,7 @@ export function LocationTrackPairing() {
                 ))}
               </Table.Body>
             </Table.Root>
+            </Box>
           )}
         </Card.Body>
         <Card.Footer>

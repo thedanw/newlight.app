@@ -3,9 +3,9 @@ import { useRef, useState, useEffect, useCallback } from 'react'
 import { animate, motion, useMotionValue } from 'framer-motion'
 import { css } from 'styled-system/css'
 import { Avatar, NavTile, PullTab, NavProvider, useNavContext } from '@/core/ui'
+import { ClipboardList, Users, UsersRound, Wrench, CalendarDays, Sun, Settings, Palette, LogIn } from 'lucide-react'
 import { useAuth } from '@/core/auth'
 import { getAccountTileState } from '@/core/auth/lib/tile-state'
-import { Users, UsersRound, Wrench, CalendarDays, Sun, Settings, Palette, LogIn } from 'lucide-react'
 
 /* ---------------------------------------------------------------------------
     Sidebar — mobile-first left-side module menu (ui-ux #7):
@@ -23,6 +23,7 @@ import { Users, UsersRound, Wrench, CalendarDays, Sun, Settings, Palette, LogIn 
 
 const MODULES = [
   { id: 'people', label: 'People', icon: Users },
+  { id: 'forms', label: 'Forms', icon: ClipboardList },
   { id: 'groups', label: 'Groups', icon: UsersRound },
   { id: 'services', label: 'Services', icon: Wrench },
   { id: 'calendar', label: 'Calendar', icon: CalendarDays },
@@ -31,6 +32,7 @@ const MODULES = [
 
 const FOOTER_TILES = 2 // Account + Settings
 const TILE_SIZE = 66 // px
+
 const TILE_GAP = 12 // px
 const SIDEBAR_PADDING = 12 // px
 const PEEK_WIDTH = 5 // px

@@ -3,7 +3,7 @@ import type { Person, PersonPublic } from '../../../lib/types'
 import { Button, Field, Input, Select } from '@/core/ui'
 import { Stack } from 'styled-system/jsx'
 import { Grid } from 'styled-system/jsx'
-import { ProfileSection } from '../ProfileSection'
+import { ProfileSection } from '../../sections/ProfileSection'
 import { updatePerson, writePeopleAudit } from '../../../lib/queries'
 import { createListCollection } from '@ark-ui/react'
 

@@ -1,8 +1,8 @@
 import { render, screen, cleanup } from '@testing-library/react'
 import { describe, it, expect, afterEach } from 'vitest'
 import userEvent from '@testing-library/user-event'
-import { ContactSection } from './ContactSection'
-import type { Person } from '../../../lib/types'
+import { ContactSection } from './Contact'
+import type { Person } from '../../lib/types'
 
 const mockPerson = {
   id: 'person-1',

@@ -1,5 +1,5 @@
 import React from 'react';
-import { DragOverlay } from '@dnd-kit/react';
+import { DragOverlay } from '@dnd-kit/core';
 
 interface UseDragOverlayOptions {
   /** Callback to render the overlay content */
@@ -55,7 +55,7 @@ export function useDefaultDragOverlay(
   renderContent: (source: { id: string; data: Record<string, unknown> } | null) => React.ReactNode
 ) {
   return {
-    dropAnimation: null as const,
+    dropAnimation: null,
     children: renderContent,
   };
 }

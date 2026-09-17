@@ -8,8 +8,8 @@ const { captured } = vi.hoisted(() => ({
   captured: [] as Array<Record<string, (...args: any[]) => void>>,
 }))
 
-vi.mock('@dnd-kit/react', () => ({
-  DragDropProvider: ({ children, onDragStart, onDragMove, onDragOver, onDragEnd }: any) => {
+vi.mock('@dnd-kit/core', () => ({
+  DndContext: ({ children, onDragStart, onDragMove, onDragOver, onDragEnd }: any) => {
     const handlers: Record<string, (...args: any[]) => void> = {}
     if (onDragStart) handlers.onDragStart = onDragStart
     if (onDragMove) handlers.onDragMove = onDragMove
@@ -24,36 +24,37 @@ vi.mock('@dnd-kit/react', () => ({
   },
 }))
 
-vi.mock('@dnd-kit/react/sortable', () => ({
+vi.mock('@dnd-kit/sortable', () => ({
   useSortable: vi.fn(() => ({
     sortable: {},
     isDragging: false,
     isDropping: false,
     isDragSource: false,
     isDropTarget: false,
+    attributes: {},
+    listeners: {},
+    setNodeRef: vi.fn(),
+    setActivatorNodeRef: vi.fn(),
     handleRef: vi.fn(),
     ref: vi.fn(),
     sourceRef: vi.fn(),
     targetRef: vi.fn(),
   })),
-}))
-
-// Real move semantics: move source.index to target.index (used by both the tree
-// and the stage columns). Falls back to identity when indices are missing.
-vi.mock('@dnd-kit/helpers', () => ({
-  move: vi.fn((items: any[], event: any) => {
-    const sourceIndex = event?.operation?.source?.index
-    const targetIndex = event?.operation?.target?.index
-    if (typeof sourceIndex !== 'number' || typeof targetIndex !== 'number') return items
+  SortableContext: ({ children }: any) => <div data-testid="sortable-context">{children}</div>,
+  arrayMove: vi.fn((items: any[], source: number, target: number) => {
     const next = [...items]
-    const [moved] = next.splice(sourceIndex, 1)
-    next.splice(targetIndex, 0, moved)
+    const [moved] = next.splice(source, 1)
+    next.splice(target, 0, moved)
     return next
   }),
+  verticalListSortingStrategy: vi.fn(),
+  horizontalListSortingStrategy: vi.fn(),
 }))
 
 vi.mock('@/core/dragndrop/sensors', () => ({
   createDefaultSensors: vi.fn(() => []),
+  createPointerSensorOptions: vi.fn(() => ({})),
+  createKeyboardSensorOptions: vi.fn(() => ({})),
 }))
 
 vi.mock('../../lib/settings-hooks', () => ({
@@ -99,8 +100,10 @@ const renderManager = () => {
 // The component re-renders after its data-loading effect, so the DragDropProvider
 // handlers are captured multiple times. Always use the MOST RECENT capture so the
 // handlers reference the populated state (stageOrder / flattenedItems).
-const treeHandlers = () => [...captured].reverse().find((h) => h.onDragStart)!
-const stageHandlers = () => [...captured].reverse().find((h) => !h.onDragStart)!
+// Tree provider (SortableTree) has onDragStart; stage provider also has onDragStart now.
+// Distinguish by presence of onDragOver (tree has it for depth projection, stage does not).
+const treeHandlers = () => [...captured].reverse().find((h) => h.onDragOver)!
+const stageHandlers = () => [...captured].reverse().find((h) => !h.onDragOver)!
 
 describe('JourneySettingsManager', () => {
   beforeEach(() => {
@@ -125,9 +128,13 @@ describe('JourneySettingsManager', () => {
     const { container } = renderManager()
     const handlers = stageHandlers()
     act(() => {
+      handlers.onDragStart({ active: { id: 's1' } })
+    })
+    act(() => {
       handlers.onDragEnd({
         canceled: false,
-        operation: { source: { index: 0 }, target: { index: 1 } },
+        active: { id: 's1', index: 0 },
+        over: { id: 's2', index: 1 },
       })
     })
     const columns = container.querySelectorAll('[data-stage-column]')
@@ -140,19 +147,17 @@ describe('JourneySettingsManager', () => {
 
     // Start dragging root track:t2 (flat index 2)
     act(() => {
-      treeHandlers().onDragStart({ operation: { source: { id: 'track:t2' } } })
+      treeHandlers().onDragStart({ active: { id: 'track:t2' } })
     })
     // Drag over track:t1 with a horizontal offset → projected depth 1 → parent c1.
     // Re-fetch the handler each step: the SortableTree re-renders after every
     // state update, so the latest handler carries the updated flattenedItems.
     act(() => {
-      treeHandlers().onDragOver(
-        {
-          operation: { source: { id: 'track:t2', index: 2 }, target: { id: 'track:t1', index: 1 } },
-          preventDefault: vi.fn(),
-        },
-        { dragOperation: { transform: { x: 24 } } },
-      )
+      treeHandlers().onDragOver({
+        active: { id: 'track:t2', index: 2 },
+        over: { id: 'track:t1', index: 1 },
+        transform: { x: 24 },
+      })
     })
     // End the drag — rebuilds the tree and fires onReorder
     act(() => {
@@ -171,16 +176,14 @@ describe('JourneySettingsManager', () => {
 
     // Nest track:t2 under category:c1 so the save payload reflects the tree
     act(() => {
-      treeHandlers().onDragStart({ operation: { source: { id: 'track:t2' } } })
+      treeHandlers().onDragStart({ active: { id: 'track:t2' } })
     })
     act(() => {
-      treeHandlers().onDragOver(
-        {
-          operation: { source: { id: 'track:t2', index: 2 }, target: { id: 'track:t1', index: 1 } },
-          preventDefault: vi.fn(),
-        },
-        { dragOperation: { transform: { x: 24 } } },
-      )
+      treeHandlers().onDragOver({
+        active: { id: 'track:t2', index: 2 },
+        over: { id: 'track:t1', index: 1 },
+        transform: { x: 24 },
+      })
     })
     act(() => {
       treeHandlers().onDragEnd({ canceled: false })

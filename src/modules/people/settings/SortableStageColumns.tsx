@@ -1,9 +1,9 @@
-import { useCallback, useMemo, type ReactNode } from 'react'
+import { useCallback, useMemo, useState, type ReactNode } from 'react'
 import { GripVertical } from 'lucide-react'
-import { DragDropProvider, DragOverlay } from '@dnd-kit/react'
-import type { DragEndEvent } from '@dnd-kit/react'
-import { move } from '@dnd-kit/helpers'
-import { useSortable } from '@dnd-kit/sortable'
+import { DndContext as DragDropProvider, DragOverlay } from '@dnd-kit/core'
+import type { DragEndEvent, DragStartEvent } from '@dnd-kit/core'
+import { arrayMove } from '@dnd-kit/sortable'
+import { useSortable, SortableContext, horizontalListSortingStrategy } from '@dnd-kit/sortable'
 import { createDefaultSensors } from '@/core/dragndrop/sensors'
 import type { JourneyStage } from '../lib/types'
 
@@ -16,8 +16,6 @@ export interface StageColumnHelpers {
   handleRef: (el: HTMLElement | null) => void
   /** Whether this column is currently being dragged */
   isDragging: boolean
-  /** Whether this column is the drag source */
-  isDragSource: boolean
 }
 
 export interface SortableStageColumnsProps {
@@ -47,19 +45,17 @@ function StageColumn({
   renderColumn?: SortableStageColumnsProps['renderColumn']
   minWidth: number
 }) {
-  const { isDragging, isDragSource, ref, handleRef } = useSortable({
+  const { isDragging, attributes, listeners, setNodeRef, setActivatorNodeRef } = useSortable({
     id: stage.id,
     index,
     data: { label: stage.label ?? stage.slug },
-    alignment: { x: 'center', y: 'center' },
-    transition: { idle: true },
   })
 
   return (
     <div
-      ref={ref}
-      data-stage-column={stage.id}
-      aria-hidden={isDragSource}
+       ref={setNodeRef}
+       data-stage-column={stage.id}
+       aria-hidden={false}
       style={{
         flex: '1 1 0',
         minWidth,
@@ -69,11 +65,13 @@ function StageColumn({
       }}
     >
       {renderColumn ? (
-        renderColumn(stage, { handleRef, isDragging, isDragSource })
+        renderColumn(stage, { handleRef: setActivatorNodeRef, isDragging })
       ) : (
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
           <button
-            ref={handleRef}
+            {...attributes}
+            {...listeners}
+            ref={setActivatorNodeRef}
             aria-label={`Reorder ${stage.label ?? stage.slug}`}
             type="button"
             style={{
@@ -114,11 +112,23 @@ export function SortableStageColumns({
   minWidth = DEFAULT_MIN_WIDTH,
 }: SortableStageColumnsProps) {
   const sensors = useMemo(() => createDefaultSensors(), [])
+  const [activeId, setActiveId] = useState<string | null>(null)
+
+  const activeStage = activeId ? stages.find((s) => s.id === activeId) : null
+  const activeLabel = String(activeStage?.label ?? activeStage?.slug ?? '')
+
+  const handleDragStart = useCallback((event: DragStartEvent) => {
+    setActiveId(event.active?.id ?? null)
+  }, [])
 
   const handleDragEnd = useCallback(
     (event: DragEndEvent) => {
-      if (event.canceled) return
-      const reordered = move(stages, event)
+      setActiveId(null)
+      if (event.canceled || !event.active || !event.over) return
+      const sourceIndex = stages.findIndex((s) => s.id === event.active.id)
+      const targetIndex = stages.findIndex((s) => s.id === event.over?.id)
+      if (sourceIndex < 0 || targetIndex < 0) return
+      const reordered = arrayMove(stages, sourceIndex, targetIndex)
       onReorder(reordered.map((s, i) => ({ ...s, sort_order: i })))
     },
     [stages, onReorder],
@@ -127,6 +137,7 @@ export function SortableStageColumns({
   return (
     <DragDropProvider
       sensors={sensors}
+      onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
       onBeforeDragStart={() => {
         // Blur any focused element before the drag starts so the source can be
@@ -136,35 +147,34 @@ export function SortableStageColumns({
         }
       }}
     >
-      <div style={{ display: 'flex', flexDirection: 'row', gap, alignItems: 'center' }}>
-        {stages.map((stage, index) => (
-          <StageColumn
-            key={stage.id}
-            stage={stage}
-            index={index}
-            renderColumn={renderColumn}
-            minWidth={minWidth}
-          />
-        ))}
-      </div>
+      <SortableContext items={stages.map((s) => s.id)} strategy={horizontalListSortingStrategy}>
+        <div style={{ display: 'flex', flexDirection: 'row', gap, alignItems: 'center' }}>
+          {stages.map((stage, index) => (
+            <StageColumn
+              key={stage.id}
+              stage={stage}
+              index={index}
+              renderColumn={renderColumn}
+              minWidth={minWidth}
+            />
+          ))}
+        </div>
+      </SortableContext>
       <DragOverlay dropAnimation={null}>
-        {(source) => {
-          const label = String(source?.data?.label ?? source?.id ?? '')
-          return (
-            <div
-              style={{
-                padding: '4px 8px',
-                borderRadius: 'var(--radii-l2)',
-                background: 'var(--colors-bg-surface)',
-                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-                fontSize: 'var(--font-sizes-sm)',
-                fontWeight: 500,
-              }}
-            >
-              {label}
-            </div>
-          )
-        }}
+        {activeId && activeStage ? (
+          <div
+            style={{
+              padding: '4px 8px',
+              borderRadius: 'var(--radii-l2)',
+              background: 'var(--colors-bg-surface)',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+              fontSize: 'var(--font-sizes-sm)',
+              fontWeight: 500,
+            }}
+          >
+            {activeLabel}
+          </div>
+        ) : null}
       </DragOverlay>
     </DragDropProvider>
   )

@@ -419,6 +419,8 @@ export function JourneySettingsManager() {
                           {/* Handle column */}
                           <button
                             ref={helpers.handleRef}
+                            {...helpers.handleAttributes}
+                            {...helpers.handleListeners}
                             aria-label={`Reorder ${node.label}`}
                             type="button"
                             style={{

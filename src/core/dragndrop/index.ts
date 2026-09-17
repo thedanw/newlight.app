@@ -9,7 +9,6 @@ export {
   createDefaultSensors,
   createPointerSensorOptions,
   createKeyboardSensorOptions,
-  useDragDropSensors,
   sensorPresets,
 } from './sensors';
 
@@ -36,6 +35,7 @@ export {
 // Components
 export { TreeNode, type TreeNodeProps } from './components/TreeNode';
 export { SortableTree, type SortableTreeProps } from './components/SortableTree';
+export { DroppableZone, type DroppableZoneProps } from './components/DroppableZone';
 
 // Utilities
 export * from './utils';

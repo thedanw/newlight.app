@@ -67,18 +67,18 @@ export const TreeNode = forwardRef<HTMLDivElement, TreeNodeProps>(
     const {
       isDragging,
       isDragSource,
-      ref: sortableRef,
-      handleRef,
+      attributes,
+      listeners,
+      setNodeRef,
+      setActivatorNodeRef,
     } = useSortable({
       id: node.id,
       index,
       data: { depth, parentId, label: node.label },
-      alignment: { x: 'start', y: 'center' },
-      transition: { idle: true },
     });
 
     const combinedRef = (el: HTMLDivElement | null) => {
-      sortableRef(el);
+      setNodeRef(el);
       if (typeof ref === 'function') ref(el);
       else if (ref) ref.current = el;
     };
@@ -94,14 +94,15 @@ export const TreeNode = forwardRef<HTMLDivElement, TreeNodeProps>(
           ref={combinedRef}
           data-tree-node={node.id}
           data-depth={depth}
-          aria-hidden={isDragSource}
           style={{
             opacity: isDragging ? 0.5 : 1,
             transition: 'opacity 150ms ease',
           }}
         >
           {renderRow(node, depth, {
-            handleRef,
+            handleRef: setActivatorNodeRef,
+            handleAttributes: attributes,
+            handleListeners: listeners,
             isDragging,
             isDragSource,
             isExpanded,
@@ -117,7 +118,6 @@ export const TreeNode = forwardRef<HTMLDivElement, TreeNodeProps>(
         ref={combinedRef}
         data-tree-node={node.id}
         data-depth={depth}
-        aria-hidden={isDragSource}
         style={{
           paddingLeft: `${depth * indentSize}px`,
           opacity: isDragging ? 0.5 : 1,
@@ -169,7 +169,9 @@ export const TreeNode = forwardRef<HTMLDivElement, TreeNodeProps>(
 
           {/* Drag handle */}
           <button
-            ref={handleRef}
+            {...attributes}
+            {...listeners}
+            ref={setActivatorNodeRef}
             aria-label="Reorder item"
             type="button"
             data-testid="tree-handle"

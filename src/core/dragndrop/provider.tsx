@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { DragDropProvider as DndContext, DragOverlay, useDragDropMonitor } from '@dnd-kit/react';
-import type { DragEndEvent, DragOverEvent, DragStartEvent } from '@dnd-kit/react';
+import { DndContext, DragOverlay, useDndMonitor } from '@dnd-kit/core';
+import type { DragEndEvent, DragOverEvent, DragStartEvent } from '@dnd-kit/core';
 import type { DragDropProviderProps, DragItem, DropZone } from './types';
 import { createDefaultSensors } from './sensors';
+import type { Sensors } from '@dnd-kit/abstract';
 
 /**
  * Core DragDropProvider component
@@ -17,33 +18,36 @@ export function DragDropProvider({
   onDragEnd,
   onDragOver,
 }: DragDropProviderProps) {
-  const sensors = createDefaultSensors(sensorConfig);
+  // Allow passing either a config object (for backward compat) or pre-configured sensor descriptors
+  const sensors: Sensors = Array.isArray(sensorConfig)
+    ? sensorConfig
+    : createDefaultSensors(sensorConfig);
 
   const handleDragStart = (event: DragStartEvent) => {
-    const source = event.operation.source;
+    const source = event.active;
     const activeItem: DragItem = {
-      id: source?.id as string,
-      label: source?.data.current?.label ?? String(source?.id),
-      data: source?.data.current?.data,
-      disabled: source?.data.current?.disabled,
+      id: source.id as string,
+      label: source.data?.label ?? String(source.id),
+      data: source.data,
+      disabled: source.data?.disabled,
     };
     onDragStart?.({ active: activeItem });
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
-    const source = event.operation.source;
+    const source = event.active;
     const activeItem: DragItem = {
-      id: source?.id as string,
-      label: source?.data.current?.label ?? String(source?.id),
-      data: source?.data.current?.data,
-      disabled: source?.data.current?.disabled,
+      id: source.id as string,
+      label: source.data?.label ?? String(source.id),
+      data: source.data,
+      disabled: source.data?.disabled,
     };
 
-    const target = event.operation.target;
+    const target = event.over;
     const overZone: DropZone | null = target
       ? {
           id: target.id as string,
-          accepts: target.data.current?.accepts ?? [],
+          accepts: target.data?.accepts ?? [],
           isActive: true,
         }
       : null;
@@ -52,19 +56,19 @@ export function DragDropProvider({
   };
 
   const handleDragOver = (event: DragOverEvent) => {
-    const source = event.operation.source;
+    const source = event.active;
     const activeItem: DragItem = {
-      id: source?.id as string,
-      label: source?.data.current?.label ?? String(source?.id),
-      data: source?.data.current?.data,
-      disabled: source?.data.current?.disabled,
+      id: source.id as string,
+      label: source.data?.label ?? String(source.id),
+      data: source.data,
+      disabled: source.data?.disabled,
     };
 
-    const target = event.operation.target;
+    const target = event.over;
     const overZone: DropZone | null = target
       ? {
           id: target.id as string,
-          accepts: target.data.current?.accepts ?? [],
+          accepts: target.data?.accepts ?? [],
           isActive: true,
         }
       : null;
@@ -110,24 +114,24 @@ export { DragOverlay };
 
 /**
  * Visually-hidden live region that announces drag state changes
- * for screen readers. Uses useDragDropMonitor from @dnd-kit/react
+ * for screen readers. Uses useDndMonitor from @dnd-kit/core
  * to track drag start/end events.
  */
 function DragStatusAnnouncer() {
   const [announcement, setAnnouncement] = useState('');
 
-  useDragDropMonitor({
+  useDndMonitor({
     onDragStart(event) {
-      const source = event.operation.source;
-      const label = String(source?.data.current?.label ?? source?.id);
+      const source = event.active;
+      const label = String(source.data?.label ?? source.id);
       setAnnouncement(`Dragging ${label}`);
     },
     onDragEnd(event) {
-      const source = event.operation.source;
-      const label = String(source?.data.current?.label ?? source?.id);
-      const target = event.operation.target;
+      const source = event.active;
+      const label = String(source.data?.label ?? source.id);
+      const target = event.over;
       if (target) {
-        const overLabel = String(target.data.current?.label ?? target.id);
+        const overLabel = String(target.data?.label ?? target.id);
         setAnnouncement(`Dropped ${label} at ${overLabel}`);
       } else {
         setAnnouncement(`${label} dropped`);

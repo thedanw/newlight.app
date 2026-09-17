@@ -1,13 +1,10 @@
 import React from 'react';
-import { useSortable } from '@dnd-kit/sortable';
-import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
-import { move } from '@dnd-kit/helpers';
+import { useSortable, arrayMove } from '@dnd-kit/sortable';
 import type { DragItem } from '../types';
 import { createDefaultSensors } from '../sensors';
-import type { DragStartEvent, DragMoveEvent, DragOverEvent, DragEndEvent } from '@dnd-kit/react';
-import type { DragDropManager } from '@dnd-kit/abstract';
+import type { DragStartEvent, DragMoveEvent, DragOverEvent, DragEndEvent } from '@dnd-kit/core';
 
-interface UseSortableListOptions {
+export interface UseSortableListOptions {
   /** Array of items to make sortable */
   items: DragItem[];
   /** Callback fired when items are reordered */
@@ -25,18 +22,20 @@ export interface UseSortableListReturn {
   /** Drag start handler */
   handleDragStart: (event: DragStartEvent) => void;
   /** Drag move handler */
-  handleDragMove: (event: DragMoveEvent, manager: DragDropManager) => void;
+  handleDragMove: (event: DragMoveEvent) => void;
   /** Drag over handler */
-  handleDragOver: (event: DragOverEvent, manager: DragDropManager) => void;
+  handleDragOver: (event: DragOverEvent) => void;
   /** Drag end handler */
   handleDragEnd: (event: DragEndEvent) => void;
-  /** Render prop for each item - returns an object with ref, handleRef, isDragging, isDragSource */
-  getItemProps: (item: DragItem, index: number) => {
-    ref: (el: HTMLElement | null) => void;
-    handleRef: (el: HTMLElement | null) => void;
-    isDragging: boolean;
-    isDragSource: boolean;
-  };
+   /** Render prop for each item - returns an object with ref, handleRef, isDragging, isDragSource */
+   getItemProps: (item: DragItem, index: number) => {
+     ref: (el: HTMLElement | null) => void;
+     handleRef: (el: HTMLElement | null) => void;
+     attributes: Record<string, unknown>;
+     listeners: Record<string, unknown>;
+     isDragging: boolean;
+     isDragSource: boolean;
+   };
 }
 
 /**
@@ -84,21 +83,22 @@ export function useSortableList({
   const sensors = createDefaultSensors();
 
   // Drag lifecycle handlers
-  const handleDragStart = React.useCallback((event: DragStartEvent) => {
+  const handleDragStart = React.useCallback((_event: DragStartEvent) => {
     // No special handling needed for flat lists
   }, []);
 
-  const handleDragMove = React.useCallback((event: DragMoveEvent, manager: DragDropManager) => {
+  const handleDragMove = React.useCallback((_event: DragMoveEvent) => {
     // No special handling needed for flat lists
   }, []);
 
-  const handleDragOver = React.useCallback((event: DragOverEvent, manager: DragDropManager) => {
-    event.preventDefault();
-    const { source, target } = event.operation;
-    if (source && target && source.id !== target.id) {
-      setLocalItems((items) => move(items, event));
+   const handleDragOver = React.useCallback((event: DragOverEvent) => {
+    const { active, over } = event;
+    if (active && over && active.id !== over.id) {
+      const sourceIndex = localItems.findIndex(i => i.id === active.id);
+      const targetIndex = localItems.findIndex(i => i.id === over.id);
+      setLocalItems((items) => arrayMove(items, sourceIndex, targetIndex));
     }
-  }, []);
+  }, [localItems]);
 
   const handleDragEnd = React.useCallback((event: DragEndEvent) => {
     if (!event.canceled) {
@@ -108,14 +108,14 @@ export function useSortableList({
 
   // Get item props for rendering
   const getItemProps = React.useCallback((item: DragItem, index: number) => {
-    const { ref, handleRef, isDragging, isDragSource } = useSortable({
+    const { setNodeRef, setActivatorNodeRef, attributes, listeners, isDragging, isDragSource } = useSortable({
       id: item.id,
       index,
       data: { label: item.label, ...item.data },
     });
 
-    return { ref, handleRef, isDragging, isDragSource };
-  }, []);
+    return { ref: setNodeRef, handleRef: setActivatorNodeRef, attributes, listeners, isDragging, isDragSource };
+  }, [localItems]);
 
   return {
     items: localItems,

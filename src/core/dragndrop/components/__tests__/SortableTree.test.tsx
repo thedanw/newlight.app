@@ -7,12 +7,12 @@ const { capturedHandlers } = vi.hoisted(() => ({
   capturedHandlers: {} as Record<string, (...args: any[]) => void>,
 }));
 
-// Mock @dnd-kit/react so DragDropProvider renders children and captures handlers,
+// Mock @dnd-kit/core so DndContext renders children and captures handlers,
 // and DragOverlay renders its render-prop output.
 // Also mock useSensors and useSensor for v8+
-vi.mock('@dnd-kit/react', () => {
+vi.mock('@dnd-kit/core', () => {
   return {
-    DragDropProvider: ({ children, onDragStart, onDragMove, onDragOver, onDragEnd }: any) => {
+    DndContext: ({ children, onDragStart, onDragMove, onDragOver, onDragEnd }: any) => {
       capturedHandlers.onDragStart = onDragStart;
       capturedHandlers.onDragMove = onDragMove;
       capturedHandlers.onDragOver = onDragOver;
@@ -28,49 +28,101 @@ vi.mock('@dnd-kit/react', () => {
   };
 });
 
-// Mock @dnd-kit/dom for sensors
-vi.mock('@dnd-kit/dom', () => ({
-  PointerSensor: class PointerSensor {},
-  KeyboardSensor: class KeyboardSensor {},
-}));
-
-// Mock @dnd-kit/sortable for hooks and utilities
 vi.mock('@dnd-kit/sortable', () => {
+  const createMockUseSortable = (overrides = {}) => ({
+    active: null,
+    activeIndex: 0,
+    attributes: {},
+    data: {},
+    rect: { current: null },
+    index: 0,
+    newIndex: 0,
+    items: [],
+    isOver: false,
+    isSorting: false,
+    isDragging: false,
+    isDragSource: false,
+    listeners: undefined,
+    node: { current: null },
+    overIndex: 0,
+    over: null,
+    setNodeRef: vi.fn(),
+    setActivatorNodeRef: vi.fn(),
+    setDroppableNodeRef: vi.fn(),
+    setDraggableNodeRef: vi.fn(),
+    transform: null,
+    transition: undefined,
+    ...overrides,
+  });
+
   return {
-    useSortable: vi.fn(() => ({
-      sortable: {},
-      isDragging: false,
-      isDropping: false,
-      isDragSource: false,
-      isDropTarget: false,
-      handleRef: vi.fn(),
-      ref: vi.fn(),
-      sourceRef: vi.fn(),
-      targetRef: vi.fn(),
-    })),
-    sortableKeyboardCoordinates: vi.fn(),
-    move: vi.fn((items: any[]) => items),
+    useSortable: vi.fn(() => createMockUseSortable()),
+    SortableContext: ({ children }: any) => <div data-testid="sortable-context">{children}</div>,
+    arrayMove: vi.fn((items: any[]) => items),
+    verticalListSortingStrategy: vi.fn(),
   };
 });
 
 // Mock sensors to avoid real sensor construction in JSDOM
 vi.mock('../../sensors', () => ({
   createDefaultSensors: vi.fn(() => []),
+  createPointerSensorOptions: vi.fn(() => ({})),
+  createKeyboardSensorOptions: vi.fn(() => ({})),
 }));
 
-// Mock tree utils
-vi.mock('../../utils/tree', () => ({
-  flattenTree: vi.fn((tree: any[]) => [
-    { id: '1', label: 'Root 1', depth: 0, path: ['1'], parentId: null, children: [] },
-    { id: '1-1', label: 'Child 1-1', depth: 1, path: ['1', '1-1'], parentId: '1', children: [] },
-    { id: '1-2', label: 'Child 1-2', depth: 1, path: ['1', '1-2'], parentId: '1', children: [] },
-    { id: '2', label: 'Root 2', depth: 0, path: ['2'], parentId: null, children: [] },
-  ]),
-  buildTree: vi.fn((items: any[]) => items),
-  getDescendants: vi.fn(() => new Set()),
-  getDragDepth: vi.fn(() => 1),
-  getProjection: vi.fn(() => ({ depth: 1, parentId: '1' })),
-}));
+// Mock tree utils with dynamic flattening
+vi.mock('../../utils/tree', () => {
+  const mockFlattenTree = (tree: any[]) => {
+    const result: any[] = [];
+    const walk = (nodes: any[], depth = 0, parentId: string | null = null) => {
+      for (const node of nodes) {
+        // Preserve the original children array for hasChildren check
+        const flatNode = { ...node, depth, parentId };
+        result.push(flatNode);
+        if (node.children) {
+          walk(node.children, depth + 1, node.id);
+        }
+      }
+    };
+    walk(tree);
+    return result;
+  };
+
+  const mockBuildTree = (items: any[]) => {
+    const itemMap = new Map(items.map(item => [item.id, { ...item, children: [] }]));
+    const roots: any[] = [];
+    for (const item of items) {
+      const node = itemMap.get(item.id);
+      if (item.parentId) {
+        const parent = itemMap.get(item.parentId);
+        if (parent) parent.children.push(node);
+      } else {
+        roots.push(node);
+      }
+    }
+    return roots;
+  };
+
+  return {
+    flattenTree: mockFlattenTree,
+    buildTree: mockBuildTree,
+    getDescendants: vi.fn((items: any[], id: string) => {
+      const descendants = new Set<string>();
+      const findDescendants = (parentId: string) => {
+        for (const item of items) {
+          if (item.parentId === parentId) {
+            descendants.add(item.id);
+            findDescendants(item.id);
+          }
+        }
+      };
+      findDescendants(id);
+      return descendants;
+    }),
+    getDragDepth: vi.fn(() => 1),
+    getProjection: vi.fn(() => ({ depth: 1, parentId: '1' })),
+  };
+});
 
 const tree = [
   {
@@ -165,7 +217,7 @@ describe('SortableTree', () => {
 
     // Start a drag on a leaf node (populates sourceChildren + removes descendants)
     act(() => {
-      capturedHandlers.onDragStart({ operation: { source: { id: '1-2' } } });
+      capturedHandlers.onDragStart({ active: { id: '1-2' } });
     });
 
     // End the drag — rebuilds the tree and fires onReorder
@@ -183,7 +235,7 @@ describe('SortableTree', () => {
     // Start dragging '1' (has children 1-1, 1-2) — descendants are removed
     // from the flat list into sourceChildren so the whole subtree drags together.
     act(() => {
-      capturedHandlers.onDragStart({ operation: { source: { id: '1' } } });
+      capturedHandlers.onDragStart({ active: { id: '1' } });
     });
 
     // End the drag — descendants are re-attached when the tree is rebuilt.
@@ -202,19 +254,18 @@ describe('SortableTree', () => {
 
     // Start dragging root '2'
     act(() => {
-      capturedHandlers.onDragStart({ operation: { source: { id: '2' } } });
+      capturedHandlers.onDragStart({ active: { id: '2' } });
     });
 
     // Drag over '1-1' with a horizontal offset of one indentation level →
     // projected depth 1 → parent becomes '1'.
     act(() => {
-      capturedHandlers.onDragOver(
-        {
-          operation: { source: { id: '2' }, target: { id: '1-1' } },
-          preventDefault: vi.fn(),
-        },
-        { dragOperation: { transform: { x: 24 } } }
-      );
+      capturedHandlers.onDragOver({
+        active: { id: '2' },
+        over: { id: '1-1' },
+        transform: { x: 24 },
+        preventDefault: vi.fn(),
+      });
     });
 
     // End the drag — rebuilds the tree with '2' nested under '1'.
@@ -234,7 +285,7 @@ describe('SortableTree', () => {
     // Start dragging parent '1' — its descendants (1-1, 1-2) are removed into
     // sourceChildren, leaving the flat list as [1, 2].
     act(() => {
-      capturedHandlers.onDragStart({ operation: { source: { id: '1' } } });
+      capturedHandlers.onDragStart({ active: { id: '1' } });
     });
 
     // Drag '1' over '2' (the item directly below it) with a horizontal offset.
@@ -243,13 +294,12 @@ describe('SortableTree', () => {
     // made the visibleItems walk loop forever (hard freeze). The guard must skip
     // the update so the tree stays valid.
     act(() => {
-      capturedHandlers.onDragOver(
-        {
-          operation: { source: { id: '1' }, target: { id: '2' } },
-          preventDefault: vi.fn(),
-        },
-        { dragOperation: { transform: { x: 24 } } }
-      );
+      capturedHandlers.onDragOver({
+        active: { id: '1' },
+        over: { id: '2' },
+        transform: { x: 24 },
+        preventDefault: vi.fn(),
+      });
     });
 
     // End the drag — the tree must rebuild cleanly (no self-parent → no
@@ -271,7 +321,7 @@ describe('SortableTree', () => {
     renderTree({ onReorder });
 
     act(() => {
-      capturedHandlers.onDragStart({ operation: { source: { id: '1-2' } } });
+      capturedHandlers.onDragStart({ active: { id: '1-2' } });
     });
 
     act(() => {

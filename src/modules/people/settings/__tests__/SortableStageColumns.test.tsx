@@ -8,10 +8,11 @@ const { capturedHandlers } = vi.hoisted(() => ({
   capturedHandlers: {} as Record<string, (...args: any[]) => void>,
 }))
 
-// Mock @dnd-kit/react so DragDropProvider renders children and captures handlers,
+// Mock @dnd-kit/core so DndContext renders children and captures handlers,
 // and DragOverlay renders its render-prop output.
-vi.mock('@dnd-kit/react', () => ({
-  DragDropProvider: ({ children, onDragEnd }: any) => {
+vi.mock('@dnd-kit/core', () => ({
+  DndContext: ({ children, onDragStart, onDragEnd }: any) => {
+    capturedHandlers.onDragStart = onDragStart
     capturedHandlers.onDragEnd = onDragEnd
     return <div data-testid="stage-dnd-provider">{children}</div>
   },
@@ -22,24 +23,25 @@ vi.mock('@dnd-kit/react', () => ({
 }))
 
 // Mock useSortable (used by StageColumn internally)
-vi.mock('@dnd-kit/react/sortable', () => ({
+vi.mock('@dnd-kit/sortable', () => ({
   useSortable: vi.fn(() => ({
     sortable: {},
     isDragging: false,
     isDropping: false,
     isDragSource: false,
     isDropTarget: false,
+    attributes: {},
+    listeners: {},
+    setNodeRef: vi.fn(),
+    setActivatorNodeRef: vi.fn(),
     handleRef: vi.fn(),
     ref: vi.fn(),
     sourceRef: vi.fn(),
     targetRef: vi.fn(),
   })),
-}))
-
-// Mock move helper — reverse the array to simulate a real reorder so the test
-// verifies the reordered stages flow through to onReorder.
-vi.mock('@dnd-kit/helpers', () => ({
-  move: vi.fn((items: any[]) => [...items].reverse()),
+  SortableContext: ({ children }: any) => <div data-testid="sortable-context">{children}</div>,
+  arrayMove: vi.fn((items: any[]) => [...items].reverse()),
+  horizontalListSortingStrategy: vi.fn(),
 }))
 
 // Mock sensors to avoid real sensor construction in JSDOM
@@ -90,8 +92,17 @@ describe('SortableStageColumns', () => {
     const onReorder = vi.fn()
     renderColumns({ onReorder })
 
+    // Simulate drag start to capture activeId
     act(() => {
-      capturedHandlers.onDragEnd({ canceled: false })
+      capturedHandlers.onDragStart({ active: { id: 's1' } })
+    })
+
+    act(() => {
+      capturedHandlers.onDragEnd({
+        canceled: false,
+        active: { id: 's1', index: 0 },
+        over: { id: 's2', index: 1 },
+      })
     })
 
     expect(onReorder).toHaveBeenCalledTimes(1)

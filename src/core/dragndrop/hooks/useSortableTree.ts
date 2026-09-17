@@ -1,40 +1,18 @@
 import React from 'react';
-import { useSortable } from '@dnd-kit/sortable';
-import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
-import { move } from '@dnd-kit/helpers';
+import { arrayMove } from '@dnd-kit/sortable';
 import { flattenTree, buildTree, getDescendants, getDragDepth, getProjection, type FlattenedTreeNode } from '../utils/tree';
 import { createDefaultSensors } from '../sensors';
 import type { TreeNode as TreeNodeType } from '../types';
-import type { DragStartEvent, DragMoveEvent, DragOverEvent, DragEndEvent } from '@dnd-kit/react';
-import type { DragDropManager } from '@dnd-kit/abstract';
-
-interface UseSortableTreeNodeOptions<TData = unknown> {
-  /** The tree node */
-  node: TreeNodeType<TData>;
-  /** The flat index within the sortable group */
-  index: number;
-  /** Current depth in tree */
-  depth: number;
-  /** Parent node ID (null for root) */
-  parentId: string | null;
-  /** Whether the node has children */
-  hasChildren: boolean;
-  /** Whether the node is expanded */
-  isExpanded: boolean;
-  /** Callback to toggle expand/collapse */
-  onToggle: (id: string) => void;
-  /** Optional custom render node */
-  renderNode?: (node: TreeNodeType<TData>, depth: number) => React.ReactNode;
-  /** Optional custom render row (replaces entire row layout) */
-  renderRow?: (node: TreeNodeType<TData>, depth: number, helpers: TreeNodeRowHelpers) => React.ReactNode;
-  /** Indentation per depth level in px */
-  indentation?: number;
-}
+import type { DragStartEvent, DragMoveEvent, DragOverEvent, DragEndEvent } from '@dnd-kit/core';
 
 /** Helpers passed to custom renderRow */
 export interface TreeNodeRowHelpers {
   /** Ref to attach to the drag handle element */
   handleRef: (el: HTMLElement | null) => void;
+  /** Attributes to spread on the drag handle element (required for drag to work) */
+  handleAttributes: React.HTMLAttributes<HTMLElement>;
+  /** Listeners to spread on the drag handle element (required for drag to work) */
+  handleListeners: Record<string, React.EventHandler<any>>;
   /** Whether this row is currently being dragged */
   isDragging: boolean;
   /** Whether this row is the drag source */
@@ -47,7 +25,7 @@ export interface TreeNodeRowHelpers {
   onToggle: (id: string) => void;
 }
 
-interface UseSortableTreeOptions<TData = unknown> {
+export interface UseSortableTreeOptions<TData = unknown> {
   /** The nested tree data */
   tree: TreeNodeType<TData>[];
   /** Callback fired when tree is reordered */
@@ -89,10 +67,10 @@ interface UseSortableTreeOptions<TData = unknown> {
 export function useSortableTree<TData = unknown>({
   tree,
   onReorder,
-  renderNode,
-  renderRow,
+  renderNode: _renderNode,
+  renderRow: _renderRow,
   indentation = 24,
-  gap = '0',
+  gap: _gap = '0',
 }: UseSortableTreeOptions<TData>) {
   // Tree flattening logic (kept from v2 - pure functions, unchanged)
   const [flattenedItems, setFlattenedItems] = React.useState<FlattenedTreeNode<TData>[]>(() =>
@@ -157,17 +135,17 @@ export function useSortableTree<TData = unknown>({
 
   // Drag lifecycle
   const handleDragStart = React.useCallback((event: DragStartEvent) => {
-    const { source } = event.operation;
-    if (!source) return;
+    const { active } = event;
+    if (!active) return;
 
-    const item = flattenedItems.find(({ id }) => id === source.id);
+    const item = flattenedItems.find(({ id }) => id === active.id);
     if (!item) return;
 
     initialDepth.current = item.depth;
 
     setFlattenedItems((items) => {
       sourceChildren.current = [];
-      const descendants = getDescendants(items, source.id);
+      const descendants = getDescendants(items, active.id);
       return items.filter((item) => {
         if (descendants.has(item.id)) {
           sourceChildren.current = [...sourceChildren.current, item];
@@ -178,45 +156,45 @@ export function useSortableTree<TData = unknown>({
     });
   }, [flattenedItems]);
 
-  const handleDragMove = React.useCallback((event: DragMoveEvent, manager: DragDropManager) => {
-    if (event.defaultPrevented) return;
-    const { source, target } = event.operation;
-    if (!source || !target) return;
+  const handleDragMove = React.useCallback((event: DragMoveEvent) => {
+    const { active, over } = event;
+    if (!active || !over) return;
 
-    const offsetLeft = manager.dragOperation.transform.x;
+    const offsetLeft = event.delta.x;
     const dragDepth = getDragDepth(offsetLeft, indentation);
     const projectedDepth = initialDepth.current + dragDepth;
 
-    const { depth, parentId } = getProjection(flattenedItems, source.id, projectedDepth);
+    const { depth, parentId } = getProjection(flattenedItems, active.id, projectedDepth);
 
-    if (source.data?.depth !== depth || source.data?.parentId !== parentId) {
+    if (active.data?.depth !== depth || active.data?.parentId !== parentId) {
       setFlattenedItems((items) =>
         items.map((item) =>
-          item.id === source.id ? { ...item, depth, parentId } : item
+          item.id === active.id ? { ...item, depth, parentId } : item
         )
       );
     }
   }, [flattenedItems, indentation]);
 
-  const handleDragOver = React.useCallback((event: DragOverEvent, manager: DragDropManager) => {
-    const { source, target } = event.operation;
-    event.preventDefault();
+  const handleDragOver = React.useCallback((event: DragOverEvent) => {
+    const { active, over } = event;
 
-    if (source && target && source.id !== target.id) {
+    if (active && over && active.id !== over.id) {
       setFlattenedItems((items) => {
-        const offsetLeft = manager.dragOperation.transform.x;
+        const offsetLeft = event.delta.x;
         const dragDepth = getDragDepth(offsetLeft, indentation);
         const projectedDepth = initialDepth.current + dragDepth;
 
-        const { depth, parentId } = getProjection(items, target.id, projectedDepth);
+        const { depth, parentId } = getProjection(items, over.id, projectedDepth);
 
-        if (parentId === source.id) {
+        if (parentId === active.id) {
           return items;
         }
 
-        const sortedItems = move(items, event);
+        const sourceIndex = items.findIndex((i) => i.id === active.id);
+        const targetIndex = items.findIndex((i) => i.id === over.id);
+        const sortedItems = arrayMove(items, sourceIndex, targetIndex);
         return sortedItems.map((item) =>
-          item.id === source.id ? { ...item, depth, parentId } : item
+          item.id === active.id ? { ...item, depth, parentId } : item
         );
       });
     }
@@ -242,5 +220,6 @@ export function useSortableTree<TData = unknown>({
     handleDragMove,
     handleDragOver,
     handleDragEnd,
+    flattenedItems,
   };
 }

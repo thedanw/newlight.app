@@ -17,6 +17,7 @@ import {
 import { Box, Stack } from 'styled-system/jsx'
 import { Users, GripVertical } from 'lucide-react'
 import { createListCollection } from '@ark-ui/react'
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { DragDropProvider } from '@/core/dragndrop'
 import { useSortableList } from '@/core/dragndrop/hooks/useSortableList'
 import { createForm, getFormById, MAPPABLE_PERSON_FIELDS, updateForm } from '../lib/queries'
@@ -343,19 +344,20 @@ export default function FormBuilderPage() {
               <Card.Title>Canvas</Card.Title>
             </Card.Header>
             <Card.Body>
-              <DragDropProvider
-                sensors={sensors}
-                onDragStart={handleDragStart}
-                onDragMove={handleDragMove}
-                onDragOver={handleDragOver}
-                onDragEnd={handleDragEnd}
-              >
-                <Stack gap="4">
-                  {draft.fields.length === 0 && <Text color="fg.muted">No fields yet. Add one from the palette above.</Text>}
-                  {sortableItems.map((item, index) => {
+               <DragDropProvider
+                 sensors={sensors}
+                 onDragStart={handleDragStart}
+                 onDragMove={handleDragMove}
+                 onDragOver={handleDragOver}
+                 onDragEnd={handleDragEnd}
+               >
+                 <SortableContext items={sortableItems.map((item) => String(item.id))} strategy={verticalListSortingStrategy}>
+                 <Stack gap="4">
+                   {draft.fields.length === 0 && <Text color="fg.muted">No fields yet. Add one from the palette above.</Text>}
+                   {sortableItems.map((item, index) => {
                     const field = rootFields[index]
                     if (!field) return null
-                    const { ref, handleRef, isDragging, isDragSource } = getItemProps(item, index)
+                    const { ref, handleRef, attributes, listeners, isDragging, isDragSource } = getItemProps(item, index)
                     const spec = getFieldSpec(field.field_type)
                     const childFields = draft.fields.filter((child) => child.parent_id === field.id)
                     return (
@@ -375,6 +377,8 @@ export default function FormBuilderPage() {
                         <Stack gap="2">
                           <Stack flexDirection="row" alignItems="center" gap="2" mb="2">
                             <button
+                              {...attributes}
+                              {...listeners}
                               ref={handleRef}
                               type="button"
                               aria-label="Reorder item"
@@ -434,10 +438,11 @@ export default function FormBuilderPage() {
                           )}
                         </Stack>
                       </Box>
-                    )
-                  })}
-                </Stack>
-              </DragDropProvider>
+                     )
+                   })}
+                 </Stack>
+                 </SortableContext>
+               </DragDropProvider>
             </Card.Body>
           </Card.Root>
         </Stack>

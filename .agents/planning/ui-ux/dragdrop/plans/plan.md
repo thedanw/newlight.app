@@ -104,6 +104,25 @@ Never read whole docs >400 tok (`sortable-kanban-examples.md` 1223 tok, `modifie
 - Next: Phase 4 — sortable item, tree, stage-column, and consumer migration.
 - Cache: `findings.md` provider checkpoint; `docs/skill.md` router refs.
 
+## Batch 3 Complete — 2026-09-18
+- Task 3.1: Replaced the legacy provider boundary with current `DragDropProvider`.
+- Task 3.2: Migrated monitor announcements to `useDragDropMonitor` and native operation data.
+- Task 3.3: Exposed current `DragOverlay` without an unnecessary global overlay instance.
+- Task 3.4: Made default pointer activation constraints pointer-type-aware.
+- Tasks 3.5–3.7: Kept provider JSX inline without parser failures, removed semantic event fabrication/casts, and reconciled native IDs/events.
+- Commit: `30af7f8`
+
+Errors
+| Error | Resolution |
+|-------|------------|
+| Full app typecheck reports later migration and unrelated existing errors | Scoped checkpoint files have no diagnostics; Phase 4 owns the remaining migration errors and Phase 5 owns unrelated cleanup |
+| Scoped ESLint cannot discover a config | Repository contains neither `eslint.config.*` nor `.eslintrc*`; `git diff --check` passes and lint remains a Phase 5 blocker |
+
+Context Optimization Applied
+- Compaction: yes — verbose compiler output reduced to the provider checkpoint summary in `findings.md`.
+- Masking: yes — full diagnostics are referenced by file/phase instead of duplicated in the plan.
+- Partitioning: no independent subagent; the checkpoint was a tightly coupled provider/type/sensor change.
+
 ### Phase 4: Sortable / Kanban Refactor (docs/skill.md → hooks/use-sortable.md + guides/multiple-sortable-lists.md)
 
 ## Batch 4 Start: Sync

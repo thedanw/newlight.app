@@ -1,34 +1,33 @@
-import { PointerSensor, KeyboardSensor } from '@dnd-kit/core';
-import type { PointerSensorOptions, KeyboardSensorOptions } from '@dnd-kit/core';
-import type { Sensors } from '@dnd-kit/abstract';
+import { PointerSensor, KeyboardSensor, PointerActivationConstraints } from '@dnd-kit/dom';
+import type { PointerSensorOptions, KeyboardSensorOptions } from '@dnd-kit/dom';
 import type { DragDropSensorConfig } from '../types';
 
 /**
- * Mobile-first sensor configuration for dnd-kit v6+ (core)
+ * Mobile-first sensor configuration for dnd-kit Latest (v2 / @dnd-kit/react 0.5.0)
  * Touch: 250ms delay for long-press activation
  * Mouse: 8px distance threshold for drag initiation
  * Keyboard: Arrow keys with keyboardCodes
- * 
- * v6+ pattern: sensors are passed as `{ sensor: SensorClass, options }` objects
- * to DndContext.
+ *
+ * Latest pattern: sensors are passed as `PointerSensor.configure({activationConstraints: [...]})`
+ * and `KeyboardSensor.configure({keyboardCodes: {...}})` to DragDropProvider.
  */
 
 export function createPointerSensorOptions(): PointerSensorOptions {
   return {
-    // Mobile-first: 8px distance for mouse, 250ms long-press delay for touch
-    activationConstraint: (event: { pointerType: string }) => {
+    // Mouse drags start after moving 8px; touch and pen use a long-press delay.
+    activationConstraints: (event) => {
       if (event.pointerType === 'mouse') {
-        return { distance: 8 };
+        return [new PointerActivationConstraints.Distance({ value: 8 })]
       }
-      // Touch / pen: long-press delay with tolerance
-      return { delay: 250, tolerance: 5 };
+
+      return [new PointerActivationConstraints.Delay({ value: 250, tolerance: 5 })]
     },
   };
 }
 
 export function createKeyboardSensorOptions(): KeyboardSensorOptions {
   return {
-    // v6+ uses keyboardCodes for keyboard navigation
+    // Latest uses keyboardCodes for keyboard navigation
     keyboardCodes: {
       start: ['Space', 'Enter'],
       cancel: ['Escape'],
@@ -42,22 +41,22 @@ export function createKeyboardSensorOptions(): KeyboardSensorOptions {
 }
 
 /**
- * Create the default sensor array for drag-and-drop (v6+ format)
+ * Create the default sensor array for drag-and-drop (Latest format)
  * Order matters: pointer first, then keyboard
  */
-export function createDefaultSensors(config?: DragDropSensorConfig): Sensors {
+export function createDefaultSensors(config?: DragDropSensorConfig) {
   const pointerOptions = config?.pointer ?? createPointerSensorOptions();
   const keyboardOptions = config?.keyboard ?? createKeyboardSensorOptions();
 
   return [
-    { sensor: PointerSensor, options: pointerOptions },
-    { sensor: KeyboardSensor, options: keyboardOptions },
+    PointerSensor.configure(pointerOptions),
+    KeyboardSensor.configure(keyboardOptions),
     ...(config?.custom ?? []),
   ];
 }
 
 /**
- * Sensor configuration presets (v6+ format)
+ * Sensor configuration presets (Latest format)
  */
 export const sensorPresets = {
   /** Default mobile-first configuration */
@@ -65,13 +64,17 @@ export const sensorPresets = {
   /** Strict mouse-only (no touch delay) */
   mouseOnly: createDefaultSensors({
     pointer: {
-      activationConstraint: () => ({ distance: 5 }),
+      activationConstraints: [
+        new PointerActivationConstraints.Distance({ value: 8 }),
+      ],
     },
   }),
   /** Touch-friendly with longer delay */
   touchFriendly: createDefaultSensors({
     pointer: {
-      activationConstraint: () => ({ delay: 300, tolerance: 8 }),
+      activationConstraints: [
+        new PointerActivationConstraints.Delay({ value: 250, tolerance: 5 }),
+      ],
     },
   }),
   /** Accessibility-focused with keyboard priority */

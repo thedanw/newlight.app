@@ -2,7 +2,8 @@
 export * from './types';
 
 // Provider
-export { DragDropProvider, useDragDropContext } from './provider';
+export { DragDropProvider, type DragDropProviderProps } from './provider';
+export { DragOverlay } from './provider';
 
 // Sensors
 export {

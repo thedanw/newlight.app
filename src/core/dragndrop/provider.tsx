@@ -1,135 +1,66 @@
-import { useState, useEffect } from 'react';
-import { DndContext, DragOverlay, useDndMonitor } from '@dnd-kit/core';
-import type { DragEndEvent, DragOverEvent, DragStartEvent } from '@dnd-kit/core';
-import type { DragDropProviderProps, DragItem, DropZone } from './types';
+import { useEffect, useState, type ComponentProps } from 'react';
+import { DragDropProvider as NativeDragDropProvider, DragOverlay, useDragDropMonitor } from '@dnd-kit/react';
+import type { Sensors } from '@dnd-kit/dom';
 import { createDefaultSensors } from './sensors';
-import type { Sensors } from '@dnd-kit/abstract';
+import type { DragDropSensorConfig } from './types';
+
+type NativeDragDropProviderProps = ComponentProps<typeof NativeDragDropProvider>;
+
+/** App-level provider props inferred from the current native provider. */
+export type DragDropProviderProps = Omit<NativeDragDropProviderProps, 'sensors'> & {
+  /** Optional identifier used by the app-level wrapper. */
+  contextId?: string;
+  /** Current sensor array or the legacy config object accepted by this wrapper. */
+  sensors?: Sensors | DragDropSensorConfig;
+};
 
 /**
- * Core DragDropProvider component
- * Wraps the application with dnd-kit context and sensors
- * Provides mobile-first touch handling and accessibility support
+ * Core DragDropProvider component.
+ * Wraps the application with dnd-kit context and sensors.
  */
 export function DragDropProvider({
   children,
   contextId = 'default',
-  sensors: sensorConfig,
-  onDragStart,
-  onDragEnd,
-  onDragOver,
+  sensors,
+  ...nativeProps
 }: DragDropProviderProps) {
-  // Allow passing either a config object (for backward compat) or pre-configured sensor descriptors
-  const sensors: Sensors = Array.isArray(sensorConfig)
-    ? sensorConfig
-    : createDefaultSensors(sensorConfig);
-
-  const handleDragStart = (event: DragStartEvent) => {
-    const source = event.active;
-    const activeItem: DragItem = {
-      id: source.id as string,
-      label: source.data?.label ?? String(source.id),
-      data: source.data,
-      disabled: source.data?.disabled,
-    };
-    onDragStart?.({ active: activeItem });
-  };
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const source = event.active;
-    const activeItem: DragItem = {
-      id: source.id as string,
-      label: source.data?.label ?? String(source.id),
-      data: source.data,
-      disabled: source.data?.disabled,
-    };
-
-    const target = event.over;
-    const overZone: DropZone | null = target
-      ? {
-          id: target.id as string,
-          accepts: target.data?.accepts ?? [],
-          isActive: true,
-        }
-      : null;
-
-    onDragEnd?.({ active: activeItem, over: overZone });
-  };
-
-  const handleDragOver = (event: DragOverEvent) => {
-    const source = event.active;
-    const activeItem: DragItem = {
-      id: source.id as string,
-      label: source.data?.label ?? String(source.id),
-      data: source.data,
-      disabled: source.data?.disabled,
-    };
-
-    const target = event.over;
-    const overZone: DropZone | null = target
-      ? {
-          id: target.id as string,
-          accepts: target.data?.accepts ?? [],
-          isActive: true,
-        }
-      : null;
-
-    onDragOver?.({ active: activeItem, over: overZone });
-  };
+  const resolvedSensors: Sensors = Array.isArray(sensors)
+    ? sensors
+    : createDefaultSensors(sensors);
 
   return (
-    <DndContext
-      sensors={sensors}
-      onDragStart={handleDragStart}
-      onDragEnd={handleDragEnd}
-      onDragOver={handleDragOver}
+    <NativeDragDropProvider
+      sensors={resolvedSensors}
+      {...nativeProps}
     >
       <div data-dragndrop-context={contextId}>
         {children}
-        <DragOverlay dropAnimation={null}>{null}</DragOverlay>
         <DragStatusAnnouncer />
       </div>
-    </DndContext>
+    </NativeDragDropProvider>
   );
-}
-
-/**
- * Hook to access the current drag context
- * Must be used within a DragDropProvider
- */
-export function useDragDropContext() {
-  // This would typically use React Context to access the provider's state
-  // For now, we return a basic implementation
-  return {
-    contextId: 'default',
-    isDragging: false,
-    activeId: null,
-    overId: null,
-    registerItem: () => {},
-    unregisterItem: () => {},
-    getItemElement: () => undefined,
-  };
 }
 
 export { DragOverlay };
 
 /**
  * Visually-hidden live region that announces drag state changes
- * for screen readers. Uses useDndMonitor from @dnd-kit/core
+ * for screen readers. Uses useDragDropMonitor from @dnd-kit/react
  * to track drag start/end events.
  */
 function DragStatusAnnouncer() {
   const [announcement, setAnnouncement] = useState('');
 
-  useDndMonitor({
+  useDragDropMonitor({
     onDragStart(event) {
-      const source = event.active;
-      const label = String(source.data?.label ?? source.id);
+      const source = event.operation.source;
+      const label = String(source?.data?.label ?? source?.id);
       setAnnouncement(`Dragging ${label}`);
     },
     onDragEnd(event) {
-      const source = event.active;
-      const label = String(source.data?.label ?? source.id);
-      const target = event.over;
+      const source = event.operation.source;
+      const label = String(source?.data?.label ?? source?.id);
+      const target = event.operation.target;
       if (target) {
         const overLabel = String(target.data?.label ?? target.id);
         setAnnouncement(`Dropped ${label} at ${overLabel}`);

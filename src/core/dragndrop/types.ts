@@ -1,36 +1,18 @@
-import type { SensorConstructor } from '@dnd-kit/abstract';
+import type { SensorConstructor, UniqueIdentifier } from '@dnd-kit/abstract';
 import type { KeyboardSensorOptions, PointerSensorOptions } from '@dnd-kit/dom';
 
 /**
- * Core drag-and-drop types for the application
- * Provides semantic hierarchical naming for drag operations
+ * Core drag-and-drop types for the application.
  */
 
-export interface DragDropContextValue {
-  /** Unique identifier for this drag context */
-  contextId: string;
-  /** Whether a drag operation is currently active */
-  isDragging: boolean;
-  /** The currently dragged item's ID */
-  activeId: string | null;
-  /** The item being dragged over */
-  overId: string | null;
-  /** Register a new draggable item */
-  registerItem: (id: string, element: HTMLElement) => void;
-  /** Unregister a draggable item */
-  unregisterItem: (id: string) => void;
-  /** Get registered item element */
-  getItemElement: (id: string) => HTMLElement | undefined;
-}
-
 export interface DragItem {
-  /** Unique identifier for the draggable item */
-  id: string;
-  /** Human-readable label for accessibility */
+  /** Unique identifier for the draggable item. */
+  id: UniqueIdentifier;
+  /** Human-readable label for accessibility. */
   label: string;
-  /** Optional data payload */
+  /** Optional data payload. */
   data?: Record<string, unknown>;
-  /** Whether the item is currently disabled */
+  /** Whether the item is currently disabled. */
   disabled?: boolean;
 }
 
@@ -53,13 +35,13 @@ export interface TreeNode<TData = unknown> {
  * A collection of drag-and-drop items (used by the plugin system).
  */
 export interface DndCollection {
-  /** Unique identifier for the collection */
-  id: string;
-  /** Human-readable label */
+  /** Unique identifier for the collection. */
+  id: UniqueIdentifier;
+  /** Human-readable label. */
   label: string;
-  /** Items in the collection */
+  /** Items in the collection. */
   items: DragItem[];
-  /** Whether the collection is currently active */
+  /** Whether the collection is currently active. */
   isActive?: boolean;
 }
 
@@ -83,44 +65,19 @@ export interface SortableTreeItem<TData = unknown> {
 }
 
 export interface DropZone {
-  /** Unique identifier for the drop zone */
-  id: string;
-  /** Accepted item types or IDs */
-  accepts: string[];
-  /** Whether the zone is currently active */
+  /** Unique identifier for the drop zone. */
+  id: UniqueIdentifier;
+  /** Accepted item types or IDs. */
+  accepts: UniqueIdentifier[];
+  /** Whether the zone is currently active. */
   isActive?: boolean;
 }
 
 export interface DragDropSensorConfig {
-  /** Pointer sensor options (mouse, touch, pen) */
+  /** Pointer sensor options (mouse, touch, pen). */
   pointer?: PointerSensorOptions;
-  /** Keyboard sensor options */
+  /** Keyboard sensor options. */
   keyboard?: KeyboardSensorOptions;
-  /** Custom sensors */
+  /** Custom sensors. */
   custom?: SensorConstructor[];
-}
-
-export interface DragDropProviderProps {
-  /** Child components */
-  children: React.ReactNode;
-  /** Unique context identifier */
-  contextId?: string;
-  /** Sensor configuration */
-  sensors?: DragDropSensorConfig;
-  /** Callback when drag starts */
-  onDragStart?: (event: { active: DragItem }) => void;
-  /** Callback when drag ends */
-  onDragEnd?: (event: { active: DragItem; over: DropZone | null }) => void;
-  /** Callback when drag moves over a drop zone */
-  onDragOver?: (event: { active: DragItem; over: DropZone | null }) => void;
-}
-
-export type DragDropEventType = 'dragStart' | 'dragEnd' | 'dragOver' | 'dragCancel';
-
-export interface DragDropEvent<T extends DragDropEventType = DragDropEventType> {
-  type: T;
-  timestamp: number;
-  contextId: string;
-  active: DragItem;
-  over: DropZone | null;
 }

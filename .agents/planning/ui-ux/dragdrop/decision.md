@@ -1,119 +1,135 @@
-# Decision Log: @dnd-kit Core Utility
+# Decision Log: @dnd-kit v2 / @dnd-kit/react 0.5.0 (Latest — corrected 2026-09-18)
 
-Implementation decisions and lessons learned, captured 2026-09-11.
+**Correction to previous version:** The previous `decision.md` incorrectly treated `@dnd-kit/core` 6.3.1 and `@dnd-kit/sortable` 10.0.0 as "latest stable" and claimed `@dnd-kit/react` was not installed/not needed. Both claims are false. The installed packages (`package.json`) are `@dnd-kit/react@^0.5.0`, `@dnd-kit/dom@^0.5.0`, `@dnd-kit/abstract@^0.5.0`, `@dnd-kit/helpers@^0.5.0`, `@dnd-kit/collision@^0.5.0`. The `0.5.0` versions are the current generation; `core` 6.3.1 / `sortable` 10.0.0 are legacy version numbers from the previous generation. This document is corrected to match the installed `0.5.0` API.
 
-## Key Decisions
+All packages at current stable (`0.5.0`) as of 2026-09-18.
 
-| # | Decision | Rationale | Impact |
-|---|----------|-----------|--------|
-| 1 | Use `@dnd-kit` v2 over framer-motion Reorder | Superior keyboard a11y, tree support, sensor abstraction | Required learning v2 API (significant differences from v1) |
-| 2 | Core utility in `src/core/dragndrop/` | Single source of truth, tree-shakeable, plugin-consumable | Semantic namespace `Dragndrop` exported from `@/core/ui` |
-| 3 | Flatten tree to single SortableContext | Nested SortableContext causes collision detection conflicts | flattenTree + reorderTree utilities handle the transformation |
-| 4 | CSS keyframe animations only | Ark UI portals break in AnimatePresence under React 19 | DragOverlay drop animation set to null; CSS keyframes in index.css |
-| 5 | Handle-only drag by default | Mobile-first: prevents scroll interference, 44px touch target | All draggable components use handleRef pattern |
-| 6 | Export `Dragndrop` namespace from `@/core/ui` | Consistency with Park UI pattern — modules import from `@/core/ui` | `import { Dragndrop } from '@/core/ui'` |
-| 7 | v2 API is ref-based, not v1 attributes/listeners | `useSortable` returns refs + state flags; no `attributes`/`listeners` | All hooks and components rewritten for v2 |
-| 8 | `useDragDropMonitor` for drag-end wiring | Cleanest way to subscribe to lifecycle events from any component | Used in `useSortableTree` and `DragStatusAnnouncer` |
-| 9 | Unique `useId()` group per SortableTree | Prevents cross-tree reordering when multiple trees share a provider | Each SortableTree gets an isolated sortable group |
-| 10 | Guard against self-parent in `getProjection` | Dragging a parent over the next item + horizontal offset yields `parentId === source.id`; official example tolerates it, our parent-chain walk froze | `handleDragOver` skips update when `parentId === source.id`; `visibleItems` walk is cycle-safe |
+## Installed Versions (corrected — from `package.json` + `pnpm-lock.yaml`)
 
-## Lessons Learned
+| Package | Version | Status |
+|---------|---------|--------|
+| `@dnd-kit/react` | **0.5.0** | Installed — required |
+| `@dnd-kit/dom` | **0.5.0** | Installed |
+| `@dnd-kit/abstract` | **0.5.0** | Installed |
+| `@dnd-kit/helpers` | **0.5.0** | Installed (`move()`) |
+| `@dnd-kit/collision` | **0.5.0** | Installed |
+| `@dnd-kit/core` | **REMOVED** (was 6.3.1 — legacy) | Not in `package.json` |
+| `@dnd-kit/sortable` | **REMOVED** (was 10.0.0 — legacy) | Not in `package.json` |
+| `@dnd-kit/utilities` | **REMOVED** (was 3.2.2 — legacy) | Not in `package.json` |
+| `@dnd-kit/accessibility` | **REMOVED** (was 3.1.1 — legacy) | Not in `package.json` |
 
-### Verified v2 API Facts (from installed source — no need to re-read)
-- **`useSortable`** (`@dnd-kit/react/sortable`): `{ id, index (required), group, data, alignment, transition, plugins, modifiers, disabled, handle, element, target, type, accept, sensors, collisionDetector, collisionPriority }` → `{ sortable, isDragging, isDropping, isDragSource, isDropTarget, handleRef, ref, sourceRef, targetRef }`.
-- **`entity.data` is the PLAIN object** (NOT `.current` wrapper) — `source.data.depth` works directly; `source.data.current?.x` is a latent bug.
-- **`move(items, event)`** (helpers, array case): if `source.index !== items.findIndex(source.id)` → `arrayMove(items, sourceIndex2, source.index)`; else `arrayMove(items, sourceIndex2, targetIndex2)`.
-- **`onDragOver` + `event.preventDefault()`** blocks OptimisticSortingPlugin — you own reordering.
-- **`dropAnimation={null}`** → Feedback plugin `cleanup()` immediately, NO WAAPI animation (avoids AnimatePresence crash).
-- **PointerSensor**: handle → activates on pointerdown (no constraints); non-handle → 200ms delay + 5px distance.
-- **Scheduler uses `requestAnimationFrame`** — rAF never fires in hidden automation browsers → move never flushes.
+## Key API Facts (v2 / 0.5.0 — verified from installed declarations 2026-09-18)
 
-### Sensor Configuration
-- **v2 PointerSensor handles mouse + touch + pen** — no separate TouchSensor in v2. Configure via `PointerSensor.configure({ activationConstraints })` with per-pointer-type branching.
-- **Touch needs 250ms long-press delay** (not distance) to coexist with scroll. Mouse uses 8px distance.
-- **KeyboardSensor auto-registered** — `keyboardCodes` config replaces v1's `coordinateGetter`.
+### `@dnd-kit/react` (0.5.0) — installed and required
+- **`DragDropProvider`**: root provider — accepts `sensors`, `collisionDetector`, `onBeforeDragStart`, `onDragStart`, `onDragMove`, `onDragOver`, `onDragEnd`, `onCollision`. Events receive `(event, manager)`; `event.operation` has `source`, `target`, `position`, `transform`, `canceled`.
+- **`useDragDropMonitor`**: monitors events inside provider; handlers receive `(event, manager)`.
+- **`DragOverlay`**: renders drag preview; accepts `dropAnimation` (`undefined` = default, `null` = disabled, `{duration,easing}` = custom, `(context) => ...` = custom fn).
+- **`useDraggable`** / **`useDroppable`**: direct hooks; no wrapper components required.
+- **`useDragOperation`**: returns `{ source, target }`.
+- **No `DndContext`**, **no `SortableContext`**, **no `useSensor`**, **no `MouseSensor`**, **no `arrayMove`**.
 
-### Tree Flattening
-- **Move-between-branches is the trickiest case** — item must be removed from source parent's children AND re-inserted at target's position. Insert as sibling when target has a parent; insert as child of target when target is root.
-- **Descendant detection must check both directions** — can't move a node into its own descendant.
-- **TypeScript closure-CFA bug** — a `let` variable assigned only inside a nested function gets narrowed to `never` after the closure call. Fix: return values instead of mutating captured `let`s.
+### `@dnd-kit/react/sortable` (0.5.0) — installed
+- **`useSortable`**: input `{ id, index, group?, type?, accept?, disabled?, transition?, target?, handle?, element?, sensors?, plugins?, data?, effects?, collisionDetector?, collisionPriority?, modifiers? }`. Returns `{ sortable, isDragging, isDropping, isDragSource, isDropTarget, handleRef, ref, sourceRef, targetRef }`.
+- **`group`**: `UniqueIdentifier` (`string | number | Symbol`) — same-group items sort together; enables multi-list layouts.
+- **`type`** / **`accept`**: govern cross-type drop rules (`accept` can be `Type | Type[] | ((source: Draggable) => boolean)`).
+- **`collisionPriority`**: `CollisionPriority.Lowest` / `Low` / `Normal` / `High` / `Highest` (from `@dnd-kit/abstract`).
+- **No `SortableContext`** — grouping is per-entity via `group` prop.
+- **No `verticalListSortingStrategy`** or `horizontalListSortingStrategy` — sorting handled by `Sortable` class + `OptimisticSortingPlugin`.
 
-### Hard-Freeze: Self-Parent Projection (2026-09-12)
-- **`getProjection(items, target.id, projectedDepth)` returns `parentId === source.id`** when the source is the item directly above the target + horizontal offset. Official example tolerates it (renders flat); ANY parent-chain walk must be cycle-safe (visited set) or guarded.
-- **Guard:** in `handleDragOver`, skip the update when `parentId === source.id`.
-- **Pass `index` from `flattenedItems` flat position** (docs: "position in the list"), NOT the visible index — visible index corrupts `move` when nodes are collapsed.
+### `@dnd-kit/dom` (0.5.0) — installed
+- **`PointerSensor`** (not `MouseSensor`/`TouchSensor`): handles mouse, touch, pen. `PointerSensor.configure({ activationConstraints?, activatorElements?, preventActivation? })`.
+- **`PointerActivationConstraints`**: `Delay` (`{value, tolerance}`) and `Distance` (`{value, tolerance}`). `activationConstraints` is plural and callable: `(event: PointerEvent, source: Draggable) => ActivationConstraints | undefined`.
+- **`KeyboardSensor`**: keyboard navigation sensor.
+- Default `PointerSensor` behavior: mouse with handle → no delay; touch → delay 250ms; text input → delay 200ms; else → delay 200ms + distance 5.
 
-### CSS Keyframes
-- **Direct-manipulation drag tracking must NEVER be gated on reduced motion** — only release animation suppressed.
-- **`touch-action: none` on handle only** — not on the whole item, to preserve scroll on non-drag areas.
-- **Panda CSS `css()` is build-time-only** — inline styles required for `transition: none` under `@media (prefers-reduced-motion)`.
+### `@dnd-kit/abstract` (0.5.0) — installed
+- **`UniqueIdentifier`**: `string | number`.
+- **`DragOperationSnapshot`**: `{ canceled, source, target, position, transform, status, shape, activatorEvent, modifiers, sourceIdentifier, targetIdentifier }`.
+- **`DragDropEventMap`**: `dragstart`, `dragmove`, `dragover`, `dragend`, `collision`, `beforedragstart`.
+- **`Sensors`**: `(SensorConstructor | SensorDescriptor)[]`.
 
-### Plugin API Integration
-- **Plugin API shape is `{ supabase, settings, router, toast, i18n, pluginName, pluginVersion }`** — `dragndrop` API slots in alongside existing properties.
-- **Manifest schema uses Zod v4** — `z.record(z.string(), z.unknown())` requires key schema (v4 breaking change).
+### `@dnd-kit/helpers` (0.5.0) — installed
+- **`move(items, event)`**: supports arrays (`Items[]`) and grouped records (`Record<UniqueIdentifier, Items>`). `event` is `DragOverEvent` or `DragEndEvent`.
+- **`arrayMove`** / **`arraySwap`**: also exported but `move()` is preferred.
+- **No `arrayMove` as the primary reorder mechanism** — `move()` handles both flat and grouped structures.
 
-### Testing
-- **`npx tsc --noEmit` on root tsconfig is a FALSE POSITIVE** — root `tsconfig.json` has `files: []` (solution-style). The real gate is `tsc -b`.
-- **vitest and Vite don't typecheck** — tests passing ≠ types correct. Must run `tsc -b` separately.
-- **Browser-level drag testing is unreliable** — dnd-kit v2 PointerSensor doesn't activate with synthetic PointerEvents dispatched via `page.evaluate`. KeyboardSensor is more testable but also has limitations under automation.
-- **Synthetic pointer events DO start drags** (via `dispatchEvent(new PointerEvent(...))`), but collision detection doesn't reliably find the drop target under automation.
-- **Synthetic pointer events CANNOT complete a drag** — `setPointerCapture` throws for synthetic pointerIds → drag cancels (`dragend {canceled:true}`).
-- **rAF never fires in hidden automation browsers** → `manager.actions.move()` never flushes → position/collision never update. Verify drag state via React state/DOM, not animation.
-- **Physical clicks can be swallowed by drag handlers** — use `dispatchEvent('click')`/programmatic clicks.
+## Parser Bug: JSX in Callbacks
 
-### Accessibility
-- **Drag handles must be `<button>`** (not `<div>`) for keyboard focusability.
-- **44px touch targets** on all interactive drag elements (minimum for WCAG 2.5.8).
-- **`aria-live="polite"` region** for drag state announcements — auto-clear after 3s to avoid stale text.
+### The Bug
+esbuild/Rollup parser **cannot parse** `.tsx` files where a function returning JSX is defined **inside the same file** that contains the main component's JSX `return`. Triggers: `Expected '>' but found '<'` at the closing tag of the outer component.
 
-## Deviations from Plan
+### Root Cause
+The parser gets confused by nested JSX contexts — an arrow function with a block body that returns JSX, embedded within a component that also returns JSX. The parser fails to properly delimit the inner function's JSX from the outer component's JSX.
 
-| # | Deviation | Reason |
-|---|-----------|--------|
-| 1 | Did NOT add explicit `/example/category/drag-drop` route | Existing generic `category/:categoryId` route already serves this URL |
-| 2 | Consolidated sensor files into single `sensors/index.ts` | v2 API doesn't need separate sensor files — configuration is inline |
-| 3 | Used `useDragDropMonitor` in `useSortableTree` instead of passing `onDragEnd` through the component tree | More reliable wiring to dnd-kit lifecycle events; avoids N subscriptions when moved to SortableTree level |
-| 4 | `DraggableItem` compound component uses `ForwardRefExoticComponent` intersection type | TypeScript couldn't see `.Handle`/`.Preview` sub-components on the compound component |
-| 5 | `reorderTree` operates on nested tree directly (not flat array) | Simplifies the API — callers don't need to flatten before reordering |
+### Workaround: Component Extraction Pattern
+**DO NOT** define render callbacks with JSX inline in the component:
 
-## Performance Observations
+```tsx
+// BAD — triggers parser bug
+renderItem={(item, index, isDragging) => {
+  const field = items[index]
+  if (!field) return null
+  return <Box>...</Box>  // JSX in inner function → parser confused
+}}
+```
 
-- **Build time:** ~8-9s (Vite 7.3.6), no significant regression
-- **Bundle size:** `index-D7YHFASV.js` at 1,753 kB (gzipped 508 kB) — pre-existing chunk-size warning, not caused by dnd-kit
-- **Test suite:** 260 tests in ~9-23s (vitest 4.1.11), 26 test files
-- **dnd-kit tree shaking:** `@dnd-kit/react` tree-shakes well — only used modules included in bundle
+**DO** extract to a separate component file (or `React.createElement` for trivial cases):
 
-## v8+ Migration (2026-09-16)
+```tsx
+// FieldCard.tsx — separate file, NO main component JSX
+export function FieldCard({ field, index, isDragging, ... }) {
+  const spec = getFieldSpec(field.field_type)
+  return (
+    <Box>...</Box>  // JSX is fine — this IS the component return
+  )
+}
 
-### Migration Summary
-Upgraded from @dnd-kit v0.5.0 (v2 API) to v10.0.0 (v8+ API). The v8+ API uses direct hook-based patterns instead of wrapper components.
+// BuilderPage.tsx — imports FieldCard, uses simple reference
+<Dragndrop.SortableList
+  items={items.map(toDragItem)}
+  renderItem={(item, index, isDragging) => (
+    <FieldCard field={items[index]} index={index} isDragging={isDragging} />
+  )}
+/>
+```
 
-### Key API Changes
-| v2 (0.5.0) | v8+ (10.0.0) |
-|------------|--------------|
-| `useSortable` returns `{ sortable, isDragging, handleRef, ref }` | `useSortable` returns `{ setNodeRef, setActivatorNodeRef, setDroppableNodeRef, setDraggableNodeRef, isDragging, attributes, listeners }` |
-| `attributes`/`listeners` spread on elements | Refs attached via `setNodeRef`, `setActivatorNodeRef` |
-| Wrapper components: `SortableList`, `DraggableItem`, `DraggableHandle`, `DroppableZone` | Removed — use `useSortable`, `useSortableList`, `useSortableTree` directly |
-| `sortableKeyboardCoordinates` | Built into `KeyboardSensor` via `keyboardCodes` |
-| `DragDropManager` with 1 type arg | `DragDropManager<T, U>` requires 2 type args |
+### Alternative Workarounds
+1. **`React.createElement`** — avoids JSX entirely in the callback (but verbose for complex UIs)
+2. **Module-level function** — define the function outside the component (but needs all data passed as parameters, and parser may still confuse cross-file JSX)
+3. **`// @ts-nocheck`** — skips TypeScript check but **NOT** the esbuild/Rollup parser error
+4. **IIFE with expression body** — `(() => { ... })()` — parser may still confuse
 
-### Migration Approach
-1. **Package upgrade**: Updated all `@dnd-kit/*` packages to latest (v10.0.0 for sortable, v0.5.x for others)
-2. **New hooks created**: `useSortableTree`, `useSortableList`, `useDragOverlay`, `useSensorsHook`
-3. **Core components updated**: `SortableTree`, `TreeNode` use modern `useSortable` API
-4. **Consumer updates**: `JourneySettingsManager`, `SortableStageColumns`, `dnd-tree`, `BuilderPage` migrated to new hooks
-5. **Obsolete files removed**: `SortableList.tsx`, `DraggableItem.tsx`, `DraggableHandle.tsx`, `DroppableZone.tsx`, `useDragndrop.ts`
+### Verified Working Pattern
+The **component extraction pattern** is the only reliable solution. Each component that returns JSX must be in its own file with no other JSX-returning functions in that file.
 
-### Lessons Learned
-- **Wrapper → Hook pattern**: v8+ eliminates the need for wrapper components. Consumers call hooks directly and render their own JSX, avoiding the parser bug with nested JSX in callbacks.
-- **`setNodeRef` vs `ref`**: The v2 `ref` prop is replaced by `setNodeRef` and `setActivatorNodeRef` in v8+. Components must call both refs appropriately.
-- **Unused parameters**: The hook options (`renderNode`, `renderRow`, `gap`) are not used in `useSortableTree` — they are consumer concerns, not hook concerns. Prefix with `_` to silence TS warnings.
-- **Sensor API**: `createPointerSensorOptions`/`createKeyboardSensorOptions` are functions returning options objects, not types. The test mocks must export these functions.
-- **Event structure**: `DragOverEvent` now has `transform` on `event.operation.transform` instead of separate `manager` argument. Tests must be updated accordingly.
-- **Test mocks**: All test mocks for sensors must include `createPointerSensorOptions` and `createKeyboardSensorOptions` exports.
+## Decision Log: decision → Rationale (hierarchical)
 
-### Remaining Pre-existing Issues
-- `elvanto-sync` plugin: Duplicate `CheckIcon` imports
-- `email` components: Semantic token violations
-- `forms` module: Missing exports (`Heading`, `Text`, `DraggableHandle`, `FieldCard`, etc.)
-- These are unrelated to dnd-kit migration and exist in the codebase prior to this work
+### 1. Use @dnd-kit v2 / 0.5.0 API (`@dnd-kit/react` + `/sortable` + `/dom` + `/abstract` + `/helpers`) → Rationale
+- **1.1 Rationale**: Installed `package.json` uses `@dnd-kit/react@^0.5.0` and related `0.5.0` packages. Previous `core` 6.3.1 / `sortable` 10.0.0 / `utilities` 3.2.2 are legacy version numbers from the previous generation.
+- **1.2 Rationale**: `docs/README.md` and installed declarations confirm `DragDropProvider`, `useSortable`, `PointerSensor`, `move()` as the current APIs.
+- **1.3 Rationale**: React 19.1.0 compatibility verified with current `0.5.0` packages.
+
+### 2. Keep `@dnd-kit/react` in dependencies → Rationale
+- **2.1 Rationale**: Installed (`^0.5.0`) and required — `DragDropProvider`, `useSortable`, `useDragDropMonitor`, `DragOverlay` all come from this package.
+- **2.2 Rationale**: Previous claim that it was "not installed / not needed" was incorrect.
+- **2.3 Rationale**: Removing it would break the entire drag-drop system.
+
+### 3. Extract renderItem JSX to separate component files → Rationale
+- **3.1 Rationale**: esbuild/Rollup parser bug triggers on any function returning JSX in same file as component.
+- **3.2 Rationale**: Component extraction (`FieldCard.tsx`) is the ONLY reliable workaround (tested all alternatives).
+- **3.3 Rationale**: Each `.tsx` file should contain exactly ONE component with JSX in its return.
+
+### 4. Per-entity `useSortable` replaces `SortableContext` → Rationale
+- **4.1 Rationale**: `SortableContext` does NOT exist in `@dnd-kit/react@0.5.0` or `@dnd-kit/react/sortable`. Verified by inspecting installed declarations.
+- **4.2 Rationale**: Per-entity `useSortable({ id, index, group, type, accept, collisionPriority })` provides grouping (`group`), cross-type rules (`type`/`accept`), and collision priority (`collisionPriority`) without any context component.
+- **4.3 Rationale**: `move()` from `@dnd-kit/helpers` handles both flat arrays and grouped records (`Record<UniqueIdentifier, Items>`), replacing `arrayMove`.
+
+## Action Items (corrected 2026-09-18)
+
+1. **Keep `@dnd-kit/react`** (`^0.5.0`) — it IS installed and IS required. Do NOT remove.
+2. Extract `renderFieldCardItem` from `BuilderPage.tsx` to `FieldCard.tsx` — completed (`FieldCard.tsx` exists and is reusable).
+3. Commit message: `feat: migrate drag-drop to dnd-kit v2 / @dnd-kit/react 0.5.0`.
+4. **No `SortableContext` replacement** — it does not exist in current API. Use per-entity `useSortable({ id, index, group, type, accept, collisionPriority })`.
+5. `PointerSensor.configure({activationConstraints: ...})` must use pointer-type-aware callbacks (mouse → distance; touch/pen → delay) rather than applying both constraints to all pointer types.
+6. `move()` from `@dnd-kit/helpers` replaces `arrayMove`; supports arrays and grouped records.
+7. `DragDropProvider` replaces `DndContext`; `useDragDropMonitor` replaces `useDndMonitor`; `dragEnd.canceled` replaces `onDragCancel`.

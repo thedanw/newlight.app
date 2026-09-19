@@ -1,4 +1,5 @@
 import { supabase } from '@/core/lib/supabase'
+import { getSupabaseUrl } from '@/core/lib/runtime-config'
 import type { EmailTransport, SendEmailInput, SendEmailResult } from './types'
 
 export interface EmailProvider {
@@ -46,7 +47,7 @@ let activeProvider: EmailProvider | null = null
 export function createEmailProvider(config: EmailProviderConfig): EmailProvider {
   switch (config.transport) {
     case 'smtp':
-      return new EdgeFunctionProvider(config.supabaseUrl ?? import.meta.env.VITE_SUPABASE_URL ?? '')
+      return new EdgeFunctionProvider(getSupabaseUrl())
     case 'noop':
       return new NoopProvider()
     default:
@@ -57,7 +58,7 @@ export function createEmailProvider(config: EmailProviderConfig): EmailProvider 
 export function getConfig(): EmailProviderConfig {
   return {
     transport: (import.meta.env.VITE_EMAIL_TRANSPORT as EmailTransport) ?? 'noop',
-    supabaseUrl: import.meta.env.VITE_SUPABASE_URL,
+    supabaseUrl: getSupabaseUrl() || undefined,
   }
 }
 

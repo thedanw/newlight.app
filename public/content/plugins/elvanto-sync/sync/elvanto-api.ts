@@ -13,6 +13,7 @@
  */
 
 import { getElvantoSyncWorkerUrl } from './trigger-sync'
+import { getSupabaseAnonKey } from '@/core/lib/runtime-config'
 
 const ELVANTO_VITE_PROXY_BASE = '/api/elvanto'
 
@@ -21,9 +22,8 @@ export interface ElvantoLocation {
   name: string
 }
 
-/** Anon/publishable key used for authenticated Edge Function calls. */
 function getEdgeFunctionKey(): string {
-  return import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || ''
+  return getSupabaseAnonKey()
 }
 
 /**

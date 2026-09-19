@@ -1,6 +1,7 @@
 'use client'
 import { createContext, useEffect, useState, type ReactNode } from 'react'
 import { supabase } from '@/core/lib/supabase'
+import { getSupabaseAnonKey, getSupabaseUrl } from '@/core/lib/runtime-config'
 import type { AuthError, Session, User } from '@supabase/supabase-js'
 import type { Tables } from '@/core/lib/database.types'
 import { getPersonByAuthUserId } from './lib/queries'
@@ -46,10 +47,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isProfileLoading, setIsProfileLoading] = useState(false)
 
   useEffect(() => {
-    // Match supabase.ts fallback: publishable key counts as real auth
-    const hasRealAuth =
-      import.meta.env.VITE_SUPABASE_URL &&
-      (import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY)
+    const hasRealAuth = getSupabaseUrl() && getSupabaseAnonKey()
 
     if (hasRealAuth) {
       supabase.auth.getSession().then(({ data: { session } }) => {

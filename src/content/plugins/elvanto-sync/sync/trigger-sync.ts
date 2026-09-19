@@ -26,23 +26,18 @@ export interface SyncTriggerResult {
   errors: string[]
 }
 
+import { createClient } from '@supabase/supabase-js'
+import { getSupabaseUrl, getSupabaseAnonKey } from '@/core/lib/runtime-config'
+
 const EDGE_FUNCTION_NAME = 'elvanto-sync-worker'
 
 /** Supabase project URL, falling back to the local CLI (supabase start). */
-function getSupabaseUrl(): string {
-  return (import.meta.env.VITE_SUPABASE_URL || 'http://127.0.0.1:54321').replace(/\/+$/, '')
-}
-
-/** Supabase client for authenticated sessions. */
-import { createClient } from '@supabase/supabase-js'
-
-/** Anon/publishable key — same fallback as src/core/lib/supabase.ts. */
-function getSupabaseAnonKey(): string {
-  return import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || ''
+function resolveSupabaseUrl(): string {
+  return (getSupabaseUrl() || 'http://127.0.0.1:54321').replace(/\/+$/, '')
 }
 
 export function getElvantoSyncWorkerUrl(): string {
-  return `${getSupabaseUrl()}/functions/v1/${EDGE_FUNCTION_NAME}`
+  return `${resolveSupabaseUrl()}/functions/v1/${EDGE_FUNCTION_NAME}`
 }
 
 /**
@@ -55,8 +50,7 @@ export function getElvantoSyncWorkerUrl(): string {
  *         returns a non-OK status.
  */
 export async function triggerElvantoSync(payload: TriggerSyncPayload = {}): Promise<SyncTriggerResult> {
-  // Get the user's JWT from the session - this runs from a signed-in settings session
-  const supabaseUrl = getSupabaseUrl()
+  const supabaseUrl = resolveSupabaseUrl()
   const supabaseAnonKey = getSupabaseAnonKey()
 
   // Create a Supabase client with the user's session token

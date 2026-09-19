@@ -51,6 +51,7 @@ export * as PinInput from "./pin-input";
 export * as Popover from "./popover";
 export * as Progress from "./progress";
 export { PullTab, type PullTabProps } from "./pull-tab";
+export { PullTabDots, type PullTabDotsProps } from "./pull-tab-dots";
 export * as RadioCardGroup from "./radio-card-group";
 export * as RadioGroup from "./radio-group";
 export * as RatingGroup from "./rating-group";

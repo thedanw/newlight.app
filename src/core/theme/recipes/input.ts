@@ -8,7 +8,7 @@ export const input = {
     borderRadius: 'l2',
     height: 'var(--input-height)',
     minHeight: 'var(--input-height)',
-    minW: 'var(--input-height)',
+    minW: 'max(var(--input-height), 120px)',
     outline: '0',
     position: 'relative',
     textAlign: 'start',

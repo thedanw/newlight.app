@@ -9,7 +9,7 @@ type BasePullTabProps = ComponentProps<typeof BasePullTab>
 const BasePullTab = styled('button', pullTab)
 
 export interface PullTabProps extends BasePullTabProps {
-  /** The icon/content to display in the pull tab (hamburger→X morph) */
+  /** The glyph/value to display in the pull tab (e.g. `PullTabDots`) */
   children: ReactNode
   /** Whether the sidebar is open (for styling) */
   open?: boolean
@@ -32,6 +32,8 @@ export const PullTab = forwardRef<HTMLButtonElement, PullTabProps>(
         }}
         {...props}
       >
+        {/* The glyph supplies its own intrinsic box (see the pull-tab-dots
+            recipe); size="sm" is just the fallback for generic children. */}
         <Icon size="sm" aria-hidden="true" className={css({ display: 'flex', alignItems: 'center', justifyContent: 'center' })}>
           {children}
         </Icon>

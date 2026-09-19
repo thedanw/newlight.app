@@ -2,7 +2,7 @@
 import { useRef, useState, useEffect, useCallback } from 'react'
 import { animate, motion, useMotionValue } from 'framer-motion'
 import { css } from 'styled-system/css'
-import { Avatar, NavTile, PullTab, NavProvider, useNavContext } from '@/core/ui'
+import { Avatar, NavTile, PullTab, PullTabDots, NavProvider, useNavContext } from '@/core/ui'
 import { ClipboardList, Users, UsersRound, Wrench, CalendarDays, Sun, Settings, Palette, LogIn } from 'lucide-react'
 import { useAuth } from '@/core/auth'
 import { getAccountTileState } from '@/core/auth/lib/tile-state'
@@ -75,23 +75,9 @@ function calculateLayout(mainTileCount: number, viewportHeight: number) {
   return { columns: 1, boxesPerCol: 1 }
 }
 
-// Hamburger (3 lines) → X morph. On open the top line rotates +45deg and the
-// bottom −45deg (forming an X) while the middle line collapses to zero width
-// (centered, scaleX around its own center) so it animates out. All via CSS
-// transitions, so it reverses automatically on close.
-const hamburgerLineBase: React.CSSProperties = {
-  transformBox: 'fill-box',
-  transformOrigin: 'center',
-  transition: 'transform 200ms ease',
-}
-
-const HamburgerIcon = ({ open }: { open: boolean }) => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
-    <line x1="4" y1="7" x2="20" y2="7" style={{ ...hamburgerLineBase, transform: open ? 'translateY(5px) rotate(45deg)' : 'none' }} />
-    <line x1="4" y1="12" x2="20" y2="12" style={{ ...hamburgerLineBase, transform: open ? 'scaleX(0)' : 'none' }} />
-    <line x1="4" y1="17" x2="20" y2="17" style={{ ...hamburgerLineBase, transform: open ? 'translateY(-5px) rotate(-45deg)' : 'none' }} />
-  </svg>
-)
+// Pull-tab indicator: the 9-cell glyph (PullTabDots) — its 3 × 3 lattice, the
+// gap between cells and the open-state spread all come from the shared
+// pull-tab-dots-geometry.ts constants, styled by the `pullTabDots` recipe.
 
 const sidebarCss = css({
   position: 'fixed',
@@ -483,7 +469,7 @@ function SidebarInner({ onSettingsNavigate, onModuleNavigate, onAccountNavigate,
             onClick={handleTabClick}
             className={css({ pointerEvents: 'auto' })}
           >
-            <HamburgerIcon open={effectiveIsOpen} />
+            <PullTabDots open={effectiveIsOpen} />
           </PullTab>
         </motion.div>
       )}

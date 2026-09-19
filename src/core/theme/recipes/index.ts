@@ -50,6 +50,7 @@ import { menu } from "./menu";
 import { kbd } from "./kbd";
 import { navTile } from "./nav-tile";
 import { pullTab } from "./pull-tab";
+import { pullTabDots } from "./pull-tab-dots";
 import { avatar } from "./avatar";
 import { badge } from "./badge";
 import { card } from "./card";
@@ -116,6 +117,7 @@ export const recipes = {
   ratingGroup,
   tagsInput,
   navTile,
-  pullTab
+  pullTab,
+  pullTabDots
 }
 export const slotRecipes = {}

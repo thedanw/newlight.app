@@ -45,3 +45,12 @@
 - Scoped TypeScript check reports no diagnostics in `provider.tsx`, `types.ts`, `index.ts`, `sensors/index.ts`, or `useSortableList.ts`.
 - Full `tsc --project tsconfig.app.json` still reports later migration files and unrelated existing errors; those are intentionally outside this checkpoint.
 - Scoped ESLint could not run because the repository has no `eslint.config.*` or `.eslintrc*` configuration file. `git diff --check` passes for this checkpoint.
+
+## Sortable Form Consumer Checkpoint (2026-09-19)
+- Added reusable `src/core/dragndrop/components/SortableItem.tsx`; it owns current `useSortable({ id, index, group, type, data })` registration and exposes a render-function API for handle refs and drag-state flags.
+- `FieldCard` now composes with `SortableItem`, uses a 44px accessible `GripVertical` handle, and forwards source/target/dragging state to DOM attributes.
+- `BuilderPage` resolves preview items by sortable ID instead of array position, commits IDs as strings, removes obsolete `SortableContext`/`getItemProps`/`removeField` wiring, and delegates card rendering to `FieldCard`.
+- Both `useFormBuilderRenderItem` and `createRenderFieldCardItem` now resolve fields by ID and delegate to `FieldCard`, preserving the extracted-JSX workaround.
+- Verification: `git diff --check` passed for all six batch paths. Full TypeScript still fails on later migration and unrelated baseline errors; detached-`HEAD` comparison confirms the three remaining `BuilderPage` diagnostics predate this batch.
+- No batch regression was identified in direct API, React rendering, callback dependency, or accessibility review.
+

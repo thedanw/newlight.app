@@ -393,53 +393,79 @@ export function JourneySettingsManager() {
                 {/* Header row */}
                 <div /> {/* handle column */}
                 <div style={headingCellStyle}>Track / Category</div>
-                {/* Stage header cells - each as individual grid item to align with row cells */}
-                {orderedStages.map((stage) => (
-                  <div
-                    key={stage.id}
-                    style={{
-                      ...headingCellStyle,
-                      display: 'flex',
-                      flexDirection: 'row',
-                      gap: '4px',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      padding: '4px 8px',
-                    }}
-                  >
-                    {editingStageId === stage.id ? (
-                      <>
-                        <Input
-                          size="xs"
-                          value={editLabel}
-                          onChange={(e) => setEditLabel(e.target.value)}
-                          placeholder="Label"
-                        />
-                        <IconButton size="xs" variant="plain" aria-label="Save stage" onClick={() => handleSaveEditStage(stage.id)}>
-                          <SaveIcon size={14} />
-                        </IconButton>
-                        <IconButton size="xs" variant="plain" aria-label="Delete stage" onClick={() => handleDeleteStage(stage.id)} colorPalette="red">
-                          <TrashIcon size={14} />
-                        </IconButton>
-                        <IconButton size="xs" variant="plain" aria-label="Cancel edit" onClick={() => setEditingStageId(null)}>
-                          <XIcon size={14} />
-                        </IconButton>
-                      </>
-                    ) : (
-                      <>
-                        <span style={{ userSelect: 'none', padding: '4px 8px' }}>{stage.label || stage.slug}</span>
-                        <IconButton
-                          size="xs"
-                          variant="plain"
-                          aria-label="Edit stage"
-                          onClick={() => handleEditStage(stage)}
+                {/* Stage header cells - draggable via SortableStageColumns */}
+                <div style={{ gridColumn: `3 / ${3 + orderedStages.length}`, display: 'contents' }}>
+                  <SortableStageColumns
+                    stages={orderedStages}
+                    onReorder={handleStageReorder}
+                    gap={STAGE_COL_GAP}
+                    minWidth={STAGE_COL_MIN}
+                    renderColumn={(stage, helpers) => (
+                      <div
+                        style={{
+                          ...headingCellStyle,
+                          display: 'flex',
+                          flexDirection: 'row',
+                          gap: '4px',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          padding: '4px 8px',
+                        }}
+                      >
+                        <button
+                          ref={helpers.handleRef}
+                          aria-label={`Reorder ${stage.label || stage.slug}`}
+                          type="button"
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            width: '44px',
+                            height: '44px',
+                            flexShrink: 0,
+                            border: 'none',
+                            background: 'transparent',
+                            cursor: helpers.isDragging ? 'grabbing' : 'grab',
+                            touchAction: 'none',
+                          }}
                         >
-                          <PencilIcon size={16} />
-                        </IconButton>
-                      </>
+                          <GripVertical size={16} />
+                        </button>
+                        {editingStageId === stage.id ? (
+                          <>
+                            <Input
+                              size="xs"
+                              value={editLabel}
+                              onChange={(e) => setEditLabel(e.target.value)}
+                              placeholder="Label"
+                            />
+                            <IconButton size="xs" variant="plain" aria-label="Save stage" onClick={() => handleSaveEditStage(stage.id)}>
+                              <SaveIcon size={14} />
+                            </IconButton>
+                            <IconButton size="xs" variant="plain" aria-label="Delete stage" onClick={() => handleDeleteStage(stage.id)} colorPalette="red">
+                              <TrashIcon size={14} />
+                            </IconButton>
+                            <IconButton size="xs" variant="plain" aria-label="Cancel edit" onClick={() => setEditingStageId(null)}>
+                              <XIcon size={14} />
+                            </IconButton>
+                          </>
+                        ) : (
+                          <>
+                            <span style={{ userSelect: 'none', padding: '4px 8px' }}>{stage.label || stage.slug}</span>
+                            <IconButton
+                              size="xs"
+                              variant="plain"
+                              aria-label="Edit stage"
+                              onClick={() => handleEditStage(stage)}
+                            >
+                              <PencilIcon size={16} />
+                            </IconButton>
+                          </>
+                        )}
+                      </div>
                     )}
-                  </div>
-                ))}
+                  />
+                </div>
                 <div /> {/* header placeholder for actions column */}
 
               {/* Rows */}

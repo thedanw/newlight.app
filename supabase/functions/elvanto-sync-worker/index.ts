@@ -445,6 +445,29 @@ serve(async (req)=>{
       }
     });
   }
+  // Auth gate: require service_role key or valid user JWT
+  const authHeader = req.headers.get('authorization') || ''
+  const jwt = authHeader.startsWith('Bearer ') ? authHeader.substring(7) : ''
+  let role = 'anon'
+  if (authHeader.startsWith('Basic')) {
+    role = 'service_role'
+  } else if (jwt) {
+    const { data: { user }, error: userError } = await supabase.auth.getUser(jwt)
+    if (userError || !user) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      })
+    }
+    role = user.role || 'anon'
+  }
+  // Deny anon access; only service_role or authenticated users allowed
+  if (role === 'anon') {
+    return new Response(JSON.stringify({ error: 'Unauthorized - service role or authenticated user required' }), {
+      status: 401,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    })
+  }
   try {
     const body = await req.json();
     // Handle test connection action

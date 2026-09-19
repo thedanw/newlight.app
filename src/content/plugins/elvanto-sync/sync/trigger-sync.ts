@@ -33,6 +33,9 @@ function getSupabaseUrl(): string {
   return (import.meta.env.VITE_SUPABASE_URL || 'http://127.0.0.1:54321').replace(/\/+$/, '')
 }
 
+/** Supabase client for authenticated sessions. */
+import { createClient } from '@supabase/supabase-js'
+
 /** Anon/publishable key — same fallback as src/core/lib/supabase.ts. */
 function getSupabaseAnonKey(): string {
   return import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || ''
@@ -45,17 +48,35 @@ export function getElvantoSyncWorkerUrl(): string {
 /**
  * Invoke the elvanto-sync-worker Edge Function.
  *
+ * Uses the signed-in user's access token (from the settings session),
+ * not the anon key. Surface 401/403 as visible errors.
+ *
  * @throws Error with status/detail when the request fails or the function
  *         returns a non-OK status.
  */
 export async function triggerElvantoSync(payload: TriggerSyncPayload = {}): Promise<SyncTriggerResult> {
-  const apiKey = getSupabaseAnonKey()
+  // Get the user's JWT from the session - this runs from a signed-in settings session
+  const supabaseUrl = getSupabaseUrl()
+  const supabaseAnonKey = getSupabaseAnonKey()
+
+  // Create a Supabase client with the user's session token
+  const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+      detectSessionInUrl: false,
+    }
+  })
+
+  // Get the current user's session
+  const { data: { session } } = await supabase.auth.getSession()
+  const jwt = session?.access_token || ''
 
   const response = await fetch(getElvantoSyncWorkerUrl(), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      ...(apiKey ? { apikey: apiKey, Authorization: `Bearer ${apiKey}` } : {}),
+      ...(jwt ? { apikey: jwt, Authorization: `Bearer ${jwt}` } : {}),
     },
     body: JSON.stringify({ trigger: 'manual', ...payload }),
   })

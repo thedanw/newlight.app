@@ -26,6 +26,37 @@ const corsHeaders = {
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 }
 
+// Server-side allowlist for the `from` field — only these values are accepted
+const FROM_ALLOWLIST = ['workspace@newlight.app', 'no-reply@newlight.app']
+
+// Roles authorized to send emails
+const SEND_AUTHORIZED_ROLES = ['team_leader', 'admin', 'super_admin']
+
+function assertCanSend(jwt: string): { user: any; permission: string } | null {
+  // Get the user from the JWT
+  const { data: { user }, error: userError } = supabase.auth.getUser(jwt)
+  if (userError || !user) {
+    return null // 401 - no valid user
+  }
+
+  // Resolve the user's permission from the people table
+  const { data: person, error: personError } = supabase
+    .from('people')
+    .select('access_permission')
+    .eq('id', user.id)
+    .maybeSingle()
+  if (personError || !person) {
+    return null // 403 - cannot resolve person
+  }
+
+  const permission = person.access_permission
+  if (!SEND_AUTHORIZED_ROLES.includes(permission)) {
+    return null // 403 - permission not authorized to send
+  }
+
+  return { user, permission }
+}
+
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
   auth: { persistSession: false },
 })
@@ -166,11 +197,32 @@ serve(async (req: Request) => {
     })
   }
 
+  // Extract the JWT from the Authorization header
+  const authHeader = req.headers.get('authorization') || ''
+  const jwt = authHeader.startsWith('Bearer ') ? authHeader.substring(7) : ''
+
+  // Auth gate: require valid authenticated user
+  const authResult = assertCanSend(jwt)
+  if (!authResult) {
+    return new Response(
+      JSON.stringify({ error: 'Unauthorized' }),
+      {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      },
+    )
+  }
+
   const startTime = new Date().toISOString()
 
   try {
     const body = await req.json() as SendRequest
     const { sendId, recipients, subject, body: htmlBody, from, consentCategory } = body
+
+    // Validate `from` against server-side allowlist
+    if (!FROM_ALLOWLIST.includes(from)) {
+      throw new Error('from is not in the allowlist')
+    }
 
     if (!sendId) throw new Error('sendId is required')
     if (!recipients || recipients.length === 0) throw new Error('recipients are required')
@@ -190,6 +242,19 @@ serve(async (req: Request) => {
     for (const recipient of recipients) {
       const email = recipient.email.toLowerCase()
 
+      // Require person_id for consent-checked sends — never treat a missing person as "consented"
+      if (!recipient.person_id) {
+        results.push({ email, status: 'skipped', messageId: null, error: 'person_id required
+
+
+
+ The and . and
+
+0 6w-  .------------------- I The0 C and00 C I I The0 The On--- The The0 The \88-i c--0 The- The---0 The The \0 . .0 The \0 c-0 The9 c the0 c The consent check requires a person_id' })
+        skippedOrSuppressed.push({ recipient, status: 'skipped', reason: 'person_id required for consent' })
+        continue
+      }
+
       if (recipient.person_id) {
         const consent = await hasConsent(recipient.person_id, consentCategory)
         if (!consent) {
@@ -198,8 +263,6 @@ serve(async (req: Request) => {
           continue
         }
       }
-
-      const suppressed = await isSuppressed(email)
       if (suppressed) {
         results.push({ email, status: 'suppressed', messageId: null, error: 'unsubscribed' })
         skippedOrSuppressed.push({ recipient, status: 'suppressed', reason: 'unsubscribed' })

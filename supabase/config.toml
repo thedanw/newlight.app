@@ -23,6 +23,12 @@ max_rows = 1000
 # deprecated and the field is removed on 2026-10-30 once the always-revoked behaviour is permanent.
 # auto_expose_new_tables = true
 
+# Security: verify JWT tokens for all edge functions to ensure only authenticated users
+# can access functions. Set to true for all three functions: email-send, elvanto-sync-worker,
+# and email-unsubscribe. When enabled, the Supabase SDK will verify the JWT in the
+# Authorization header before executing the function logic.
+verify_jwt = true
+
 [api.tls]
 # Enable HTTPS endpoints locally using a self-signed certificate.
 enabled = false

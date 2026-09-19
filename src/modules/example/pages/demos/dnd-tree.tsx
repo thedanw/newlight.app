@@ -87,7 +87,7 @@ export function DndTreeDemo() {
           Drag the handle to reorder siblings or move a node to a new parent.
           Use the chevron to expand or collapse a branch.
         </Text>
-        <SortableTree tree={categories} onReorder={setCategories} />
+        <SortableTree tree={categories} onReorder={setCategories} group="category-tree" />
       </Stack>
 
       <Stack gap="2">
@@ -95,7 +95,7 @@ export function DndTreeDemo() {
         <Text textStyle="sm" color="fg.muted">
           A hierarchical org chart — drag to restructure reporting lines.
         </Text>
-        <SortableTree tree={org} onReorder={setOrg} />
+        <SortableTree tree={org} onReorder={setOrg} group="org-chart" />
       </Stack>
     </Stack>
   )

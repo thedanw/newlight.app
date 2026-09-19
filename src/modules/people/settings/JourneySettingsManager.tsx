@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
-import { CheckIcon, TrashIcon, PencilIcon, XIcon, PlusIcon, GripVertical, ChevronDown } from 'lucide-react'
+import { CheckIcon, TrashIcon, PencilIcon, XIcon, PlusIcon, GripVertical, ChevronDown, SaveIcon } from 'lucide-react'
 import { Button, Field, IconButton, Input, Popover, Text } from '@/core/ui'
 import { HStack, Stack } from 'styled-system/jsx'
 import { useJourneySettings } from '../lib/settings-hooks'
@@ -7,6 +7,7 @@ import {
   createJourneyCategory,
   createJourneyStage,
   createJourneyTrack,
+  deleteJourneyCategory,
   deleteJourneyStage,
   deleteJourneyTrack,
   saveJourneyCategory,
@@ -58,6 +59,12 @@ export function JourneySettingsManager() {
   // Track which stage is being edited (label inline edit) and the draft value
   const [editingStageId, setEditingStageId] = useState<string | null>(null)
   const [editLabel, setEditLabel] = useState('')
+
+  // Track which track/category is being edited
+  const [editingTrackId, setEditingTrackId] = useState<string | null>(null)
+  const [editTrackName, setEditTrackName] = useState('')
+  const [editingCategoryId, setEditingCategoryId] = useState<string | null>(null)
+  const [editCategoryName, setEditCategoryName] = useState('')
 
   // Sync local state when data loads
   useEffect(() => {
@@ -162,11 +169,58 @@ export function JourneySettingsManager() {
     }
   }, [data])
 
+  const handleDeleteCategory = useCallback(async (categoryId: string) => {
+    if (!data) return
+    const target = prompt('Migration target category ID (leave blank to cancel):')
+    if (!target) return
+    try {
+      await deleteJourneyCategory(categoryId, target)
+      setLocalCategories((cur) => cur.filter((c) => c.id !== categoryId))
+      setMessage('Category deleted.')
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : 'Unable to delete category.')
+    }
+  }, [data])
+
    const handleEditStage = useCallback((stage: JourneyStage) => {
      setEditingStageId(stage.id)
      setEditLabel(stage.label)
    }, [])
+  const handleEditTrack = useCallback((track: JourneyTrack) => {
+    setEditingTrackId(track.id)
+    setEditTrackName(track.name)
+  }, [])
 
+  const handleEditCategory = useCallback((category: JourneyTrackCategory) => {
+    setEditingCategoryId(category.id)
+    setEditCategoryName(category.name)
+  }, [])
+
+  const handleSaveEditTrack = useCallback(async (trackId: string) => {
+    const track = localTracks.find((t) => t.id === trackId)
+    if (!track || !editTrackName.trim()) return
+    try {
+      await saveJourneyTrack({ ...track, name: editTrackName.trim() })
+      setLocalTracks((cur) => cur.map((t) => (t.id === trackId ? { ...t, name: editTrackName.trim() } : t)))
+      setMessage('Track updated.')
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : 'Unable to update track.')
+    }
+    setEditingTrackId(null)
+  }, [editTrackName, localTracks])
+
+  const handleSaveEditCategory = useCallback(async (categoryId: string) => {
+    const category = localCategories.find((c) => c.id === categoryId)
+    if (!category || !editCategoryName.trim()) return
+    try {
+      await saveJourneyCategory({ ...category, name: editCategoryName.trim() })
+      setLocalCategories((cur) => cur.map((c) => (c.id === categoryId ? { ...c, name: editCategoryName.trim() } : c)))
+      setMessage('Category updated.')
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : 'Unable to update category.')
+    }
+    setEditingCategoryId(null)
+  }, [editCategoryName, localCategories])
    const handleSaveEditStage = useCallback(async (stageId: string) => {
      const stage = localStages.find((s) => s.id === stageId)
      if (!stage || !editLabel.trim()) return
@@ -214,6 +268,10 @@ export function JourneySettingsManager() {
     setNewStageLabel('')
      setEditingStageId(null)
      setEditLabel('')
+     setEditingTrackId(null)
+     setEditTrackName('')
+     setEditingCategoryId(null)
+     setEditCategoryName('')
    }, [data])
 
   const isDirty =
@@ -227,7 +285,8 @@ export function JourneySettingsManager() {
 
    // Shared grid column template — every row (header + <Reorder.Item>)
    // must use the same columns so cells align vertically.
-   const gridColumns = `32px minmax(180px, 1fr) repeat(${orderedStages.length}, minmax(${STAGE_COL_MIN}px, 1fr)) 48px`
+   // First column (44px) matches the drag handle button width for proper pointer events.
+   const gridColumns = `44px minmax(180px, 1fr) repeat(${orderedStages.length}, minmax(${STAGE_COL_MIN}px, 1fr)) 48px`
 
   return (
         <Stack gap="4">
@@ -332,63 +391,77 @@ export function JourneySettingsManager() {
                  }}
               >
                 {/* Header row */}
-                <div />
+                <div /> {/* handle column */}
                 <div style={headingCellStyle}>Track / Category</div>
-                <div
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'row',
-                    gap: STAGE_COL_GAP,
-                    gridColumn: '3 / -2',
-                    alignItems: 'center',
-                  }}
-                >
+                {/* Stage header cells - draggable via SortableStageColumns */}
+                <div style={{ gridColumn: `3 / ${3 + orderedStages.length}`, display: 'contents' }}>
                   <SortableStageColumns
                     stages={orderedStages}
                     onReorder={handleStageReorder}
                     gap={STAGE_COL_GAP}
                     minWidth={STAGE_COL_MIN}
-                    renderColumn={(stage) => (
-                      <div style={{ ...headingCellStyle }}>
-                        <HStack gap="1" justifyContent="center" style={{ width: '100%' }}>
-                          {editingStageId === stage.id ? (
-                            <>
-                              <Input
-                                size="xs"
-                                value={editLabel}
-                                onChange={(e) => setEditLabel(e.target.value)}
-                                placeholder="Label"
-                              />
-                              <IconButton size="xs" variant="plain" aria-label="Save stage" onClick={() => handleSaveEditStage(stage.id)}>
-                                <CheckIcon />
-                              </IconButton>
-                              <IconButton size="xs" variant="plain" aria-label="Cancel edit" onClick={() => setEditingStageId(null)}>
-                                <XIcon />
-                              </IconButton>
-                            </>
-                          ) : (
-                            <>
-                              <span style={{ userSelect: 'none', padding: '4px 8px' }}>{stage.label || stage.slug}</span>
-                              <IconButton
-                                size="xs"
-                                variant="plain"
-                                aria-label="Edit stage"
-                                onClick={() => handleEditStage(stage)}
-                              >
-                                <PencilIcon size={16} />
-                              </IconButton>
-                              <IconButton
-                                size="xs"
-                                variant="plain"
-                                aria-label="Delete stage"
-                                onClick={() => handleDeleteStage(stage.id)}
-                                colorPalette="red"
-                              >
-                                <TrashIcon />
-                              </IconButton>
-                            </>
-                          )}
-                        </HStack>
+                    renderColumn={(stage, helpers) => (
+                      <div
+                        style={{
+                          ...headingCellStyle,
+                          display: 'flex',
+                          flexDirection: 'row',
+                          gap: '4px',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          padding: '4px 8px',
+                        }}
+                      >
+                        <button
+                          ref={helpers.handleRef}
+                          aria-label={`Reorder ${stage.label || stage.slug}`}
+                          type="button"
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            width: '44px',
+                            height: '44px',
+                            flexShrink: 0,
+                            border: 'none',
+                            background: 'transparent',
+                            cursor: helpers.isDragging ? 'grabbing' : 'grab',
+                            touchAction: 'none',
+                          }}
+                        >
+                          <GripVertical size={16} />
+                        </button>
+                        {editingStageId === stage.id ? (
+                          <>
+                            <Input
+                              size="xs"
+                              value={editLabel}
+                              onChange={(e) => setEditLabel(e.target.value)}
+                              placeholder="Label"
+                            />
+                            <IconButton size="xs" variant="plain" aria-label="Save stage" onClick={() => handleSaveEditStage(stage.id)}>
+                              <SaveIcon size={14} />
+                            </IconButton>
+                            <IconButton size="xs" variant="plain" aria-label="Delete stage" onClick={() => handleDeleteStage(stage.id)} colorPalette="red">
+                              <TrashIcon size={14} />
+                            </IconButton>
+                            <IconButton size="xs" variant="plain" aria-label="Cancel edit" onClick={() => setEditingStageId(null)}>
+                              <XIcon size={14} />
+                            </IconButton>
+                          </>
+                        ) : (
+                          <>
+                            <span style={{ userSelect: 'none', padding: '4px 8px' }}>{stage.label || stage.slug}</span>
+                            <IconButton
+                              size="xs"
+                              variant="plain"
+                              aria-label="Edit stage"
+                              onClick={() => handleEditStage(stage)}
+                            >
+                              <PencilIcon size={16} />
+                            </IconButton>
+                          </>
+                        )}
                       </div>
                     )}
                   />
@@ -419,8 +492,6 @@ export function JourneySettingsManager() {
                           {/* Handle column */}
                           <button
                             ref={helpers.handleRef}
-                            {...helpers.handleAttributes}
-                            {...helpers.handleListeners}
                             aria-label={`Reorder ${node.label}`}
                             type="button"
                             style={{
@@ -476,7 +547,71 @@ export function JourneySettingsManager() {
                             >
                               {row?.connector ?? ''}
                             </span>
-                            {node.label}
+                            {isCategory ? (
+                              editingCategoryId === node.id ? (
+                                <>
+                                  <Input
+                                    size="xs"
+                                    value={editCategoryName}
+                                    onChange={(e) => setEditCategoryName(e.target.value)}
+                                    placeholder="Category name"
+                                  />
+                                  <IconButton size="xs" variant="plain" aria-label="Save category" onClick={() => handleSaveEditCategory(node.id)}>
+                                    <SaveIcon size={14} />
+                                  </IconButton>
+                                  <IconButton size="xs" variant="plain" aria-label="Delete category" onClick={() => handleDeleteCategory(node.id)} colorPalette="red">
+                                    <TrashIcon size={14} />
+                                  </IconButton>
+                                  <IconButton size="xs" variant="plain" aria-label="Cancel edit" onClick={() => setEditingCategoryId(null)}>
+                                    <XIcon size={14} />
+                                  </IconButton>
+                                </>
+                              ) : (
+                                <>
+                                  <span>{node.label}</span>
+                                  <IconButton
+                                    size="xs"
+                                    variant="plain"
+                                    aria-label="Edit category"
+                                    onClick={() => handleEditCategory(rowById.get(node.id) as JourneyTrackCategory)}
+                                  >
+                                    <PencilIcon size={16} />
+                                  </IconButton>
+                                </>
+                              )
+                            ) : (
+                              editingTrackId === node.id ? (
+                                <>
+                                  <Input
+                                    size="xs"
+                                    value={editTrackName}
+                                    onChange={(e) => setEditTrackName(e.target.value)}
+                                    placeholder="Track name"
+                                  />
+                                  <IconButton size="xs" variant="plain" aria-label="Save track" onClick={() => handleSaveEditTrack((node.id as string).slice('track:'.length))}>
+                                    <SaveIcon size={14} />
+                                  </IconButton>
+                                  <IconButton size="xs" variant="plain" aria-label="Delete track" onClick={() => handleDeleteTrack((node.id as string).slice('track:'.length))} colorPalette="red">
+                                    <TrashIcon size={14} />
+                                  </IconButton>
+                                  <IconButton size="xs" variant="plain" aria-label="Cancel edit" onClick={() => setEditingTrackId(null)}>
+                                    <XIcon size={14} />
+                                  </IconButton>
+                                </>
+                              ) : (
+                                <>
+                                  <span>{node.label}</span>
+                                  <IconButton
+                                    size="xs"
+                                    variant="plain"
+                                    aria-label="Edit track"
+                                    onClick={() => handleEditTrack(rowById.get(node.id) as JourneyTrack)}
+                                  >
+                                    <PencilIcon size={16} />
+                                  </IconButton>
+                                </>
+                              )
+                            )}
                           </div>
 
                           {/* Stage cells (track only) */}
@@ -485,21 +620,6 @@ export function JourneySettingsManager() {
                               {stageMap.get(stage.id)?.label || stage.slug}
                             </div>
                           ))}
-
-                          {/* Delete button (track only) */}
-                          {!isCategory && (
-                            <div style={{ justifyContent: 'flex-end' }}>
-                              <IconButton
-                                size="xs"
-                                variant="plain"
-                                aria-label="Delete track"
-                                onClick={() => handleDeleteTrack((node.id as string).slice('track:'.length))}
-                                colorPalette="red"
-                              >
-                                <TrashIcon />
-                              </IconButton>
-                            </div>
-                          )}
                         </div>
                       )
                     }}

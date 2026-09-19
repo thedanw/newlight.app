@@ -53,8 +53,8 @@ export function flattenTree<TData = unknown>(
 export function buildTree<TData = unknown>(
   flattenedItems: FlattenedTreeNode<TData>[]
 ): TreeNode<TData>[] {
-  const root: TreeNode<TData> = { id: 'root', label: 'root', children: [] };
-  const nodes: Record<string, TreeNode<TData>> = { [root.id]: root };
+  const nodes = new Map<string, TreeNode<TData>>();
+  const roots: TreeNode<TData>[] = [];
 
   // Strip flattened-specific properties (parentId/depth/index) and the original
   // children arrays so the tree is rebuilt cleanly from the flat order. Empty
@@ -65,18 +65,31 @@ export function buildTree<TData = unknown>(
     })
   );
 
-  for (let i = 0; i < items.length; i++) {
-    const item = items[i];
-    const { id } = item;
-    const parentId = flattenedItems[i].parentId ?? root.id;
-    const parent = nodes[parentId] ?? items.find(({ id }) => id === parentId) ?? root;
-
-    nodes[id] = item;
-    parent.children = parent.children ?? [];
-    parent.children.push(item);
+  // First pass: create all nodes in the map
+  for (const item of items) {
+    nodes.set(item.id, { ...item });
   }
 
-  return root.children!;
+  // Second pass: link children to parents
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i];
+    const parentId = flattenedItems[i].parentId;
+
+    if (parentId === null) {
+      roots.push(nodes.get(item.id)!);
+    } else {
+      const parent = nodes.get(parentId);
+      if (parent) {
+        parent.children = parent.children ?? [];
+        parent.children.push(nodes.get(item.id)!);
+      } else {
+        // Orphan: promote to root
+        roots.push(nodes.get(item.id)!);
+      }
+    }
+  }
+
+  return roots;
 }
 
 /**

@@ -2,7 +2,8 @@
 export * from './types';
 
 // Provider
-export { DragDropProvider, useDragDropContext } from './provider';
+export { DragDropProvider, type DragDropProviderProps } from './provider';
+export { DragOverlay } from './provider';
 
 // Sensors
 export {
@@ -33,6 +34,7 @@ export {
 } from './hooks/useSensors';
 
 // Components
+export { SortableItem, type SortableItemHelpers, type SortableItemProps } from './components/SortableItem';
 export { TreeNode, type TreeNodeProps } from './components/TreeNode';
 export { SortableTree, type SortableTreeProps } from './components/SortableTree';
 export { DroppableZone, type DroppableZoneProps } from './components/DroppableZone';

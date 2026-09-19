@@ -7,12 +7,11 @@ const { capturedHandlers } = vi.hoisted(() => ({
   capturedHandlers: {} as Record<string, (...args: any[]) => void>,
 }));
 
-// Mock @dnd-kit/core so DndContext renders children and captures handlers,
+// Mock @dnd-kit/react so DragDropProvider renders children and captures handlers,
 // and DragOverlay renders its render-prop output.
-// Also mock useSensors and useSensor for v8+
-vi.mock('@dnd-kit/core', () => {
+vi.mock('@dnd-kit/react', () => {
   return {
-    DndContext: ({ children, onDragStart, onDragMove, onDragOver, onDragEnd }: any) => {
+    DragDropProvider: ({ children, onDragStart, onDragMove, onDragOver, onDragEnd }: any) => {
       capturedHandlers.onDragStart = onDragStart;
       capturedHandlers.onDragMove = onDragMove;
       capturedHandlers.onDragOver = onDragOver;
@@ -23,43 +22,25 @@ vi.mock('@dnd-kit/core', () => {
       const content = typeof children === 'function' ? children(null) : children;
       return <div data-testid="drag-overlay">{content}</div>;
     },
-    useSensors: vi.fn(() => []),
-    useSensor: vi.fn(() => []),
   };
 });
 
-vi.mock('@dnd-kit/sortable', () => {
+vi.mock('@dnd-kit/react/sortable', () => {
   const createMockUseSortable = (overrides = {}) => ({
-    active: null,
-    activeIndex: 0,
-    attributes: {},
-    data: {},
-    rect: { current: null },
-    index: 0,
-    newIndex: 0,
-    items: [],
-    isOver: false,
-    isSorting: false,
+    sortable: {},
     isDragging: false,
+    isDropping: false,
     isDragSource: false,
-    listeners: undefined,
-    node: { current: null },
-    overIndex: 0,
-    over: null,
-    setNodeRef: vi.fn(),
-    setActivatorNodeRef: vi.fn(),
-    setDroppableNodeRef: vi.fn(),
-    setDraggableNodeRef: vi.fn(),
-    transform: null,
-    transition: undefined,
+    isDropTarget: false,
+    handleRef: vi.fn(),
+    ref: vi.fn(),
+    sourceRef: vi.fn(),
+    targetRef: vi.fn(),
     ...overrides,
   });
 
   return {
     useSortable: vi.fn(() => createMockUseSortable()),
-    SortableContext: ({ children }: any) => <div data-testid="sortable-context">{children}</div>,
-    arrayMove: vi.fn((items: any[]) => items),
-    verticalListSortingStrategy: vi.fn(),
   };
 });
 
@@ -89,17 +70,40 @@ vi.mock('../../utils/tree', () => {
   };
 
   const mockBuildTree = (items: any[]) => {
-    const itemMap = new Map(items.map(item => [item.id, { ...item, children: [] }]));
+    const nodes = new Map<string, any>();
     const roots: any[] = [];
-    for (const item of items) {
-      const node = itemMap.get(item.id);
-      if (item.parentId) {
-        const parent = itemMap.get(item.parentId);
-        if (parent) parent.children.push(node);
+
+    // Strip flattened-specific properties
+    const strippedItems = items.map(
+      ({ parentId: _p, depth: _d, index: _i, children: _c, ...rest }) => ({
+        ...rest,
+      })
+    );
+
+    // First pass: create all nodes in the map
+    for (const item of strippedItems) {
+      nodes.set(item.id, { ...item });
+    }
+
+    // Second pass: link children to parents
+    for (let i = 0; i < strippedItems.length; i++) {
+      const item = strippedItems[i];
+      const parentId = items[i].parentId;
+
+      if (parentId === null) {
+        roots.push(nodes.get(item.id)!);
       } else {
-        roots.push(node);
+        const parent = nodes.get(parentId);
+        if (parent) {
+          parent.children = parent.children ?? [];
+          parent.children.push(nodes.get(item.id)!);
+        } else {
+          // Orphan: promote to root
+          roots.push(nodes.get(item.id)!);
+        }
       }
     }
+
     return roots;
   };
 
@@ -217,12 +221,12 @@ describe('SortableTree', () => {
 
     // Start a drag on a leaf node (populates sourceChildren + removes descendants)
     act(() => {
-      capturedHandlers.onDragStart({ active: { id: '1-2' } });
+      capturedHandlers.onDragStart({ operation: { source: { id: '1-2' } } });
     });
 
     // End the drag — rebuilds the tree and fires onReorder
     act(() => {
-      capturedHandlers.onDragEnd({ canceled: false });
+      capturedHandlers.onDragEnd({ canceled: false, operation: { source: { id: '1-2' } } });
     });
 
     expect(onReorder).toHaveBeenCalledTimes(1);
@@ -235,12 +239,12 @@ describe('SortableTree', () => {
     // Start dragging '1' (has children 1-1, 1-2) — descendants are removed
     // from the flat list into sourceChildren so the whole subtree drags together.
     act(() => {
-      capturedHandlers.onDragStart({ active: { id: '1' } });
+      capturedHandlers.onDragStart({ operation: { source: { id: '1' } } });
     });
 
     // End the drag — descendants are re-attached when the tree is rebuilt.
     act(() => {
-      capturedHandlers.onDragEnd({ canceled: false });
+      capturedHandlers.onDragEnd({ canceled: false, operation: { source: { id: '1' } } });
     });
 
     const reordered = onReorder.mock.calls[0][0];
@@ -254,25 +258,33 @@ describe('SortableTree', () => {
 
     // Start dragging root '2'
     act(() => {
-      capturedHandlers.onDragStart({ active: { id: '2' } });
+      capturedHandlers.onDragStart({ operation: { source: { id: '2' } } });
     });
 
     // Drag over '1-1' with a horizontal offset of one indentation level →
     // projected depth 1 → parent becomes '1'.
+    // Need to call onDragMove to trigger projection update (depth/parentId)
+    act(() => {
+      capturedHandlers.onDragMove({
+        operation: { source: { id: '2' }, target: { id: '1-1' } },
+        by: { x: 24, y: 0 },
+      });
+    });
+
     act(() => {
       capturedHandlers.onDragOver({
-        active: { id: '2' },
-        over: { id: '1-1' },
-        transform: { x: 24 },
+        operation: { source: { id: '2' }, target: { id: '1-1' } },
+        by: { x: 24, y: 0 },
         preventDefault: vi.fn(),
       });
     });
 
     // End the drag — rebuilds the tree with '2' nested under '1'.
     act(() => {
-      capturedHandlers.onDragEnd({ canceled: false });
+      capturedHandlers.onDragEnd({ canceled: false, operation: { source: { id: '2' }, target: { id: '1-1' } } });
     });
 
+    // The mock getProjection returns parentId '1' for any target, so '2' should be nested under '1'
     const reordered = onReorder.mock.calls[0][0];
     const root1 = reordered.find((n: { id: string }) => n.id === '1');
     expect(root1.children.map((c: { id: string }) => c.id)).toContain('2');
@@ -285,7 +297,7 @@ describe('SortableTree', () => {
     // Start dragging parent '1' — its descendants (1-1, 1-2) are removed into
     // sourceChildren, leaving the flat list as [1, 2].
     act(() => {
-      capturedHandlers.onDragStart({ active: { id: '1' } });
+      capturedHandlers.onDragStart({ operation: { source: { id: '1' } } });
     });
 
     // Drag '1' over '2' (the item directly below it) with a horizontal offset.
@@ -295,9 +307,8 @@ describe('SortableTree', () => {
     // the update so the tree stays valid.
     act(() => {
       capturedHandlers.onDragOver({
-        active: { id: '1' },
-        over: { id: '2' },
-        transform: { x: 24 },
+        operation: { source: { id: '1' }, target: { id: '2' } },
+        by: { x: 24, y: 0 },
         preventDefault: vi.fn(),
       });
     });
@@ -305,7 +316,7 @@ describe('SortableTree', () => {
     // End the drag — the tree must rebuild cleanly (no self-parent → no
     // infinite recursion in buildTree/flattenTree).
     act(() => {
-      capturedHandlers.onDragEnd({ canceled: false });
+      capturedHandlers.onDragEnd({ canceled: false, operation: { source: { id: '1' }, target: { id: '2' } } });
     });
 
     const reordered = onReorder.mock.calls[0][0];
@@ -321,11 +332,11 @@ describe('SortableTree', () => {
     renderTree({ onReorder });
 
     act(() => {
-      capturedHandlers.onDragStart({ active: { id: '1-2' } });
+      capturedHandlers.onDragStart({ operation: { source: { id: '1-2' } } });
     });
 
     act(() => {
-      capturedHandlers.onDragEnd({ canceled: true });
+      capturedHandlers.onDragEnd({ canceled: true, operation: { source: { id: '1-2' } } });
     });
 
     expect(onReorder).not.toHaveBeenCalled();

@@ -1,13 +1,14 @@
 import React from 'react';
-import { DndContext as DragDropProvider, DragOverlay } from '@dnd-kit/core';
-import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { DragDropProvider, DragOverlay } from '@dnd-kit/react';
 import { VStack } from 'styled-system/jsx';
 import { useSortableTree, type UseSortableTreeOptions } from '../hooks/useSortableTree';
 import { TreeNode } from './TreeNode';
 import { getDescendants } from '../utils/tree';
-import type { DragEndEvent, DragStartEvent } from '@dnd-kit/core';
+import type { DragEndEvent, DragStartEvent } from '@dnd-kit/abstract';
 
-export interface SortableTreeProps<TData = unknown> extends UseSortableTreeOptions<TData> {}
+export interface SortableTreeProps<TData = unknown> extends UseSortableTreeOptions<TData> {
+  group?: string | number;
+}
 
 const DEFAULT_INDENTATION = 24;
 
@@ -18,10 +19,10 @@ export function SortableTree<TData = unknown>({
   renderRow,
   gap = '0',
   indentation = DEFAULT_INDENTATION,
+  group = 'sortable-tree',
 }: SortableTreeProps<TData>) {
   const {
     visibleItems,
-    flatIndexById,
     expanded,
     handleToggle,
     sensors,
@@ -36,11 +37,12 @@ export function SortableTree<TData = unknown>({
     indentation,
   });
 
-  const [activeId, setActiveId] = React.useState<string | null>(null);
+  const [activeId, setActiveId] = React.useState<string | number | null>(null);
 
   const handleDragStartCb = React.useCallback(
     (event: DragStartEvent) => {
-      setActiveId(event.active?.id ?? null);
+      const sid = event.operation?.source?.id;
+      setActiveId(sid != null ? sid : null);
       handleDragStart(event);
     },
     [handleDragStart]
@@ -54,19 +56,13 @@ export function SortableTree<TData = unknown>({
     [handleDragEnd]
   );
 
-  const getChildCount = React.useCallback((nodeId: string) => {
-    return getDescendants(flattenedItems, nodeId).size;
+  const getChildCount = React.useCallback((nodeId: string | number) => {
+    return getDescendants(flattenedItems, String(nodeId)).size;
   }, [flattenedItems]);
 
-  const activeNode = activeId ? visibleItems.find((i) => i.id === activeId) : null;
+  const activeNode = activeId != null ? visibleItems.find((i) => i.id === activeId) : null;
   const childCount = activeNode ? getChildCount(activeNode.id) : 0;
-  const activeLabel = activeNode?.data?.label ?? activeNode?.id ?? '';
-
-  // Items array for SortableContext — list of IDs in current flattened order
-  const sortableItemIds = React.useMemo(
-    () => visibleItems.map((item) => String(item.id)),
-    [visibleItems]
-  );
+  const activeLabel = (activeNode?.data as { label?: string } | undefined)?.label ?? (activeNode ? String(activeNode.id) : '');
 
   return (
     <DragDropProvider
@@ -76,26 +72,25 @@ export function SortableTree<TData = unknown>({
       onDragOver={handleDragOver}
       onDragEnd={handleDragEndCb}
     >
-      <SortableContext items={sortableItemIds} strategy={verticalListSortingStrategy}>
-        <VStack gap={gap} alignItems="stretch" width="full">
-          {visibleItems.map((item, visibleIndex) => (
-            <TreeNode
-              key={item.id}
-              node={item}
-              depth={item.depth}
-              index={visibleIndex}
-              parentId={item.parentId}
-              hasChildren={!!(item.children && item.children.length > 0)}
-              isExpanded={expanded[item.id] ?? true}
-              onToggle={handleToggle}
-              renderNode={renderNode}
-              renderRow={renderRow}
-            />
-          ))}
-        </VStack>
-      </SortableContext>
+      <VStack gap={gap} alignItems="stretch" width="full">
+        {visibleItems.map((item, visibleIndex) => (
+          <TreeNode
+            key={String(item.id)}
+            node={item}
+            depth={item.depth}
+            index={visibleIndex}
+            parentId={item.parentId}
+            group={group}
+            hasChildren={!!(item.children && item.children.length > 0)}
+            isExpanded={expanded[item.id] ?? true}
+            onToggle={handleToggle}
+            renderNode={renderNode}
+            renderRow={renderRow}
+          />
+        ))}
+      </VStack>
       <DragOverlay dropAnimation={null}>
-        {activeId && activeNode ? (
+        {activeId != null && activeNode ? (
           <div
             style={{
               display: 'flex',

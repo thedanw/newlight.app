@@ -1,129 +1,129 @@
-import React from 'react';
-import { useSortable, arrayMove } from '@dnd-kit/sortable';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { move } from '@dnd-kit/helpers';
+import {
+  KeyboardSensor,
+  PointerActivationConstraints,
+  PointerSensor,
+  type DragEndEvent,
+  type DragMoveEvent,
+  type DragOverEvent,
+  type DragStartEvent,
+  type Sensors,
+} from '@dnd-kit/dom';
 import type { DragItem } from '../types';
-import { createDefaultSensors } from '../sensors';
-import type { DragStartEvent, DragMoveEvent, DragOverEvent, DragEndEvent } from '@dnd-kit/core';
 
 export interface UseSortableListOptions {
-  /** Array of items to make sortable */
+  /** Ordered items rendered by the caller. */
   items: DragItem[];
-  /** Callback fired when items are reordered */
+  /** Commit the final order when a drag completes. */
   onReorder: (items: DragItem[]) => void;
-  /** Optional gap between items */
-  gap?: string;
 }
 
-/** Return type for the hook */
 export interface UseSortableListReturn {
-  /** The items (synced with props) */
+  /** Locally previewed order while a drag is active. */
   items: DragItem[];
-  /** Sensors for DragDropProvider */
-  sensors: ReturnType<typeof createDefaultSensors>;
-  /** Drag start handler */
+  /** Sensors for DragDropProvider. */
+  sensors: Sensors;
+  /** Flat-list lifecycle callback. */
   handleDragStart: (event: DragStartEvent) => void;
-  /** Drag move handler */
+  /** Flat-list lifecycle callback. */
   handleDragMove: (event: DragMoveEvent) => void;
-  /** Drag over handler */
+  /** Optimistically update the preview as the source crosses items. */
   handleDragOver: (event: DragOverEvent) => void;
-  /** Drag end handler */
+  /** Reset on cancellation or commit the final order. */
   handleDragEnd: (event: DragEndEvent) => void;
-   /** Render prop for each item - returns an object with ref, handleRef, isDragging, isDragSource */
-   getItemProps: (item: DragItem, index: number) => {
-     ref: (el: HTMLElement | null) => void;
-     handleRef: (el: HTMLElement | null) => void;
-     attributes: Record<string, unknown>;
-     listeners: Record<string, unknown>;
-     isDragging: boolean;
-     isDragSource: boolean;
-   };
 }
 
 /**
- * Hook for sortable flat list functionality using dnd-kit hooks directly.
- * 
- * This replaces the old SortableList wrapper component. Consumers should:
- * 1. Call this hook to get item props and handlers
- * 2. Render a DragDropProvider wrapping the list
- * 3. Map over items and use getItemProps to get refs and state
- * 
- * Usage:
- * ```tsx
- * const { items, sensors, handleDragStart, handleDragMove, handleDragOver, handleDragEnd, getItemProps } = useSortableList({ items, onReorder });
- * 
- * return (
- *   <DragDropProvider sensors={sensors} onDragStart={handleDragStart} onDragMove={handleDragMove} onDragOver={handleDragOver} onDragEnd={handleDragEnd}>
- *     <VStack gap={gap} role="list">
- *       {items.map((item, index) => {
- *         const { ref, handleRef, isDragging, isDragSource } = getItemProps(item, index);
- *         return (
- *           <Box key={item.id} ref={ref} role="listitem" ...>
- *             <button ref={handleRef}>☰</button>
- *             {item.label}
- *           </Box>
- *         );
- *       })}
- *     </VStack>
- *   </DragDropProvider>
- * );
- * ```
+ * State and lifecycle helper for one flat sortable list.
+ *
+ * Sortable registration stays in the item component because `useSortable` must
+ * run in the render phase. This hook only manages preview state and commits the
+ * final order through the caller-controlled `items` prop.
  */
 export function useSortableList({
   items,
   onReorder,
 }: UseSortableListOptions): UseSortableListReturn {
-  // Local items state (synced with props)
-  const [localItems, setLocalItems] = React.useState(items);
+  const [previewItems, setPreviewItems] = useState<DragItem[]>(items);
+  const previewItemsRef = useRef(items);
+  const itemsRef = useRef(items);
 
-  // Sync with external changes
-  React.useEffect(() => {
-    setLocalItems(items);
+  useEffect(() => {
+    itemsRef.current = items;
+    previewItemsRef.current = items;
+    setPreviewItems(items);
   }, [items]);
 
-  // Sensors (use createDefaultSensors for v2/v8 compatibility)
-  const sensors = createDefaultSensors();
+  const sensors = useMemo<Sensors>(() => [
+    PointerSensor.configure({
+      activationConstraints: (event, _source) => {
+        if (event.pointerType === 'mouse') {
+          return [new PointerActivationConstraints.Distance({ value: 5 })];
+        }
 
-  // Drag lifecycle handlers
-  const handleDragStart = React.useCallback((_event: DragStartEvent) => {
-    // No special handling needed for flat lists
+        return [
+          new PointerActivationConstraints.Delay({ value: 250, tolerance: 5 }),
+        ];
+      },
+    }),
+    KeyboardSensor.configure({
+      keyboardCodes: {
+        start: ['Space', 'Enter'],
+        cancel: ['Escape'],
+        end: ['Space', 'Enter', 'Tab'],
+        up: ['ArrowUp'],
+        down: ['ArrowDown'],
+        left: ['ArrowLeft'],
+        right: ['ArrowRight'],
+      },
+    }),
+  ], []);
+
+  const handleDragStart = useCallback((_event: DragStartEvent) => {
+    // Flat-list projection is handled by the native sortable implementation.
   }, []);
 
-  const handleDragMove = React.useCallback((_event: DragMoveEvent) => {
-    // No special handling needed for flat lists
+  const handleDragMove = useCallback((_event: DragMoveEvent) => {
+    // Projection, if needed, belongs in the tree-specific hook.
   }, []);
 
-   const handleDragOver = React.useCallback((event: DragOverEvent) => {
-    const { active, over } = event;
-    if (active && over && active.id !== over.id) {
-      const sourceIndex = localItems.findIndex(i => i.id === active.id);
-      const targetIndex = localItems.findIndex(i => i.id === over.id);
-      setLocalItems((items) => arrayMove(items, sourceIndex, targetIndex));
+  const handleDragOver = useCallback((event: DragOverEvent) => {
+    if (event.operation.canceled) return;
+
+    const current = previewItemsRef.current;
+    const nextItems = move(current, event);
+
+    if (nextItems !== current) {
+      previewItemsRef.current = nextItems;
+      setPreviewItems(nextItems);
     }
-  }, [localItems]);
+  }, []);
 
-  const handleDragEnd = React.useCallback((event: DragEndEvent) => {
-    if (!event.canceled) {
-      onReorder(localItems);
+  const handleDragEnd = useCallback((event: DragEndEvent) => {
+    if (event.canceled || !event.operation.target) {
+      const authoritativeItems = itemsRef.current;
+      previewItemsRef.current = authoritativeItems;
+      setPreviewItems(authoritativeItems);
+      return;
     }
-  }, [localItems, onReorder]);
 
-  // Get item props for rendering
-  const getItemProps = React.useCallback((item: DragItem, index: number) => {
-    const { setNodeRef, setActivatorNodeRef, attributes, listeners, isDragging, isDragSource } = useSortable({
-      id: item.id,
-      index,
-      data: { label: item.label, ...item.data },
-    });
+    const current = previewItemsRef.current;
+    const nextItems = move(current, event);
 
-    return { ref: setNodeRef, handleRef: setActivatorNodeRef, attributes, listeners, isDragging, isDragSource };
-  }, [localItems]);
+    if (nextItems === current) return;
+
+    previewItemsRef.current = nextItems;
+    setPreviewItems(nextItems);
+    onReorder(nextItems);
+  }, [onReorder]);
 
   return {
-    items: localItems,
+    items: previewItems,
     sensors,
     handleDragStart,
     handleDragMove,
     handleDragOver,
     handleDragEnd,
-    getItemProps,
   };
 }

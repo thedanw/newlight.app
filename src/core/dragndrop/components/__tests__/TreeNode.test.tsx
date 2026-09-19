@@ -3,11 +3,11 @@ import { render } from '@testing-library/react';
 import { TreeNode } from '../TreeNode';
 
 // Mock useSortable (used by TreeNode internally)
-vi.mock('@dnd-kit/sortable', () => ({
+vi.mock('@dnd-kit/react/sortable', () => ({
   useSortable: vi.fn(),
 }));
 
-import { useSortable } from '@dnd-kit/sortable';
+import { useSortable } from '@dnd-kit/react/sortable';
 const mockUseSortable = vi.mocked(useSortable);
 
 const defaultProps = {
@@ -24,34 +24,15 @@ const renderTreeNode = (props = {}) => {
 };
 
 const createMockUseSortable = (overrides = {}) => ({
-  active: null,
-  activeIndex: 0,
-  attributes: {
-    role: 'listitem',
-    tabIndex: 0,
-    'aria-disabled': false,
-    'aria-pressed': false,
-    'aria-roledescription': 'draggable',
-    'aria-describedby': '',
-  },
-  data: { sortable: { containerId: 'test', items: [], index: 0 } },
-  rect: { current: null },
-  index: 0,
-  newIndex: 0,
-  items: [],
-  isOver: false,
-  isSorting: false,
+  sortable: {} as any,
   isDragging: false,
-  listeners: undefined,
-  node: { current: null },
-  overIndex: 0,
-  over: null,
-  setNodeRef: vi.fn(),
-  setActivatorNodeRef: vi.fn(),
-  setDroppableNodeRef: vi.fn(),
-  setDraggableNodeRef: vi.fn(),
-  transform: null,
-  transition: undefined,
+  isDropping: false,
+  isDragSource: false,
+  isDropTarget: false,
+  handleRef: vi.fn(),
+  ref: vi.fn(),
+  sourceRef: vi.fn(),
+  targetRef: vi.fn(),
   ...overrides,
 });
 

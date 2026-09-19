@@ -3,9 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import {
   Button,
   Card,
-  Checkbox,
   Field,
-  Heading,
   Input,
   Page,
   Select,
@@ -15,19 +13,17 @@ import {
   useRegisterPageActions,
 } from '@/core/ui'
 import { Box, Stack } from 'styled-system/jsx'
-import { Users, GripVertical } from 'lucide-react'
+import { Users } from 'lucide-react'
 import { createListCollection } from '@ark-ui/react'
-import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { DragDropProvider } from '@/core/dragndrop'
 import { useSortableList } from '@/core/dragndrop/hooks/useSortableList'
 import { createForm, getFormById, MAPPABLE_PERSON_FIELDS, updateForm } from '../lib/queries'
 import { getTags } from '../../people/lib/queries'
 import { PageSkeleton } from '../../people/components/PageSkeleton'
-import { ColumnContainer } from '../components/ColumnContainer'
 import { createDefaultField, getFieldSpec } from '../lib/fieldTypes'
+import { FieldCard } from '../components/FieldCard'
 import type { FormDraft, FormFieldDraft } from '../lib/queries'
 import type { FormFieldOption, FormFieldType, FormSubmitAction, Tag } from '../lib/types'
-import type { DragItem } from '@/core/dragndrop'
 
 const FIELD_TYPES: FormFieldType[] = [
   'text', 'email', 'phone', 'number', 'select', 'multi_select', 'checkbox',
@@ -47,24 +43,13 @@ const emptyDraft = (): FormDraft => ({
 })
 
 /** Convert a field draft to a DragItem for SortableList. */
-function fieldToDragItem(field: FormFieldDraft): DragItem {
+function fieldToDragItem(field: FormFieldDraft) {
   const spec = getFieldSpec(field.field_type)
   return {
     id: field.id,
     label: field.label || spec?.defaultLabel || field.field_type,
     data: { field_type: field.field_type, parent_id: field.parent_id ?? undefined },
   }
-}
-
-function renderFieldCardItem(
-  field: FormFieldDraft,
-  index: number,
-  isDragging: boolean,
-  draft: FormDraft,
-  setField: (fieldId: string, patch: Partial<FormFieldDraft>) => void,
-  removeField: (fieldId: string) => void
-) {
-  return renderFieldCard(field, index, isDragging, draft, setField, removeField)
 }
 
 export default function FormBuilderPage() {
@@ -96,6 +81,10 @@ export default function FormBuilderPage() {
   const rootFields = useMemo(
     () => draft.fields.filter((field) => !field.parent_id),
     [draft.fields],
+  )
+  const rootFieldById = useMemo(
+    () => new Map(rootFields.map((field) => [field.id, field])),
+    [rootFields],
   )
 
   useEffect(() => {
@@ -188,7 +177,7 @@ export default function FormBuilderPage() {
         .filter((field): field is FormFieldDraft => Boolean(field))
         .map((field, index) => ({ ...field, sort_order: index }))
       const movedIds = new Set(nextIds)
-      const children = current.fields.filter((f) => !movedIds.has(f.id))
+      const children = current.fields.filter((field) => !movedIds.has(field.id))
       return { ...current, fields: [...fields, ...children] }
     })
   }
@@ -201,15 +190,6 @@ export default function FormBuilderPage() {
     }))
   }
 
-  const removeField = (fieldId: string) => {
-    setDraft((current) => ({
-      ...current,
-      fields: current.fields
-        .filter((field) => field.id !== fieldId)
-        .filter((field) => field.parent_id !== fieldId),
-    }))
-  }
-
   const headingTitle = id ? 'Edit form' : 'New form'
 
   // Convert root fields to DragItem for useSortableList
@@ -219,9 +199,9 @@ export default function FormBuilderPage() {
   )
 
   // Use the new useSortableList hook (v8+ pattern)
-  const { items: sortableItems, sensors, handleDragStart, handleDragMove, handleDragOver, handleDragEnd, getItemProps } = useSortableList({
+  const { items: sortableItems, sensors, handleDragStart, handleDragMove, handleDragOver, handleDragEnd } = useSortableList({
     items: dragItems,
-    onReorder: (reorderedItems) => reorderFields(reorderedItems.map((item) => item.id)),
+    onReorder: (reorderedItems) => reorderFields(reorderedItems.map((item) => String(item.id))),
   })
 
   return (
@@ -351,97 +331,14 @@ export default function FormBuilderPage() {
                  onDragOver={handleDragOver}
                  onDragEnd={handleDragEnd}
                >
-                 <SortableContext items={sortableItems.map((item) => String(item.id))} strategy={verticalListSortingStrategy}>
                  <Stack gap="4">
-                   {draft.fields.length === 0 && <Text color="fg.muted">No fields yet. Add one from the palette above.</Text>}
+                   {sortableItems.length === 0 && <Text color="fg.muted">No fields yet. Add one from the palette above.</Text>}
                    {sortableItems.map((item, index) => {
-                    const field = rootFields[index]
+                    const field = rootFieldById.get(String(item.id))
                     if (!field) return null
-                    const { ref, handleRef, attributes, listeners, isDragging, isDragSource } = getItemProps(item, index)
-                    const spec = getFieldSpec(field.field_type)
-                    const childFields = draft.fields.filter((child) => child.parent_id === field.id)
-                    return (
-                      <Box
-                        key={field.id}
-                        ref={ref}
-                        data-field-card={field.id}
-                        data-field-type={field.field_type}
-                        data-dragging={isDragging ? 'true' : 'false'}
-                        data-drag-source={isDragSource ? 'true' : 'false'}
-                        borderWidth="1px"
-                        borderStyle="solid"
-                        borderColor={isDragging ? 'var(--colors-border-emphasized)' : 'var(--colors-border)'}
-                        borderRadius="l2"
-                        p="3"
-                      >
-                        <Stack gap="2">
-                          <Stack flexDirection="row" alignItems="center" gap="2" mb="2">
-                            <button
-                              {...attributes}
-                              {...listeners}
-                              ref={handleRef}
-                              type="button"
-                              aria-label="Reorder item"
-                              style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                width: '44px',
-                                height: '44px',
-                                flexShrink: 0,
-                                border: 'none',
-                                background: 'transparent',
-                                cursor: isDragging ? 'grabbing' : 'grab',
-                                touchAction: 'none',
-                              }}
-                            >
-                              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                                <circle cx="9" cy="5" r="1" />
-                                <circle cx="9" cy="12" r="1" />
-                                <circle cx="9" cy="19" r="1" />
-                                <circle cx="15" cy="5" r="1" />
-                                <circle cx="15" cy="12" r="1" />
-                                <circle cx="15" cy="19" r="1" />
-                              </svg>
-                            </button>
-                            <Heading textStyle="sm" fontWeight="medium">{field.label || spec?.defaultLabel}</Heading>
-                            <Text textStyle="xs" color="fg.muted">({field.field_type})</Text>
-                          </Stack>
-
-                          {field.field_type === 'column_container' ? (
-                            <ColumnContainer container={field}>
-                              {childFields.map((child) => (
-                                <Box
-                                  key={child.id}
-                                  data-column-child={child.id}
-                                  gridColumn={`span ${child.column_span}`}
-                                  borderWidth="1px"
-                                  borderStyle="dashed"
-                                  borderColor="var(--colors-border)"
-                                  borderRadius="l1"
-                                  p="2"
-                                >
-                                  <Stack flexDirection="row" alignItems="center" gap="1">
-                                    <GripVertical size={14} aria-hidden="true" />
-                                    <Text textStyle="sm">{child.label || getFieldSpec(child.field_type)?.defaultLabel}</Text>
-                                  </Stack>
-                                </Box>
-                              ))}
-                            </ColumnContainer>
-                          ) : (
-                            <>
-                              <Field.Root>
-                                <Field.Label>Label</Field.Label>
-                                <Input value={field.label} onChange={(event) => setField(field.id, { label: event.target.value })} />
-                              </Field.Root>
-                            </>
-                          )}
-                        </Stack>
-                      </Box>
-                     )
+                    return <FieldCard key={field.id} field={field} index={index} draft={draft} setField={setField} />
                    })}
                  </Stack>
-                 </SortableContext>
                </DragDropProvider>
             </Card.Body>
           </Card.Root>

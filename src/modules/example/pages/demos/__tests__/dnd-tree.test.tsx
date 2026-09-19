@@ -7,8 +7,8 @@ const { capturedHandlers } = vi.hoisted(() => ({
   capturedHandlers: {} as Record<string, (...args: any[]) => void>,
 }))
 
-vi.mock('@dnd-kit/core', () => ({
-  DndContext: ({ children, onDragStart, onDragMove, onDragOver, onDragEnd }: any) => {
+vi.mock('@dnd-kit/react', () => ({
+  DragDropProvider: ({ children, onDragStart, onDragMove, onDragOver, onDragEnd }: any) => {
     capturedHandlers.onDragStart = onDragStart
     capturedHandlers.onDragMove = onDragMove
     capturedHandlers.onDragOver = onDragOver
@@ -21,25 +21,18 @@ vi.mock('@dnd-kit/core', () => ({
   },
 }))
 
-vi.mock('@dnd-kit/sortable', () => ({
+vi.mock('@dnd-kit/react/sortable', () => ({
   useSortable: vi.fn(() => ({
     sortable: {},
     isDragging: false,
     isDropping: false,
     isDragSource: false,
     isDropTarget: false,
-    attributes: {},
-    listeners: {},
-    setNodeRef: vi.fn(),
-    setActivatorNodeRef: vi.fn(),
     handleRef: vi.fn(),
     ref: vi.fn(),
     sourceRef: vi.fn(),
     targetRef: vi.fn(),
   })),
-  SortableContext: ({ children }: any) => <div data-testid="sortable-context">{children}</div>,
-  arrayMove: vi.fn((items: any[]) => items),
-  verticalListSortingStrategy: vi.fn(),
 }))
 
 vi.mock('@/core/dragndrop/sensors', () => ({

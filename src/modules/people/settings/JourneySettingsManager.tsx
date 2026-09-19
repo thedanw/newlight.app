@@ -285,7 +285,8 @@ export function JourneySettingsManager() {
 
    // Shared grid column template — every row (header + <Reorder.Item>)
    // must use the same columns so cells align vertically.
-   const gridColumns = `32px minmax(180px, 1fr) repeat(${orderedStages.length}, minmax(${STAGE_COL_MIN}px, 1fr)) 48px`
+   // First column (44px) matches the drag handle button width for proper pointer events.
+   const gridColumns = `44px minmax(180px, 1fr) repeat(${orderedStages.length}, minmax(${STAGE_COL_MIN}px, 1fr)) 48px`
 
   return (
         <Stack gap="4">
@@ -390,61 +391,55 @@ export function JourneySettingsManager() {
                  }}
               >
                 {/* Header row */}
-                <div />
+                <div /> {/* handle column */}
                 <div style={headingCellStyle}>Track / Category</div>
-                <div
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'row',
-                    gap: STAGE_COL_GAP,
-                    gridColumn: '3 / -2',
-                    alignItems: 'center',
-                  }}
-                >
-                  <SortableStageColumns
-                    stages={orderedStages}
-                    onReorder={handleStageReorder}
-                    gap={STAGE_COL_GAP}
-                    minWidth={STAGE_COL_MIN}
-                    renderColumn={(stage) => (
-                      <div style={{ ...headingCellStyle }}>
-                        <HStack gap="1" justifyContent="center" style={{ width: '100%' }}>
-                          {editingStageId === stage.id ? (
-                            <>
-                              <Input
-                                size="xs"
-                                value={editLabel}
-                                onChange={(e) => setEditLabel(e.target.value)}
-                                placeholder="Label"
-                              />
-                              <IconButton size="xs" variant="plain" aria-label="Save stage" onClick={() => handleSaveEditStage(stage.id)}>
-                                <SaveIcon size={14} />
-                              </IconButton>
-                              <IconButton size="xs" variant="plain" aria-label="Delete stage" onClick={() => handleDeleteStage(stage.id)} colorPalette="red">
-                                <TrashIcon size={14} />
-                              </IconButton>
-                              <IconButton size="xs" variant="plain" aria-label="Cancel edit" onClick={() => setEditingStageId(null)}>
-                                <XIcon size={14} />
-                              </IconButton>
-                            </>
-                          ) : (
-                            <>
-                              <span style={{ userSelect: 'none', padding: '4px 8px' }}>{stage.label || stage.slug}</span>
-                              <IconButton
-                                size="xs"
-                                variant="plain"
-                                aria-label="Edit stage"
-                                onClick={() => handleEditStage(stage)}
-                              >
-                                <PencilIcon size={16} />
-                              </IconButton>
-                            </>
-                          )}
-                        </HStack>
-                      </div>
+                {/* Stage header cells - each as individual grid item to align with row cells */}
+                {orderedStages.map((stage) => (
+                  <div
+                    key={stage.id}
+                    style={{
+                      ...headingCellStyle,
+                      display: 'flex',
+                      flexDirection: 'row',
+                      gap: '4px',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      padding: '4px 8px',
+                    }}
+                  >
+                    {editingStageId === stage.id ? (
+                      <>
+                        <Input
+                          size="xs"
+                          value={editLabel}
+                          onChange={(e) => setEditLabel(e.target.value)}
+                          placeholder="Label"
+                        />
+                        <IconButton size="xs" variant="plain" aria-label="Save stage" onClick={() => handleSaveEditStage(stage.id)}>
+                          <SaveIcon size={14} />
+                        </IconButton>
+                        <IconButton size="xs" variant="plain" aria-label="Delete stage" onClick={() => handleDeleteStage(stage.id)} colorPalette="red">
+                          <TrashIcon size={14} />
+                        </IconButton>
+                        <IconButton size="xs" variant="plain" aria-label="Cancel edit" onClick={() => setEditingStageId(null)}>
+                          <XIcon size={14} />
+                        </IconButton>
+                      </>
+                    ) : (
+                      <>
+                        <span style={{ userSelect: 'none', padding: '4px 8px' }}>{stage.label || stage.slug}</span>
+                        <IconButton
+                          size="xs"
+                          variant="plain"
+                          aria-label="Edit stage"
+                          onClick={() => handleEditStage(stage)}
+                        >
+                          <PencilIcon size={16} />
+                        </IconButton>
+                      </>
                     )}
-                  />
-                </div>
+                  </div>
+                ))}
                 <div /> {/* header placeholder for actions column */}
 
               {/* Rows */}

@@ -1,0 +1,102 @@
+﻿src/content/plugins/elvanto-sync/settings/components/MappingRow.tsx(4,10): error TS2300: Duplicate identifier 'CheckIcon'.
+src/content/plugins/elvanto-sync/settings/components/MappingRow.tsx(7,10): error TS2300: Duplicate identifier 'CheckIcon'.
+src/core/dragndrop/components/SortableTree.tsx(24,5): error TS6133: 'flatIndexById' is declared but its value is never read.
+src/core/dragndrop/components/SortableTree.tsx(43,19): error TS2345: Argument of type 'UniqueIdentifier' is not assignable to parameter of type 'SetStateAction<string | null>'.
+  Type 'number' is not assignable to type 'SetStateAction<string | null>'.
+src/core/dragndrop/components/SortableTree.tsx(63,41): error TS2339: Property 'label' does not exist on type 'NonNullable<TData>'.
+src/core/dragndrop/components/SortableTree.tsx(73,7): error TS2322: Type 'Sensors' is not assignable to type 'SensorDescriptor<any>[]'.
+  Type 'SensorConstructor<DragDropManager<any, any>> | SensorDescriptor<DragDropManager<any, any>>' is not assignable to type 'SensorDescriptor<any>'.
+    Type 'SensorConstructor<DragDropManager<any, any>>' is not assignable to type 'SensorDescriptor<any>'.
+src/core/dragndrop/components/SortableTree.tsx(92,15): error TS2322: Type '((node: TreeNode<TData>, depth: number, helpers: TreeNodeRowHelpers) => ReactNode) | undefined' is not assignable to type 'TreeNodeRenderRow | undefined'.
+  Type '(node: TreeNode<TData>, depth: number, helpers: TreeNodeRowHelpers) => ReactNode' is not assignable to type 'TreeNodeRenderRow'.
+    Types of parameters 'helpers' and 'helpers' are incompatible.
+      Type 'TreeNodeRowHelpers' is missing the following properties from type 'TreeNodeRowHelpers': handleAttributes, handleListeners
+src/core/dragndrop/components/TreeNode.tsx(69,7): error TS2339: Property 'isDragSource' does not exist on type '{ active: Active | null; activeIndex: number; attributes: DraggableAttributes; data: SortableData & { [x: string]: any; }; rect: MutableRefObject<ClientRect | null>; ... 15 more ...; transition: string | undefined; }'.
+src/core/dragndrop/components/TreeNode.tsx(76,7): error TS2353: Object literal may only specify known properties, and 'index' does not exist in type 'Arguments'.
+src/core/dragndrop/components/TreeNode.tsx(104,13): error TS2353: Object literal may only specify known properties, and 'handleAttributes' does not exist in type 'TreeNodeRowHelpers'.
+src/core/dragndrop/hooks/useSortableList.ts(104,16): error TS2339: Property 'canceled' does not exist on type 'DragEndEvent'.
+src/core/dragndrop/hooks/useSortableList.ts(111,81): error TS2339: Property 'isDragSource' does not exist on type '{ active: Active | null; activeIndex: number; attributes: DraggableAttributes; data: SortableData & { [x: string]: any; }; rect: MutableRefObject<ClientRect | null>; ... 15 more ...; transition: string | undefined; }'.
+src/core/dragndrop/hooks/useSortableList.ts(113,7): error TS2353: Object literal may only specify known properties, and 'index' does not exist in type 'Arguments'.
+src/core/dragndrop/hooks/useSortableList.ts(127,5): error TS2322: Type '(item: DragItem, index: number) => { ref: (node: HTMLElement | null) => void; handleRef: (element: HTMLElement | null) => void; attributes: DraggableAttributes; listeners: SyntheticListenerMap | undefined; isDragging: boolean; isDragSource: any; }' is not assignable to type '(item: DragItem, index: number) => { ref: (el: HTMLElement | null) => void; handleRef: (el: HTMLElement | null) => void; attributes: Record<string, unknown>; listeners: Record<...>; isDragging: boolean; isDragSource: boolean; }'.
+  Call signature return types '{ ref: (node: HTMLElement | null) => void; handleRef: (element: HTMLElement | null) => void; attributes: DraggableAttributes; listeners: SyntheticListenerMap | undefined; isDragging: boolean; isDragSource: any; }' and '{ ref: (el: HTMLElement | null) => void; handleRef: (el: HTMLElement | null) => void; attributes: Record<string, unknown>; listeners: Record<string, unknown>; isDragging: boolean; isDragSource: boolean; }' are incompatible.
+    The types of 'attributes' are incompatible between these types.
+      Type 'DraggableAttributes' is not assignable to type 'Record<string, unknown>'.
+        Index signature for type 'string' is missing in type 'DraggableAttributes'.
+src/core/dragndrop/hooks/useSortableTree.ts(169,22): error TS2339: Property 'depth' does not exist on type 'DataRef<AnyData>'.
+src/core/dragndrop/hooks/useSortableTree.ts(169,54): error TS2339: Property 'parentId' does not exist on type 'DataRef<AnyData>'.
+src/core/dragndrop/hooks/useSortableTree.ts(204,15): error TS2339: Property 'canceled' does not exist on type 'DragEndEvent'.
+src/core/dragndrop/provider.tsx(30,27): error TS2339: Property 'label' does not exist on type 'DataRef<AnyData>'.
+src/core/dragndrop/provider.tsx(31,7): error TS2322: Type 'DataRef<AnyData>' is not assignable to type 'Record<string, unknown>'.
+  Index signature for type 'string' is missing in type 'MutableRefObject<AnyData | undefined>'.
+src/core/dragndrop/provider.tsx(32,30): error TS2339: Property 'disabled' does not exist on type 'DataRef<AnyData>'.
+src/core/dragndrop/provider.tsx(41,27): error TS2339: Property 'label' does not exist on type 'DataRef<AnyData>'.
+src/core/dragndrop/provider.tsx(42,7): error TS2322: Type 'DataRef<AnyData>' is not assignable to type 'Record<string, unknown>'.
+  Index signature for type 'string' is missing in type 'MutableRefObject<AnyData | undefined>'.
+src/core/dragndrop/provider.tsx(43,30): error TS2339: Property 'disabled' does not exist on type 'DataRef<AnyData>'.
+src/core/dragndrop/provider.tsx(50,33): error TS2339: Property 'accepts' does not exist on type 'DataRef<AnyData>'.
+src/core/dragndrop/provider.tsx(62,27): error TS2339: Property 'label' does not exist on type 'DataRef<AnyData>'.
+src/core/dragndrop/provider.tsx(63,7): error TS2322: Type 'DataRef<AnyData>' is not assignable to type 'Record<string, unknown>'.
+  Index signature for type 'string' is missing in type 'MutableRefObject<AnyData | undefined>'.
+src/core/dragndrop/provider.tsx(64,30): error TS2339: Property 'disabled' does not exist on type 'DataRef<AnyData>'.
+src/core/dragndrop/provider.tsx(71,33): error TS2339: Property 'accepts' does not exist on type 'DataRef<AnyData>'.
+src/core/dragndrop/provider.tsx(81,7): error TS2322: Type 'Sensors' is not assignable to type 'SensorDescriptor<any>[]'.
+  Type 'SensorConstructor<DragDropManager<any, any>> | SensorDescriptor<DragDropManager<any, any>>' is not assignable to type 'SensorDescriptor<any>'.
+    Type 'SensorConstructor<DragDropManager<any, any>>' is not assignable to type 'SensorDescriptor<any>'.
+src/core/dragndrop/provider.tsx(126,41): error TS2339: Property 'label' does not exist on type 'DataRef<AnyData>'.
+src/core/dragndrop/provider.tsx(131,41): error TS2339: Property 'label' does not exist on type 'DataRef<AnyData>'.
+src/core/dragndrop/provider.tsx(134,47): error TS2339: Property 'label' does not exist on type 'DataRef<AnyData>'.
+src/core/dragndrop/sensors/index.ts(19,27): error TS2322: Type '(event: { pointerType: string; }) => { distance: number; delay?: undefined; tolerance?: undefined; } | { delay: number; tolerance: number; distance?: undefined; }' is not assignable to type 'PointerActivationConstraint | undefined'.
+src/core/dragndrop/sensors/index.ts(36,7): error TS2353: Object literal may only specify known properties, and 'up' does not exist in type 'KeyboardCodes'.
+src/core/dragndrop/sensors/index.ts(53,7): error TS2353: Object literal may only specify known properties, and 'sensor' does not exist in type 'SensorConstructor<DragDropManager<any, any>> | SensorDescriptor<DragDropManager<any, any>>'.
+src/core/dragndrop/sensors/index.ts(54,7): error TS2353: Object literal may only specify known properties, and 'sensor' does not exist in type 'SensorConstructor<DragDropManager<any, any>> | SensorDescriptor<DragDropManager<any, any>>'.
+src/core/dragndrop/types.ts(2,66): error TS2307: Cannot find module '@dnd-kit/dom' or its corresponding type declarations.
+src/core/email/components/__tests__/EmailComposer.test.tsx(1,18): error TS6133: 'screen' is declared but its value is never read.
+src/modules/forms/components/ColumnContainer.tsx(50,17): error TS2322: Type '{ children: Element[]; align: string; gap: "2"; }' is not assignable to type 'IntrinsicAttributes & VstackProps'.
+  Property 'align' does not exist on type 'IntrinsicAttributes & VstackProps'.
+src/modules/forms/components/FieldCard.tsx(1,15): error TS2305: Module '"styled-system/jsx"' has no exported member 'Heading'.
+src/modules/forms/components/FieldCard.tsx(1,31): error TS2305: Module '"styled-system/jsx"' has no exported member 'Text'.
+src/modules/forms/components/FieldCard.tsx(5,10): error TS2305: Module '"../lib/fieldTypes"' has no exported member 'fieldToDragItem'.
+src/modules/forms/components/FieldCard.tsx(17,36): error TS6133: 'index' is declared but its value is never read.
+src/modules/forms/components/FieldCard.tsx(17,72): error TS6133: 'removeField' is declared but its value is never read.
+src/modules/forms/components/FieldCard.tsx(34,20): error TS2339: Property 'DraggableHandle' does not exist on type 'typeof import("D:/daniel/Documents/vibecoding/newlight.app/src/core/dragndrop/index")'.
+src/modules/forms/hooks/useFormBuilderRenderItem.tsx(2,33): error TS2307: Cannot find module './FieldCard' or its corresponding type declarations.
+src/modules/forms/hooks/useFormBuilderRenderItem.tsx(19,23): error TS6133: 'item' is declared but its value is never read.
+src/modules/forms/lib/queries.ts(3,140): error TS2305: Module '"./types"' has no exported member 'Person'.
+src/modules/forms/pages/BuilderPage.tsx(6,3): error TS6133: 'Checkbox' is declared but its value is never read.
+src/modules/forms/pages/BuilderPage.tsx(29,65): error TS2305: Module '"../lib/types"' has no exported member 'Tag'.
+src/modules/forms/pages/BuilderPage.tsx(59,10): error TS6133: 'renderFieldCardItem' is declared but its value is never read.
+src/modules/forms/pages/BuilderPage.tsx(67,10): error TS2552: Cannot find name 'renderFieldCard'. Did you mean 'renderFieldCardItem'?
+src/modules/forms/pages/BuilderPage.tsx(79,9): error TS6133: 'fieldTypeCollection' is declared but its value is never read.
+src/modules/forms/pages/BuilderPage.tsx(87,9): error TS6133: 'mappableObjectFieldsCollection' is declared but its value is never read.
+src/modules/forms/pages/BuilderPage.tsx(204,9): error TS6133: 'removeField' is declared but its value is never read.
+src/modules/forms/pages/BuilderPage.tsx(348,18): error TS2559: Type 'Sensors' has no properties in common with type 'DragDropSensorConfig'.
+src/modules/forms/pages/BuilderPage.tsx(349,18): error TS2322: Type '(event: DragStartEvent) => void' is not assignable to type '(event: { active: DragItem; }) => void'.
+  Types of parameters 'event' and 'event' are incompatible.
+    Property 'activatorEvent' is missing in type '{ active: DragItem; }' but required in type 'Pick<DragEvent, "active" | "activatorEvent">'.
+src/modules/forms/pages/BuilderPage.tsx(351,18): error TS2322: Type '(event: DragOverEvent) => void' is not assignable to type '(event: { active: DragItem; over: DropZone | null; }) => void'.
+  Types of parameters 'event' and 'event' are incompatible.
+    Type '{ active: DragItem; over: DropZone | null; }' is missing the following properties from type 'DragOverEvent': activatorEvent, collisions, delta
+src/modules/forms/pages/BuilderPage.tsx(352,18): error TS2322: Type '(event: DragEndEvent) => void' is not assignable to type '(event: { active: DragItem; over: DropZone | null; }) => void'.
+  Types of parameters 'event' and 'event' are incompatible.
+    Type '{ active: DragItem; over: DropZone | null; }' is missing the following properties from type 'DragEndEvent': activatorEvent, collisions, delta
+src/modules/forms/routes.tsx(8,7): error TS6133: 'FormsListPage' is declared but its value is never read.
+src/modules/forms/utils/renderFieldCardItem.tsx(2,15): error TS2305: Module '"styled-system/jsx"' has no exported member 'Heading'.
+src/modules/forms/utils/renderFieldCardItem.tsx(2,31): error TS2305: Module '"styled-system/jsx"' has no exported member 'Text'.
+src/modules/forms/utils/renderFieldCardItem.tsx(5,33): error TS2307: Cannot find module './ColumnContainer' or its corresponding type declarations.
+src/modules/forms/utils/renderFieldCardItem.tsx(6,10): error TS2305: Module '"../lib/fieldTypes"' has no exported member 'fieldToDragItem'.
+src/modules/forms/utils/renderFieldCardItem.tsx(21,3): error TS6133: 'removeField' is declared but its value is never read.
+src/modules/forms/utils/renderFieldCardItem.tsx(23,11): error TS6133: 'item' is declared but its value is never read.
+src/modules/forms/utils/renderFieldCardItem.tsx(33,9): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Object literal may only specify known properties, and ''data-field-card'' does not exist in type 'Attributes & BoxProps'.
+src/modules/forms/utils/renderFieldCardItem.tsx(48,41): error TS2339: Property 'DraggableHandle' does not exist on type 'typeof import("D:/daniel/Documents/vibecoding/newlight.app/src/core/dragndrop/index")'.
+src/modules/forms/utils/renderFieldCardItem.tsx(61,21): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Object literal may only specify known properties, and ''data-column-child'' does not exist in type 'Attributes & BoxProps'.
+src/modules/people/settings/SortableStageColumns.tsx(50,5): error TS2353: Object literal may only specify known properties, and 'index' does not exist in type 'Arguments'.
+src/modules/people/settings/SortableStageColumns.tsx(121,17): error TS2345: Argument of type 'UniqueIdentifier' is not assignable to parameter of type 'SetStateAction<string | null>'.
+  Type 'number' is not assignable to type 'SetStateAction<string | null>'.
+src/modules/people/settings/SortableStageColumns.tsx(127,17): error TS2339: Property 'canceled' does not exist on type 'DragEndEvent'.
+src/modules/people/settings/SortableStageColumns.tsx(139,7): error TS2322: Type 'Sensors' is not assignable to type 'SensorDescriptor<any>[]'.
+  Type 'SensorConstructor<DragDropManager<any, any>> | SensorDescriptor<DragDropManager<any, any>>' is not assignable to type 'SensorDescriptor<any>'.
+    Type 'SensorConstructor<DragDropManager<any, any>>' is not assignable to type 'SensorDescriptor<any>'.

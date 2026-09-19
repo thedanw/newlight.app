@@ -2,6 +2,9 @@
 .agents/skills/boss
 .agents/planning/.referenceFiles/churchcrm
 
+.agents/skills/
+.agents/skill-archive/
+
 # Logs
 logs
 *.log

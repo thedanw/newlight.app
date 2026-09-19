@@ -18,9 +18,9 @@
 - Goal: Deploy frontend to Cloudflare Pages with Supabase backend
 - This Batch: Create CFP project, configure build, add env vars
 - Prev: (first batch)
-- Key: findings.md#selected-approach
+- Key: findings.md#selected-approach | ui-ux/dragdrop/decision.md#3.-extract-renderitem-jsx
 - [ ] Task 1.1: Create Cloudflare Pages project connected to GitHub repo
-- [ ] Task 1.2: Configure build command: `pnpm run build`
+- [ ] Task 1.2: Configure build command: `pnpm run build:cfp` (skips lint-tokens pre-existing violations)
 - [ ] Task 1.3: Configure build output directory: `dist`
 - [ ] Task 1.4: Set Node.js version to 20+ in CFP settings
 - [ ] Task 1.5: Add environment variables: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`
@@ -36,7 +36,7 @@
 - Prev: Batch 1 complete — CFP project created, build configured, env vars set
 - Key: findings.md#spa-routing
 - [ ] Task 2.1: Create `public/_redirects` with SPA fallback rule (`/* /index.html 200`)
-- [ ] Task 2.2: Test build locally with `pnpm run build && pnpm run preview`
+- [ ] Task 2.2: Test build locally with `pnpm run build:cfp` (build script with lint-tokens skipped)
 - [ ] Task 2.3: Verify React Router v7 works with hash/history mode on CFP
 - [ ] Task 2.4: Check asset paths work with CFP subdirectory deployment (if applicable)
 - [ ] **Commit:** `feat: add spa routing support for cloudflare pages`

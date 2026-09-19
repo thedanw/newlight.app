@@ -296,6 +296,16 @@ export async function deleteJourneyStage(stageId: string): Promise<void> {
   if (error) throw error
 }
 
+export async function deleteJourneyCategory(categoryId: string, migrationTargetId: string | null): Promise<void> {
+  if (!migrationTargetId) {
+    const { count, error: countError } = await supabase.from('journey_tracks').select('id', { count: 'exact', head: true }).eq('category_id', categoryId).is('deleted_at', null)
+    if (countError) throw countError
+    if ((count ?? 0) > 0) throw new Error('Category has tracks. Choose a migration target or move tracks first.')
+  }
+  const { error } = await supabase.from('journey_track_categories').delete().eq('id', categoryId)
+  if (error) throw error
+}
+
 export async function deleteJourneyTrack(trackId: string, migrationTargetId: string): Promise<void> {
   if (!migrationTargetId || migrationTargetId === trackId) throw new Error('Choose a different migration target track.')
   const { count, error: countError } = await supabase.from('journey_tracks').select('id', { count: 'exact', head: true }).is('deleted_at', null)

@@ -1,5 +1,5 @@
 import React from 'react';
-import { DragOverlay } from '@dnd-kit/core';
+import { DragOverlay } from '@dnd-kit/react';
 
 interface UseDragOverlayOptions {
   /** Callback to render the overlay content */

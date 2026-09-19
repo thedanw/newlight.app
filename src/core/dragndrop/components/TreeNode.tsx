@@ -1,7 +1,7 @@
 import { forwardRef, type ReactNode } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { Text } from '@/core/ui';
-import { useSortable } from '@dnd-kit/sortable';
+import { useSortable } from '@dnd-kit/react/sortable';
 import type { TreeNode as TreeNodeType } from '../types';
 
 /** Helpers passed to a custom `renderRow` so callers can build full grid rows
@@ -13,8 +13,6 @@ export interface TreeNodeRowHelpers {
   handleRef: (el: HTMLElement | null) => void;
   /** Whether this row is currently being dragged */
   isDragging: boolean;
-  /** Whether this row is the drag source */
-  isDragSource: boolean;
   /** Whether the node is expanded */
   isExpanded: boolean;
   /** Whether the node has children */
@@ -42,6 +40,8 @@ export interface TreeNodeProps<T = unknown> {
   index: number;
   /** Parent node ID (null for root) */
   parentId: string | null;
+  /** Sortable group identifier */
+  group?: string | number;
   /** Whether the node has children (shows expand/collapse toggle) */
   hasChildren?: boolean;
   /** Whether the node is expanded */
@@ -63,22 +63,23 @@ export interface TreeNodeProps<T = unknown> {
  * projection, reorder) — this row is purely presentational.
  */
 export const TreeNode = forwardRef<HTMLDivElement, TreeNodeProps>(
-  ({ node, depth, index, parentId, hasChildren = false, isExpanded, onToggle, renderNode, renderRow }, ref) => {
+  ({ node, depth, index, parentId, hasChildren = false, isExpanded, onToggle, renderNode, renderRow, group = 'sortable-tree' }, ref) => {
     const {
       isDragging,
       isDragSource,
-      attributes,
-      listeners,
-      setNodeRef,
-      setActivatorNodeRef,
+      isDropTarget,
+      handleRef,
+      ref: sortableRef,
     } = useSortable({
       id: node.id,
       index,
+      group,
+      type: 'node',
       data: { depth, parentId, label: node.label },
     });
 
     const combinedRef = (el: HTMLDivElement | null) => {
-      setNodeRef(el);
+      sortableRef(el);
       if (typeof ref === 'function') ref(el);
       else if (ref) ref.current = el;
     };
@@ -94,17 +95,16 @@ export const TreeNode = forwardRef<HTMLDivElement, TreeNodeProps>(
           ref={combinedRef}
           data-tree-node={node.id}
           data-depth={depth}
+          data-sortable-source={isDragSource ? 'true' : undefined}
+          data-sortable-target={isDropTarget ? 'true' : undefined}
           style={{
             opacity: isDragging ? 0.5 : 1,
             transition: 'opacity 150ms ease',
           }}
         >
           {renderRow(node, depth, {
-            handleRef: setActivatorNodeRef,
-            handleAttributes: attributes,
-            handleListeners: listeners,
+            handleRef,
             isDragging,
-            isDragSource,
             isExpanded,
             hasChildren,
             onToggle,
@@ -163,15 +163,13 @@ export const TreeNode = forwardRef<HTMLDivElement, TreeNodeProps>(
                 }}
               />
             </button>
-          ) : (
+) : (
             <div style={{ width: '32px', height: '32px', flexShrink: 0 }} />
           )}
 
           {/* Drag handle */}
           <button
-            {...attributes}
-            {...listeners}
-            ref={setActivatorNodeRef}
+            ref={handleRef}
             aria-label="Reorder item"
             type="button"
             data-testid="tree-handle"

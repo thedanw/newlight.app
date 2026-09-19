@@ -1,22 +1,16 @@
 import React from 'react';
-import { arrayMove } from '@dnd-kit/sortable';
+import { move } from '@dnd-kit/helpers';
 import { flattenTree, buildTree, getDescendants, getDragDepth, getProjection, type FlattenedTreeNode } from '../utils/tree';
-import { createDefaultSensors } from '../sensors';
+import { PointerSensor, KeyboardSensor, PointerActivationConstraints } from '@dnd-kit/dom';
 import type { TreeNode as TreeNodeType } from '../types';
-import type { DragStartEvent, DragMoveEvent, DragOverEvent, DragEndEvent } from '@dnd-kit/core';
+import type { DragStartEvent, DragMoveEvent, DragOverEvent, DragEndEvent, SensorDescriptor } from '@dnd-kit/abstract';
 
 /** Helpers passed to custom renderRow */
 export interface TreeNodeRowHelpers {
   /** Ref to attach to the drag handle element */
   handleRef: (el: HTMLElement | null) => void;
-  /** Attributes to spread on the drag handle element (required for drag to work) */
-  handleAttributes: React.HTMLAttributes<HTMLElement>;
-  /** Listeners to spread on the drag handle element (required for drag to work) */
-  handleListeners: Record<string, React.EventHandler<any>>;
   /** Whether this row is currently being dragged */
   isDragging: boolean;
-  /** Whether this row is the drag source */
-  isDragSource: boolean;
   /** Whether the node is expanded */
   isExpanded: boolean;
   /** Whether the node has children */
@@ -41,7 +35,7 @@ export interface UseSortableTreeOptions<TData = unknown> {
 }
 
 /**
- * Hook for sortable tree functionality using dnd-kit v8+ hooks directly.
+ * Hook for sortable tree functionality using dnd-kit Latest (@dnd-kit/react 0.5.0).
  * 
  * This replaces the old SortableTree wrapper component. Consumers should:
  * 1. Call this hook to get tree state and render helpers
@@ -130,12 +124,35 @@ export function useSortableTree<TData = unknown>({
     });
   }, [flattenedItems, expanded, itemById]);
 
-  // Sensors (use createDefaultSensors for v2/v8 compatibility)
-  const sensors = createDefaultSensors();
+  // Sensors (current PointerSensor + KeyboardSensor)
+  const sensors = React.useMemo<SensorDescriptor<any>[]>(() => [
+    PointerSensor.configure({
+      activationConstraints: (event, _source) => {
+        const pointerType = (event as PointerEvent).pointerType;
+        if (pointerType === 'mouse') {
+          return [new PointerActivationConstraints.Distance({ value: 5 })];
+        }
+        return [
+          new PointerActivationConstraints.Delay({ value: 250, tolerance: 5 }),
+        ];
+      },
+    }),
+    KeyboardSensor.configure({
+      keyboardCodes: {
+        start: ['Space', 'Enter'],
+        cancel: ['Escape'],
+        end: ['Space', 'Enter', 'Tab'],
+        up: ['ArrowUp'],
+        down: ['ArrowDown'],
+        left: ['ArrowLeft'],
+        right: ['ArrowRight'],
+      },
+    }),
+  ], []);
 
   // Drag lifecycle
   const handleDragStart = React.useCallback((event: DragStartEvent) => {
-    const { active } = event;
+    const active = event.operation.source;
     if (!active) return;
 
     const item = flattenedItems.find(({ id }) => id === active.id);
@@ -157,16 +174,19 @@ export function useSortableTree<TData = unknown>({
   }, [flattenedItems]);
 
   const handleDragMove = React.useCallback((event: DragMoveEvent) => {
-    const { active, over } = event;
+    const active = event.operation.source;
+    const over = event.operation.target;
     if (!active || !over) return;
 
-    const offsetLeft = event.delta.x;
+    // Use event.by for horizontal delta (current API exposes by on dragmove)
+    const offsetLeft = event.by?.x ?? 0;
     const dragDepth = getDragDepth(offsetLeft, indentation);
     const projectedDepth = initialDepth.current + dragDepth;
 
-    const { depth, parentId } = getProjection(flattenedItems, active.id, projectedDepth);
+    const { depth, parentId } = getProjection(flattenedItems, String(active.id), projectedDepth);
 
-    if (active.data?.depth !== depth || active.data?.parentId !== parentId) {
+    const activeItem = flattenedItems.find((i) => i.id === active.id);
+    if (activeItem && (activeItem.depth !== depth || activeItem.parentId !== parentId)) {
       setFlattenedItems((items) =>
         items.map((item) =>
           item.id === active.id ? { ...item, depth, parentId } : item
@@ -176,32 +196,22 @@ export function useSortableTree<TData = unknown>({
   }, [flattenedItems, indentation]);
 
   const handleDragOver = React.useCallback((event: DragOverEvent) => {
-    const { active, over } = event;
+    const active = event.operation.source;
+    const over = event.operation.target;
 
     if (active && over && active.id !== over.id) {
       setFlattenedItems((items) => {
-        const offsetLeft = event.delta.x;
-        const dragDepth = getDragDepth(offsetLeft, indentation);
-        const projectedDepth = initialDepth.current + dragDepth;
-
-        const { depth, parentId } = getProjection(items, over.id, projectedDepth);
-
-        if (parentId === active.id) {
-          return items;
-        }
-
-        const sourceIndex = items.findIndex((i) => i.id === active.id);
-        const targetIndex = items.findIndex((i) => i.id === over.id);
-        const sortedItems = arrayMove(items, sourceIndex, targetIndex);
-        return sortedItems.map((item) =>
-          item.id === active.id ? { ...item, depth, parentId } : item
-        );
+        // Use move() with the real event - it handles array reordering
+        const sortedItems = move(items, event);
+        return sortedItems;
       });
     }
-  }, [indentation]);
+  }, []);
 
   const handleDragEnd = React.useCallback((event: DragEndEvent) => {
-    if (event.canceled) {
+    // In current API, canceled is on event.canceled (top-level)
+    const canceled = event.canceled;
+    if (canceled) {
       return setFlattenedItems(flattenTree(tree));
     }
 

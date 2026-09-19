@@ -8,10 +8,10 @@ const { capturedHandlers } = vi.hoisted(() => ({
   capturedHandlers: {} as Record<string, (...args: any[]) => void>,
 }))
 
-// Mock @dnd-kit/core so DndContext renders children and captures handlers,
+// Mock @dnd-kit/react so DragDropProvider renders children and captures handlers,
 // and DragOverlay renders its render-prop output.
-vi.mock('@dnd-kit/core', () => ({
-  DndContext: ({ children, onDragStart, onDragEnd }: any) => {
+vi.mock('@dnd-kit/react', () => ({
+  DragDropProvider: ({ children, onDragStart, onDragEnd }: any) => {
     capturedHandlers.onDragStart = onDragStart
     capturedHandlers.onDragEnd = onDragEnd
     return <div data-testid="stage-dnd-provider">{children}</div>
@@ -23,25 +23,18 @@ vi.mock('@dnd-kit/core', () => ({
 }))
 
 // Mock useSortable (used by StageColumn internally)
-vi.mock('@dnd-kit/sortable', () => ({
+vi.mock('@dnd-kit/react/sortable', () => ({
   useSortable: vi.fn(() => ({
     sortable: {},
     isDragging: false,
     isDropping: false,
     isDragSource: false,
     isDropTarget: false,
-    attributes: {},
-    listeners: {},
-    setNodeRef: vi.fn(),
-    setActivatorNodeRef: vi.fn(),
     handleRef: vi.fn(),
     ref: vi.fn(),
     sourceRef: vi.fn(),
     targetRef: vi.fn(),
   })),
-  SortableContext: ({ children }: any) => <div data-testid="sortable-context">{children}</div>,
-  arrayMove: vi.fn((items: any[]) => [...items].reverse()),
-  horizontalListSortingStrategy: vi.fn(),
 }))
 
 // Mock sensors to avoid real sensor construction in JSDOM
@@ -100,15 +93,17 @@ describe('SortableStageColumns', () => {
     act(() => {
       capturedHandlers.onDragEnd({
         canceled: false,
-        active: { id: 's1', index: 0 },
-        over: { id: 's2', index: 1 },
+        operation: {
+          source: { id: 's1' },
+          target: { id: 's2' },
+        },
       })
     })
 
     expect(onReorder).toHaveBeenCalledTimes(1)
-    // move is mocked as reverse → stages flow through reversed with sort_order reassigned
+    // move() with the real event reorders the array
     const reordered = onReorder.mock.calls[0][0]
-    expect(reordered.map((s: JourneyStage) => s.id)).toEqual(['s3', 's2', 's1'])
+    expect(reordered.map((s: JourneyStage) => s.id)).toEqual(['s2', 's1', 's3'])
     expect(reordered.map((s: JourneyStage) => s.sort_order)).toEqual([0, 1, 2])
   })
 

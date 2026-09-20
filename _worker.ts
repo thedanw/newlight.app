@@ -1,6 +1,13 @@
 export default {
-  async fetch(request: Request, env: Record<string, string | undefined>, ctx: { next: () => Promise<Response> }): Promise<Response> {
-    const response = await ctx.next()
+  async fetch(request: Request, env: Record<string, string | undefined>, ctx: { next?: () => Promise<Response> }): Promise<Response> {
+    let response: Response
+    if (typeof ctx.next === 'function') {
+      response = await ctx.next()
+    } else if (env.ASSETS) {
+      response = await (env.ASSETS as { fetch: (req: Request) => Promise<Response> }).fetch(request)
+    } else {
+      response = new Response('Internal Error', { status: 500 })
+    }
 
     const contentType = response.headers.get('content-type')
     if (!contentType?.includes('text/html')) {
@@ -23,9 +30,10 @@ export default {
       ? html.replace('</head>', configScript + '</head>')
       : html
 
+    const newHeaders = new Headers(response.headers)
     return new Response(modifiedHtml, {
       status: response.status,
-      headers: response.headers,
+      headers: newHeaders,
     })
   },
 }

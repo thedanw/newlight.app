@@ -3,8 +3,9 @@ import { useRef, useState, useEffect, useCallback } from 'react'
 import { animate, motion, useMotionValue } from 'framer-motion'
 import { css } from 'styled-system/css'
 import { Avatar, NavTile, PullTab, PullTabDots, NavProvider, useNavContext } from '@/core/ui'
-import { ClipboardList, Users, UsersRound, Wrench, CalendarDays, Sun, Settings, Palette, LogIn } from 'lucide-react'
+import { ClipboardList, Users, Sun, Settings, Palette, LogIn } from 'lucide-react'
 import { useAuth } from '@/core/auth'
+import { isSettingsTileVisible } from '@/core/auth/lib/permissions'
 import { getAccountTileState } from '@/core/auth/lib/tile-state'
 
 /* ---------------------------------------------------------------------------
@@ -189,7 +190,7 @@ interface SidebarInnerProps {
 
 function SidebarInner({ onSettingsNavigate, onModuleNavigate, onAccountNavigate, logo }: SidebarInnerProps) {
   const { isOpen, open, close, toggle } = useNavContext()
-  const { user, initials, firstName } = useAuth()
+  const { user, initials, firstName, person, isProfileLoading } = useAuth()
   const sidebarRef = useRef<HTMLDivElement>(null)
   const [isDragging, setIsDragging] = useState(false)
   // True when a press has moved enough to count as a drag rather than a click
@@ -406,11 +407,15 @@ function SidebarInner({ onSettingsNavigate, onModuleNavigate, onAccountNavigate,
             />
           )}
 
-          <NavTile
-            icon={<Settings className={css({ width: '24px', height: '24px' })} />}
-            label="Settings"
-            onClick={handleSettingsClick}
-          />
+          {/* Settings tile: super-admin only (audit REQ-2). Fail closed —
+              hidden while the profile loads and for every other role. */}
+          {isSettingsTileVisible(person, isProfileLoading) && (
+            <NavTile
+              icon={<Settings className={css({ width: '24px', height: '24px' })} />}
+              label="Settings"
+              onClick={handleSettingsClick}
+            />
+          )}
         </nav>
       </motion.div>
 

@@ -2,7 +2,20 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "newlight-app",
   "compatibility_date": "2026-09-16",
+  "main": "_worker.ts",
   "observability": {
     "enabled": true
+  },
+  "vars": {
+    "VITE_SUPABASE_URL": "https://rupujdsalfekudambviu.supabase.co",
+    "VITE_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_Ns984EU3IjfrSWtw4wMx-Q_GT-yimIy",
+    "VITE_SUPABASE_JWKS_URL": "https://rupujdsalfekudambviu.supabase.co/auth/v1/.well-known/jwks.json"
+  },
+  "assets": {
+    "not_found_handling": "single-page-application",
+    "directory": "dist"
+  },
+  "build": {
+    "command": "pnpm run build:cfp"
   }
 }

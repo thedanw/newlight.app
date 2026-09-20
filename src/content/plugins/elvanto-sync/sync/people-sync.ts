@@ -125,11 +125,17 @@ async function getElvantoPeople(
   apiKey: string,
   page: number,
   pageSize: number,
-  dateModifiedSince?: string
+  dateModifiedSince?: string,
+  fields?: string[]
 ): Promise<ElvantoPeopleResponse> {
   const body: Record<string, any> = {
     page,
     page_size: pageSize,
+  }
+  
+  // Add fields parameter if specified - Elvanto API requires this to retrieve specific fields
+  if (fields && fields.length > 0) {
+    body.fields = fields
   }
   
   // Use people/search for date filtering (people/getAll doesn't support date_modified filter)
@@ -186,8 +192,13 @@ export async function syncPeople(
     let lastDateModified: string | null = null
     
     while (hasMore) {
-      // Fetch page from Elvanto
-      const response = await getElvantoPeople(apiKey, page, pageSize, dateFilter || undefined)
+      // Fetch page from Elvanto - request fields needed for demographics mapping
+      const response = await getElvantoPeople(apiKey, page, pageSize, dateFilter || undefined, [
+        'gender',
+        'birthday',
+        'locations',
+        'custom_77493627-aaba-426e-48dc-b0b0d8d24c99', // demographics field UUID from Elvanto API
+      ])
       const people = response.people.person
       
       if (!people.length) {

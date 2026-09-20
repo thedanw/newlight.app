@@ -24,9 +24,6 @@ import { getAccountTileState } from '@/core/auth/lib/tile-state'
 const MODULES = [
   { id: 'people', label: 'People', icon: Users },
   { id: 'forms', label: 'Forms', icon: ClipboardList },
-  { id: 'groups', label: 'Groups', icon: UsersRound },
-  { id: 'services', label: 'Services', icon: Wrench },
-  { id: 'calendar', label: 'Calendar', icon: CalendarDays },
   { id: 'example', label: 'Example', icon: Palette },
 ] as const
 

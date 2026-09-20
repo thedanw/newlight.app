@@ -8,7 +8,7 @@ import { supabase } from './core/lib/supabase'
 import App from './App'
 
 const APP_SETTINGS_KEY = 'app-settings'
-const APP_SETTINGS_ENV = import.meta.env.MODE ?? 'development'
+const APP_SETTINGS_ENV = import.meta.env.VITE_APP_ENV ?? 'production'
 
 async function boot() {
   let themeState = {

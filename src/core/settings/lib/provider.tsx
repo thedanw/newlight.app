@@ -38,7 +38,7 @@ export type AppSettings = {
 }
 
 const APP_SETTINGS_KEY = 'app-settings'
-const APP_SETTINGS_ENV = import.meta.env.MODE ?? 'development'
+const APP_SETTINGS_ENV = import.meta.env.VITE_APP_ENV ?? 'production'
 
 /**
  * SettingsProvider — React context exposing Supabase client + session

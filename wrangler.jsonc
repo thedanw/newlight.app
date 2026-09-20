@@ -9,7 +9,8 @@
   "vars": {
     "VITE_SUPABASE_URL": "https://rupujdsalfekudambviu.supabase.co",
     "VITE_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_Ns984EU3IjfrSWtw4wMx-Q_GT-yimIy",
-    "VITE_SUPABASE_JWKS_URL": "https://rupujdsalfekudambviu.supabase.co/auth/v1/.well-known/jwks.json"
+    "VITE_SUPABASE_JWKS_URL": "https://rupujdsalfekudambviu.supabase.co/auth/v1/.well-known/jwks.json",
+    "VITE_APP_ENV": "production"
   },
   "assets": {
     "not_found_handling": "single-page-application",

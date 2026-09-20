@@ -25,6 +25,41 @@ export type EmailConsentCategory = 'broadcasts' | 'team_updates'
 export type EmailAudienceType = 'saved_list' | 'explicit' | 'preset'
 export type EmailEditorJson = Json
 
+export type EmailSmtpConfig = {
+  host: string
+  port: number
+  username: string
+  password: string
+  secure: boolean
+}
+
+export type EmailResendConfig = {
+  apiKey: string
+  fromEmail: string
+}
+
+export type EmailDefaults = {
+  fromEmail: string
+  fromName: string
+  replyToEmail: string
+  replyToName: string
+}
+
+export type EmailBranding = {
+  logoUrl: string | null
+  primaryColor: string
+  footerText: string
+  includeUnsubscribeFooter: boolean
+}
+
+export type EmailSettings = {
+  transport: EmailTransport
+  smtp: EmailSmtpConfig
+  resend: EmailResendConfig
+  defaults: EmailDefaults
+  branding: EmailBranding
+}
+
 export type EmailTemplate = {
   id: string
   name: string

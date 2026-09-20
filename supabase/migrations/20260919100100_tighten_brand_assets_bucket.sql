@@ -1,22 +1,13 @@
 -- Migration: Tighten brand-assets bucket permissions
--- Batch 2: anon SELECT (read) stays; anon INSERT/UPDATE/DELETE revoked;
--- uploads require authenticated.
+-- Batch 2 (audit 0.2 / C4): anon keeps public READ (the login screen and boot
+-- theme read the logo anonymously); anon writes are removed. Uploads remain
+-- authenticated-only via the "Authenticated * brand assets" policies.
+-- Idempotent: drop-if-exists by the actual policy names (see
+-- 20260829000000_create_brand_assets_bucket.sql and the drifted live state).
 
--- Revoke all anon write/insert/delete operations on brand-assets bucket
--- Note: This affects the storage bucket, not the table.
--- The storage policy is enforced at the storage API level.
+drop policy if exists "Anon write brand assets" on storage.objects;
+drop policy if exists "Anon update brand assets" on storage.objects;
+drop policy if exists "Anon delete brand assets" on storage.objects;
 
--- Drop existing anon write policies on brand-assets
-DROP POLICY IF EXISTS "anon_insert_brand_assets" ON storage.objects;
-DROP POLICY IF EXISTS "anon_update_brand_assets" ON storage.objects
-adata
-�ating� The reasonaderrorake��ng�������
-DROP POLICY IF EXISTS "anon_delete_brand_assets" ON storage.objects;
-
--- Recreate anon policy: SELECT (read) only, no write access
-CREATE POLICY "anon_select_brand_assets" ON storage.objects
-FOR SELECT TO anon
-USING (bucket_id = 'brand-assets');
-
--- Anon can no longer INSERT, UPDATE, or DELETE objects in brand-assets
--- Uploads require authenticated role (handled by separate authenticated policy)
+-- "Public read brand assets" (SELECT, TO public) is kept on purpose: it is
+-- what serves the pre-auth logo/favicon.

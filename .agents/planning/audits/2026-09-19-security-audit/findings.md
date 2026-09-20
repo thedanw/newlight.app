@@ -47,6 +47,14 @@ Source of truth: `../../2026-09-19-security-audit.md` (§2 findings table, §3 d
 
 - (fill after batch 0: probe → code → count, `verify_jwt` values per function)
 
+## Execution facts (2026-09-20)
+
+- **Account ↔ profile linkage** (the "role: authenticated" symptom): the AccountPage Role field fell back to the JWT claim `user.role` (`authenticated`) whenever no `people` row was linked. Fixed: field shows `person.access_permission`, warns when unlinked. Live data fix applied: people `0f120a77-b02e-4b15-ae6e-1afe0a4f7119` ↔ auth user `8909603f-9847-43b1-b0f4-68d54a256172` (daniel@newlight.au), `access_permission = 'super_admin'`. Any future login must get the same link (set `people.auth_user_id`); the account page now tells the user when it's missing.
+- **Pre-auth read key is `app-settings`** (`src/main.tsx` boot theme + `SettingsProvider` logo), not the audit's `brand.logo_url`/`favicon_url` sketch — the anon policy uses `key = 'app-settings'`.
+- **Live RLS state after batch 6** (project `rupujdsalfekudambviu`): anon SELECT across the whole settings/PII family = `platform_settings` only (narrow `app-settings` row); `elvanto_settings` = super-admin-only policy alone; `plugins` = super-admin-only; `user_roles` anon revoked; `is_super_admin()` live; anon smoke GREEN 0/11.
+- **Deferred**: `20260919110000` (email scoping) awaits `20260913000000_create_email_system.sql` being applied live (its base tables don't exist there yet).
+- **Pre-existing breakage**: `pnpm lint` needs an ESLint 10 flat config (repo-wide failure); `pnpm typecheck` red on `main` (~30 errors, dragndrop/forms/plugin files); EmailComposer test flaky under full-suite load only.
+
 ## Open risks
 
 - Production DB runs unversioned policies (`20260907000001` header says prod was set up manually) — every fix migration must be idempotent against **both** the migration-chain state and the drifted prod state (drop-then-create, `if exists` everywhere).

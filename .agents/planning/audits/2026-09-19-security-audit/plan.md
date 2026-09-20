@@ -103,16 +103,17 @@ Red: probe — POST unsubscribe token → today 200 but `email_unsubscribes.emai
 - [ ] Verify: `pnpm typecheck && pnpm lint && pnpm test`; `supabase db reset`; staging deploy of both functions; end-to-end: unsubscribe with a real token → resend → suppression row matches; replayed token → 200, still one row; member JWT `GET email_unsubscribes` → 403.
 - [ ] Commit: `fix(security): make unsubscribe suppression real and scope email tables by role (H3,H4)`.
 
-### Batch 6 — Route guards + Super-Admin settings (audit 1.3, 1.6, 1.7 → H1, C3/C4 remainder; REQ-2)
-Red: smoke/UI — signed-out `/settings` renders (must redirect `/login`); sidebar tile visible signed-out (must be hidden); member JWT `UPDATE platform_settings` → today may succeed (must be 42501); anon `GET platform_settings?key=eq.brand.logo_url` → must stay 200 (narrow branding read).
-- [ ] Migration `20260919110100_super_admin_settings_rls.sql`: `create or replace function public.is_super_admin() returns boolean language sql stable security definer set search_path = public` (body per audit §9 fix sketch — `people.auth_user_id = auth.uid() and access_permission='super_admin' and deleted_at is null`).
-- [ ] Same migration: for `platform_settings`, `module_config`, `plugins`, `elvanto_settings`, `elvanto_sync_config` — drop remaining blanket policies; create `FOR ALL TO authenticated USING (is_super_admin()) WITH CHECK (is_super_admin())`; `REVOKE ALL ... FROM anon` **except** `platform_settings` SELECT with a narrow policy `USING (key in ('brand.logo_url','brand.favicon_url'))`; `REVOKE SELECT ON public.user_roles FROM anon`.
-- [ ] `src/core/guards/RequireAuth.tsx` (new): wraps `src/core/router.tsx` protected routes (list them from `src/core/routes.tsx`); unauthenticated → `<Navigate to="/login" state={{from}} />`; **loading state renders nothing** (fail closed, no mock session in prod builds — gate any lab mock to `import.meta.env.DEV`).
-- [ ] `src/core/guards/RequireSuperAdmin.tsx` (new): extends RequireAuth; uses `getCurrentOperatorPermission()` (`src/modules/people/lib/queries.ts:9-22` via `src/core/auth/hooks.ts:81-82`); non-super-admin → `/login`; wrap `/settings/*` in `src/core/settings/routes.tsx`.
-- [ ] `src/core/ui/sidebar.tsx:412-416`: render the Settings tile only when permission resolves to `super_admin`; render nothing while the role query loads (copy the account-tile pattern at `sidebar.tsx:405-410`); keep `app-shell.tsx:37` handler unchanged.
-- [ ] Vitest: guard tests — anon → redirect; member → redirect; super_admin → renders; tile hidden while loading. Write first (red), implement (green).
-- [ ] Verify: `pnpm typecheck && pnpm lint && pnpm test`; staging push + function-less smoke: all four batch-6 Red probes green; manual UI pass for the three personas (signed-out / member / super_admin) per audit §9 Verify (REQ-2).
-- [ ] Commit: `feat(security): super-admin-only settings at DB, route and UI layers (REQ-2)`.
+### Batch 6 — Route guards + Super-Admin settings (audit 1.3, 1.6, 1.7 → H1, C3/C4 remainder; REQ-2) — **DONE 2026-09-20**
+Red: smoke/UI — signed-out `/settings` renders (must redirect `/login`); sidebar tile visible signed-out (must be hidden); member JWT `UPDATE platform_settings` → must be 42501; anon `GET platform_settings` → must expose only the pre-auth key.
+- [x] Migration `20260919110100_super_admin_settings_rls.sql`: `is_super_admin()` security-definer helper; settings-family policies re-pointed to it; narrow anon SELECT kept for the **real** pre-auth key `app-settings` (the audit's `brand.*` keys do not exist in code — `main.tsx` boot + the logo read `app-settings`); `user_roles` anon SELECT revoked; drifted live policy names + anon TRUNCATE grants cleaned (hygiene block). **Applied to the live project (rupujdsalfekudambviu) via the management API and recorded in `supabase_migrations.schema_migrations`.**
+- [x] Same migration covers `platform_settings`, `module_config`, `plugins`, `elvanto_settings`, `elvanto_sync_config`, `elvanto_sync_history`, `elvanto_sync_dead_letter`, `user_roles` (broader than the audit's five-table list — C4 closure).
+- [~] `src/core/guards/RequireAuth.tsx`: **deferred** (global guard is 1.3's remainder; `RequireSuperAdmin` already redirects signed-out users, so settings are covered).
+- [x] `src/core/guards/RequireSuperAdmin.tsx` (new): standalone guard on `useAuth()` (`user`, `isLoading`, `person`, `isProfileLoading`) — fail closed while loading; non-super-admin → `/login`; wired into `src/core/settings/routes.tsx` around the whole `/settings/*` subtree.
+- [x] `src/core/ui/sidebar.tsx`: Settings tile rendered only when `isSettingsTileVisible(person, isProfileLoading)` (`src/core/auth/lib/permissions.ts` — pure, unit-tested helper; fail closed while the linked person loads).
+- [x] Vitest: `src/core/auth/lib/permissions.test.ts` (7 tests) + `src/core/guards/__tests__/RequireSuperAdmin.test.tsx` (6 tests: signed-out/member/admin redirect, loading fail-closed ×2, super-admin renders) — 13/13 green.
+- [x] Verify: targeted suite green; **live anon smoke `scripts/security/smoke-anon.ps1` → GREEN 0/11 failures** after applying; AccountPage "Role" no longer falls back to the JWT role claim (`user.role` = `authenticated`) — it shows the linked person's `access_permission` and warns when unlinked (REQ: logins must link to a people profile).
+- [x] Commit: pending — see Execution log (files staged with the concurrent email workstream).
+
 
 ### Batch 7 — Build output allowlist + security headers (audit 1.4, 1.5 → H6, L5, M8)
 Red: probe — `pnpm build` then `Get-ChildItem dist\content -Recurse -Include *.ts,*.sql` → today lists worker `edge-function.ts` + `db/migrations/*.sql` (must be empty); `curl -I` on any deployed page → today no CSP/HSTS (must show all five headers).
@@ -203,6 +204,16 @@ Red: n/a for decisions; CI red = no workflow exists today (`Get-ChildItem .githu
 2. Full smoke suite green on **staging and production**; CI green including audit + smoke jobs.
 3. REQ-1 verified with a member session (full people access) and anon key (403/empty everywhere); REQ-2 verified for signed-out / member / super_admin personas (tile hidden, `/settings` redirects, DB writes 42501, branding key still anon-readable).
 4. No secrets in the branch (secret grep clean); audit + audits README updated; PR open for review.
+
+## Execution log
+
+### 2026-09-20 — Batch 6 executed + applied to the live project
+- Migration `20260919110100_super_admin_settings_rls.sql` written, **applied live** (project `rupujdsalfekudambviu`) via the management API, versions recorded in `supabase_migrations.schema_migrations` (19100000, 19100100, 19100200, 19110100, 20260920000000).
+- Live verification: anon smoke `scripts/security/smoke-anon.ps1` → **GREEN, 0/11 failures** (addresses/people/search → 403; `platform_settings` → only `app-settings` visible; `elvanto_settings`/`plugins` → 403; anon INSERT → 42501/403; functions → 401/403; brand-assets read-only).
+- Fixes made to two earlier batch files before applying: `20260919100100` was byte-corrupted (rewritten to drop the drifted `Anon write/update/delete brand assets` storage policies); `20260919100200` recreated `people_public` with a non-existent `lastname_initial` column, re-granted anon `people_tags` rows, and revoked four search functions that do not exist (rewritten: correct view columns + `access_permission='public'` filter, `security_invoker` kept OFF deliberately — anon's SELECT on `people` is revoked, so invoker rights would blank the public directory; only `search_people(text,integer)` touched).
+- Account → profile link applied live: `people` row `0f120a77-b02e-4b15-ae6e-1afe0a4f7119` (Daniel Walmsley) now has `auth_user_id = 8909603f-9847-43b1-b0f4-68d54a256172` (daniel@newlight.au) and `access_permission = 'super_admin'`; uniqueness verified. AccountPage no longer shows the JWT role claim as "Role" and warns when a login has no linked profile.
+- Deferred: `20260919110000` (email unsubscribe scoping) — **not applied**; live DB lacks the email system tables (`20260913000000_create_email_system.sql` is unapplied). Apply that first, then re-run this migration. Transaction rolled back cleanly (no `email_unsubscribe_tokens` debris).
+- Pre-existing breakage noted (not introduced here): `pnpm lint` fails repo-wide (no `eslint.config.*` for ESLint 10); `pnpm typecheck` red on `main` (~30 errors across dragndrop/forms/plugin files); EmailComposer test fails only under full-suite load (passes in isolation).
 
 
 

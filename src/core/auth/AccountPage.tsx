@@ -90,8 +90,14 @@ export default function AccountPage() {
                 </Field.Root>
                 <Field.Root>
                   <Field.Label>Role</Field.Label>
-                  <Input value={person?.access_permission ?? user?.role ?? '—'} readOnly />
+                  <Input value={person?.access_permission ?? '—'} readOnly />
                 </Field.Root>
+                {!person && (
+                  <Text color="error">
+                    This login is not linked to a people profile. A super admin must set
+                    people.auth_user_id to this account user id before it can be given a role.
+                  </Text>
+                )}
               </Stack>
             </Card.Body>
           </Card.Root>

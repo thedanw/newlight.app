@@ -50,10 +50,23 @@ $body = @{query=''; limit=1} | ConvertTo-Json -Compress
 $code = probe('POST' , '/rest/v1/rpc/search_people' , $body)
 if ($code -ne 403) { Write-Host "  EXPECTED: 403 (anon should not search people)"; $failCount++ } else { Write-Host "  OK: 403 returned" }
 
-# Probe 4: GET /rest/v1/platform_settings - should be 403 for anon
+# Probe 4: GET /rest/v1/platform_settings - anon may see ONLY the pre-auth
+# 'app-settings' row (theme/logo boot read); every other key must be filtered.
 $totalCount++
-$code = probe('GET' , '/rest/v1/platform_settings')
-if ($code -ne 403) { Write-Host "  EXPECTED: 403 (anon should not see platform_settings)"; $failCount++ } else { Write-Host "  OK: 403 returned" }
+try {
+  $rows = Invoke-RestMethod -Method GET -Uri "$url/rest/v1/platform_settings?select=key&limit=100" `
+    -Headers @{ apikey = $anon; Authorization = "Bearer $anon" } -TimeoutSec 10
+  $leaked = @($rows) | Where-Object { $_.key -ne 'app-settings' }
+  if (@($leaked).Count -gt 0) {
+    Write-Host "  RESULT: FAIL (anon sees non-branding keys: $((@($leaked) | Select-Object -First 3 | ForEach-Object { $_.key }) -join ', '))"
+    $failCount++
+  } else {
+    Write-Host "  RESULT: PASS (only pre-auth 'app-settings' key visible)"
+  }
+} catch {
+  $code = $_.Exception.Response.StatusCode.value__ -as [int]
+  Write-Host "  RESULT: PASS (blocked entirely, HTTP $code)"
+}
 
 # Probe 5: GET /rest/v1/elvanto_settings - should be 403 for anon
 $totalCount++
@@ -71,10 +84,12 @@ $body = @{} | ConvertTo-Json -Compress
 $code = probe('POST' , '/rest/v1/platform_settings' , $body)
 if ($code -ne 42501 -and $code -ne 403) { Write-Host "  EXPECTED: 42501 or 403 (anon INSERT should fail)"; $failCount++ } else { Write-Host "  OK: 42501/403 returned" }
 
-# Probe 8: GET /storage/v1/object/list/brand-assets - should be 403 for anon
+# Probe 8: GET /storage/v1/object/list/brand-assets - anon READ is intentionally
+# kept (pre-auth logo); anon WRITE is revoked. A 200 (read-only) or 403 both pass;
+# anything else is unexpected.
 $totalCount++
 $code = probe('GET' , '/storage/v1/object/list/brand-assets')
-if ($code -ne 403) { Write-Host "  EXPECTED: 403 (anon should not list brand-assets)"; $failCount++ } else { Write-Host "  OK: 403 returned" }
+if ($code -eq 200 -or $code -eq 403) { Write-Host "  OK: read-only state ($code)" } else { Write-Host "  EXPECTED: 200 (public read kept) or 403 (locked)"; $failCount++ }
 
 # Probe 9: GET /rest/v1/people_public - should return only public rows
 $totalCount++

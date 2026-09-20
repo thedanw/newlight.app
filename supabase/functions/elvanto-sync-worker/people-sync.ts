@@ -40,7 +40,8 @@ async function getAllPeople(apiKey, dateFilter) {
   for(;;){
     const body = {
       page,
-      page_size: DEFAULT_PAGE_SIZE
+      page_size: DEFAULT_PAGE_SIZE,
+      fields: ['gender', 'birthday', 'locations', 'custom_77493627-aaba-426e-48dc-b0b0d8d24c99'] // demographics field UUID from Elvanto API
     };
     if (dateFilter) body.date_modified = dateFilter;
     const data = await elvantoRequest(apiKey, 'people/getAll', body);

@@ -126,6 +126,18 @@ class PluginManager {
     console.log(`[PluginManager] Disabled plugin: ${pluginName}`)
   }
 
+  /**
+   * Unload every plugin (e.g. on sign-out): clears all hook registrations and
+   * loaded state, and resets the load promise so the next signed-in load is a
+   * fresh query.
+   */
+  unloadAll(): void {
+    clearPluginRegistrations()
+    this.loadedPlugins = []
+    this.loadPromise = null
+    this.notify()
+  }
+
   private async getEnabledPluginStates(): Promise<Record<string, boolean>> {
     if (!this.supabase) return {}
     try {

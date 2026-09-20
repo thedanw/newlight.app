@@ -55,6 +55,8 @@ Source of truth: `../../2026-09-19-security-audit.md` (§2 findings table, §3 d
 - **Deferred**: `20260919110000` (email scoping) awaits `20260913000000_create_email_system.sql` being applied live (its base tables don't exist there yet).
 - **Pre-existing breakage**: `pnpm lint` needs an ESLint 10 flat config (repo-wide failure); `pnpm typecheck` red on `main` (~30 errors, dragndrop/forms/plugin files); EmailComposer test flaky under full-suite load only.
 
+- **Plugin loading after the lockout (fixed 2026-09-20, this session):** `PluginLoader` previously ran `loadAll()` once at boot — before the RLS change anon could read `plugins`, but afterwards the boot query fails for a signed-out visitor and **no retry happened after sign-in**, leaving super admins without the Integrations section (incl. Elvanto Sync settings) until a hard reload. `PluginLoader` is now session-aware: loads on session arrival, `pluginManager.unloadAll()` on sign-out; 6 new Vitest tests. Combined with the live `plugins` row `elvanto-sync (enabled=true)` and `is_super_admin() = true` for daniel@newlight.au (JWT-claims simulation), super admins reach the Elvanto Sync settings; plain members correctly get nothing.
+
 ## Open risks
 
 - Production DB runs unversioned policies (`20260907000001` header says prod was set up manually) — every fix migration must be idempotent against **both** the migration-chain state and the drifted prod state (drop-then-create, `if exists` everywhere).

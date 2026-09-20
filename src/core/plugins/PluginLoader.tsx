@@ -1,18 +1,20 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { PluginProvider } from './PluginAPI'
 import { pluginManager } from './pluginManager'
+import { useAuth } from '@/core/auth'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/core/lib/database.types'
 
 type TypedSupabaseClient = SupabaseClient<Database>
 
 /**
- * PluginLoader — initialises the plugin system at app startup.
+ * PluginLoader — initialises the plugin system once the user is signed in.
  *
- * It delegates all loading/registration to the module-level `pluginManager`
- * singleton and subscribes to it so that dynamically enabling/disabling a
- * plugin (from the Plugins settings UI) re-renders the `PluginProvider`
- * wrappers WITHOUT a full page reload.
+ * Plugin enable-state lives in the `plugins` table, which is super-admin-only
+ * under RLS (audit REQ-2 / remediation 1.6). The loader therefore (re)loads
+ * plugins whenever a session becomes available — not just once at boot, which
+ * would run the `plugins` query while still anonymous and silently load
+ * nothing — and unloads everything on sign-out.
  */
 export function PluginLoader({
   children,
@@ -21,22 +23,27 @@ export function PluginLoader({
   children: ReactNode
   supabase: TypedSupabaseClient
 }) {
+  const { session, isLoading } = useAuth()
   const [loadedPlugins, setLoadedPlugins] = useState(() => pluginManager.getPlugins())
 
+  // Initialise once; stay subscribed so enable/disable from the settings UI
+  // re-renders without a full page reload.
   useEffect(() => {
-    // Initialise the manager with the app's Supabase client
     pluginManager.init(supabase)
-
-    // Subscribe to dynamic enable/disable changes
-    const unsubscribe = pluginManager.subscribe(() => {
+    return pluginManager.subscribe(() => {
       setLoadedPlugins(pluginManager.getPlugins())
     })
-
-    // Load all enabled plugins at startup
-    void pluginManager.loadAll()
-
-    return unsubscribe
   }, [supabase])
+
+  // (Re)load when the signed-in user changes; unload when signed out.
+  useEffect(() => {
+    if (isLoading) return
+    if (session) {
+      void pluginManager.loadAll()
+    } else {
+      pluginManager.unloadAll()
+    }
+  }, [session, isLoading])
 
   // Provide API context to all loaded plugins.
   // Each plugin gets its own Provider with its specific context.

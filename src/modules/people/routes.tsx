@@ -15,6 +15,7 @@ const PersonProfilePage = lazy(() => import('./pages/PersonProfile/Page'))
 const HouseholdPage = lazy(() => import('./pages/Household/Page'))
 const JourneyGridPage = lazy(() => import('./pages/JourneyGrid/Page'))
 const TagsPage = lazy(() => import('./pages/Tags/Page'))
+const EmailPage = lazy(() => import('./pages/Email/Page'))
 
 function PeopleLayout() {
   return (
@@ -35,7 +36,8 @@ export const peopleRoutes: RouteObject[] = [
       { path: ':id', element: <EditPersonPage /> },
       { path: ':id/view', element: <PersonProfilePage /> },
       { path: 'journey', element: <JourneyGridPage /> },
-      { path: 'tags', element: <TagsPage /> },
+       { path: 'tags', element: <TagsPage /> },
+       { path: 'email', element: <EmailPage /> },
       // Legacy forms routes — redirect to the standalone forms module.
       { path: 'forms', element: <Navigate to="/forms" replace /> },
       { path: 'forms/*', element: <Navigate to="/forms" replace /> },

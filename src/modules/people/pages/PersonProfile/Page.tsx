@@ -2,8 +2,8 @@ import { useNavigate, useParams } from 'react-router-dom'
 import type { CSSProperties } from 'react'
 import { Breadcrumb, Page, Text, Button } from '@/core/ui'
 import { Stack, HStack } from 'styled-system/jsx'
-import { Users } from 'lucide-react'
-import { usePerson, usePublicPerson } from '../../lib/hooks'
+import { Mail, Users } from 'lucide-react'
+import { usePerson, usePublicPerson, useCurrentOperatorPermission } from '../../lib/hooks'
 import { useProfilePermissions } from '../../lib/profile-permissions'
 import { useAuth } from '@/core/auth'
 import { PersonHeader } from './Header'
@@ -30,6 +30,8 @@ export default function PersonProfilePage() {
   const isPublic = !user
   const { data: person, loading, error } = isPublic ? usePublicPerson(id) : usePerson(id)
   const permissions = useProfilePermissions(isPublic ? null : (person as Person | null))
+  const operatorPermission = useCurrentOperatorPermission()
+  const canEmail = !isPublic && ['team_leaders', 'admin', 'super_admin'].includes(operatorPermission.data ?? '')
 
   if (loading || permissions.loading) return (
     <Page.Main>
@@ -59,8 +61,15 @@ export default function PersonProfilePage() {
 
   return (
     <Page.Main>
-      <Page.Header style={{ '--module-number': 1 } as CSSProperties}>
-        <Page.Heading level={1} icon={Users} title={`${capitalize(profileType)} Profile`} />
+       <Page.Header style={{ '--module-number': 1 } as CSSProperties}>
+        <Page.Heading level={1} icon={Users} title={`${capitalize(profileType)} Profile`}>
+          {canEmail && (
+            <Button variant="surface" size="sm" onClick={() => navigate(`/people/email`)}>
+              <Mail />
+              Email
+            </Button>
+          )}
+        </Page.Heading>
       </Page.Header>
 
       <Page.Body>

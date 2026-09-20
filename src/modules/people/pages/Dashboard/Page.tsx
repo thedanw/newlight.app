@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState, type CSSProperties } from 'react'
-import { ChevronLeft, ChevronRight, Plus, SlidersHorizontal, Users } from 'lucide-react'
+import { ChevronLeft, ChevronRight, MailIcon, Plus, SlidersHorizontal, Users } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { Button, Dialog, Input, Page, Pagination, SearchInput, Text } from '@/core/ui'
 import { HStack, Stack } from 'styled-system/jsx'
@@ -29,6 +29,7 @@ export default function PeopleDashboardPage() {
   const listQuery = usePeopleList(filters, isPublic)
   const operatorPermission = useCurrentOperatorPermission()
   const canCreatePerson = operatorPermission.data === 'admin' || operatorPermission.data === 'super_admin' || operatorPermission.data === 'team_leaders'
+  const canEmailPeople = operatorPermission.data === 'admin' || operatorPermission.data === 'super_admin'
 
   const handleFiltersChange = useCallback((nextFilters: PeopleListOptions) => {
     setFilters({ ...nextFilters, limit: PAGE_SIZE, offset: 0 })
@@ -94,7 +95,16 @@ export default function PeopleDashboardPage() {
             </Dialog.Root>
           </HStack>
         </Stack>
-      </Page.HeaderBottom>
+       </Page.HeaderBottom>
+
+      {canEmailPeople && visiblePeople.length > 0 && (
+        <HStack justifyContent="flex-end" paddingX="4" paddingBottom="2">
+          <Button variant="surface" onClick={() => navigate('/people/email')}>
+            <MailIcon />
+            Email People
+          </Button>
+        </HStack>
+      )}
 
       <Page.Body>
         <Dialog.Root>

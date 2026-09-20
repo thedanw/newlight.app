@@ -1,5 +1,4 @@
 import { rmSync } from 'node:fs'
 
-for (const p of ['public/_redirects', 'dist/_redirects']) {
-  rmSync(p, { force: true })
-}
+// Only clean cached redirect files from dist, preserve source _redirects
+rmSync('dist/_redirects', { force: true })

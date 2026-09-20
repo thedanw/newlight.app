@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Button, Field, Input, Text } from '@/core/ui'
+import { CheckIcon, XIcon } from 'lucide-react'
+import { Button, Field, IconButton, Input, Text } from '@/core/ui'
 import { EmailEditor } from './EmailEditor'
 import { AudiencePicker } from './AudiencePicker'
 import { resolveAudience, filterByConsent } from '../lib/audience'
@@ -23,8 +24,18 @@ export function EmailComposer({ initialSubject = '', initialBody = '', onSent }:
   const [peopleIds, setPeopleIds] = useState<string[]>([])
   const [recipients, setRecipients] = useState<EmailRecipient[]>([])
   const [sending, setSending] = useState(false)
+  const [resolving, setResolving] = useState(false)
+  const [audienceOpen, setAudienceOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [sent, setSent] = useState(false)
+
+  const recipientsSummary =
+    recipients.length > 0
+      ? `${recipients.length} recipient${recipients.length === 1 ? '' : 's'} — ${recipients
+          .slice(0, 3)
+          .map((r) => r.name || r.email)
+          .join(', ')}${recipients.length > 3 ? ` +${recipients.length - 3} more` : ''}`
+      : ''
 
   useState(() => {
     getSenderAliases()
@@ -35,16 +46,17 @@ export function EmailComposer({ initialSubject = '', initialBody = '', onSent }:
       .catch(() => {})
   })
 
-  const handleResolveAudience = async () => {
+  const handleResolveAudience = async (): Promise<boolean> => {
     if (audienceType === 'explicit' && peopleIds.length === 0) {
       setError('No people selected')
-      return
+      return false
     }
     if ((audienceType === 'saved_list' || audienceType === 'preset') && !audienceRef) {
       setError('No audience selected')
-      return
+      return false
     }
 
+    setResolving(true)
     try {
       const resolved = await resolveAudience({
         type: audienceType,
@@ -54,8 +66,13 @@ export function EmailComposer({ initialSubject = '', initialBody = '', onSent }:
       const filtered = await filterByConsent(resolved, consentCategory)
       setRecipients(filtered)
       setError(null)
+      setAudienceOpen(false)
+      return true
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err))
+      return false
+    } finally {
+      setResolving(false)
     }
   }
 
@@ -99,7 +116,84 @@ export function EmailComposer({ initialSubject = '', initialBody = '', onSent }:
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-      <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+      <Field.Root>
+        <Field.Label>Recipients</Field.Label>
+        {!audienceOpen ? (
+          <Input
+            readOnly
+            value={recipientsSummary}
+            placeholder="Select recipients..."
+            onClick={() => {
+              if (sending || sent) return
+              setAudienceOpen(true)
+            }}
+            onFocus={() => {
+              if (sending || sent) return
+              setAudienceOpen(true)
+            }}
+            disabled={sending || sent}
+            style={{ cursor: sending || sent ? 'not-allowed' : 'pointer', minWidth: '200px' }}
+            aria-label="Recipients — open audience selector"
+          />
+        ) : (
+          <div
+            style={{
+              border: '1px solid #e5e7eb',
+              borderRadius: '4px',
+              padding: '1rem',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <Text style={{ fontWeight: 600 }}>Select audience</Text>
+              <span style={{ flex: 1 }} />
+              <IconButton
+                size="sm"
+                variant="outline"
+                aria-label="Cancel audience selection"
+                onClick={() => setAudienceOpen(false)}
+                disabled={resolving}
+              >
+                <XIcon size={16} />
+              </IconButton>
+              <IconButton
+                size="sm"
+                aria-label="Confirm recipients"
+                onClick={() => void handleResolveAudience()}
+                disabled={sending || sent || resolving}
+                loading={resolving}
+              >
+                <CheckIcon size={16} />
+              </IconButton>
+            </div>
+
+            <Field.Root>
+              <Field.Label>Consent Category</Field.Label>
+              <select
+                value={consentCategory}
+                onChange={(e) => setConsentCategory(e.target.value as 'broadcasts' | 'team_updates')}
+              >
+                <option value="broadcasts">Broadcasts</option>
+                <option value="team_updates">Team Updates</option>
+              </select>
+            </Field.Root>
+
+            <AudiencePicker
+              audienceType={audienceType}
+              audienceRef={audienceRef}
+              peopleIds={peopleIds}
+              onChange={(type, ref, ids) => {
+                setAudienceType(type)
+                setAudienceRef(ref)
+                setPeopleIds(ids ?? [])
+              }}
+            />
+          </div>
+        )}
+      </Field.Root>
+
         <Field.Root>
           <Field.Label>Subject</Field.Label>
           <Input
@@ -119,35 +213,8 @@ export function EmailComposer({ initialSubject = '', initialBody = '', onSent }:
             style={{ minWidth: '200px' }}
           />
         </Field.Root>
-      </div>
 
-      <Field.Root>
-        <Field.Label>Consent Category</Field.Label>
-        <select
-          value={consentCategory}
-          onChange={(e) => setConsentCategory(e.target.value as 'broadcasts' | 'team_updates')}
-        >
-          <option value="broadcasts">Broadcasts</option>
-          <option value="team_updates">Team Updates</option>
-        </select>
-      </Field.Root>
-
-      <AudiencePicker
-        audienceType={audienceType}
-        audienceRef={audienceRef}
-        peopleIds={peopleIds}
-        onChange={(type, ref, ids) => {
-          setAudienceType(type)
-          setAudienceRef(ref)
-          setPeopleIds(ids ?? [])
-        }}
-      />
-
-      <Button onClick={handleResolveAudience} disabled={sending || sent}>
-        Resolve Recipients
-      </Button>
-
-      {recipients.length > 0 && (
+      {recipients.length > 0 && !audienceOpen && (
         <Text color="fg.muted">
           {recipients.length} recipient{recipients.length === 1 ? '' : 's'} ready to send
         </Text>

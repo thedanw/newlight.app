@@ -164,9 +164,11 @@ export default function EmailSettingsPage() {
                   </RadioCardGroup.Item>
                 ))}
               </RadioCardGroup.Root>
-              <Field.HelperText>
-                SMTP sends through your mail server; Resend uses the Resend API; Noop is for local development only.
-              </Field.HelperText>
+              <Field.Root>
+                <Field.HelperText>
+                  SMTP sends through your mail server; Resend uses the Resend API; Noop is for local development only.
+                </Field.HelperText>
+              </Field.Root>
             </Card.Body>
           </Card.Root>
 

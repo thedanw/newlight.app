@@ -1,4 +1,6 @@
 import { useCallback } from 'react'
+import 'grapesjs/dist/css/grapes.min.css'
+import '../styles/editor.css'
 import grapesjs from 'grapesjs'
 import newsletterPreset from 'grapesjs-preset-newsletter'
 import { Editor, useEditorMaybe } from '@grapesjs/react'

@@ -90,7 +90,10 @@ export async function getSenderAliases() {
     .select('*')
     .order('is_default', { ascending: false })
 
-  if (error) throw error
+  if (error) {
+    console.warn('[Email] getSenderAliases failed:', error.message)
+    return []
+  }
   return (data ?? []) as AliasRow[]
 }
 

@@ -1,0 +1,30 @@
+/* GrapesJS editor stylesheet — required for @grapesjs/react canvas + toolbar rendering. */
+@import 'grapesjs/dist/css/grapes.min.css';
+
+/* Scoped container styles for the email editor canvas.
+   The editor writes its iframe/canvas DOM into #email-editor-container.
+   We scope the grapesjs styles so they don't leak into the host app. */
+#email-editor-container {
+  width: 100%;
+  min-height: 400px;
+  font-family: var(--font-family, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
+}
+
+/* GrapesJS block categories and panels need a border reset on the host */
+.gjs-panels {
+  border: none;
+}
+
+/* Ensure the editor's content area fills its container */
+.gjs-canvas-container {
+  min-height: 300px;
+}
+
+/* Newsletter preset table buttons get a subtle cursor */
+.gjs-block-categories .gjs-block {
+  cursor: grab;
+}
+
+.gjs-block-categories .gjs-block:active {
+  cursor: grabbing;
+}

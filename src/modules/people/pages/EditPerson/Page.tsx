@@ -4,7 +4,7 @@ import type { CSSProperties } from 'react'
 import { Breadcrumb, Page, Text, useRegisterPageActions } from '@/core/ui'
 import { Stack } from 'styled-system/jsx'
 import { Users } from 'lucide-react'
-import { usePerson } from '../../lib/hooks'
+import { usePerson, useCurrentOperatorPermission } from '../../lib/hooks'
 import { useProfilePermissions } from '../../lib/profile-permissions'
 import { PersonalSection } from '../../components/sections/Personal'
 import { DemographicsSection } from '../../components/sections/Demographics'
@@ -17,6 +17,7 @@ import { AdminSection } from '../../components/ProfileSections/AdminSection/Admi
 import { JourneySection } from '../../components/sections/Journey'
 import { TagsSection } from '../../components/sections/Tags'
 import { ProfileSection } from '../../components/sections/ProfileSection'
+import { AccountAccessSection } from '../../components/sections/AccountAccess'
 import { PageSkeleton } from '../../components/PageSkeleton'
 
 type EditableSectionHandle = {
@@ -32,6 +33,7 @@ export default function EditPersonPage() {
   const { id } = useParams()
   const { data: person, loading, error } = usePerson(id)
   const permissions = useProfilePermissions(person)
+  const opQuery = useCurrentOperatorPermission()
   const personalRef = useRef<EditableSectionHandle>(null)
   const demographicsRef = useRef<EditableSectionHandle>(null)
   const contactRef = useRef<EditableSectionHandle>(null)
@@ -66,7 +68,7 @@ export default function EditPersonPage() {
     !loading && !permissions.loading && !error && Boolean(person) && Boolean(id) && !permissions.isPublic,
   )
 
-  if (loading || permissions.loading) return (
+  if (loading || permissions.loading || opQuery.loading) return (
     <Page.Main>
       <Page.Header style={{ '--module-number': 1 } as CSSProperties}>
         <Page.Heading level={1} icon={Users} title={person ? `Edit ${capitalize(person.demographic)}` : 'Profile'} />
@@ -134,6 +136,7 @@ export default function EditPersonPage() {
 
               <JourneySection ref={journeyRef} person={person} canEdit={permissions.canManageJourney} defaultEdit={permissions.canManageJourney} />
               <TagsSection person={person} />
+              <AccountAccessSection person={person} operatorPermission={opQuery.data ?? null} isSelf={permissions.isSelf} />
             </>
           )}
         </Stack>

@@ -1,5 +1,6 @@
 import { tabsAnatomy } from '@ark-ui/react/anatomy'
 import { defineSlotRecipe } from '@pandacss/dev'
+import { PAD, GAP } from '../spacing-contract'
 
 export const tabs = defineSlotRecipe({
   slots: tabsAnatomy.keys(),
@@ -11,11 +12,11 @@ export const tabs = defineSlotRecipe({
       alignItems: 'start',
       _horizontal: {
         flexDirection: 'column',
-        gap: '2',
+        gap: GAP.base,
       },
       _vertical: {
         flexDirection: 'row',
-        gap: '4',
+        gap: GAP.md,
       },
     },
     list: {

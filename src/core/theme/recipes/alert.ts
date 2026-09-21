@@ -1,4 +1,5 @@
 import { defineSlotRecipe } from '@pandacss/dev'
+import { PAD, GAP } from '../spacing-contract'
 
 export const alert = defineSlotRecipe({
   className: 'alert',
@@ -15,7 +16,7 @@ export const alert = defineSlotRecipe({
       display: 'flex',
       flex: '1',
       flexDirection: 'column',
-      gap: '1',
+      gap: GAP.base,
     },
     description: {
       display: 'inline',
@@ -39,8 +40,8 @@ export const alert = defineSlotRecipe({
     size: {
       md: {
         root: {
-          gap: '3',
-          p: '4',
+          gap: GAP.base,
+          p: PAD.base,
           textStyle: 'sm',
         },
         indicator: {
@@ -52,8 +53,8 @@ export const alert = defineSlotRecipe({
       },
       lg: {
         root: {
-          gap: '4',
-          p: '4',
+          gap: GAP.md,
+          p: PAD.md,
           textStyle: 'md',
         },
         indicator: {

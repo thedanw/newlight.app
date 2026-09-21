@@ -1,5 +1,6 @@
 import { toastAnatomy } from '@ark-ui/react/anatomy'
 import { defineSlotRecipe } from '@pandacss/dev'
+import { PAD, GAP } from '../spacing-contract'
 
 export const toast = defineSlotRecipe({
   className: 'toast',
@@ -11,12 +12,12 @@ export const toast = defineSlotRecipe({
       borderRadius: 'l3',
       boxShadow: 'lg',
       display: 'flex',
-      gap: '4',
+      gap: GAP.md,
       height: 'var(--height)',
       minWidth: 'sm',
       opacity: 'var(--opacity)',
       overflowWrap: 'anywhere',
-      p: '4',
+      p: PAD.md,
       position: 'relative',
       scale: 'var(--scale)',
       transitionDuration: 'slow',

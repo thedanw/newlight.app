@@ -47,6 +47,7 @@ Header.displayName = 'PageHeader'
 
 export const HeaderBottom = withContext(ark.header, 'headerBottom')
 export const Body = withContext(ark.div, 'body')
+export const Actions = withContext(ark.div, 'actions')
 
 const MainBase = withContext(ark.main, 'main')
 
@@ -78,7 +79,7 @@ export const Main = forwardRef<HTMLElement, MainProps>(({ children, ...props }, 
     const flat = Children.toArray(children)
     const hasHeader = flat.some((child) => isValidElement(child) && child.type === Header)
     const hasBody = flat.some((child) => isValidElement(child) && child.type === Body)
-    const allowed = [Header, HeaderTop, HeaderBottom, Body]
+    const allowed = [Header, HeaderTop, HeaderBottom, Body, Actions]
     const unexpected = flat.filter(
       (child) => isValidElement(child) && !allowed.includes(child.type as never),
     )

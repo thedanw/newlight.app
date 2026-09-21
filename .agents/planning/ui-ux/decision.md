@@ -151,3 +151,11 @@ Solo developer; small-context LLM agents building bolt-on modules; future contri
    17.4 `env(safe-area-inset-bottom)` + `interactive-widget=resizes-content` viewport → mobile keyboard safe
    17.5 `prefers-reduced-motion` → no slide
    17.6 lint-pages.mjs bans `Page.Footer` in routed pages → single source of truth
+18 Page actions (`page.actions`) — page-level action slot
+   18.1 New slot `actions` in `page` recipe (`slots` array); component `Page.Actions` (`withContext(ark.div, 'actions')`) exported from `src/core/ui/page.tsx`.
+   18.2 Position: below `Page.Body` (inside `Page.Main` after `Body`, or sibling under `Page.Root`). Never inside `Page.Header`.
+   18.3 Padding: matches `Page.Body` — `{ base: '3', md: '6' }` (aligned left/right with body content). `pt: '6'` separates from body/header above.
+   18.4 Industry terminology: **Primary** (first-step/entry: Create, Add, Search) → left-aligned; **Secondary** (supporting: Filter, Export) → right-aligned; **Utility** (cross-page common: print, share, email) → icon-only, can move to header/right-aligned on `md+`.
+   18.5 Responsive: on `md+`, secondary/utility buttons may shift to header right-alignment; primary fields stay left-aligned.
+   18.6 Enforcement: `lint-pages.mjs` allows `Actions` in allowed children; `Page.Main` validation includes `Actions`.
+   18.7 Separation from `Page.Footer`: `Page.Footer` = shell-owned dirty-state save/apply (`useRegisterPageActions`). `Page.Actions` = static page-level actions. Never mix the two.

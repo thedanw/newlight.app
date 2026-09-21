@@ -60,16 +60,18 @@ Every module page is built from the `Page` slot recipe (`src/core/ui/page.tsx`, 
 
 **Hero variant & module number:** `Page.Header headerVariant="hero"` renders a background with the same saturation/brightness as `--colors-color-palette-solid-bg` but hue shifted by `16deg × module number`. The module number is stored in the module manifest (`number` field, e.g. `peopleManifest.number`). Pass it to the header via Panda's `css` prop: `<Page.Header headerVariant="hero" css={{ '--module-number': peopleManifest.number }}>`. The hue shift is applied to a `::before` background layer so the header's own children (h1, back button) are NOT hue-shifted.
 
-### Responsive spacing (padding & gaps)
-Panda responsive object syntax scales spacing on small screens. Use `{ base: '3', md: '6' }` — `base` is the small-screen value (12px), `md` (768px) and up uses the full value (24px):
+### Responsive spacing (padding & gaps) — ENFORCED CONTRACT
+Standard pair: `{ base: '3', md: '6' }` (12px mobile / 24px desktop). Defined in `src/core/theme/spacing-contract.ts` (`PAD`, `GAP`). All recipes must import and use these constants — never hand-write token pairs.
 
 ```ts
+import { PAD, GAP } from '@/core/theme/spacing-contract';
+
 // Page recipe (root/body/header)
-padding: { base: '3', md: '6' },
-gap: { base: '3', md: '6' },
+padding: PAD,
+gap: GAP,
 ```
 
-Apply the same pattern to other display components (cards, sections) so padding/gaps collapse from `6` (24px) on wide screens to `3` (12px) on small screens. The `Page` recipe already does this for root/header/body; mirror it in card-like components that need to breathe on mobile.
+Card-level padding uses `PAD` so cards breathe slightly more than body content. Mirror the contract in all display components (cards, sections, stacks) so padding/gaps collapse consistently from `6` (24px) on wide screens to `3` (12px) on small screens.
 
 ### Tables on small screens
 Tables can exceed viewport width. Wrap tables in a scrollable container to prevent layout breakage:
@@ -183,6 +185,39 @@ Do **not** use multi-column for:
 - Card internal padding should be one token (e.g. `p="6"` = 24px). Don't vary it per card.
 - **Every page has `Page.Root` + `Page.Header` + `Page.Body`.** `Page.Footer` is optional (whole-page save/apply only).
 - **Responsive rhythm:** page padding/gaps collapse from `6` (24px) to `3` (12px) on small screens via `{ base: '3', md: '6' }`. Mirror this in card-like display components so they breathe on mobile.
+
+### Stacked Components — Avoid Double Spacing
+When two components share the same background (or none) and no border, their individual padding creates visual double-spacing.
+
+**Solution: `compact` variant + `CardStack`**
+- `card` recipe has a `size="compact"` variant (`p: 0`, `gap: GAP`).
+- `CardStack` compound component (`src/core/theme/components/card-stack.ts`) applies `gap` to the parent; children use `compact`.
+
+```tsx
+<CardStack gap={GAP}>
+  <Card size="compact">Content</Card>
+  <Card size="compact">Content</Card>
+</CardStack>
+```
+
+**Rules:**
+- Parent owns spacing (`gap` or `padding`).
+- Children in stacks use `compact` (`p: 0`).
+- Single isolated cards keep default `p: PAD`.
+- Same applies to rows (`HStack`) — parent `gap`, children `compact`.
+New slot in the `page` recipe (`actions`) for page-level actions — separate from the shell-owned `Page.Footer` (dirty-driven save/apply bar).
+
+- **Slot**: `actions` added to `slots` array in `src/core/theme/recipes/page.ts`; component `Page.Actions` exported from `src/core/ui/page.tsx` (`withContext(ark.div, 'actions')`).
+- **Position**: below `Page.Body` (inside `Page.Main` after `Body`, or as sibling under `Page.Root`). Never inside `Page.Header`.
+- **Padding**: matches `Page.Body` — `padding: { base: '3', md: '6' }` (aligned left/right with body content).
+- **Separation**: `pt: '6'` (or `gap` token) separates actions from body/header above.
+- **Industry terminology**:
+  - **Primary actions** = first-step / entry-point actions (e.g., "Create", "Add", "Search"). Aligned **left** in header/body.
+  - **Secondary actions** = supporting actions (e.g., "Filter", "Export", "Edit"). Aligned **right**.
+  - **Utility actions** = common cross-page actions (print, share, email). Icon-only; can move to header/right-aligned on `md+` screens.
+- **Responsive**: on `md+`, secondary/utility buttons may shift to header right-alignment; primary fields (search) stay left-aligned.
+- **Enforcement**: `lint-pages.mjs` allows `Actions` in allowed children; `Page.Main` validation includes `Actions`.
+- **Separation from `Page.Footer`**: `Page.Footer` = shell-owned dirty-state save/apply (`useRegisterPageActions`). `Page.Actions` = static page-level actions (print/share/email/page-specific CTAs). Never mix the two.
 
 ### Card actions
 - **One action location per card:** either `Card.Footer` (right, primary last) OR the page toolbar — never both.

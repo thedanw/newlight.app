@@ -4,11 +4,11 @@ const sharedHeaderStyles = {
   display: 'flex',
   top: '0',
   color: 'var(--colors-color-palette-solid-fg)',
-  paddingLeft: 'calc( 48px + var(--spacing-1) )',
-  paddingRight: 'calc( 48px + var(--spacing-1) )',
+  paddingLeft: 'calc(48px + var(--spacing-1))',
+  paddingRight: 'calc(48px + var(--spacing-1))',
   '@media (min-width: 1280px)': {
-    paddingLeft: { base: '3', md: '6' },
-    paddingRight: { base: '3', md: '6' },
+    paddingLeft: '6',
+    paddingRight: '6',
   },
   _before: {
     content: '""',
@@ -23,7 +23,7 @@ const sharedHeaderStyles = {
 
 export const page = defineSlotRecipe({
   className: 'page',
-  slots: ['root', 'headerTop', 'header', 'headerBottom', 'main', 'body', 'footer'],
+  slots: ['root', 'headerTop', 'header', 'headerBottom', 'main', 'body', 'actions', 'footer'],
   base: {
     root: {
       display: 'flex',
@@ -71,7 +71,7 @@ export const page = defineSlotRecipe({
       position: 'relative',
       flexDirection: 'column',
       pt: '0',
-      gap: { base: '3', md: '6' },
+      gap: { base: '2', md: '4' },
       pb: { base: '3rem', md: '5rem' },
       ...sharedHeaderStyles,
     },
@@ -83,7 +83,7 @@ export const page = defineSlotRecipe({
       // leaving no overflow for Main to scroll when content is taller.
       flex: '0 0 auto',
       minWidth: '0',
-      gap: { base: '3', md: '6' },
+      gap: { base: '2', md: '4' },
       padding: { base: '3', md: '6' },
       position: 'relative',
     },
@@ -97,6 +97,16 @@ export const page = defineSlotRecipe({
       overflowY: 'auto',
       overflowX: 'hidden',
       scrollPaddingBottom: 'var(--footer-height, 0)',
+    },
+    actions: {
+      display: 'flex',
+      flexDirection: 'column',
+      flex: '0 0 auto',
+      minWidth: '0',
+      gap: { base: '2', md: '4' },
+      padding: { base: '3', md: '6' },
+      paddingTop: '6',
+      position: 'relative',
     },
     footer: {
       position: 'absolute',

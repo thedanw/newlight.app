@@ -1,5 +1,6 @@
 import { accordionAnatomy } from '@ark-ui/react/anatomy'
 import { defineSlotRecipe } from '@pandacss/dev'
+import { PAD, GAP } from '../spacing-contract'
 
 export const accordion = defineSlotRecipe({
   className: 'accordion',
@@ -19,7 +20,7 @@ export const accordion = defineSlotRecipe({
       cursor: 'pointer',
       display: 'flex',
       fontWeight: 'semibold',
-      gap: '3',
+      gap: GAP.base,
       justifyContent: 'space-between',
       textAlign: 'start',
       textStyle: 'lg',

@@ -1,4 +1,5 @@
 import { defineSlotRecipe } from '@pandacss/dev'
+import { PAD, GAP } from '../spacing-contract'
 
 export const card = defineSlotRecipe({
   className: 'card',
@@ -10,13 +11,13 @@ export const card = defineSlotRecipe({
       flexDirection: 'column',
       overflow: 'hidden',
       position: 'relative',
-      p: {base: '4', md: '6'},
-      pt:{base: '3', md: '5'},
+      p: { base: '3', md: '6' },
+      pt: { base: '3', md: '6' },
     },
     header: {
       display: 'flex',
       flexDirection: 'column',
-      gap: '1',
+      gap: { base: '2', md: '4' },
     },
     body: {
       display: 'flex',
@@ -39,6 +40,7 @@ export const card = defineSlotRecipe({
   },
   defaultVariants: {
     variant: 'outline',
+    size: 'default',
   },
   variants: {
     variant: {
@@ -57,6 +59,23 @@ export const card = defineSlotRecipe({
       subtle: {
         root: {
           bg: 'gray.subtle.bg',
+        },
+      },
+    },
+    size: {
+      default: {},
+      compact: {
+        root: {
+          p: 0,
+        },
+        header: {
+          gap: GAP,
+        },
+        body: {
+          gap: GAP,
+        },
+        footer: {
+          gap: GAP,
         },
       },
     },

@@ -53,7 +53,7 @@ export default function PeopleDashboardPage() {
         <Page.Heading level={0} icon={Users} title="People" />
       </Page.Header>
       <Page.HeaderBottom style={MODULE_NUMBER_STYLE}>
-        <Stack gap="3" maxW="3xl">
+        <Stack gap="3">
           <Text textStyle="sm">
             Find people by name, preferred name, email, tag, or phone number.
           </Text>
@@ -97,14 +97,16 @@ export default function PeopleDashboardPage() {
         </Stack>
        </Page.HeaderBottom>
 
-      {canEmailPeople && visiblePeople.length > 0 && (
-        <HStack justifyContent="flex-end" paddingX="4" paddingBottom="2">
-          <Button variant="surface" onClick={() => navigate('/people/email')}>
-            <MailIcon />
-            Email People
-          </Button>
-        </HStack>
-      )}
+      <Page.Actions>
+        {canEmailPeople && visiblePeople.length > 0 && (
+          <HStack justifyContent="flex-end">
+            <Button variant="surface" onClick={() => navigate('/people/email')}>
+              <MailIcon />
+              Email People
+            </Button>
+          </HStack>
+        )}
+      </Page.Actions>
 
       <Page.Body>
         <Dialog.Root>

@@ -28,7 +28,7 @@ export default function PeopleSettingsPage() {
         <Page.Heading level={1} icon={Users} title="People Settings" />
       </Page.Header>
       <Page.Body>
-        <Stack gap="6">
+        <Stack>
           <Card.Root>
             <Card.Body>
               <Stack gap="2">
@@ -63,7 +63,7 @@ export default function PeopleSettingsPage() {
       )}
 
       {links.length > 0 && (
-        <Stack gap="3">
+        <Stack>
           <Heading textStyle="md">Integrations</Heading>
           {links.map((link) => {
             const target = link.targetPageId

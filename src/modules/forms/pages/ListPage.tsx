@@ -54,7 +54,7 @@ export default function FormsListPage() {
         <Page.Heading level={1} icon={Users} title="Forms" />
       </Page.Header>
       <Page.Body>
-        <Stack gap="6">
+        <Stack>
           <Stack flexDirection="row" gap="2">
             <Button onClick={() => navigate('/people/forms/new')}>New form</Button>
           </Stack>

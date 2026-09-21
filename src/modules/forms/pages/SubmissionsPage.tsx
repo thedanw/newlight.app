@@ -44,7 +44,7 @@ export default function FormSubmissionsPage() {
         <Page.Heading level={1} icon={Users} title={`Submissions — ${form.name}`} />
       </Page.Header>
       <Page.Body>
-        <Stack gap="6">
+        <Stack>
           <Stack flexDirection="row" gap="2">
             <Button variant="outline" onClick={() => navigate('/people/forms')}>Back</Button>
           </Stack>

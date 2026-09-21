@@ -45,13 +45,13 @@ export default function HouseholdPage() {
             <Breadcrumb.Item><Breadcrumb.Link href={`/people/households/${household.id}`} aria-current="page">{household.name ?? 'Household'}</Breadcrumb.Link></Breadcrumb.Item>
           </Breadcrumb.List>
         </Breadcrumb.Root>
-        <Stack gap="6">
+        <Stack>
           <Card.Root>
             <Card.Header>
               <Card.Title>{household.name ?? 'Unnamed household'}</Card.Title>
             </Card.Header>
             <Card.Body>
-              <Stack gap="4">
+              <Stack>
                 <Heading textStyle="md">Home address</Heading>
                 <HouseholdAddress address={household.address} onSave={async (address) => { await saveHouseholdAddress(household.id, address) }} />
               </Stack>

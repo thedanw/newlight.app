@@ -127,7 +127,7 @@ export default function IntegrationsPage() {
           <Page.Heading level={1} icon={Settings} title="Integrations" />
         </Page.Header>
         <Page.Body>
-          <Stack gap="4">
+          <Stack>
             <Heading textStyle="md">Integrations</Heading>
             <Text color="fg.muted" textStyle="sm">
               No integrations configured yet. Install plugins to add integrations.
@@ -147,12 +147,12 @@ export default function IntegrationsPage() {
       </Page.Header>
 
       <Page.Body>
-        <Stack gap="4">
+        <Stack>
           <Heading textStyle="md">Integrations</Heading>
           <Text color="fg.muted" textStyle="sm">
             Manage your third-party integrations and external service connections.
           </Text>
-          <Stack gap="3">
+          <Stack>
             {pages.map((pageItem) => (
               <Card.Root
                 key={pageItem.id}
@@ -173,7 +173,7 @@ export default function IntegrationsPage() {
               </Card.Root>
             ))}
             {plugins.length > 0 && (
-              <Stack gap="3">
+              <Stack>
                 <Heading textStyle="md">Plugins</Heading>
                 <Badge variant="outline">{plugins.length}</Badge>
                 {loading ? (
@@ -186,7 +186,7 @@ export default function IntegrationsPage() {
                       return (
                         <Card.Root key={plugin.name} variant="outline">
                           <Card.Body>
-                            <Stack direction="row" gap="4" justify="space-between" align="start">
+                            <Stack direction="row" justify="space-between" align="start">
                               <Stack gap="1" flex="1">
                                 <Stack direction="row" gap="2">
                                   <Heading textStyle="sm">{plugin.displayName}</Heading>

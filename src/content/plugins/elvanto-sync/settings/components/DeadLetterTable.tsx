@@ -138,7 +138,7 @@ export function DeadLetterTable() {
   const totalPages = Math.ceil(total / pageSize)
 
   return (
-    <Stack gap="6">
+    <Stack>
       <HStack justify="space-between" alignItems="center">
         <Heading textStyle="md">Dead Letter Queue</Heading>
         <HStack gap="2">
@@ -168,7 +168,7 @@ export function DeadLetterTable() {
           <Card.Title>Filters</Card.Title>
         </Card.Header>
         <Card.Body>
-          <HStack gap="3" flexWrap="wrap">
+          <HStack flexWrap="wrap">
             <Stack gap="1" minWidth="150px">
               <Text textStyle="xs" color="fg.muted">Entity</Text>
               <Select.Root collection={entityCollection} value={[filters.entity]} onValueChange={(details) => setFilters({ ...filters, entity: details.value[0] })}>
@@ -334,7 +334,7 @@ export function DeadLetterTable() {
           <Dialog.Header>
             <Dialog.Title>Payload Details</Dialog.Title>
           </Dialog.Header>
-          <Stack gap="4">
+          <Stack>
             <Text textStyle="sm" fontFamily="monospace" whiteSpace="pre-wrap" maxHeight="400px" overflow="auto">
               {selectedItem ? JSON.stringify(selectedItem.payload, null, 2) : ''}
             </Text>

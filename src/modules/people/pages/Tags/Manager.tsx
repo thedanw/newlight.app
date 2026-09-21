@@ -15,7 +15,7 @@ export function TagManager() {
   return <Card.Root>
     <Card.Header><Card.Title>Tags</Card.Title></Card.Header>
     <Card.Body>
-      <Stack gap="4">
+      <Stack>
         {message && <Text>{message}</Text>}
         <Field.Root><Field.Label>New tag</Field.Label><Input value={name} onChange={(event) => setName(event.target.value)} /><Button onClick={() => run(async () => { await createTag(name); setName('') })}>Add tag</Button></Field.Root>
         {data.map((tag) => <Field.Root key={tag.id}><Input defaultValue={tag.name} onBlur={(event) => run(() => updateTag(tag.id, { name: event.target.value, category: tag.category }))} /><select defaultValue={tag.category} onChange={(event) => run(() => updateTag(tag.id, { name: tag.name, category: event.target.value as Tag['category'] }))}><option value="location">Location</option><option value="journey_track">Journey track</option><option value="demographic">Demographic</option><option value="status">Status</option><option value="custom">Custom</option></select><Button variant="outline" onClick={() => run(() => deleteTag(tag.id))}>Delete</Button></Field.Root>)}

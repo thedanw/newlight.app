@@ -72,7 +72,7 @@ export const DemographicsSection = forwardRef<DemographicsSectionHandle, { perso
   return (
     <ProfileSection title="Demographics">
       {isEditing ? (
-        <Grid gap="3" columns={{ base: 1, sm: 2 }}>
+        <Grid columns={{ base: 1, sm: 2 }}>
           {demographicsFields.map((field) => (
             <Field.Root key={field.key}>
               <Field.Label>{field.label}</Field.Label>
@@ -85,7 +85,7 @@ export const DemographicsSection = forwardRef<DemographicsSectionHandle, { perso
           ))}
         </Grid>
       ) : (
-        <Stack gap="3">
+        <Stack>
           <p><strong>Demographic:</strong> {initialValues['demographic'] || 'Not provided'}</p>
           <p><strong>School:</strong> {initialValues['school_name'] || 'Not provided'}</p>
           <p><strong>School year:</strong> {schoolYear ?? 'Not provided'}</p>

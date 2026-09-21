@@ -21,7 +21,7 @@ export default function ErrorPage() {
       </Text>
 
       <Card.Root maxW="md" w="full">
-        <Card.Body gap="3">
+        <Card.Body>
           <Text fontWeight="medium">What you can try</Text>
           <Stack gap="2">
             <Text>1. Reload the page to try again.</Text>

@@ -90,6 +90,7 @@ export const tabs = defineSlotRecipe({
           _horizontal: {
             borderBottomWidth: '1px',
             marginBottom: '3px',
+            boxShadow: 'inset-up',
           },
           _vertical: {
             borderStartWidth: '1px',
@@ -108,9 +109,11 @@ export const tabs = defineSlotRecipe({
             transform: 'translateX(-1px)',
           },
         },
-        trigger: {
+        trigger: {  
           color: 'fg.muted',
+          borderLeft: '1px solid #00000011',
           _selected: {
+            boxShadow: 'lg-up',
             color: 'colorPalette.plain.fg',
             borderBottomWidth: '3px',
             borderBottomColor: 'colorPalette.solid.bg',

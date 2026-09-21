@@ -52,7 +52,7 @@ export const Toaster = () => {
           <Root>
             {toast.type === 'loading' ? <Spinner color="colorPalette.plain.fg" /> : <Indicator />}
 
-            <Stack gap="3" alignItems="start">
+            <Stack alignItems="start">
               <Stack gap="1">
                 {toast.title && <Title>{toast.title}</Title>}
                 {toast.description && <Description>{toast.description}</Description>}

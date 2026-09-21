@@ -141,7 +141,7 @@ export default function EmailSettingsPage() {
       </Page.Header>
 
       <Page.Body>
-        <Stack gap="4">
+        <Stack>
           <Heading textStyle="md">Email Settings</Heading>
           <Text color="fg.muted" textStyle="sm">
             Configure how the system sends emails — transport, sender defaults, and template branding.
@@ -178,7 +178,7 @@ export default function EmailSettingsPage() {
                 <Heading textStyle="sm">SMTP Configuration</Heading>
               </Card.Header>
               <Card.Body>
-                <Stack gap="4" display="grid" gridTemplateColumns={{ base: '1fr', md: '1fr 1fr' }}>
+                <Stack display="grid" gridTemplateColumns={{ base: '1fr', md: '1fr 1fr' }}>
                   <Field.Root>
                     <Field.Label>SMTP Host</Field.Label>
                     <Input
@@ -258,7 +258,7 @@ export default function EmailSettingsPage() {
               <Heading textStyle="sm">Default Sender</Heading>
             </Card.Header>
             <Card.Body>
-              <Stack gap="4" display="grid" gridTemplateColumns={{ base: '1fr', md: '1fr 1fr' }}>
+              <Stack display="grid" gridTemplateColumns={{ base: '1fr', md: '1fr 1fr' }}>
                 <Field.Root>
                   <Field.Label>From Email</Field.Label>
                   <Input
@@ -300,7 +300,7 @@ export default function EmailSettingsPage() {
               <Heading textStyle="sm">Email Branding</Heading>
             </Card.Header>
             <Card.Body>
-              <Stack gap="4">
+              <Stack>
                 <Field.Root>
                   <Field.Label>Logo URL</Field.Label>
                   <Input

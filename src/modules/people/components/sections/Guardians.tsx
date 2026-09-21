@@ -44,7 +44,7 @@ export function GuardiansSection({ person, canManageGuardians = true }: { person
           <Dialog.Content>
             <Dialog.Title>Add guardian</Dialog.Title>
             <Dialog.Body>
-              <Stack gap="3">
+              <Stack>
                 <Text color="fg.muted">Create a new contact-only parent and link them as a guardian.</Text>
                 {error && <Text color="fg.default">{error}</Text>}
                 <Field.Root>
@@ -67,7 +67,7 @@ export function GuardiansSection({ person, canManageGuardians = true }: { person
         </Dialog.Positioner>
       </Dialog.Root>
 
-      <Stack gap="3">
+      <Stack>
         <Stack gap="2">
           {guardians.map((guardian) => (
             <Link key={guardian.id} href={`/people/${guardian.id}`}>

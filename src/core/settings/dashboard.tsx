@@ -58,7 +58,7 @@ function SettingsDashboard() {
             No settings sections registered yet.
           </Text>
         ) : (
-          <Stack gap="3">
+          <Stack>
             {sections.map((s) => (
               <Card.Root
                 key={s.id}

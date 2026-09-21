@@ -73,7 +73,7 @@ export default function PersonProfilePage() {
       </Page.Header>
 
       <Page.Body>
-        <Stack gap="6">
+        <Stack>
           <HStack justifyContent="space-between" alignItems="center">
             <Text textStyle="lg" color="fg.muted">Profile Type: {profileType}</Text>
             {!isPublic && (

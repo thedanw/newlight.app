@@ -1,5 +1,6 @@
 import { dialogAnatomy } from '@ark-ui/react/anatomy'
 import { defineSlotRecipe } from '@pandacss/dev'
+import { PAD, GAP } from '../spacing-contract'
 
 export const dialog = defineSlotRecipe({
   className: 'dialog',
@@ -63,8 +64,8 @@ export const dialog = defineSlotRecipe({
       textStyle: 'sm',
       width: '100%',
       zIndex: 'calc(var(--dialog-z-index) + var(--layer-index, 0))',
-      padding: { base: '3', md: '6' },
-      gap: { base: '4', md: '6' },
+      padding: PAD,
+      gap: GAP,
       _open: {
         animationDuration: 'slowest',
       },
@@ -82,7 +83,7 @@ export const dialog = defineSlotRecipe({
     body: {
       display: 'flex',
       flex: '1',
-      gap: { base: '3', md: '6' },
+      gap: GAP,
       flexDirection: 'column',
       alignItems: 'flex-start',
     },

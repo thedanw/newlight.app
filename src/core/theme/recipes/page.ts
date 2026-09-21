@@ -1,4 +1,5 @@
 import { defineSlotRecipe } from '@pandacss/dev'
+import { PAD, GAP } from '../spacing-contract'
 
 const sharedHeaderStyles = {
   display: 'flex',
@@ -71,7 +72,7 @@ export const page = defineSlotRecipe({
       position: 'relative',
       flexDirection: 'column',
       pt: '0',
-      gap: { base: '2', md: '4' },
+      gap: GAP,
       pb: { base: '3rem', md: '5rem' },
       ...sharedHeaderStyles,
     },
@@ -83,8 +84,8 @@ export const page = defineSlotRecipe({
       // leaving no overflow for Main to scroll when content is taller.
       flex: '0 0 auto',
       minWidth: '0',
-      gap: { base: '2', md: '4' },
-      padding: { base: '3', md: '6' },
+      gap: GAP,
+      padding: PAD,
       position: 'relative',
     },
     main: {
@@ -103,8 +104,8 @@ export const page = defineSlotRecipe({
       flexDirection: 'column',
       flex: '0 0 auto',
       minWidth: '0',
-      gap: { base: '2', md: '4' },
-      padding: { base: '3', md: '6' },
+      gap: GAP,
+      padding: PAD,
       paddingTop: '6',
       position: 'relative',
     },

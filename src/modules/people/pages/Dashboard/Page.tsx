@@ -53,7 +53,7 @@ export default function PeopleDashboardPage() {
         <Page.Heading level={0} icon={Users} title="People" />
       </Page.Header>
       <Page.HeaderBottom style={MODULE_NUMBER_STYLE}>
-        <Stack gap="3">
+        <Stack>
           <Text textStyle="sm">
             Find people by name, preferred name, email, tag, or phone number.
           </Text>

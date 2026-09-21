@@ -53,7 +53,7 @@ export function ScheduleTab() {
   const syncDirectionValue = syncDirection ? [syncDirection] : []
 
   return (
-    <Stack gap="6">
+    <Stack>
       <Heading textStyle="md">Schedule</Heading>
       <Text color="fg.muted" textStyle="sm">
         Configure automatic synchronization schedule and trigger manual syncs.
@@ -65,7 +65,7 @@ export function ScheduleTab() {
           <Card.Description>Cron expression for scheduled sync runs (UTC timezone)</Card.Description>
         </Card.Header>
         <Card.Body>
-          <Stack gap="4">
+          <Stack>
             <Stack gap="2">
               <Text textStyle="sm" fontWeight="medium">Cron Expression</Text>
               <Input
@@ -104,7 +104,7 @@ export function ScheduleTab() {
               </Text>
             </Stack>
 
-            <Stack flexDirection="row" gap="3">
+            <Stack flexDirection="row">
               <Button onClick={handleSave} loading={loading} disabled={loading}>
                 Save Schedule
               </Button>

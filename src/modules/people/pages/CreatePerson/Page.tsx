@@ -13,7 +13,7 @@ export default function CreatePersonPage() {
         <Page.Header style={{ '--module-number': 1 } as CSSProperties}>
           <Page.Heading level={1} icon={Users} title="New person" />
       </Page.Header>
-      <Page.Body><Stack gap="6"><PersonForm submitLabel="Create person" onCancel={() => navigate('/people')} onSubmit={async (value) => { const person = await createPerson(value); navigate(`/people/${person.id}`) }} /></Stack></Page.Body>
+      <Page.Body><Stack><PersonForm submitLabel="Create person" onCancel={() => navigate('/people')} onSubmit={async (value) => { const person = await createPerson(value); navigate(`/people/${person.id}`) }} /></Stack></Page.Body>
     </Page.Main>
   )
 }

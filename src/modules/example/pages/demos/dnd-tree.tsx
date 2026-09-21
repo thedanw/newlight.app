@@ -80,7 +80,7 @@ export function DndTreeDemo() {
   const [org, setOrg] = useState<TreeNode[]>(orgChart)
 
   return (
-    <Stack gap="6" width="full">
+    <Stack width="full">
       <Stack gap="2">
         <Heading textStyle="md">Categories</Heading>
         <Text textStyle="sm" color="fg.muted">

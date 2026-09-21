@@ -68,7 +68,7 @@ export function ElvantoSyncSettingsPage() {
 
         {TABS.map((tab) => (
           <Tabs.Content key={tab.id} value={tab.id}>
-            <Suspense fallback={<Stack gap="4"><Text>Loading {tab.label}...</Text></Stack>}>
+            <Suspense fallback={<Stack><Text>Loading {tab.label}...</Text></Stack>}>
               <tab.component />
             </Suspense>
           </Tabs.Content>

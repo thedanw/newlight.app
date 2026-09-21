@@ -17,7 +17,7 @@ export default function FormsDashboardPage() {
         <Page.Heading level={1} icon={ClipboardList} title="Forms" />
       </Page.Header>
       <Page.Body>
-        <Stack gap="4">
+        <Stack>
           <Text color="fg.muted">
             Create and manage data collection forms with drag-and-drop fields, multi-column layouts, and conditional logic.
           </Text>

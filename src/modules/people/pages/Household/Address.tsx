@@ -29,10 +29,10 @@ export function HouseholdAddress({ address, onSave }: HouseholdAddressProps) {
     try { await onSave(value); setEditing(false) } catch (saveError) { setError(saveError instanceof Error ? saveError.message : 'Unable to save address.') } finally { setSaving(false) }
   }
 
-  return <Stack gap="4">
+  return <Stack>
     {(['line1', 'line2', 'suburb', 'state', 'postcode'] as const).map((key) => <Field.Root key={key}><Field.Label>{key === 'line1' ? 'Address line 1' : key === 'line2' ? 'Address line 2' : key[0].toUpperCase() + key.slice(1)}</Field.Label><Input value={value[key] ?? ''} onChange={(event) => update(key, event.target.value)} /></Field.Root>)}
     {error && <Text>{error}</Text>}
-    <Stack flexDirection="row" gap="3">
+    <Stack flexDirection="row">
       <Button loading={saving} loadingText="Saving" onClick={submit}>Save address</Button>
       <Button variant="outline" onClick={() => setEditing(false)}>Cancel</Button>
     </Stack>

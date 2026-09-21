@@ -129,8 +129,8 @@ export default function LoginPage() {
     <main className={pageCss}>
       <Card.Root className={cardCss}>
         <Card.Body>
-          <VStack gap="6">
-            <VStack gap="3">
+          <VStack>
+            <VStack>
               <div className={logoWrapCss}>
                 {logoUrl ? (
                   <img src={logoUrl} alt="Brand logo" className={logoImgCss} />
@@ -143,7 +143,7 @@ export default function LoginPage() {
             </VStack>
 
             {notice ? (
-              <VStack gap="3">
+              <VStack>
                 <Text>{notice}</Text>
                 <Button variant="outline" onClick={() => setNotice(null)}>
                   Back
@@ -151,7 +151,7 @@ export default function LoginPage() {
               </VStack>
             ) : (
               <form onSubmit={handleSubmit} noValidate>
-                <Stack gap="4">
+                <Stack>
                   <Field.Root>
                     <Field.Label>Email</Field.Label>
                     <Input

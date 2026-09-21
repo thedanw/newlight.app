@@ -32,7 +32,7 @@ function DemoRow({ label, children }: { label: string; children: ReactNode }) {
   return (
     <Stack gap="2">
       <RowLabel>{label}</RowLabel>
-      <Wrap gap="3" alignItems="center">
+      <Wrap alignItems="center">
         {children}
       </Wrap>
     </Stack>

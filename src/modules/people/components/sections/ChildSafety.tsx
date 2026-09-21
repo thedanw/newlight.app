@@ -97,9 +97,9 @@ export const ChildSafetySection = forwardRef<ChildSafetySectionHandle, { person:
         </HStack>
       </Collapsible.Trigger>
       <Collapsible.Content>
-        <Stack gap="3">
+        <Stack>
           {isEditing ? (
-              <Grid gap="3" columns={{ base: 1, sm: 2 }}>
+              <Grid columns={{ base: 1, sm: 2 }}>
                 <Field.Root>
                   <Field.Label>Safe Ministry Leader Type</Field.Label>
                   <Input

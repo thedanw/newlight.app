@@ -91,13 +91,13 @@ export default function FormPublicPage() {
         <Page.Heading level={1} icon={FileText} title={form.name} />
       </Page.Header>
       <Page.Body>
-        <Stack gap="6">
+        <Stack>
           <Heading>{form.name}</Heading>
           {form.description && <Text color="fg.muted">{form.description}</Text>}
           <Card.Root>
             <Card.Body>
               <form onSubmit={handleSubmit}>
-                <Stack gap="4">
+                <Stack>
                   {form.fields.map((field) => {
                     const value = answers[field.id]
                     return (

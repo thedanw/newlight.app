@@ -75,7 +75,7 @@ export const AdminSection = forwardRef<AdminSectionHandle, { person: Person | Pe
   return (
     <ProfileSection title="Admin">
       {isEditing ? (
-        <Grid gap="3" columns={{ base: 1, sm: 2 }}>
+        <Grid columns={{ base: 1, sm: 2 }}>
           {adminFields.map((field) => (
             <Field.Root key={field.key}>
               <Field.Label>{field.label}</Field.Label>
@@ -109,7 +109,7 @@ export const AdminSection = forwardRef<AdminSectionHandle, { person: Person | Pe
           ))}
         </Grid>
       ) : (
-        <Stack gap="3">
+        <Stack>
           {adminFields.map((field) => (
             <p key={field.key}>
               <strong>{field.label}:</strong> {initialValues[String(field.key)] || 'Not provided'}

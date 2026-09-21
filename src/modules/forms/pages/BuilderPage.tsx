@@ -210,7 +210,7 @@ export default function FormBuilderPage() {
         <Page.Heading level={1} icon={Users} title={headingTitle} />
       </Page.Header>
       <Page.Body>
-        <Stack gap="6">
+        <Stack>
           <Stack flexDirection="row" gap="2">
             <Button variant="outline" onClick={() => navigate('/people/forms')}>Back</Button>
           </Stack>
@@ -222,7 +222,7 @@ export default function FormBuilderPage() {
               <Card.Title>Form Settings</Card.Title>
             </Card.Header>
             <Card.Body>
-              <Stack gap="4">
+              <Stack>
                 <Field.Root>
                   <Field.Label>Form name</Field.Label>
                   <Input value={draft.name} onChange={(event) => setDraft({ ...draft, name: event.target.value })} />
@@ -295,7 +295,7 @@ export default function FormBuilderPage() {
             </Card.Header>
             <Card.Body>
               <DragDropProvider>
-                <Stack gap="4">
+                <Stack>
                   <Text>Drag a field type below onto the canvas:</Text>
                   <Box data-field-palette display="flex" flexWrap="wrap" gap="2">
                     {PALETTE_TYPES.map((type) => {
@@ -331,7 +331,7 @@ export default function FormBuilderPage() {
                  onDragOver={handleDragOver}
                  onDragEnd={handleDragEnd}
                >
-                 <Stack gap="4">
+                 <Stack>
                    {sortableItems.length === 0 && <Text color="fg.muted">No fields yet. Add one from the palette above.</Text>}
                    {sortableItems.map((item, index) => {
                     const field = rootFieldById.get(String(item.id))

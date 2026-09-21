@@ -32,7 +32,7 @@ function ComponentCard({ name, description }: { name: string; description: strin
         </Text>
       </Card.Header>
       <Card.Body>
-        <Stack gap="4" minH="10">
+        <Stack minH="10">
           {DEMOS[name] ?? (
             <Text textStyle="xs" color="fg.muted">
               Demo pending.
@@ -88,7 +88,7 @@ function AccordionSections({
             </Accordion.ItemTrigger>
             <Accordion.ItemContent>
               <Accordion.ItemBody>
-                <Grid columns={{ base: 1, sm: 2, xl: 3 }} gap="6" pt="4">
+                <Grid columns={{ base: 1, sm: 2, xl: 3 }} pt="4">
                   {components.map((component) => (
                     <ComponentCard key={component.name} {...component} />
                   ))}
@@ -151,8 +151,8 @@ export default function CategoryPage({
         <Page.Heading level={2} icon={category.icon} title={category.name} />
       </Page.Header>
       <Page.Body>
-        <Stack gap="8">
-          <HStack gap="4" alignItems="center">
+        <Stack">
+          <HStack alignItems="center">
             <Box
               boxSize="12"
               borderRadius="l2"
@@ -174,7 +174,7 @@ export default function CategoryPage({
           </HStack>
 
           {ungroupedComponents.length > 0 && (
-            <Grid columns={{ base: 1, sm: 2, xl: 3 }} gap="6">
+            <Grid columns={{ base: 1, sm: 2, xl: 3 }}>
               {ungroupedComponents.map((component) => (
                 <ComponentCard key={component.name} {...component} />
               ))}

@@ -7,7 +7,7 @@ import { DeadLetterTable } from './components/DeadLetterTable'
  */
 export function DeadLetterTab() {
   return (
-    <Stack gap="6">
+    <Stack>
       <Heading textStyle="md">Dead Letter Queue</Heading>
       <Text color="fg.muted" textStyle="sm">
         Failed sync items that exceeded retry attempts. Review, retry, or resolve.

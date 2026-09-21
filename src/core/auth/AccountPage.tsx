@@ -92,7 +92,7 @@ export default function AccountPage() {
         <Page.Heading level={1} icon={UserRound} title={`Edit ${cap(person.demographic)}`} />
       </Page.Header>
       <Page.Body>
-        <Stack gap="6">
+        <Stack>
           <Breadcrumb.Root>
             <Breadcrumb.List>
               <Breadcrumb.Item><Breadcrumb.Link href="/people">People</Breadcrumb.Link></Breadcrumb.Item>
@@ -101,7 +101,7 @@ export default function AccountPage() {
             </Breadcrumb.List>
           </Breadcrumb.Root>
           <Card.Root><Card.Body>
-            <HStack gap="4">
+            <HStack>
               <Avatar.Root size="xl"><Avatar.Fallback>{auth.initials}</Avatar.Fallback></Avatar.Root>
               <VStack gap="0" alignItems="flex-start">
                 <Heading>{auth.displayName}</Heading>

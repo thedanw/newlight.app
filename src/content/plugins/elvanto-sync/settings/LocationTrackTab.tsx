@@ -7,7 +7,7 @@ import { LocationTrackPairing } from './components/LocationTrackPairing'
  */
 export function LocationTrackTab() {
   return (
-    <Stack gap="6">
+    <Stack>
       <Heading textStyle="md">Location ↔ Track Pairing</Heading>
       <Text color="fg.muted" textStyle="sm">
         Pair Elvanto locations to journey tracks. Each location becomes a Campus track.

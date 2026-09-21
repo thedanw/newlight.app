@@ -18,7 +18,7 @@ export default function ExampleSettingsPage() {
         <Page.Heading level={1} icon={Palette} title="Example Settings" />
       </Page.Header>
       <Page.Body>
-        <Stack gap="4">
+        <Stack>
           <Card.Root>
             <Card.Body>
               <Stack gap="2">

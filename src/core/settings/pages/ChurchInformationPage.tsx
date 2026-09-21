@@ -380,14 +380,14 @@ export default function ChurchInformationPage() {
       </Page.Header>
 
       <Page.Body>
-        <Stack gap="4">
+        <Stack>
           <Card.Root>
             <Card.Header>
               <Heading textStyle="md">Church Information</Heading>
             </Card.Header>
             <Card.Body>
               <Stack
-                gap="4"
+               
                 display={{ base: 'grid', md: 'grid' }}
                 gridTemplateColumns={{ base: '1fr', md: '1fr 1fr' }}
               >
@@ -434,9 +434,9 @@ export default function ChurchInformationPage() {
               <Heading textStyle="md">Brand Identity</Heading>
             </Card.Header>
             <Card.Body>
-              <Stack gap="4">
+              <Stack>
                 <Stack
-                  gap="4"
+                 
                   display={{ base: 'grid', md: 'grid' }}
                   gridTemplateColumns={{ base: '1fr', md: '1fr 1fr' }}
                   alignItems="center"
@@ -490,7 +490,7 @@ export default function ChurchInformationPage() {
                     </Field.HelperText>
                   </Field.Root>
 
-                  <Stack gap="3" align="center" justify="center">
+                  <Stack align="center" justify="center">
                     <Avatar.Root
                       size="lg"
                       className={previewLogo ? css({ background: 'transparent' }) : undefined}
@@ -516,8 +516,8 @@ export default function ChurchInformationPage() {
             <Card.Header>
               <Heading textStyle="md">Appearance</Heading>
             </Card.Header>
-            <Card.Body gap="6">
-              <HStack gap="6" alignItems="start">
+            <Card.Body>
+              <HStack alignItems="start">
                 <Field.Root>
                   <Field.Label>Accent color</Field.Label>
                   <RadioCardGroup.Root
@@ -556,7 +556,7 @@ export default function ChurchInformationPage() {
                     Only the selected theme file loads at runtime — swatches are hard-coded hexes.
                   </Field.HelperText>
                 </Field.Root>
-                <Stack gap="6">
+                <Stack>
                     <Field.Root>
                       <Field.Label>Color scheme</Field.Label>
                       <HStack gap="2">
@@ -653,8 +653,8 @@ export default function ChurchInformationPage() {
 
               <Heading textStyle="md">Typography</Heading>
             </Card.Header>
-            <Card.Body gap="4">
-              <HStack gap="6">
+            <Card.Body>
+              <HStack>
               <ThemeSelect
                   label="Font"
                   items={FONT_OPTIONS}

@@ -15,7 +15,7 @@ export function ProfileSection({ title, children }: ProfileSectionProps) {
         <Card.Title>{title}</Card.Title>
       </Card.Header>
       <Card.Body>
-        <Stack gap="3">{children}</Stack>
+        <Stack>{children}</Stack>
       </Card.Body>
     </Card.Root>
   )

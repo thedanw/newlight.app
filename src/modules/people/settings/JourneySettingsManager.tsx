@@ -289,7 +289,7 @@ export function JourneySettingsManager() {
    const gridColumns = `44px minmax(180px, 1fr) repeat(${orderedStages.length}, minmax(${STAGE_COL_MIN}px, 1fr)) 48px`
 
   return (
-        <Stack gap="4">
+        <Stack>
           {message && <Text>{message}</Text>}
 
           {/* Add buttons — popover with save/cancel */}
@@ -629,7 +629,7 @@ export function JourneySettingsManager() {
           </div>
 
           {/* Save / Cancel */}
-          <HStack gap="3" justifyContent="flex-end">
+          <HStack justifyContent="flex-end">
             <Button variant="outline" onClick={handleCancel} disabled={!isDirty}>Cancel</Button>
             <Button onClick={handleSave} disabled={!isDirty}>Save</Button>
           </HStack>

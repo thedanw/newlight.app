@@ -43,8 +43,8 @@ export default function JourneyGridPage() {
         <Page.Heading level={1} icon={Users} title="Journey" />
       </Page.Header>
       <Page.Body>
-        <Stack gap="6">
-          <Stack flexDirection="row" gap="4">
+        <Stack>
+          <Stack flexDirection="row">
             <Field.Root>
               <Field.Label>Demographic</Field.Label>
               <Select.Root collection={demographicCollection} value={[demographic]} onValueChange={(details) => setDemographic(details.value[0])}>

@@ -110,7 +110,7 @@ export const JourneySection = forwardRef<JourneySectionHandle, JourneySectionPro
         ) : groups.length === 0 ? (
           <Text color="fg.muted">No journey tracks configured.</Text>
         ) : (
-          <Stack gap="4">
+          <Stack>
             <Table.Root striped>
               <Table.Head>
                 <Table.Row>

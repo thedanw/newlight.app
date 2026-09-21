@@ -43,4 +43,16 @@ export const shadows = defineSemanticTokens.shadows({
       _dark: 'inset 8px 0 12px -8px {colors.black.a6}',
     },
   },
+  'inset-up': {
+    value: {
+      _light: 'inset 0px -10px 12px -10px {colors.gray.a4}',
+      _dark: 'inset 0px -10px 12px -10px {colors.black.a6}',
+    },
+  },
+  'lg-up': {
+    value: {
+      _light: '0px -8px 16px {colors.gray.a4}, 0px 0px 1px {colors.gray.a4}',
+      _dark: '0px -8px 16px {colors.black.a8}, 0px 0px 1px inset {colors.gray.a8}',
+    },
+  },
 })

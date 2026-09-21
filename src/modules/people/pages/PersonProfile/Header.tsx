@@ -21,7 +21,7 @@ export function PersonHeader({ person, onEdit, canEdit = true }: PersonHeaderPro
   return (
     <Card.Root>
       <Card.Body>
-        <Stack gap="3">
+        <Stack>
           <HStack justifyContent="space-between" alignItems="center">
             <Stack gap="1">
               <Heading>{name}</Heading>

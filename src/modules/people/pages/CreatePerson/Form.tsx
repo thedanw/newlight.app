@@ -108,14 +108,14 @@ export function PersonForm({ initialValue, submitLabel, onSubmit, onCancel, allo
 
   return (
     <form onSubmit={handleSubmit}>
-      <Stack gap="6">
+      <Stack>
         {/* Personal Information */}
         <Card.Root>
           <Card.Header>
             <Card.Title>Personal Information</Card.Title>
           </Card.Header>
           <Card.Body>
-            <Stack gap="4">
+            <Stack>
               <Field.Root required>
                 <Field.Label>First name</Field.Label>
                 <Input value={value.firstname} onChange={(event) => update('firstname', event.target.value)} />
@@ -142,7 +142,7 @@ export function PersonForm({ initialValue, submitLabel, onSubmit, onCancel, allo
             <Card.Title>Demographics</Card.Title>
           </Card.Header>
           <Card.Body>
-            <Stack gap="4">
+            <Stack>
               <Field.Root required>
                 <Field.Label>Demographic</Field.Label>
                 <Select.Root collection={demographicCollection} value={demographicValue} onValueChange={(details) => update('demographic', details.value[0] as Person['demographic'])}>
@@ -182,7 +182,7 @@ export function PersonForm({ initialValue, submitLabel, onSubmit, onCancel, allo
             <Card.Title>Household</Card.Title>
           </Card.Header>
           <Card.Body>
-            <Stack gap="4">
+            <Stack>
               <Field.Root>
                 <Select.Root collection={householdCollection} value={value.household_id ? [value.household_id] : []} onValueChange={(details) => update('household_id', details.value[0] ?? null)}>
                   <Select.Label>Household</Select.Label>
@@ -204,7 +204,7 @@ export function PersonForm({ initialValue, submitLabel, onSubmit, onCancel, allo
             <Card.Title>Journey</Card.Title>
           </Card.Header>
           <Card.Body>
-            <Stack gap="4">
+            <Stack>
               <Field.Root required>
                 <Field.Label>Journey track IDs</Field.Label>
                 {tracksQuery.data?.length ? tracksQuery.data.map((track) => (
@@ -231,7 +231,7 @@ export function PersonForm({ initialValue, submitLabel, onSubmit, onCancel, allo
               <Card.Title>Admin</Card.Title>
             </Card.Header>
             <Card.Body>
-              <Stack gap="4">
+              <Stack>
                 <Field.Root>
                   <Field.Label>Access permission</Field.Label>
                   <Select.Root collection={accessPermissionCollection} value={accessPermissionValue} onValueChange={(details) => update('access_permission', details.value[0] as Person['access_permission'])}>

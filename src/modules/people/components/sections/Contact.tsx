@@ -62,7 +62,7 @@ export const ContactSection = forwardRef<ContactSectionHandle, { person: Person 
   return (
     <ProfileSection title="Contact">
       {isEditing ? (
-        <Grid gap="3" columns={{ base: 1, sm: 2 }}>
+        <Grid columns={{ base: 1, sm: 2 }}>
           {contactFields.map((field) => (
             <Field.Root key={field.key}>
               <Field.Label>{field.label}</Field.Label>
@@ -75,7 +75,7 @@ export const ContactSection = forwardRef<ContactSectionHandle, { person: Person 
           ))}
         </Grid>
       ) : (
-        <Stack gap="3">
+        <Stack>
           <p><strong>Email:</strong> {initialValues['email'] || 'Not provided'}</p>
           <p><strong>Mobile:</strong> {initialValues['mobile'] || 'Not provided'}</p>
           {canEdit && <Button size="sm" onClick={() => { setValues(initialValues); setIsEditing(true) }}>Edit</Button>}

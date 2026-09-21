@@ -184,14 +184,14 @@ export function LocationTrackPairing() {
 
   if (loading) {
     return (
-      <Stack gap="4" align="center">
+      <Stack align="center">
         <Text>Loading location pairings...</Text>
       </Stack>
     )
   }
 
   return (
-    <Stack gap="6">
+    <Stack>
       <HStack justifyContent="space-between" alignItems="center">
         <Heading textStyle="md">Location ↔ Track Pairing</Heading>
         <HStack gap="2">
@@ -222,7 +222,7 @@ export function LocationTrackPairing() {
         </Card.Header>
         <Card.Body>
           {pairings.length === 0 ? (
-            <Stack gap="4" align="center" p="6">
+            <Stack align="center" p="6">
               <Text color="fg.muted">No pairings configured</Text>
               <HStack gap="2">
                 <Button variant="outline" onClick={handleFetchLocations}>Fetch Locations First</Button>

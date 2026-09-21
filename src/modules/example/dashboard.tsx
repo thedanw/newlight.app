@@ -89,7 +89,7 @@ export default function ExampleDashboardPage() {
       <Page.HeaderBottom
         style={{ '--module-number': exampleManifest.number } as CSSProperties}
       >
-        <Stack gap="3" maxW="3xl">
+        <Stack maxW="3xl">
           <Text textStyle="sm">
             Every Park UI component, findable in ≤2 taps.
           </Text>
@@ -108,7 +108,7 @@ export default function ExampleDashboardPage() {
           <Heading textStyle="lg">Component catalog</Heading>
           This app uses Park UI components for its own UI. The catalog below shows all components, grouped by category, with a search input to filter them.
           <Button onClick={() => navigate('https://park-ui.com/docs/introduction')}>Park UI Docs</Button>
-        <Stack gap="8">
+        <Stack">
           {/* Category cards grid + table index */}
           <Tabs.Root defaultValue="categories">
             <Tabs.List>
@@ -119,7 +119,7 @@ export default function ExampleDashboardPage() {
 
             <Tabs.Content value="categories">
               {filteredCategories.length > 0 ? (
-                <Grid gap="4" columns={{ base: 1, md: 2, xl: 3 }}>
+                <Grid columns={{ base: 1, md: 2, xl: 3 }}>
                   {filteredCategories.map((category) => {
                     const CategoryIcon = category.icon
                     return (
@@ -210,7 +210,7 @@ export default function ExampleDashboardPage() {
           <Box borderTopWidth="1px" borderColor="border" />
 
           {/* Native Park UI overlay demos — Dialog + Drawer */}
-          <Stack gap="3">
+          <Stack>
             <Heading textStyle="md">Overlay demos</Heading>
             <Text textStyle="sm" color="fg.muted">
               Native Park UI Dialog and Drawer, opened from the dashboard.
@@ -224,12 +224,12 @@ export default function ExampleDashboardPage() {
           </Stack>
 
           {/* Loading / feedback strip */}
-          <Stack gap="3">
+          <Stack>
             <Heading textStyle="md">Loading & feedback</Heading>
             <Text textStyle="sm" color="fg.muted">
               Inline loaders and spinners — real app states, not isolated boxes.
             </Text>
-            <HStack gap="6" flexWrap="wrap">
+            <HStack flexWrap="wrap">
               <Loader text="Loading…" />
               <Spinner size="sm" />
               <Spinner size="md" />

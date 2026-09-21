@@ -94,8 +94,8 @@ function Section({
 }) {
   return (
     <Stack id={id} gap={{ base: '5', md: '6' }}>
-      <Stack gap="3">
-        <HStack gap="3" alignItems="baseline">
+      <Stack>
+        <HStack alignItems="baseline">
           <Text textStyle="xs" fontWeight="semibold" color="fg.subtle">
             {index}
           </Text>
@@ -222,7 +222,7 @@ export default function TypographyShowcasePage() {
               <Heading className={TEXT_STYLE_CLASSES[item.token]} textWrap="balance">
                 {item.sample}
               </Heading>
-              <HStack gap="3" justifyContent={{ base: 'flex-start', md: 'flex-end' }}>
+              <HStack justifyContent={{ base: 'flex-start', md: 'flex-end' }}>
                 <Code size="sm">{item.token}</Code>
                 <Text textStyle="xs" color="fg.muted" whiteSpace="nowrap">
                   {item.detail}
@@ -313,7 +313,7 @@ export default function TypographyShowcasePage() {
         title="Body copy"
         description="Reading text set to a comfortable measure. Lead opens the story, body carries it, small recedes into context."
       >
-        <Stack gap="6">
+        <Stack>
           <Stack gap="2">
             <Text textStyle="xs" fontWeight="semibold" color="fg.subtle">
               Lead · textStyle lg
@@ -355,7 +355,7 @@ export default function TypographyShowcasePage() {
         <Grid columns={{ base: 1, sm: 2, lg: 3 }} gap="5">
           <Card.Root>
             <Card.Body>
-              <Stack gap="3">
+              <Stack>
                 <Box h="24" bg="colorPalette.subtle.bg" borderRadius="l2" />
                 <Text textStyle="xs" color="fg.muted">
                   Figure 01 — New Light&apos;s fall series cover.
@@ -365,7 +365,7 @@ export default function TypographyShowcasePage() {
           </Card.Root>
           <Card.Root>
             <Card.Body>
-              <Stack gap="3">
+              <Stack>
                 <HStack gap="2">
                   <Badge size="sm" colorPalette="green">
                     Live
@@ -400,8 +400,8 @@ export default function TypographyShowcasePage() {
         title="Inline code"
         description="Five Code variants make inline snippets feel at home in any context — subtle in prose, solid when it needs to pop."
       >
-        <Stack gap="6">
-          <Grid columns={{ base: 1, sm: 2, lg: 3 }} gap="3">
+        <Stack>
+          <Grid columns={{ base: 1, sm: 2, lg: 3 }}>
             {CODE_VARIANTS.map((variant) => (
               <VariantTile key={variant} name={variant}>
                 <Code variant={variant}>const lab = 'design'</Code>
@@ -434,8 +434,8 @@ export default function TypographyShowcasePage() {
         title="Keyboard"
         description="Keys and shortcuts stay visually quiet until a shortcut is worth discovering — five variants across four sizes."
       >
-        <Stack gap="6">
-          <Grid columns={{ base: 1, sm: 2, lg: 3 }} gap="3">
+        <Stack>
+          <Grid columns={{ base: 1, sm: 2, lg: 3 }}>
             {KBD_VARIANTS.map((variant) => (
               <VariantTile key={variant} name={variant}>
                 <HStack gap="1">
@@ -464,7 +464,7 @@ export default function TypographyShowcasePage() {
             <Text textStyle="xs" fontWeight="semibold" color="fg.subtle">
               Shortcut combos
             </Text>
-            <HStack gap="6" flexWrap="wrap">
+            <HStack flexWrap="wrap">
               <HStack gap="1">
                 <Kbd>⌘</Kbd>
                 <Text textStyle="sm" color="fg.muted">
@@ -502,8 +502,8 @@ export default function TypographyShowcasePage() {
         title="Links"
         description="Two Link variants cover navigation and inline prose. Underline is the default voice; plain stays quiet inside sentences."
       >
-        <Stack gap="6">
-          <Grid columns={{ base: 1, sm: 2 }} gap="3">
+        <Stack>
+          <Grid columns={{ base: 1, sm: 2 }}>
             <VariantTile name="underline">
               <Link variant="underline" href="#" onClick={(event) => event.preventDefault()}>
                 Read the docs

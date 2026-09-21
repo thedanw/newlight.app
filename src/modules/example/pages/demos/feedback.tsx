@@ -28,9 +28,9 @@ export const feedbackDemos: Record<string, ReactNode> = {
     </Progress.Root>
   ),
   Skeleton: (
-    <Stack gap="3" w="full">
+    <Stack w="full">
       <SkeletonText noOfLines={2} />
-      <HStack gap="3">
+      <HStack>
         <SkeletonCircle boxSize="10" />
         <Skeleton h="4" flex="1" />
       </HStack>

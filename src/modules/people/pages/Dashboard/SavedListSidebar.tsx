@@ -58,7 +58,7 @@ export function SavedListSidebar({ onLoad, refreshKey = 0 }: { onLoad: (conditio
   return (
 <>
         <Heading>Saved lists</Heading>
-        <Stack gap="3" width="full">
+        <Stack width="full">
           {data?.map((list) => (
             <>
             <Stack key={list.id} gap="2">

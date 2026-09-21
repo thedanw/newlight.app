@@ -103,7 +103,7 @@ export function ElvantoSyncStatusWidget() {
         </Stack>
       </Card.Header>
       <Card.Body>
-        <Stack gap="4">
+        <Stack>
           {lastSync ? (
             <Stack gap="2">
               <Stack flexDirection="row" justify="space-between">

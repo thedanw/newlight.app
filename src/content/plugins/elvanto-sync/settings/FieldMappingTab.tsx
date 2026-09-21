@@ -76,7 +76,7 @@ export function FieldMappingTab() {
 
   if (checkingConnection) {
     return (
-      <Stack gap="4" align="center">
+      <Stack align="center">
         <Text>Checking connection status...</Text>
       </Stack>
     )
@@ -84,7 +84,7 @@ export function FieldMappingTab() {
 
   if (!hasConnection) {
     return (
-      <Stack gap="6">
+      <Stack>
         <Heading textStyle="md">Field Mappings</Heading>
         <Alert.Root>
           <Alert.Title>Connection required</Alert.Title>
@@ -102,7 +102,7 @@ export function FieldMappingTab() {
   const dynamicFieldOptions = getElvantoFieldOptions(discoveredCatalog)
 
   return (
-    <Stack gap="6">
+    <Stack>
       <Heading textStyle="md">Field Mappings</Heading>
       <Text color="fg.muted" textStyle="sm">
         Configure how Supabase fields map to Elvanto fields with conditional logic and transforms.
@@ -118,7 +118,7 @@ export function FieldMappingTab() {
             <Text fontSize="sm">
               Discover dynamic fields like categories, custom fields, and locations from your Elvanto account.
             </Text>
-            <Stack gap="4">
+            <Stack>
             <Button 
               size="sm"
               onClick={handleDiscoverFields} 

@@ -47,7 +47,7 @@ export function PeopleFilters({ filters, onChange }: PeopleFiltersProps) {
   }), [stages.data])
 
   return (
-        <Stack gap="4" width="full">
+        <Stack width="full">
           <Field.Root>
             <Field.Label>Demographic</Field.Label>
             <Select.Root collection={demographicCollection} value={[filters.demographic ?? '']} onValueChange={(details) => onChange({ ...filters, demographic: details.value[0] ? details.value[0] as NonNullable<PeopleListOptions['demographic']> : undefined })}>

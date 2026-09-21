@@ -107,7 +107,7 @@ export default function EditPersonPage() {
         </Page.Header>
 
       <Page.Body>
-        <Stack gap="6">
+        <Stack>
           <Breadcrumb.Root>
             <Breadcrumb.List>
               <Breadcrumb.Item><Breadcrumb.Link href="/people">People</Breadcrumb.Link></Breadcrumb.Item>

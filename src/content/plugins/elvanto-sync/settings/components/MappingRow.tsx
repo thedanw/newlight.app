@@ -95,8 +95,8 @@ export function MappingRow({ rule, index, appFields, elvantoFields, dynamicElvan
   const transformValue = rule.transform ? [rule.transform] : []
 
   return (
-    <Stack gap="3">
-      <HStack gap="3" alignItems="center" flexWrap="wrap" css={{ borderBottomWidth: '1px', borderColor: 'border', pb: '3' }}>
+    <Stack>
+      <HStack alignItems="center" flexWrap="wrap" css={{ borderBottomWidth: '1px', borderColor: 'border', pb: '3' }}>
         <Text textStyle="sm" color="fg.muted" minWidth="40px" textAlign="center">
           {index + 1}
         </Text>
@@ -186,7 +186,7 @@ export function MappingRow({ rule, index, appFields, elvantoFields, dynamicElvan
       </HStack>
 
       {expanded && (
-        <Stack mt="3" pt="3" borderTopWidth="1px" borderColor="border" gap="3">
+        <Stack mt="3" pt="3" borderTopWidth="1px" borderColor="border">
           <Stack gap="1" flex="1" minWidth="0">
             <Text textStyle="sm" color="fg.muted">Transform</Text>
             <Combobox.Root size="sm" collection={transformCollection} value={transformValue} onValueChange={(details) => onUpdate(index, { transform: details.value[0] || undefined })}>
@@ -249,7 +249,7 @@ function ConditionEditor({ condition, onChange, availableFields }: {
 
   if (!condition) {
     return (
-      <Stack gap="3">
+      <Stack>
         <Text textStyle="sm" color="fg.muted">No condition (always applies)</Text>
         <Button variant="outline" size="sm" onClick={() => onChange({ type: 'field_equals', field: '', operator: 'equals', value: '' })}>
           Add Condition
@@ -264,8 +264,8 @@ function ConditionEditor({ condition, onChange, availableFields }: {
 
   if (editMode === 'simple') {
     return (
-      <Stack gap="3">
-        <HStack gap="3" flexWrap="wrap">
+      <Stack>
+        <HStack flexWrap="wrap">
           <Combobox.Root collection={fieldCollection} value={fieldValue} onValueChange={(details) => onChange({ ...condition, field: details.value[0] || '' })}>
             <Combobox.Control>
               <Combobox.Input placeholder="Field" />
@@ -326,8 +326,8 @@ function ConditionEditor({ condition, onChange, availableFields }: {
   }
 
   return (
-    <Stack gap="3">
-      <HStack gap="3">
+    <Stack>
+      <HStack>
         <Badge variant="outline">Advanced Mode</Badge>
         <Combobox.Root collection={typeCollection} value={typeValue} onValueChange={(details) => onChange({ ...condition, type: details.value[0] || 'and' })}>
           <Combobox.Control>

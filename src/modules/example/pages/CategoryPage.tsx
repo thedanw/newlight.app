@@ -151,7 +151,7 @@ export default function CategoryPage({
         <Page.Heading level={2} icon={category.icon} title={category.name} />
       </Page.Header>
       <Page.Body>
-        <Stack">
+        <Stack>
           <HStack alignItems="center">
             <Box
               boxSize="12"

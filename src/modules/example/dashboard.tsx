@@ -89,7 +89,7 @@ export default function ExampleDashboardPage() {
       <Page.HeaderBottom
         style={{ '--module-number': exampleManifest.number } as CSSProperties}
       >
-        <Stack maxW="3xl">
+        <Stack>
           <Text textStyle="sm">
             Every Park UI component, findable in ≤2 taps.
           </Text>
@@ -108,7 +108,7 @@ export default function ExampleDashboardPage() {
           <Heading textStyle="lg">Component catalog</Heading>
           This app uses Park UI components for its own UI. The catalog below shows all components, grouped by category, with a search input to filter them.
           <Button onClick={() => navigate('https://park-ui.com/docs/introduction')}>Park UI Docs</Button>
-        <Stack">
+        <Stack>
           {/* Category cards grid + table index */}
           <Tabs.Root defaultValue="categories">
             <Tabs.List>
@@ -239,7 +239,7 @@ export default function ExampleDashboardPage() {
           </Stack>
         </Stack>
       </Page.Body>
-
+      
       {/* Dialog demo */}
       <Dialog.Root open={demoDialogOpen} onOpenChange={(details) => setDemoDialogOpen(details.open)}>
         <Dialog.Backdrop />

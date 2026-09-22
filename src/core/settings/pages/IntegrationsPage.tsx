@@ -120,33 +120,16 @@ export default function IntegrationsPage() {
 
   if (pages.length === 0 && plugins.length === 0) {
     return (
-      <Page.Main>
-        <Page.Header
-          style={{ '--module-number': 0 } as CSSProperties}
-        >
-          <Page.Heading level={1} icon={Settings} title="Integrations" />
-        </Page.Header>
-        <Page.Body>
           <Stack>
             <Heading textStyle="md">Integrations</Heading>
             <Text color="fg.muted" textStyle="sm">
               No integrations configured yet. Install plugins to add integrations.
             </Text>
           </Stack>
-        </Page.Body>
-      </Page.Main>
     )
   }
 
   return (
-    <Page.Main>
-      <Page.Header
-        style={{ '--module-number': 0 } as CSSProperties}
-      >
-        <Page.Heading level={1} icon={Settings} title="Integrations" />
-      </Page.Header>
-
-      <Page.Body>
         <Stack>
           <Heading textStyle="md">Integrations</Heading>
           <Text color="fg.muted" textStyle="sm">
@@ -235,7 +218,5 @@ export default function IntegrationsPage() {
             )}
           </Stack>
         </Stack>
-      </Page.Body>
-    </Page.Main>
   )
 }

@@ -30,6 +30,8 @@ export const numberInput = defineSlotRecipe({
     root: {
       isolation: 'isolate',
       position: 'relative',
+      background: 'gray.surface.bg',
+      color: 'fg.default',
       _disabled: {
         layerStyle: 'disabled',
       },

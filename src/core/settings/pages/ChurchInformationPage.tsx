@@ -372,14 +372,6 @@ export default function ChurchInformationPage() {
 
   return (
     <>
-    <Page.Main>
-      <Page.Header
-        style={{ '--module-number': 0 } as CSSProperties}
-      >
-        <Page.Heading level={1} icon={Settings} title="Church Information" />
-      </Page.Header>
-
-      <Page.Body>
         <Stack>
           <Card.Root>
             <Card.Header>
@@ -691,8 +683,6 @@ export default function ChurchInformationPage() {
             </Card.Body>
           </Card.Root>
         </Stack>
-      </Page.Body>
-    </Page.Main>
     </>
   )
 }

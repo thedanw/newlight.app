@@ -10,6 +10,8 @@ export const segmentGroup = defineSlotRecipe({
         _light: 'gray.2',
         _dark: 'gray.1',
       },
+      background: 'gray.surface.bg',
+      color: 'fg.default',
       borderRadius: 'l3',
       boxShadow: 'inset 0 0 0px 1px var(--shadow-color)',
       boxShadowColor: 'border',

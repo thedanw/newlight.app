@@ -45,13 +45,32 @@ Agents authoring modules; solo reviewer; future contributors.
   <Page.Body>{/* subpage content */}</Page.Body>
 </Page.Main>
 
+// Settings hosted page (content-only): the settings split shell
+// (src/core/settings/dashboard.tsx) owns the Page scaffold for the whole
+// /settings tree; hosted pages render their content only — no Page.Main,
+// Page.Header, or Page.Body (see core/settings/decision.md §12).
+<Stack>{/* settings page content */}</Stack>
+
 // Heading levels: 0 icon+title (home) · 1 ←back+icon+title (subpage) · 2 ←back+icon→title (deep).
 // Icon/title auto-read from ModuleBreadcrumbContext; explicit props override.
+
+// Settings sections/pages are the ONE exception to the self-scaffolded page
+// rule: they are CONTENT-ONLY components hosted by the settings split shell
+// (src/core/settings/dashboard.tsx), which owns Page.Main/Header/Body for
+// them. Registered settings components must NOT render Page.* slots.
+<Stack>{/* section/page content only */}</Stack>
 
 // Action footer: shell-owned, rendered ONCE by AppShell as a direct child of
 // Page.Root (absolute, out of flow, `inert` when idle). Forms hook in via
 // `useRegisterPageActions({ cancel, apply, isSaving, isDirty, applyLabel? })`;
 // the footer slides in only while `isDirty`. See `ui-ux/action-footer/decision.md`.
+//
+// SETTINGS EXCEPTION: hosted settings pages (sections/pages registered from a
+// module settings.ts) render CONTENT ONLY — the split shell in
+// src/core/settings/dashboard.tsx owns Page.Main/Header/Body, the header
+// (title/icon, level 0/1), and the two-pane layout. Never render Page slots
+// inside a hosted settings page. See core/settings/decision.md §12 and
+// ui-ux/decision.md §19.
 ```
 
 ## Decision Log: decision → Rationale (hierarchical; parent = decision, sub = dependent)
@@ -75,6 +94,11 @@ Agents authoring modules; solo reviewer; future contributors.
     9.1 PageActionsProvider + useRegisterPageActions (core/ui) → forms hook in, no per-page footer
     9.2 ActionFooter rendered once by AppShell (absolute in Page.Root, inert when idle) → no duplicate bars
     9.3 lint-pages.mjs bans Page.Footer in routed pages → single source of truth
+10 Settings split shell → hosted settings pages are content-only
+    10.1 settings.ts registers { sectionId, id, title, icon?, component } → src/core/settings/dashboard.tsx owns Page.Main/Header/Body for every /settings route
+    10.2 Hosted components render content only, never Page slots (lint-pages FILES_ALLOW_RAW) → no nested scaffold, no double headers; header (title/icon, level 0/1) + two-pane layout provided by the shell
+    9.4 Settings hosted pages are CONTENT-ONLY (no Page scaffold of their own) — the settings split shell (`src/core/settings/dashboard.tsx`) owns `Page.Main/Header/Body` for the whole `/settings` tree and is allowlisted in `lint-pages.mjs`; hosted pages registered via `settings.ts`/plugin hooks must not add their own scaffold → wrapper-owned scaffold for the iOS list + detail layout
+    9.4 Settings sections/pages (core + modules) are CONTENT-ONLY: the settings split shell owns their Page.Main/Header/Body; exempt via lint-pages FILES_ALLOW_RAW → one scaffold owner for the whole settings surface (see [core/settings/decision.md](../core/settings/decision.md) #12)
 
 ## Decision Gap Log
 1. Module-local recipe authoring template + lint scope → open

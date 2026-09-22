@@ -153,8 +153,8 @@ export function SyncHistoryTable() {
   const totalPages = Math.ceil(total / pageSize)
 
   return (
-    <Stack gap="6">
-      <Stack flexDirection="row" gap="3" justify="space-between" align="center">
+    <Stack>
+      <Stack flexDirection="row" justify="space-between" align="center">
         <Heading textStyle="md">Sync History</Heading>
         <Stack flexDirection="row" gap="2">
           <Select.Root collection={pageSizeCollection} value={[String(pageSize)]} onValueChange={(details) => { setPageSize(Number(details.value[0])); setPage(1); }}>
@@ -184,7 +184,7 @@ export function SyncHistoryTable() {
           <Card.Title>Filters</Card.Title>
         </Card.Header>
         <Card.Body>
-          <Stack flexDirection="row" gap="3" flexWrap="wrap">
+          <Stack flexDirection="row" flexWrap="wrap">
             <Stack gap="1" minWidth="150px">
               <Text textStyle="xs" color="fg.muted">Entity</Text>
               <Select.Root collection={entityCollection} value={[filters.entity]} onValueChange={(details) => setFilters({ ...filters, entity: details.value[0] })}>
@@ -345,43 +345,43 @@ export function SyncHistoryTable() {
               <Dialog.Title>Sync Run Details</Dialog.Title>
               <Dialog.Description>Entity: {selectedItem?.entity} | ID: {selectedItem?.id}</Dialog.Description>
             </Dialog.Header>
-            <Stack gap="4">
+            <Stack>
               <Stack gap="2">
-                <Stack flexDirection="row" gap="4">
+                <Stack flexDirection="row">
                   <Text textStyle="sm" color="fg.muted" minWidth="120px">Entity</Text>
                   <Text textStyle="sm" fontWeight="medium">{selectedItem?.entity}</Text>
                 </Stack>
-                <Stack flexDirection="row" gap="4">
+                <Stack flexDirection="row">
                   <Text textStyle="sm" color="fg.muted" minWidth="120px">Trigger</Text>
                   <Text textStyle="sm">{selectedItem?.trigger}</Text>
                 </Stack>
-                <Stack flexDirection="row" gap="4">
+                <Stack flexDirection="row">
                   <Text textStyle="sm" color="fg.muted" minWidth="120px">Status</Text>
                   <Text textStyle="sm" fontWeight="medium">{getStatusBadge(selectedItem?.status || '')}</Text>
                 </Stack>
-                <Stack flexDirection="row" gap="4">
+                <Stack flexDirection="row">
                   <Text textStyle="sm" color="fg.muted" minWidth="120px">Started</Text>
                   <Text textStyle="sm">{formatDate(selectedItem?.started_at)}</Text>
                 </Stack>
-                <Stack flexDirection="row" gap="4">
+                <Stack flexDirection="row">
                   <Text textStyle="sm" color="fg.muted" minWidth="120px">Completed</Text>
                   <Text textStyle="sm">{formatDate(selectedItem?.completed_at)}</Text>
                 </Stack>
-                <Stack flexDirection="row" gap="4">
+                <Stack flexDirection="row">
                   <Text textStyle="sm" color="fg.muted" minWidth="120px">Duration</Text>
                   <Text textStyle="sm">{formatDuration(selectedItem?.started_at || '', selectedItem?.completed_at || null)}</Text>
                 </Stack>
-                <Stack flexDirection="row" gap="4">
+                <Stack flexDirection="row">
                   <Text textStyle="sm" color="fg.muted" minWidth="120px">Processed</Text>
                   <Text textStyle="sm">{selectedItem?.items_processed.toLocaleString()}</Text>
                 </Stack>
-                <Stack flexDirection="row" gap="4">
+                <Stack flexDirection="row">
                   <Text textStyle="sm" color="fg.muted" minWidth="120px">Failed</Text>
                   <Text textStyle="sm" color={selectedItem && selectedItem.items_failed > 0 ? 'red' : 'inherit'}>
                     {selectedItem?.items_failed.toLocaleString()}
                   </Text>
                 </Stack>
-                <Stack flexDirection="row" gap="4">
+                <Stack flexDirection="row">
                   <Text textStyle="sm" color="fg.muted" style={{ minWidth: '120px' }}>Triggered By</Text>
                   <Text textStyle="sm">{selectedItem?.triggered_by_user || 'System'}</Text>
                 </Stack>

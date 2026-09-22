@@ -106,7 +106,8 @@ export const page = defineSlotRecipe({
       minWidth: '0',
       gap: GAP,
       padding: PAD,
-      paddingTop: '6',
+      paddingTop: GAP,
+      paddingBottom: GAP,
       position: 'relative',
     },
     footer: {

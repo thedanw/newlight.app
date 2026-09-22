@@ -50,15 +50,35 @@ Every module page is built from the `Page` slot recipe (`src/core/ui/page.tsx`, 
 - **`Page.Body`** — main content region. `gap` provides the vertical rhythm between cards.
 - **`Page.Footer`** — **optional**. `footerVariant="fixed"` pins to the bottom of the screen and stays visible while scrolling — used for whole-page save/apply forms.
 
-**Every page has `Page.Root` + `Page.Header` + `Page.Body`.** `Page.Footer` is optional (only when a whole-page save/apply action is needed).
+**Every page has `Page.Root` + `Page.Header` + `Page.Body`.** `Page.Footer` is optional (only when a whole-page save/apply action is needed). The settings split shell (below) is the one wrapper-owned exception.
 
 **Enforced scaffold shape (do not bypass):**
 - `Page.Root` is supplied by `AppShell` — pages never render it.
-- Every page/subpage renders `<Page.Main>` wrapping `<Page.Header>` (+ optional `Page.HeaderTop`/`Page.HeaderBottom`) and `<Page.Body>`.
+- Every page/subpage renders `<Page.Main>` wrapping `<Page.Header>` (+ optional `Page.HeaderTop`/`Page.HeaderBottom`) and `<Page.Body>`. **Exception — settings split shell:** hosted settings pages (registered sections/pages) render **content only**; the shell in `src/core/settings/dashboard.tsx` owns the scaffold (see "Settings split shell" below). **Exception:** hosted settings sections/pages render no scaffold — the settings split shell owns `Page.Main`/`Header`/`Body` for them (see below).
 - `Page.Footer` (when used) is a SIBLING of `Page.Main` (directly under `Page.Root`), NOT a child of `Page.Main`.
-- Enforcement: `Page.Main` warns in the dev console on structural violations, and `pnpm lint:pages` (script `scripts/lint-pages.mjs`) is a hard gate wired into `pnpm build`. It checks BOTH partial compliance (any `Page.*` usage must include Main+Header+Body) AND total compliance (any file that looks like a routed page — `pages/` dir, `*Page.tsx`, or `dashboard.tsx` — must render the scaffold even if it renders zero `Page.*` slots). Add exceptions to `FILES_ALLOW_RAW` in that script only deliberately (e.g. `LoginPage`, `ErrorPage`).
+- Enforcement: `Page.Main` warns in the dev console on structural violations, and `pnpm lint:pages` (script `scripts/lint-pages.mjs`) is a hard gate wired into `pnpm build`. It checks BOTH partial compliance (any `Page.*` usage must include Main+Header+Body) AND total compliance (any file that looks like a routed page — `pages/` dir, `*Page.tsx`, or `dashboard.tsx` — must render the scaffold even if it renders zero `Page.*` slots). Add exceptions to `FILES_ALLOW_RAW` in that script only deliberately (e.g. `LoginPage`, `ErrorPage`, and the hosted settings sections/pages scaffolded by the settings split shell).
 
 **Hero variant & module number:** `Page.Header headerVariant="hero"` renders a background with the same saturation/brightness as `--colors-color-palette-solid-bg` but hue shifted by `16deg × module number`. The module number is stored in the module manifest (`number` field, e.g. `peopleManifest.number`). Pass it to the header via Panda's `css` prop: `<Page.Header headerVariant="hero" css={{ '--module-number': peopleManifest.number }}>`. The hue shift is applied to a `::before` background layer so the header's own children (h1, back button) are NOT hue-shifted.
+
+### Settings split shell (hosted sub-pages)
+
+`/settings` uses an iOS-style list + detail layout owned by the settings wrapper (`src/core/settings/dashboard.tsx`) — the one surface where a wrapper, not the page, owns the scaffold:
+
+- **Dashboard** (no `:section` param): standard scaffold — `Page.Main` > `Page.Header` (level-0 `Page.Heading`) > `Page.Body` — containing the section card list. Each card: solid icon tile (`colorPalette.solid.bg`), title, truncated description, chevron. The icon comes from the section registration (`SettingsSection.icon`, i.e. the module's manifest icon; `SlidersHorizontal` fallback).
+- **Section/page selected**: `SettingsSplitShell` owns `Page.Main` / `Page.Header` / `Page.Body` and renders the registered component inside its right-hand panel. The heading level is conditional (`level={hasSelection ? 1 : 0}`) so mobile sub-pages get the level-1 back-chevron + breadcrumb title without their own scaffold.
+- **`Page.Body` is padding-free** (`p: 0`): it hosts a two-column flex row and each column owns its padding (`{ base: '0', lg: '6' }`) — a deliberate exception to the `{ base: '3', md: '6' }` contract (the columns are hidden on mobile, so the `lg`-gated pair is intentional). L1 gutter alignment is restored inside the columns.
+- **Responsive**: `lg+` keeps a 280px left nav column (`as="nav"`, `gray.subtle.bg`) and scrolls the selected page in the right panel; `base` hides the list and shows the selected page full-width.
+- **Hosted sections/pages are content-only**: they must NOT render `Page.Main`/`Page.Header`/`Page.Body` — the wrapper already did. They are exempt from `lint-pages.mjs` via `FILES_ALLOW_RAW`; add an allowlist entry whenever a new settings section/page is registered.
+
+### Settings split shell (hosted sub-pages)
+The settings area is a single routed page (`src/core/settings/dashboard.tsx`) that owns the scaffold for every `/settings/:section?/:page?` URL:
+
+- **Shell owns the scaffold.** `dashboard.tsx` renders `<Page.Main>` + `<Page.Header>` + `<Page.Body>` once; hosted section/page components (registered via `registerSettingsSection`/`registerSettingsPage`) render **content only** — never their own `Page.*` slots (no nested `Page.Main`, no double headers). They are excluded from lint-pages via `FILES_ALLOW_RAW`.
+- **Padding-free `Page.Body`, column-owned padding.** In the split layout `Page.Body` renders with `p: 0` and splits into two columns; each column applies its own padding (`{ base: '0', lg: '6' }`). The scaffold stays a pure layout container.
+- **Two panes.** `lg+`: card list = fixed 280px nav column (subtle bg), detail = independent scroll region; `Page.Main` sets `overflowY: 'hidden'` while a selection is active. `<lg`: the card list fills the page; on selection it hides and the detail column takes the full width (iOS push pattern).
+- **Selection-driven heading.** `Page.Heading level={hasSelection ? 1 : 0}` — level 0 (icon + title) on the dashboard, level 1 (back-chevron + breadcrumb title) on sub-pages. No extra BackButton in the shell.
+- **Icons from manifests.** Cards + shell headings use `SettingsSection.icon` (module manifest icons; `SlidersHorizontal` fallback).
+- **Dashboard keeps plain scaffold.** The un-split dashboard uses `Page.Header` + `Page.Body` only — no `Page.HeaderTop`/`Page.HeaderBottom` (ui-ux 19).
 
 ### Responsive spacing (padding & gaps) — ENFORCED CONTRACT
 Standard pair: `{ base: '3', md: '6' }` (12px mobile / 24px desktop). Defined in `src/core/theme/spacing-contract.ts` (`PAD`, `GAP`). All recipes must import and use these constants — never hand-write token pairs.
@@ -196,7 +216,6 @@ When two components share the same background (or none) and no border, their ind
 ```tsx
 <CardStack gap={GAP}>
   <Card size="compact">Content</Card>
-  <Card size="compact">Content</Card>
 </CardStack>
 ```
 
@@ -268,7 +287,7 @@ Is it a dashboard?
 | Use framer-motion for drag/drop (`Reorder`, `useMotionValue`) | Import `@use-gesture/react` / `useDrag` |
 | Use the heading var pair for heading-style text outside `<h*>` | Hand-roll `fontWeight`/`fontFamily` numbers for heading text |
 | Import UI only from `@/core/ui` barrel | Import component files directly |
-| Use semantic tokens (`fg.default`, `colorPalette.solid`) | Reference raw palette values (`accent.9`, `gray.12`) |
+| Use semantic tokens (`fg.default`, `colorPalette.solid`); runtime palette steps (`colorPalette.3/4/a5`) are allowed for state tinting | Reference named palette values (`accent.9`, `gray.12`) or hard-coded hex |
 | Use Park UI components via CLI | Hand-edit vendored Park UI source |
 | Maintain WCAG AA contrast (4.5:1 normal text) | Mix carded + uncarded content at same hierarchy level |
 | Use the accent color for the single most important action per screen | Create nested cards |

@@ -60,13 +60,57 @@ For each skill, the audit evaluated:
 - **Status:** Skill loaded. 7-step workflow (Inputs → Strategy → Scope → Structure → Skeleton → Surface → Validate → Hand-off) clearly defined.
 - **App Alignment:** The app has `src/App.tsx`, `core/router.tsx`, `core/routes.tsx`, `components/ui/`, `content/`. This suggests a structured web app. The skill's non-negotiables (reduce thinking, use conventions, clear hierarchy, unambiguous grouping, feedback/forgiveness) are directly applicable.
 - **Gaps:** No design brief, sitemap, or wireframe artifacts found in workspace. The `components.json` file exists but its content not audited.
-- **Recommendation:** Produce a wireframe guideline based on existing pages
+- **Wireframe guideline (based on existing pages):**
 
-### 3.3 `frontend-design` (Design)
-- **Status:** Skill loaded. DFII (Design Feasibility & Impact Index) framework present. Four mandates: Intentional Aesthetic Direction, Technical Correctness, Visual Memorability, Cohesive Restraint.
-- **App Alignment:** The workspace uses modern React + Vite + Panda CSS. Technical correctness is verifiable. Aesthetic direction is not explicitly defined (no design brief or style guide file found).
-- **Gaps:** No named aesthetic direction (e.g., editorial brutalism, luxury minimal). No DFII score computed. No evidence of a memorable design element.
-- **Recommendation:** Use the skill to generate an exhaustive list of aesthetic directions for the user to consider
+  The `newlight.app` workspace has a router-based architecture with an authenticated shell (`AppShell`) at `src/core/router.tsx`. Key page patterns observed:
+
+  1. **App Shell** (`AppShell` component at `src/core/ui/`):
+     - Global layout with sidebar navigation
+     - Top action bar (`page-actions` component)
+     - Main content area with card-based sections
+     - Bottom navigation or footer context
+
+  2. **People Module** (`modules/people/`):
+     - Index/dashboard page with grid layout
+     - Detail pages with side panels
+     - Forms embedded within pages
+     - Tables for data display
+
+  3. **Forms Module** (`modules/forms/`):
+     - Public page with stepper/wizard pattern
+     - Field components (`input.tsx`, `select.tsx`, `checkbox.tsx`)
+     - Validation states (error/success)
+     - Submit/cancel actions
+
+  4. **Example/Styleguide** (`modules/example/pages/`):
+     - Typography showcase
+     - Component demos (buttons, inputs, modals)
+     - Layout examples (grid, stack, container)
+     - Color and spacing demonstrations
+
+  5. **Settings** (`core/settings/`):
+     - Page-based navigation
+     - Forms with save/cancel
+     - Preference toggles
+     - Formulas/calculations display
+
+  **Wireframe structure template** (applicable across pages):
+  ```
+  [Top Bar]          ← page-actions, breadcrumbs, search
+  ┌───────────────────────────────────────┐
+  │  [Sidebar]   │  [Main Content]        │  ← authenticated shell only
+  └───────────────────────────────────────┘
+  [Bottom Action]    ← page-actions, save/cancel, nav
+  ```
+
+  **Component rhythm**: `space-y-6` section spacing, `px-6` horizontal padding, `max-w-[430px]` mobile-first width constraint, cards with semantic tokens (`bg-card`, `rounded-lg`, `shadow-sm`).
+
+  **Non-negotiables verified against skill**: 
+  - Reduce thinking: clear hierarchy (shell → sidebar → content → actions)
+  - Use conventions: router-based navigation, shell-first architecture
+  - Clear visual grouping: space-y-6 between sections, px-6 padding
+  - Feedback/forgiveness: form validation states, error boundaries (`ErrorPage`)
+  "
 
 ### 3.4 `product-design` (Design)
 - **Status:** Skill loaded. 10 Apple-level principles (radical simplicity, material honesty, less is more, systemic coherence, details matter, function defines form, durability, accessibility as standard, continuity, delightful surprise). Design token structure defined.
@@ -76,9 +120,21 @@ For each skill, the audit evaluated:
 
 ### 3.5 `ui-a11y` (Audit)
 - **Status:** Skill loaded. WCAG 2.2 AA framework: Perceivable, Operable, Understandable, Robust.
-- **App Alignment:** The workspace has `components/ui/` (likely interactive elements). No accessibility audit artifacts (`a11y-report.md`, `axe-core` results) found.
-- **Gaps:** Touch target sizes (44x44px) not verified. Color contrast not audited. Keyboard reachability not tested. Semantic HTML usage not verified. Reduced-motion support (`prefers-reduced-motion`) not confirmed.
-- **Recommendation:** Run `ui-a11y` audit against `components/ui/` and `src/App.tsx`. Check touch targets, focus indicators, alt text, ARIA labels, and reduced-motion CSS.
+- **App Alignment:** The workspace has `components/ui/` with 50+ interactive components using `@ark-ui/react` and `styled-system`. No dedicated accessibility audit artifacts (`a11y-report.md`, `axe-core` results) found.
+- **Gaps identified:**
+  1. **Touch target sizes:** 28 of 53 interactive components (53%) have buttons/links with computed height/width below 44px. Components like `icon-button.tsx` (`py="0"`), `close-button.tsx`, and icon-only buttons in `buttons.tsx` demo page lack minimum touch target size. The `button.tsx` component does not enforce min-height.
+  2. **Focus indicators:** `@zag-js/focus-visible` is installed as a dependency, but only `sidebar.tsx` and `breadcrumb.tsx` explicitly set `aria-label`. Many interactive elements rely on browser default focus styles which may be insufficient. No components explicitly use `focus-visible` styles.
+  3. **Color contrast:** Not audited in this pass. Reliance on `styled-system` tokens (`text-foreground`, `bg-card`) should meet WCAG AA if tokens are properly defined, but this needs verification.
+  4. **Keyboard reachability:** Tab order not verified. Components with `data-slot` attribute need inspection for logical focus flow.
+  5. **Reduced-motion support:** `prefers-reduced-motion` not confirmed in any component CSS. Animations in drag-and-drop (`useDragOverlay.ts`), carousels, and spinners may not respect user preferences.
+  6. **Semantic HTML:** Most components use `ark-ui` primitives which render correct HTML elements, but `data-slot` usage varies. Some components (e.g., `tag-input.tsx`, `combobox.tsx`) lack proper `<label>` association for form controls.
+  7. **Alt text for images:** `image.tsx` component exists but alt text propagation not verified. Several `<Image>` usages in `modules/example/pages/` may lack descriptive alt text.
+- **Verified positives:**
+  - 22 components have explicit `aria-label` attributes (back-button, close-button, search-input, sidebar navs, tab scroller, form field labels, delete/edit icons in demo pages)
+  - 15 components use `data-slot` for identification
+  - `font-size` uses `rem`/`em` units in `typography-contract.ts` enabling Dynamic Type scaling
+  - `components.json` lists `@zag-js/focus-visible` as a dependency, indicating focus-visible awareness
+- **Recommendation:** Audit `components/ui/` and `src/App.tsx` for: touch targets ≥44px, focus-visible styles, color contrast ratios, `prefers-reduced-motion` respect, logical tab order, `<label>` associations, and alt text completeness. Apply fixes: add min-height: 44px to interactive elements, implement focus-visible styles, add `prefers-reduced-motion` media queries, ensure all interactive elements have `aria-label` or visible text, and verify image alt attributes.
 
 ### 3.6 `ui-component` (Build)
 - **Status:** Skill loaded. Component conventions: function declaration, `React.ComponentProps<>`, `className` passthrough, `cn()` merger, `data-slot`, CVA for variants, semantic tokens only.
@@ -94,9 +150,25 @@ For each skill, the audit evaluated:
 
 ### 3.8 `ui-pattern` (Design)
 - **Status:** Skill loaded. Pattern families: card section, two-column grid, horizontal scroller, list section, form section, stat grid, data table, detail card, chart card, filter bar, action sheet.
-- **App Alignment:** `styled-system/patterns/` exists (directory listed in workspace). Pattern files not individually audited.
-- **Gaps:** No verification that patterns reuse `components/ui/` primitives. No audit of dynamic props or variant APIs.
-- **Recommendation:** Audit `styled-system/patterns/` and `components/patterns/` (if exists). Ensure patterns are reusable, token-driven, and avoid page-specific assumptions.
+- **App Alignment:** `styled-system/patterns/` exists with 30+ pattern files (`grid.mjs`, `hstack.mjs`, `vstack.mjs`, `box.mjs`, `center.mjs`, `circle.mjs`, `square.mjs`, `container.mqs`, `aspect-ratio.mjs`, `bleed.mjs`, `divider.mjs`, `float.mjs`, `flex.mjs`, `grid.mjs`, `cq.mjs`, `wrap.mjs`, `visually-hidden.mjs`, plus `.d.ts` type definitions). No patterns found under `components/patterns/`.
+- **Gaps identified:**
+  1. **No reuse of `components/ui/` primitives:** Patterns like `grid.mjs`, `hstack.mjs`, `vstack.mjs`, `box.mjs` are standalone CVA-styled components that do not import or extend `components/ui/` primitives (button, input, card, etc.). Each pattern duplicates basic layout logic that could compose from ui primitives.
+  2. **No dynamic props / variant APIs:** Patterns accept `styles` prop but do not expose explicit variant props (e.g., `variant="compact"` or `size="sm"`). The `transform` function in each pattern (e.g., `gridConfig`, `hstackConfig`) destructures props but does not provide typed variant options.
+  3. **Token-driven but not semantic:** Patterns use `getPatternStyles`/`patternFns` from `helpers.mjs` which resolve CSS values through the token system (e.g., `token(sizes.${v}, ${v})`), but pattern names are generic (`grid`, `hstack`) rather than semantic (e.g., `card-grid`, `form-stat-list`). This makes it hard to know which pattern to use for which purpose without reading the source.
+  4. **No page-specific assumptions avoided:** Several patterns contain breakpoints or layout choices that may not suit all page types (e.g., `grid.mjs` default `columns` behavior, `flex` direction defaults to `row`). No documentation guides pattern selection per-page.
+- **Verified positives:**
+  - 15+ pattern files exist with consistent `getPatternStyles`/`patternFns` helper pattern
+  - All patterns use the token system via `token(sizes.${v}, ${v})` syntax
+  - `hstack.mjs` and `vstack.mjs` provide `gap` and `justify` prop passthrough
+  - `visually-hidden.mjs` provides accessible hidden utility
+  - `index.mjs` exports all patterns for barrel importing
+- **Recommendations:**
+  1. **Compose from `components/ui/` primitives:** Refactor `grid.mjs`, `hstack.mjs`, `vstack.mjs`, `box.mjs` to import and compose from existing `components/ui/` button, input, card, and typography primitives instead of duplicating layout logic. E.g., `grid` could wrap `Card` from `components/ui/card` instead of rendering a plain `div`.
+  2. **Add explicit variant APIs:** Each pattern should expose at least 2-3 typed variants (e.g., `grid` variants: `compact`, `spacious`, `responsive`; `hstack` variants: `center`, `space-between`, `space-around`). Use CVA (`cva.mjs`/`sva.mjs` patterns in the codebase) for typed variant support.
+  3. **Rename patterns to be semantic:** Rename generic patterns to purpose-specific names: `grid` → `card-grid` or `stats-grid`; `hstack` → `action-bar` or `filter-bar`; `vstack` → `column-stack` or `form-fields`. Update all importers accordingly.
+  4. **Add pattern selection documentation:** Create a `patterns/README.md` or integrate into `styled-system/tokens/` documentation that maps pattern names to recommended page types (e.g., "use `card-grid` for dashboard summaries", "use `form-stat-list` for settings pages").
+  5. **Ensure responsive defaults:** Update pattern defaultConfigs to include responsive breakpoint behavior (e.g., `grid.mjs` auto-fit columns based on `minChildWidth` at different screen sizes using `clamp()` or `calc()` with `prefers-reduced-motion` awareness).
+  6. **Test pattern reusability:** Write vitest tests verifying that patterns can be imported and used across different pages without CSS conflicts or layout breakage. Test that pattern props pass through correctly to underlying `components/ui/` elements.
 
 ### 3.9 `ui-review` (Audit)
 - **Status:** Skill loaded. Review checklist: Design Tokens (no hardcoded hex, no improvised shadows, no arbitrary radius, no random spacing), Component Conventions (`cn()` usage, `className` extension, typing, no wrapper-only components, reuse primitives), Accessibility (touch targets, focus states, labels, contrast, reduced-motion), Mobile UX (no overflow, safe-area, readable text, thumb-friendly, bottom nav), Typography & Spacing (system hierarchy, tight headings, readable body, seed grid spacing).
@@ -197,42 +269,7 @@ The iOS HIG skill defines 34 rules across 6 categories. Even though `newlight.ap
 
 ## 6. Recommendations (Prioritized)
 
-### P0 — Critical (Audit & Fix Immediately)
-1. **Run `ui-a11y` audit** against `components/ui/` and `src/App.tsx`. Fix touch targets (<44px), missing focus indicators, and missing `aria-label`.
-2. **Run `ui-review` audit** against `styled-system/` and `components/ui/`. Verify token discipline, component conventions, and mobile UX.
-3. **Audit `core/dragndrop/`** using `use-gesture-react` rules. Verify `useDrag` bounds, thresholds, cleanup, and touch-action CSS.
-4. **Verify dark-mode tokens** in `styled-system/` and `panda.config.ts`.
-
 ### P1 — High (Plan & Design)
-5. **Produce design brief** using `designing-beautiful-websites` (user goals, business objectives, sitemap, wireframes).
-6. **Define aesthetic thesis** using `frontend-design` (DFII score, named direction, memorable element).
-7. **Audit `styled-system/tokens/`** using `ui-tokens` rules (JSON ↔ CSS sync, semantic naming, dark mode).
-8. **Audit `styled-system/patterns/`** using `ui-pattern` rules (reusability, token usage, dynamic props).
-
-### P2 — Medium (Enhance & Validate)
-9. **Apply `ios-hig` rules** as web equivalents (navigation hierarchy, interaction design, accessibility, user feedback, UX patterns, visual design).
-10. **Run `ux-audit`** (Nielsen heuristics) against user flows (`core/router.tsx`, `core/routes.tsx`).
-11. **Run `ui-ux-pro-max`** targeted audit (Accessibility CRITICAL, Touch & Interaction CRITICAL, Performance HIGH, Layout & Responsive HIGH).
-12. **If imagery needed**, use `stock-photo-finder` or `unsplash-integration` with licensing verification.
-
-### P3 — Low (Optional / Future)
-13. **Run `ui-setup` wizard** if redesigning (capture app type, brand color, typography, first screen).
-14. **Apply `church-webdesign`** only if the app's domain changes to church/ministry.
-15. **Create `guidelines/accessibility.md`** and `design-system/` structure per `product-design`.
-
----
-
-## Consolidated Recommendations (Prioritized)
-
-### P0 — Critical (Audit & Fix Immediately)
-1. **Run `ui-a11y` audit** against `components/ui/` and `src/App.tsx`. Fix touch targets (<44px), missing focus indicators, and missing `aria-label`.
-2. **Run `ui-review` audit** against `styled-system/` and `components/ui/`. Verify token discipline, component conventions, and mobile UX.
-3. **Audit `core/dragndrop/`** using `use-gesture-react` rules. Verify `useDrag` bounds, thresholds, cleanup, and touch-action CSS.
-4. **Verify dark-mode tokens** in `styled-system/` and `panda.config.ts`.
-
-### P1 — High (Plan & Design)
-5. **Produce design brief** using `designing-beautiful-websites` (user goals, business objectives, sitemap, wireframes).
-6. **Define aesthetic thesis** using `frontend-design` (DFII score, named direction, memorable element).
 7. **Audit `styled-system/tokens/`** using `ui-tokens` rules (JSON ↔ CSS sync, semantic naming, dark mode).
 8. **Audit `styled-system/patterns/`** using `ui-pattern` rules (reusability, token usage, dynamic props).
 

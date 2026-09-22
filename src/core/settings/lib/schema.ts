@@ -1,4 +1,5 @@
 import type { ComponentType } from 'react'
+import type { LucideIcon } from 'lucide-react'
 import { getAllSettingsSections as getPluginSections, getAllSettingsPages as getPluginPages } from '@/core/plugins/HookRegistry'
 
 /**
@@ -19,6 +20,13 @@ export interface SettingsSection {
   component: ComponentType
   /** Lower sorts first. */
   order?: number
+  /**
+   * Icon shown in the iOS-style settings list / side nav.
+   * Modules should pass their own manifest icon (e.g. `peopleManifest.icon`)
+   * so the settings card matches the module. Sections without an explicit
+   * icon fall back to a generic icon in the dashboard.
+   */
+  icon?: LucideIcon
 }
 
 export interface SettingsPage {

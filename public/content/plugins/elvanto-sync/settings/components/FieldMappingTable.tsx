@@ -184,7 +184,7 @@ export function FieldMappingTable({ disabled = false, dynamicFieldOptions = [] }
 
   if (loading) {
     return (
-      <Stack gap="4" align="center">
+      <Stack align="center">
         <Text>Loading field mappings...</Text>
       </Stack>
     )
@@ -194,7 +194,7 @@ export function FieldMappingTable({ disabled = false, dynamicFieldOptions = [] }
     return (
       <Card.Root>
         <Card.Body>
-          <Stack gap="3" align="center" p="6">
+          <Stack align="center" p="6">
             <Text color="fg.muted" textStyle="sm" textAlign="center">
               Field mappings are disabled until an Elvanto API key is saved and tested.
               Please go to the <strong>Connection</strong> tab to configure your API key.
@@ -206,7 +206,7 @@ export function FieldMappingTable({ disabled = false, dynamicFieldOptions = [] }
   }
 
   return (
-    <Stack gap="6">
+    <Stack>
       <Heading textStyle="md">Field Mappings</Heading>
       <Text color="fg.muted" textStyle="sm">
         Configure how Supabase fields map to Elvanto fields with conditional logic and transforms.
@@ -219,12 +219,12 @@ export function FieldMappingTable({ disabled = false, dynamicFieldOptions = [] }
         </Card.Header>
         <Card.Body>
           {mappings.length === 0 ? (
-            <Stack gap="4" align="center" p="6">
+            <Stack align="center" p="6">
               <Text color="fg.muted">No mapping rules yet</Text>
               <Button onClick={addMapping}>Add First Mapping</Button>
             </Stack>
           ) : (
-            <Stack gap="3">
+            <Stack>
                 {mappings.map((rule, index) => (
                     <MappingRuleCard
                       key={rule.id}
@@ -242,7 +242,7 @@ export function FieldMappingTable({ disabled = false, dynamicFieldOptions = [] }
           )}
         </Card.Body>
         <Card.Footer>
-          <HStack gap="3" justify="end">
+          <HStack justify="end">
             <Button variant="outline" onClick={addMapping}>+ Add Mapping</Button>
             <Button onClick={saveMappings} loading={saving} disabled={saving}>Save All</Button>
           </HStack>
@@ -303,8 +303,8 @@ function MappingRuleCard({ rule, index, appFields, elvantoFields, dynamicElvanto
   const transformValue = rule.transform ? [rule.transform] : []
 
   return (
-    <Stack gap="3">
-      <HStack gap="3" alignItems="center" flexWrap="wrap" css={{ borderBottomWidth: '1px', borderColor: 'border', pb: '3' }}>
+    <Stack>
+      <HStack alignItems="center" flexWrap="wrap" css={{ borderBottomWidth: '1px', borderColor: 'border', pb: '3' }}>
         <Stack gap="1" flex="1" minWidth="0">
           <Text textStyle="sm" color="fg.muted">Elvanto Field</Text>
           <Combobox.Root size="sm" collection={elvantoFieldCollection} value={elvantoFieldValue} onValueChange={(details) => onUpdate(index, { elvantoField: details.value[0] || '' })}>
@@ -381,7 +381,7 @@ function MappingRuleCard({ rule, index, appFields, elvantoFields, dynamicElvanto
       </HStack>
 
       {expanded && (
-        <Stack mt="3" pt="3" borderTopWidth="1px" borderColor="border" gap="3">
+        <Stack mt="3" pt="3" borderTopWidth="1px" borderColor="border">
           <Stack gap="1" flex="1" minWidth="0">
             <Text textStyle="sm" color="fg.muted">Transform</Text>
             <Combobox.Root size="sm" collection={transformCollection} value={transformValue} onValueChange={(details) => onUpdate(index, { transform: details.value[0] || undefined })}>
@@ -443,7 +443,7 @@ function ConditionEditor({ condition, onChange, availableFields }: {
 
   if (!condition) {
     return (
-      <Stack gap="3">
+      <Stack>
         <Text textStyle="sm" color="fg.muted">No condition (always applies)</Text>
         <Button variant="outline" size="sm" onClick={() => onChange({ type: 'field_equals', field: '', operator: 'equals', value: '' })}>
           Add Condition
@@ -458,8 +458,8 @@ function ConditionEditor({ condition, onChange, availableFields }: {
 
   if (editMode === 'simple') {
     return (
-      <Stack gap="3">
-        <HStack gap="3" flexWrap="wrap">
+      <Stack>
+        <HStack flexWrap="wrap">
           <Combobox.Root collection={fieldCollection} value={fieldValue} onValueChange={(details) => onChange({ ...condition, field: details.value[0] || '' })}>
             <Combobox.Control>
               <Combobox.Input placeholder="Field" />
@@ -520,8 +520,8 @@ function ConditionEditor({ condition, onChange, availableFields }: {
   }
 
   return (
-    <Stack gap="3">
-      <HStack gap="3">
+    <Stack>
+      <HStack>
         <Badge variant="outline">Advanced Mode</Badge>
         <Combobox.Root collection={typeCollection} value={typeValue} onValueChange={(details) => onChange({ ...condition, type: details.value[0] || 'and' })}>
           <Combobox.Control>

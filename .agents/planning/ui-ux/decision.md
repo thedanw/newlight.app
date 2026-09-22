@@ -139,7 +139,7 @@ Solo developer; small-context LLM agents building bolt-on modules; future contri
    16.3 `Page.Header` = page chrome; scrolls WITH the page (never fixed); BackButton on sub pages, h1 on dashboard pages
    16.4 `Page.Body` = main content region
    16.5 `Page.Footer` = shell-owned slot; rendered ONCE by AppShell inside `Page.Root` (absolute, out of flow, `inert` when idle) → whole-page save/apply forms hook in via `useRegisterPageActions` (supersedes `footerVariant="fixed"`; see 17)
-   16.6 Every page has `Page.Root` + `Page.Header` + `Page.Body`; `Page.Footer` optional → mandatory scaffold, optional action bar
+   16.6 Every page has `Page.Root` + `Page.Header` + `Page.Body`; `Page.Footer` optional → mandatory scaffold, optional action bar. EXCEPTION: settings hosted sub-pages are content-only — the settings split shell owns their scaffold (19.2)
    16.7 Hero variant: `Page.Header headerVariant="hero"` tints header with module accent hue → same saturation/brightness as `--colors-color-palette-solid-bg`, hue shifted by `16deg × module number`
    16.8 Module number stored in module manifest (`number` field) → drives hero hue shift; passed to header via Panda's `css` prop (`css={{ '--module-number': peopleManifest.number }}`) keeps `Page.Header` a plain `withContext`
    16.9 Hero hue shift applied to a `::before` background layer (not the header itself) → children (h1, back button) NOT hue-shifted
@@ -159,3 +159,11 @@ Solo developer; small-context LLM agents building bolt-on modules; future contri
    18.5 Responsive: on `md+`, secondary/utility buttons may shift to header right-alignment; primary fields stay left-aligned.
    18.6 Enforcement: `lint-pages.mjs` allows `Actions` in allowed children; `Page.Main` validation includes `Actions`.
    18.7 Separation from `Page.Footer`: `Page.Footer` = shell-owned dirty-state save/apply (`useRegisterPageActions`). `Page.Actions` = static page-level actions. Never mix the two.
+19 Settings split shell (iOS list + detail)
+   19.1 `/settings` dashboard = standard scaffold (Main > Header level-0 > Body) with a section card list; cards = solid icon tile + title + truncated description + chevron → iOS settings list; icon from `SettingsSection.icon` (module manifest icon, `SlidersHorizontal` fallback)
+   19.2 Selected section/page renders `SettingsSplitShell` (`src/core/settings/dashboard.tsx`) — the ONLY wrapper that owns `Page.Main`/`Header`/`Body` on behalf of hosted content; hosted sections/pages are content-only (no `Page.*` slots) → one scaffold owner, no nested scaffolds
+   19.3 Shell heading level conditional (`level={hasSelection ? 1 : 0}`) → level 1 = back-chevron + breadcrumb title on mobile (16.3 pattern) without per-page headers
+   19.4 `Page.Body` padding-free (`p: 0`); the two hosted columns own their padding (`{ base: '0', lg: '6' }`) → L1 alignment restored inside columns; documented exception to the `{ base: '3', md: '6' }` contract (columns are hidden at `base`)
+   19.5 `lg+`: 280px `as="nav"` column (`gray.subtle.bg`) persists and the page scrolls in the right panel (`Page.Main` gets `overflowY: 'hidden'` while a selection is active); `base`: list hides, page fills viewport → list+detail without the panel stack (8.x)
+   19.6 Card states use runtime palette steps (`colorPalette.3` bg, `colorPalette.4` hover, `colorPalette.a5` border, `colorPalette.9` focus ring) → tinted iOS-style states, zero new tokens
+   19.7 lint-pages `FILES_ALLOW_RAW` exempts hosted settings pages → gate stays strict elsewhere; new settings pages must be added to the allowlist

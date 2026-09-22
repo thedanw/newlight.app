@@ -11,8 +11,9 @@ export const card = defineSlotRecipe({
       flexDirection: 'column',
       overflow: 'hidden',
       position: 'relative',
-      p: { base: '3', md: '6' },
-      pt: { base: '3', md: '6' },
+      gap: GAP,
+      p: PAD,
+      pt: PAD,
     },
     header: {
       display: 'flex',

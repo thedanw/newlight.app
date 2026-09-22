@@ -1,5 +1,6 @@
 import { registerSettingsSection } from '@/core/settings/lib/schema'
 import PeopleSettingsPage from './settings/PeopleSettingsPage'
+import { peopleManifest } from './manifest'
 
 /**
  * People module settings registration — demo of the core #41
@@ -11,5 +12,6 @@ registerSettingsSection({
   title: 'People Settings',
   description: 'People module settings.',
   component: PeopleSettingsPage,
+  icon: peopleManifest.icon,
   order: 10,
 })

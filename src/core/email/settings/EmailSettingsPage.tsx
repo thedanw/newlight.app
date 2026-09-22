@@ -1,6 +1,5 @@
 'use client'
-import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react'
-import { Mail } from 'lucide-react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Stack } from 'styled-system/jsx'
 import {
@@ -8,7 +7,6 @@ import {
   Field,
   Heading,
   Input,
-  Page,
   RadioCardGroup,
   Switch,
   Text,
@@ -122,26 +120,11 @@ export default function EmailSettingsPage() {
   })
 
   if (loading) {
-    return (
-      <Page.Main>
-        <Page.Header style={{ '--module-number': 0 } as CSSProperties}>
-          <Page.Heading level={1} icon={Mail} title="Email Settings" />
-        </Page.Header>
-        <Page.Body>
-          <Text color="fg.muted">Loading email settings…</Text>
-        </Page.Body>
-      </Page.Main>
-    )
+    return <Text color="fg.muted">Loading email settings…</Text>
   }
 
   return (
-    <Page.Main>
-      <Page.Header style={{ '--module-number': 0 } as CSSProperties}>
-        <Page.Heading level={1} icon={Mail} title="Email Settings" />
-      </Page.Header>
-
-      <Page.Body>
-        <Stack>
+    <Stack>
           <Heading textStyle="md">Email Settings</Heading>
           <Text color="fg.muted" textStyle="sm">
             Configure how the system sends emails — transport, sender defaults, and template branding.
@@ -346,7 +329,5 @@ export default function EmailSettingsPage() {
             </Card.Body>
           </Card.Root>
         </Stack>
-      </Page.Body>
-    </Page.Main>
   )
 }

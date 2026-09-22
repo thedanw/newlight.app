@@ -2,6 +2,7 @@ import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { lazy } from 'react'
 import ErrorPage from '@/core/errors/ErrorPage'
 import { AppShell } from '@/core/ui'
+import { RequireAuth } from '@/core/guards/RequireAuth'
 import { exampleRoutes } from '@/modules/example/routes'
 import { formsRoutes } from '@/modules/forms/routes'
 import { peopleRoutes } from '@/modules/people/routes'
@@ -16,7 +17,14 @@ export const router = createBrowserRouter([
     // Single shared app shell (Sidebar + Page.Root + ErrorBoundary + Suspense)
     // for every authenticated surface: the styleguide, module dashboards, and
     // settings. Public/unauthenticated routes live outside this shell.
-    element: <AppShell />,
+    // RequireAuth (audit 1.3/H1) fail-closes the whole subtree while the
+    // session restores and bounces signed-out visitors to /login with the
+    // requested path in `state.from`, so deep links survive refresh + login.
+    element: (
+      <RequireAuth>
+        <AppShell />
+      </RequireAuth>
+    ),
     errorElement: <ErrorPage />,
     children: [
       { index: true, element: <Navigate to="/people" replace /> },

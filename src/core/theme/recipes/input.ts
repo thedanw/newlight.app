@@ -5,6 +5,8 @@ export const input = {
   jsx: ['Input', 'Field.Input'],
   base: {
     appearance: 'none',
+    background: 'gray.surface.bg',
+    color: 'fg.default',
     borderRadius: 'l2',
     height: 'var(--input-height)',
     minHeight: 'var(--input-height)',

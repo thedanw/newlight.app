@@ -1,6 +1,6 @@
 'use client'
 import { Suspense, type ReactNode } from 'react'
-import { useNavigate, useOutlet } from 'react-router-dom'
+import { useLocation, useNavigate, useOutlet } from 'react-router-dom'
 import { css } from 'styled-system/css'
 import { ActionFooter, ErrorBoundary, Loader, Page, PageActionsProvider, Sidebar } from '@/core/ui'
 import { useSettings } from '@/core/settings/lib/provider'
@@ -29,6 +29,7 @@ const appShellCss = css({
 export function AppShell({ children }: { children?: ReactNode }) {
   const navigate = useNavigate()
   const outlet = useOutlet()
+  const location = useLocation()
   const { logoUrl } = useSettings()
 
   return (
@@ -41,7 +42,7 @@ export function AppShell({ children }: { children?: ReactNode }) {
       />
       <PageActionsProvider>
         <Page.Root id="page-panel">
-          <ErrorBoundary>
+          <ErrorBoundary key={location.key}>
             <Suspense fallback={<Loader />}>{children ?? outlet}</Suspense>
           </ErrorBoundary>
           <ActionFooter />

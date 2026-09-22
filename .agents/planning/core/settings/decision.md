@@ -6,7 +6,7 @@ App-wide Settings dashboard (iOS-settings-style page) consolidates BrandForm dra
 
 1. Settings dashboard in `src/core/settings/` (not `src/modules/settings/`) → core platform concern; available to all modules
    1.1 Route via `src/core/routes.tsx` → `createBrowserRouter` in router.tsx only; module-system convention
-   1.2 Route = `/settings/:section?` (optional section param) → deep linking for module sub-pages (`/settings/groups`, `/settings/services`)
+   1.2 Route = `/settings/:section?/:page?` (optional params) → deep linking for module sub-pages (`/settings/people`, `/settings/integrations/elvanto-sync`)
 2. Sidebar `brand` tile → `settings` tile (label + icon), navigates to `/settings` → user requirement; app-wide surface
 3. BrandForm content → **Church Information** sub-section + 4 new fields (Church Name, App Name, Church Email, Website) → user requirement; theme knobs splittable later without breaking section pattern
 4. Live re-theme (5 knobs) + logo **save-on-apply** → ui-ux 10.9, decision #45; not persist-on-every-change
@@ -21,10 +21,30 @@ App-wide Settings dashboard (iOS-settings-style page) consolidates BrandForm dra
 9. Account menu "Brand settings" → "Settings" → consistency with new tile
 10. Verification: `pnpm typecheck` + `pnpm lint` + `pnpm build` + manual browser check → no test runner installed; Playwright E2E is separate future batch
 11. Church Information Apply/Cancel via shell-owned action footer → `useRegisterPageActions` (ui-ux 17); no per-page `Page.Footer`
+12. Settings split shell (2026-09) → iOS-style list + detail owned by ONE routed page
+    12.1 `src/core/settings/dashboard.tsx` owns `<Page.Main>` + `<Page.Header>` + `<Page.Body>` for every `/settings/:section?/:page?` URL → hosted section/page components render CONTENT ONLY (no own scaffold, no nested `Page.Main`, no double headers); excluded from lint-pages via `FILES_ALLOW_RAW`
+    12.2 `Page.Body` is padding-free in the split layout (`p: 0`) and splits into two columns; each column owns its padding (`{ base: '0', lg: '6' }`) → scaffold = pure layout container; columns align independently
+    12.3 `base` (<lg): card list fills the page when nothing selected; on selection the list hides and the detail column takes the full width → phone = card list → page push
+    12.4 `lg`+: list = fixed 280px nav column (`gray.subtle.bg`); detail = independent scroll region; `Page.Main` sets `overflowY: 'hidden'` while a selection is active → desktop two-pane
+    12.5 Selection-driven heading: `level={hasSelection ? 1 : 0}` → dashboard = level 0 (icon+title), subpage = level 1 (back-chevron + breadcrumb title); icon resolves page → section icon, `SlidersHorizontal` fallback
+    12.6 Section icons come from `SettingsSection.icon` (module manifest icons) shared by dashboard cards + shell headings → one icon source
+12. Settings split shell (wrapper-owned scaffold) — `src/core/settings/dashboard.tsx` renders ONE `Page.Main > Page.Header + Page.Body` for the whole `/settings` tree; section/page components are hosted content-only (they render no scaffold of their own) → iOS list + detail layout; supersedes the earlier "self-contained page components" plan
+    12.1 `Page.Body` is padding-free (`p: 0`); the nav + detail columns own their padding (`{ base: '0', lg: '6' }`) → the columns visually split the body
+    12.2 Shell heading is conditional: `level={0}` on the dashboard, `level={1}` (back + breadcrumb title) while a section/page is selected; icon + title resolve page > section > Settings → hosted pages never render a header
+    12.3 Desktop (lg+): the section card list persists as a left nav column (`280px`, `gray.subtle.bg`); the hosted page renders/scrolls in the right panel. Mobile (base): the card list IS the dashboard; a selection swaps to the hosted page full-width
+    12.4 Section icons come from module manifests (registered in `settings.ts`), `SlidersHorizontal` fallback → dashboard cards self-describe (ui-ux 19; module-design 9.4)
+    12.5 Hosted content-only pages are allowlisted in `scripts/lint-pages.mjs` `FILES_ALLOW_RAW` → the wrapper is the scaffold owner
+12. Layout = iOS split shell OWNED by the route wrapper `dashboard.tsx` (2026-09): the dashboard route (no `:section`) renders the card list inside a standard scaffold; a selected section/page renders `SettingsSplitShell`, which owns `Page.Main`/`Page.Header`/`Page.Body` and hosts the registered component as content → hosted pages stay scaffold-free; one owner, no nested scaffolds
+   12.1 `Page.Body` renders padding-free (`p: 0`) because it hosts a two-column flex row; each column owns its padding (`{ base: '0', lg: '6' }`) → L1 gutter alignment restored inside columns, body stays a neutral host
+   12.2 Shell heading level is conditional (`level={hasSelection ? 1 : 0}`) → level 1 renders back-chevron + breadcrumb title on mobile sub-pages (established pattern) without per-page scaffolds
+   12.3 `lg+`: 280px left nav column (`as="nav"`, `gray.subtle.bg`) persists and the selected page scrolls in the right panel; `base`: list collapses, selected page fills the viewport → deep-linkable, no panel-stack machinery needed
+   12.4 Sections must declare an `icon` (module manifest icon; `SlidersHorizontal` fallback) → card list and shell heading share one source
+   12.5 lint-pages `FILES_ALLOW_RAW` exempts hosted settings pages → the scaffold gate stays strict for everything else; add an allowlist entry with every newly registered settings page
 
 ## Approaches Considered
 
-**Recommended:** Full page at `/settings` with sub-section cards — iOS-settings-style grouped layout (`PagePanel` + `PageHeader` breadcrumb + scrollable card list). First card = Church Information. Typed registry seeds settings-schema extension point for future sections.
+**Recommended (2026-09):** Full page at `/settings` — iOS-settings **split shell**: `dashboard.tsx` owns the scaffold and renders the card list (nav column) beside the selected section/page in a right-hand panel on `lg+`; on mobile the list is the page and selection pushes the sub-page (level-1 breadcrumb header). Hosted section/page components are content-only. Typed registry (`registerSettingsSection`/`registerSettingsPage`) seeds the settings-schema extension point.
+**Superseded (2026-09):** section/page components no longer self-scaffold — the wrapper-owned iOS split shell (#12) hosts them as content-only.
 - Drawer rejected: cannot scale to multi-section dashboard.
 - Full module (`src/modules/settings/`) rejected: premature; settings is core platform concern; modules depend on it.
 

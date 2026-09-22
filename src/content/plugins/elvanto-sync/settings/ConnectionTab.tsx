@@ -2,7 +2,7 @@ import { Heading, Text, Input, Button, Card, Alert } from '@/core/ui'
 import { usePluginAPIContext } from '@/core/plugins/PluginAPI'
 import { useState, useEffect } from 'react'
 import { Stack } from 'styled-system/jsx'
-import { encrypt, decrypt } from '../utils/encryption'
+import { encrypt, decrypt, encryptWithKey, generateEncryptionKey, arrayBufferToBase64 } from '../utils/encryption'
 
 /**
  * Connection Tab — API key management and connection testing
@@ -38,9 +38,16 @@ export function ConnectionTab() {
 
     setSaving(true)
     try {
-      const encrypted = await encrypt(apiKey)
-      await settings.setCredentials(encrypted)
-      setSavedKey(encrypted)
+      // Generate a new encryption key for this API key
+      const encryptionKey = await generateEncryptionKey()
+      
+      // Encrypt the API key with the new encryption key
+      const encryptedApiKey = await encryptWithKey(apiKey, encryptionKey)
+      // Encrypt the encryption key with the master key (for edge function to decrypt)
+      const encryptedEncryptionKey = await encrypt(encryptionKey)
+      
+      await settings.setCredentials(encryptedApiKey, encryptedEncryptionKey)
+      setSavedKey(encryptedApiKey)
       setApiKey('')
       setTestResult(null)
       toast.success('API key saved successfully')
@@ -64,8 +71,10 @@ export function ConnectionTab() {
     setTestResult(null)
 
     try {
-      const isDev = import.meta.env.DEV
-      const base = isDev ? '/api/elvanto' : 'https://api.elvanto.com'
+      // Always use the Vite dev/proxy server which routes to Elvanto API
+      // with proper CORS headers. Direct browser fetches to api.elvanto.com
+      // are blocked by CORS.
+      const base = '/api/elvanto'
       const response = await fetch(`${base}/v1/people/getAll.json`, {
         method: 'POST',
         headers: {

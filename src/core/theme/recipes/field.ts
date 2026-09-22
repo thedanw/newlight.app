@@ -9,10 +9,11 @@ export const field = defineSlotRecipe({
       display: 'flex',
       flexDirection: 'column',
       gap: '1.5',
+      background: 'gray.surface.bg',
+      color: 'fg.default',
     },
     label: {
       alignItems: 'center',
-      color: 'fg.default',
       display: 'flex',
       gap: '0.5',
       textAlign: 'start',

@@ -10,6 +10,8 @@ export const radioCardGroup = defineSlotRecipe({
       flexDirection: 'column',
       gap: '1.5',
       width: 'full',
+      background: 'gray.surface.bg',
+      color: 'fg.default',
     },
     item: {
       alignItems: 'center',

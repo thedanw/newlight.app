@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState, type CSSProperties } from 'react'
 import { ChevronLeft, ChevronRight, MailIcon, Plus, SlidersHorizontal, Users } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
-import { Button, Dialog, Input, Page, Pagination, SearchInput, Text } from '@/core/ui'
+import { Button, CloseButton, Collapsible, Input, Page, Pagination, SearchInput, Text } from '@/core/ui'
 import { HStack, Stack } from 'styled-system/jsx'
 import { peopleManifest } from '../../manifest'
 import type { PeopleListOptions, Person, PersonPublic, PersonWithJourney } from '../../lib/types'
@@ -24,6 +24,7 @@ export default function PeopleDashboardPage() {
   const [searching, setSearching] = useState(false)
   const [savedListName, setSavedListName] = useState('')
   const [savedListRefreshKey, setSavedListRefreshKey] = useState(0)
+  const [filtersOpen, setFiltersOpen] = useState(false)
   const page = Math.floor((filters.offset ?? 0) / PAGE_SIZE) + 1
   // Queries only the table the current mode exposes (people_public for visitors).
   const listQuery = usePeopleList(filters, isPublic)
@@ -53,7 +54,7 @@ export default function PeopleDashboardPage() {
         <Page.Heading level={0} icon={Users} title="People" />
       </Page.Header>
       <Page.HeaderBottom style={MODULE_NUMBER_STYLE}>
-        <Stack>
+        <Stack gap="3">
           <Text textStyle="sm">
             Find people by name, preferred name, email, tag, or phone number.
           </Text>
@@ -71,29 +72,33 @@ export default function PeopleDashboardPage() {
                 New person
               </Button>
             )}
-            <Dialog.Root>
-              <Dialog.Trigger asChild>
-                <Button variant="surface">
-                  <SlidersHorizontal />
-                  Filter/Lists
-                </Button>
-              </Dialog.Trigger>
-              <Dialog.Backdrop />
-              <Dialog.Positioner>
-                <Dialog.Content css={{ color: 'var(--colors-fg-default)' }}>
-                  <Dialog.Title>Filters & Lists</Dialog.Title>
-                  <Dialog.Body>
-                    <PeopleFilters filters={filters} onChange={handleFiltersChange} />
-                    <SavedListSidebar
-                      onLoad={(conditions) => setFilters({ ...conditions, limit: PAGE_SIZE, offset: 0 })}
-                      refreshKey={savedListRefreshKey}
-                    />
-                  </Dialog.Body>
-                  <Dialog.CloseTrigger>Close</Dialog.CloseTrigger>
-                </Dialog.Content>
-              </Dialog.Positioner>
-            </Dialog.Root>
+            <Button variant="surface" onClick={() => setFiltersOpen((v) => !v)}>
+              <SlidersHorizontal />
+              Filter/Lists
+            </Button>
           </HStack>
+          <Collapsible.Root open={filtersOpen} onOpenChange={(details) => setFiltersOpen(details.open)}>
+            <Collapsible.Content>
+              <Stack gap="3" css={{ overflow: 'hidden', animation: 'slideDown 0.2s ease-out' }}>
+                <HStack justifyContent="flex-end">
+                  <CloseButton onClick={() => setFiltersOpen(false)} />
+                </HStack>
+                <PeopleFilters filters={filters} onChange={handleFiltersChange} />
+                <SavedListSidebar
+                  onLoad={(conditions) => setFilters({ ...conditions, limit: PAGE_SIZE, offset: 0 })}
+                  refreshKey={savedListRefreshKey}
+                />
+                <Stack gap="2">
+                  <Input value={savedListName} onChange={(event) => setSavedListName(event.target.value)} placeholder="List name" />
+                  <Button onClick={() => {
+                    void createSavedList(savedListName, filters)
+                    setSavedListName('')
+                    setSavedListRefreshKey((key) => key + 1)
+                  }}>Save as List</Button>
+                </Stack>
+              </Stack>
+            </Collapsible.Content>
+          </Collapsible.Root>
         </Stack>
        </Page.HeaderBottom>
 
@@ -109,26 +114,6 @@ export default function PeopleDashboardPage() {
       </Page.Actions>
 
       <Page.Body>
-        <Dialog.Root>
-          <Dialog.Trigger asChild><Button>Save current filters</Button></Dialog.Trigger>
-          <Dialog.Backdrop />
-          <Dialog.Positioner>
-            <Dialog.Content>
-              <Dialog.Title>Save list</Dialog.Title>
-              <Dialog.Body>
-                <Input value={savedListName} onChange={(event) => setSavedListName(event.target.value)} placeholder="List name" />
-              </Dialog.Body>
-              <Dialog.Footer>
-                <Dialog.ActionTrigger onClick={() => {
-                  void createSavedList(savedListName, filters)
-                  setSavedListName('')
-                  setSavedListRefreshKey((key) => key + 1)
-                }}>Save</Dialog.ActionTrigger>
-                <Dialog.CloseTrigger>Cancel</Dialog.CloseTrigger>
-              </Dialog.Footer>
-            </Dialog.Content>
-          </Dialog.Positioner>
-        </Dialog.Root>
         {listQuery.error && !searchResults && <Text color="fg.default">{listQuery.error.message}</Text>}
         {searching && <Text color="fg.muted">Searching...</Text>}
         <PeopleTable people={visiblePeople} loading={listQuery.loading && !searchResults} isPublic={isPublic} />

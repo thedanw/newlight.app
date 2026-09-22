@@ -23,11 +23,6 @@ export default function PeopleSettingsPage() {
   const links = getSettingsLinks('people')
 
   return (
-    <Page.Main>
-      <Page.Header style={{ '--module-number': 0 } as CSSProperties}>
-        <Page.Heading level={1} icon={Users} title="People Settings" />
-      </Page.Header>
-      <Page.Body>
         <Stack>
           <Card.Root>
             <Card.Body>
@@ -91,7 +86,5 @@ export default function PeopleSettingsPage() {
         </Stack>
       )}
         </Stack>
-      </Page.Body>
-    </Page.Main>
   )
 }

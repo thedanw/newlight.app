@@ -64,8 +64,10 @@ export function ConnectionTab() {
     setTestResult(null)
 
     try {
-      const isDev = import.meta.env.DEV
-      const base = isDev ? '/api/elvanto' : 'https://api.elvanto.com'
+      // Always use the Vite dev/proxy server which routes to Elvanto API
+      // with proper CORS headers. Direct browser fetches to api.elvanto.com
+      // are blocked by CORS.
+      const base = '/api/elvanto'
       const response = await fetch(`${base}/v1/people/getAll.json`, {
         method: 'POST',
         headers: {
@@ -104,7 +106,7 @@ export function ConnectionTab() {
   const hasSavedKey = Boolean(savedKey)
 
   return (
-    <Stack gap="6">
+    <Stack>
       <Heading textStyle="md">Connection</Heading>
       <Text color="fg.muted" textStyle="sm">
         Enter your Elvanto API key to enable synchronization. The key is encrypted before storage.
@@ -117,7 +119,7 @@ export function ConnectionTab() {
             <Card.Description>Your Elvanto API key (found in Elvanto Settings → API)</Card.Description>
           </Card.Header>
           <Card.Body>
-            <Stack gap="4">
+            <Stack>
               <Input
                 type="password"
                 placeholder="Enter Elvanto API key"
@@ -140,7 +142,7 @@ export function ConnectionTab() {
             <Card.Description>An API key is saved and encrypted in the database.</Card.Description>
           </Card.Header>
           <Card.Body>
-            <Stack gap="4">
+            <Stack>
               <Alert.Root variant={testResult?.success ? 'solid' : testResult ? 'outline' : 'subtle'}>
                 {testResult && (
                   <>
@@ -154,7 +156,7 @@ export function ConnectionTab() {
                   </Text>
                 )}
               </Alert.Root>
-              <Stack gap="3" flexDirection="row">
+              <Stack flexDirection="row">
                 <Button variant="outline" onClick={handleTest} disabled={testing} loading={testing}>
                   Test Connection
                 </Button>

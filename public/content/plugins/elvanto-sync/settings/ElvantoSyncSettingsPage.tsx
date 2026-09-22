@@ -54,12 +54,12 @@ export function ElvantoSyncSettingsPage() {
               >
                 <Stack alignItems="center" gap={{ base: '1', md: '2' }}>
                   <Box display={{ base: 'block', md: 'none' }}>
-                    <tab.icon size={32} />
+                    <tab.icon size={24} />
                   </Box>
                   <Box display={{ base: 'none', md: 'block' }}>
                     <tab.icon size={16} />
                   </Box>
-                  <Text textStyle={{ base: '2xs', md: 'sm' }}>{tab.label}</Text>
+                  <Text fontSize ={{ base: '2xs', md: 'sm' }}>{tab.label}</Text>
                 </Stack>
               </Tabs.Trigger>
             ))}
@@ -68,7 +68,7 @@ export function ElvantoSyncSettingsPage() {
 
         {TABS.map((tab) => (
           <Tabs.Content key={tab.id} value={tab.id}>
-            <Suspense fallback={<Stack gap="4"><Text>Loading {tab.label}...</Text></Stack>}>
+            <Suspense fallback={<Stack><Text>Loading {tab.label}...</Text></Stack>}>
               <tab.component />
             </Suspense>
           </Tabs.Content>

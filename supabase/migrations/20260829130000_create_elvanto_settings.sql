@@ -5,6 +5,7 @@
 CREATE TABLE IF NOT EXISTS public.elvanto_settings (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     api_key_encrypted text NOT NULL,
+    encryption_key_encrypted text NOT NULL,
     oauth_tokens_encrypted text,
     environment text NOT NULL DEFAULT 'production',
     updated_at timestamptz NOT NULL DEFAULT now(),

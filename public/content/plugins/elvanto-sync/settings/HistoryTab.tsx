@@ -7,7 +7,7 @@ import { SyncHistoryTable } from './components/SyncHistoryTable'
  */
 export function HistoryTab() {
   return (
-    <Stack gap="6">
+    <Stack>
       <Heading textStyle="md">Sync History</Heading>
       <Text color="fg.muted" textStyle="sm">
         View synchronization run history, status, and item counts.

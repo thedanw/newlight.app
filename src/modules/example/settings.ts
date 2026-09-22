@@ -1,5 +1,6 @@
 import { registerSettingsSection } from '@/core/settings/lib/schema'
 import ExampleSettingsPage from './settings/ExampleSettingsPage'
+import { exampleManifest } from './manifest'
 
 /**
  * Example module settings registration. Imported from `routes.tsx` so it runs
@@ -10,5 +11,6 @@ registerSettingsSection({
   title: 'Example Settings',
   description: 'Example module settings.',
   component: ExampleSettingsPage,
+  icon: exampleManifest.icon,
   order: 30,
 })

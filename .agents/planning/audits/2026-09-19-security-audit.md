@@ -137,7 +137,7 @@ unversioned prod policy drift, dashboard-only `verify_jwt`, no privacy lifecycle
 |---|---|---|
 | 1.1 | Fix unsubscribe: token table, `email_hash` from the token row, fail closed, idempotent POST (H3, M4) | end-to-end test: unsubscribe → next send records `suppressed`; replayed token → 200, one row |
 | 1.2 | Role-scope the email tables (H4) | member `authenticated` cannot read `email_unsubscribes` or delete rows; `team_leaders+` can send |
-| 1.3 | Add `RequireAuth` route guard; gate the lab mock session to lab builds (H1) | anonymous `/people` and `/settings` redirect to `/login`; no mock session in production builds |
+| 1.3 | Add `RequireAuth` route guard; gate the lab mock session to lab builds (H1) → **partial 2026-09-22**: `RequireAuth` now wraps the whole authenticated shell (`router.tsx`), and post-login deep-link return landed (`login-redirect.ts` + `LoginPage` honoring `state.from`); mock-session gating still open | anonymous deep URLs redirect to `/login` and return to the requested page after sign-in; no mock session in production builds |
 | 1.4 | Replace `copy-plugins.mjs` with an allowlist; delete the duplicated `edge-function.ts` (H6, L5) | `dist/content/plugins` contains no `*.ts`/`*.sql`; build assertion fails otherwise |
 | 1.5 | Add `public/_headers` with CSP/HSTS/nosniff/frame-ancestors (M8) | headers present in the deployed response (`curl -I`) |
 | 1.6 | Super-admin gate for settings data: add `is_super_admin()` security-definer helper; re-point `platform_settings`, `module_config`, `plugins`, `elvanto_settings`, `elvanto_sync_config` policies to it; drop the anon write grants/policies (C3, C4, REQ-2); keep a **narrow** anon SELECT for pre-auth branding keys only | member-role `UPDATE platform_settings` → 42501; `super_admin` account succeeds; anon reads return only branding keys |
@@ -181,7 +181,7 @@ Evidence per item, from `scripts/security/smoke-anon.ps1` (GREEN, 0/11) and live
 | No secrets in source code or git history | ✅ verified (pattern scan across tracked files and history) |
 | All user input validated at system boundaries | ❌ not at the Edge Function boundary pre-fix (C1, C2 — gates added 2026-09-20); partially at the client (zod validators exist in `people/forms` but are UI-side) |
 | Destructive filesystem operations resolve symlinks, check allowlisted root/depth/ownership | n/a — none in app runtime (`scripts/*.mjs` only read/copy from fixed repo paths) |
-| Authentication AND authorization on every protected endpoint | ❌ pre-fix (C1, C2, H1) → functions gated + settings guarded 2026-09-20; global `RequireAuth` still open (1.3 remainder) |
+| Authentication AND authorization on every protected endpoint | ❌ pre-fix (C1, C2, H1) → functions gated + settings guarded 2026-09-20; global `RequireAuth` + post-login deep-link return added 2026-09-22 (mock-session gating still open) |
 | Security headers present in response | ❌ M8 |
 | Error responses don't expose internal details | ❌ M3 (server), M6 (client) |
 | Rate limiting on auth endpoints, shared store when multi-instance | ⚠️ delegated to Supabase Auth; none on the app's own Edge Functions (M4) |

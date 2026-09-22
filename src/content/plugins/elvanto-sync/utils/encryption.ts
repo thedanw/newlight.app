@@ -106,7 +106,7 @@ function base64ToArrayBuffer(base64: string): ArrayBuffer {
 /**
  * Convert ArrayBuffer to base64 string
  */
-function arrayBufferToBase64(buffer: ArrayBuffer): string {
+export function arrayBufferToBase64(buffer: ArrayBuffer): string {
   const bytes = new Uint8Array(buffer)
   let binary = ''
   for (let i = 0; i < bytes.length; i++) {
@@ -128,4 +128,66 @@ export async function generateEncryptionKey(): Promise<string> {
   
   const exported = await crypto.subtle.exportKey('raw', key)
   return arrayBufferToBase64(exported)
+}
+
+/**
+ * Encrypt plaintext string with a specific key (base64-encoded)
+ * Returns base64(iv + ciphertext + authTag)
+ */
+export async function encryptWithKey(plaintext: string, keyB64: string): Promise<string> {
+  const keyData = base64ToArrayBuffer(keyB64)
+  const key = await crypto.subtle.importKey(
+    'raw',
+    keyData,
+    { name: ALGORITHM },
+    false,
+    ['encrypt', 'decrypt']
+  )
+  
+  const iv = crypto.getRandomValues(new Uint8Array(IV_LENGTH))
+  const encoded = new TextEncoder().encode(plaintext)
+  
+  const ciphertext = await crypto.subtle.encrypt(
+    { name: ALGORITHM, iv },
+    key,
+    encoded
+  )
+  
+  const combined = new Uint8Array(iv.length + ciphertext.byteLength)
+  combined.set(iv)
+  combined.set(new Uint8Array(ciphertext), iv.length)
+  
+  return arrayBufferToBase64(combined)
+}
+
+/**
+ * Decrypt ciphertext string with a specific key (base64-encoded)
+ * Expects base64(iv + ciphertext + authTag)
+ */
+export async function decryptWithKey(ciphertextB64: string, keyB64: string): Promise<string> {
+  const keyData = base64ToArrayBuffer(keyB64)
+  const key = await crypto.subtle.importKey(
+    'raw',
+    keyData,
+    { name: ALGORITHM },
+    false,
+    ['encrypt', 'decrypt']
+  )
+  
+  const combined = base64ToArrayBuffer(ciphertextB64)
+  
+  if (combined.byteLength < IV_LENGTH) {
+    throw new Error('Invalid ciphertext: too short')
+  }
+  
+  const iv = combined.slice(0, IV_LENGTH)
+  const ciphertext = combined.slice(IV_LENGTH)
+  
+  const decrypted = await crypto.subtle.decrypt(
+    { name: ALGORITHM, iv },
+    key,
+    ciphertext
+  )
+  
+  return new TextDecoder().decode(decrypted)
 }

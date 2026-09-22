@@ -53,6 +53,7 @@ function renderGuard() {
           }
         />
         <Route path="/login" element={<div data-testid="login-page">login</div>} />
+        <Route path="/people" element={<div data-testid="people-landing">people</div>} />
       </Routes>
     </MemoryRouter>,
   )
@@ -80,7 +81,7 @@ describe('RequireSuperAdmin', () => {
     expect(container.innerHTML).toBe('')
   })
 
-  it('redirects a plain member to /login', () => {
+  it('redirects a signed-in plain member to the /people landing (no login hop)', () => {
     mockAuth({
       user,
       isLoading: false,
@@ -88,11 +89,12 @@ describe('RequireSuperAdmin', () => {
       isProfileLoading: false,
     })
     renderGuard()
-    expect(screen.getByTestId('login-page')).toBeTruthy()
+    expect(screen.getByTestId('people-landing')).toBeTruthy()
+    expect(screen.queryByTestId('login-page')).toBeNull()
     expect(screen.queryByTestId('settings-content')).toBeNull()
   })
 
-  it('redirects an admin to /login (settings are super-admin only)', () => {
+  it('redirects a signed-in admin to the /people landing (settings are super-admin only)', () => {
     mockAuth({
       user,
       isLoading: false,
@@ -100,7 +102,8 @@ describe('RequireSuperAdmin', () => {
       isProfileLoading: false,
     })
     renderGuard()
-    expect(screen.getByTestId('login-page')).toBeTruthy()
+    expect(screen.getByTestId('people-landing')).toBeTruthy()
+    expect(screen.queryByTestId('login-page')).toBeNull()
   })
 
   it('renders the settings subtree for a resolved super admin', () => {

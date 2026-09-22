@@ -1,19 +1,23 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react'
-import { Button, Heading, Text } from '@/core/ui'
+import { ErrorDisplay } from '@/core/errors/ErrorPage'
+import { useLocation } from 'react-router-dom'
 
 type ErrorBoundaryProps = {
   children: ReactNode
-  /** Optional fallback title shown when an error is caught. */
-  title?: string
 }
 
 type ErrorBoundaryState = {
   error: Error | null
 }
 
+function ErrorBoundaryDisplay({ error }: { error: Error }) {
+  const location = useLocation()
+  return <ErrorDisplay error={error} location={location} />
+}
+
 /**
- * Catches render errors in the subtree and shows a friendly fallback with a
- * retry action instead of unmounting the whole app.
+ * Catches render errors in the subtree and shows a rich error display
+ * instead of unmounting the whole app.
  */
 export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   state: ErrorBoundaryState = { error: null }
@@ -26,19 +30,9 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     console.error('App shell error boundary caught:', error, info)
   }
 
-  private handleRetry = (): void => {
-    this.setState({ error: null })
-  }
-
   render(): ReactNode {
     if (this.state.error) {
-      return (
-        <main>
-          <Heading>{this.props.title ?? 'Something went wrong'}</Heading>
-          <Text color="fg.muted">{this.state.error.message}</Text>
-          <Button onClick={this.handleRetry}>Try again</Button>
-        </main>
-      )
+      return <ErrorBoundaryDisplay error={this.state.error} />
     }
     return this.props.children
   }

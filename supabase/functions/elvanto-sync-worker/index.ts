@@ -11,9 +11,9 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 // ============================================
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') || '';
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
-const ELVANTO_API_KEY = Deno.env.get('ELVANTO_API_KEY') || '';
-// Sync order from ELVANTO_SYNC_CONTRACT.md §5 (FK-safe)
-const SYNC_ORDER = [
+// ELVANTO_API_KEY is now read from database (elvanto_settings table)
+// const ELVANTO_API_KEY = Deno.env.get('ELVANTO_API_KEY') || '';
+const ENCRYPTED_SETTINGS_ID = '00000000-0000-0000-0000-000000000001';
   'people_categories',
   'custom_fields',
   'families',
@@ -91,29 +91,37 @@ const ENCRYPTION_IV_LENGTH = 12 // 96 bits for GCM
 ;
 const ENCRYPTED_SETTINGS_ID = '00000000-0000-0000-0000-000000000001';
 /**
- * Get encryption key from environment
- * In production: ELVANTO_ENCRYPTION_KEY (32-byte key, hex-encoded)
- * In development: fallback to a derived key (NOT SECURE - dev only)
+ * Get encryption key from database (elvanto_settings.encryption_key_encrypted)
+ * Falls back to environment variable for backward compatibility
  */ async function getEncryptionKey() {
+  // 1. Try to get encryption key from database
+  try {
+    const { data, error } = await supabase.from('elvanto_settings').select('encryption_key_encrypted').eq('id', ENCRYPTED_SETTINGS_ID).maybeSingle();
+    if (!error && data?.encryption_key_encrypted) {
+      const keyData = base64ToArrayBuffer(data.encryption_key_encrypted);
+      return crypto.subtle.importKey('raw', keyData, {
+        name: ENCRYPTION_ALGORITHM
+      }, false, ['decrypt']);
+    }
+  } catch (err) {
+    console.warn('[Sync] Failed to read encryption key from database:', err);
+  }
+  
+  // 2. Fall back to environment variable
   const envKey = Deno.env.get('ELVANTO_ENCRYPTION_KEY');
   if (envKey) {
-    // The hosted secret is 64 hex chars = 32 bytes. Decode as hex first,
-    // falling back to base64 for legacy 44-char base64 keys.
     const keyData = hexToArrayBuffer(envKey) ?? base64ToArrayBuffer(envKey);
     return crypto.subtle.importKey('raw', keyData, {
       name: ENCRYPTION_ALGORITHM
-    }, false, [
-      'decrypt'
-    ]);
+    }, false, ['decrypt']);
   }
-  // DEVELOPMENT ONLY - derive from a fixed string (NOT SECURE)
+  
+  // 3. DEVELOPMENT ONLY - derive from a fixed string (NOT SECURE)
   const devKey = 'dev-key-elvanto-sync-plugin-change-in-production';
   const keyData = new TextEncoder().encode(devKey.padEnd(32, '0').slice(0, 32));
   return crypto.subtle.importKey('raw', keyData, {
     name: ENCRYPTION_ALGORITHM
-  }, false, [
-    'decrypt'
-  ]);
+  }, false, ['decrypt']);
 }
 /**
  * Decode a hex-encoded string to an ArrayBuffer, or null if not valid hex.
@@ -158,26 +166,33 @@ const ENCRYPTED_SETTINGS_ID = '00000000-0000-0000-0000-000000000001';
   }
   return bytes.buffer;
 }
-let lastCredentialError = null;
 async function getCredentials() {
   lastCredentialError = null;
   // 1. Prefer the encrypted key stored in elvanto_settings (singleton row)
   try {
-    const { data, error } = await supabase.from('elvanto_settings').select('api_key_encrypted').eq('id', ENCRYPTED_SETTINGS_ID).maybeSingle();
+    const { data, error } = await supabase.from('elvanto_settings').select('api_key_encrypted, encryption_key_encrypted').eq('id', ENCRYPTED_SETTINGS_ID).maybeSingle();
     if (error) {
       lastCredentialError = `settings query error: ${error.message}`;
       console.warn('[Sync] Failed to read encrypted Elvanto API key:', error);
-    } else if (!data?.api_key_encrypted) {
-      lastCredentialError = 'settings row not found';
-      console.warn('[Sync] elvanto_settings row not found for singleton id');
+    } else if (!data?.api_key_encrypted || !data?.encryption_key_encrypted) {
+      lastCredentialError = 'settings row not found or missing encryption key';
+      console.warn('[Sync] elvanto_settings row not found or missing encryption key for singleton id');
     } else {
-      const apiKey = await decryptApiKey(data.api_key_encrypted);
-      if (apiKey) {
-        return {
-          apiKey
-        };
+      // Decrypt the encryption key first
+      const encryptionKey = await decryptEncryptionKey(data.encryption_key_encrypted);
+      if (!encryptionKey) {
+        lastCredentialError = 'decrypt encryption key failed';
+        console.warn('[Sync] Failed to decrypt encryption key');
+      } else {
+        // Use the encryption key to decrypt the API key
+        const apiKey = await decryptApiKeyWithKey(data.api_key_encrypted, encryptionKey);
+        if (apiKey) {
+          return {
+            apiKey
+          };
+        }
+        lastCredentialError = 'decrypt API key failed (see decryptApiKeyWithKey warning)';
       }
-      lastCredentialError = 'decrypt failed (see decryptApiKey warning)';
     }
   } catch (err) {
     lastCredentialError = `settings read threw: ${err instanceof Error ? err.message : String(err)}`;

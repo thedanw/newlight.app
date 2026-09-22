@@ -1,10 +1,11 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { Button, Card, Field, Heading, Input, Text } from '@/core/ui'
 import { css } from 'styled-system/css'
 import { Stack, VStack } from 'styled-system/jsx'
 import { useAuth } from './use-auth'
+import { getPostLoginTarget } from './lib/login-redirect'
 import { useSettings } from '@/core/settings/lib/provider'
 import { validateIdentifier } from './lib/validation'
 import { LogIn } from 'lucide-react'
@@ -67,10 +68,14 @@ export default function LoginPage() {
       .catch(() => {})
   }, [getAppSettings])
 
-  // Signed-in users don't need the login page
+  // Signed-in users don't need the login page. Return them to the page they
+  // originally asked for (stashed in location.state.from by the route
+  // guards) so a deep link survives a refresh / post-login redirect; fall
+  // back to the people landing page for a direct /login visit.
+  const location = useLocation()
   useEffect(() => {
-    if (user) navigate('/people', { replace: true })
-  }, [user, navigate])
+    if (user) navigate(getPostLoginTarget(location.state), { replace: true })
+  }, [user, location.state, navigate])
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()

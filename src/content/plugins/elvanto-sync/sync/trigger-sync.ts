@@ -70,7 +70,7 @@ export async function triggerElvantoSync(payload: TriggerSyncPayload = {}): Prom
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      ...(jwt ? { apikey: jwt, Authorization: `Bearer ${jwt}` } : {}),
+      ...(jwt ? { Authorization: `Bearer ${jwt}` } : {}),
     },
     body: JSON.stringify({ trigger: 'manual', ...payload }),
   })

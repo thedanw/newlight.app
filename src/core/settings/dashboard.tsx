@@ -137,7 +137,7 @@ function SettingsSplitShell({
           </Box>
 
           <Box
-            as="content"
+            as="Content"
             flex="1"
             minW="0"
             minH="0"

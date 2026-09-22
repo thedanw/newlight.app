@@ -166,6 +166,61 @@ const ENCRYPTED_SETTINGS_ID = '00000000-0000-0000-0000-000000000001';
   }
   return bytes.buffer;
 }
+
+/**
+ * Decrypt the encryption key stored in elvanto_settings.encryption_key_encrypted.
+ * Expects base64(iv(12 bytes) + aes-gcm-ciphertext-with-auth-tag).
+ */
+async function decryptEncryptionKey(ciphertextB64) {
+  try {
+    const key = await getEncryptionKey();
+    const combined = base64ToArrayBuffer(ciphertextB64);
+    if (combined.byteLength < ENCRYPTION_IV_LENGTH) {
+      console.warn('[Sync] Invalid encrypted encryption key: too short');
+      return null;
+    }
+    const iv = combined.slice(0, ENCRYPTION_IV_LENGTH);
+    const ciphertext = combined.slice(ENCRYPTION_IV_LENGTH);
+    const decrypted = await crypto.subtle.decrypt({
+      name: ENCRYPTION_ALGORITHM,
+      iv
+    }, key, ciphertext);
+    return new TextDecoder().decode(decrypted);
+  } catch (err) {
+    console.warn('[Sync] Failed to decrypt encryption key:', err);
+    return null;
+  }
+}
+
+/**
+ * Decrypt the Elvanto API key using a provided encryption key.
+ * Expects base64(iv(12 bytes) + aes-gcm-ciphertext-with-auth-tag).
+ */
+async function decryptApiKeyWithKey(ciphertextB64, encryptionKey) {
+  try {
+    const keyData = base64ToArrayBuffer(encryptionKey);
+    const key = await crypto.subtle.importKey('raw', keyData, {
+      name: ENCRYPTION_ALGORITHM
+    }, false, ['decrypt']);
+    
+    const combined = base64ToArrayBuffer(ciphertextB64);
+    if (combined.byteLength < ENCRYPTION_IV_LENGTH) {
+      console.warn('[Sync] Invalid encrypted API key: too short');
+      return null;
+    }
+    const iv = combined.slice(0, ENCRYPTION_IV_LENGTH);
+    const ciphertext = combined.slice(ENCRYPTION_IV_LENGTH);
+    const decrypted = await crypto.subtle.decrypt({
+      name: ENCRYPTION_ALGORITHM,
+      iv
+    }, key, ciphertext);
+    return new TextDecoder().decode(decrypted);
+  } catch (err) {
+    console.warn('[Sync] Failed to decrypt Elvanto API key with key:', err);
+    return null;
+  }
+}
+
 async function getCredentials() {
   lastCredentialError = null;
   // 1. Prefer the encrypted key stored in elvanto_settings (singleton row)

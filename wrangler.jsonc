@@ -10,7 +10,8 @@
     "VITE_SUPABASE_URL": "https://rupujdsalfekudambviu.supabase.co",
     "VITE_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_Ns984EU3IjfrSWtw4wMx-Q_GT-yimIy",
     "VITE_SUPABASE_JWKS_URL": "https://rupujdsalfekudambviu.supabase.co/auth/v1/.well-known/jwks.json",
-    "VITE_APP_ENV": "production"
+    "VITE_APP_ENV": "production",
+    "VITE_ELVANTO_ENCRYPTION_KEY": "3wnsIsD+hKP5iOHd9yBSnz72iEiD23qzJ8KujXqHX0k="
   },
   "assets": {
     "directory": "dist",

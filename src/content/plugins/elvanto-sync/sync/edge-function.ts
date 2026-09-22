@@ -499,13 +499,15 @@ serve(async (req) => {
     // Handle test connection action
     if (body.action === 'test_connection' && body.api_key) {
       try {
-        const response = await fetch('https://api.elvanto.com/v1/people/getInfo.json', {
+        const response = await fetch('https://api.elvanto.com/v1/people/getAll.json', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Basic ${btoa(body.api_key + ':')}`,
           },
-          body: JSON.stringify({ id: 'current' }),
+            body: JSON.stringify({
+              page_size: 1
+            })
         })
 
         if (response.ok) {

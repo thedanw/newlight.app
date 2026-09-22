@@ -91,23 +91,10 @@ const ENCRYPTION_IV_LENGTH = 12 // 96 bits for GCM
 ;
 const ENCRYPTED_SETTINGS_ID = '00000000-0000-0000-0000-000000000001';
 /**
- * Get encryption key from database (elvanto_settings.encryption_key_encrypted)
- * Falls back to environment variable for backward compatibility
- */ async function getEncryptionKey() {
-  // 1. Try to get encryption key from database
-  try {
-    const { data, error } = await supabase.from('elvanto_settings').select('encryption_key_encrypted').eq('id', ENCRYPTED_SETTINGS_ID).maybeSingle();
-    if (!error && data?.encryption_key_encrypted) {
-      const keyData = base64ToArrayBuffer(data.encryption_key_encrypted);
-      return crypto.subtle.importKey('raw', keyData, {
-        name: ENCRYPTION_ALGORITHM
-      }, false, ['decrypt']);
-    }
-  } catch (err) {
-    console.warn('[Sync] Failed to read encryption key from database:', err);
-  }
-  
-  // 2. Fall back to environment variable
+ * Get the MASTER encryption key from environment variable.
+ * This key is used to decrypt the per-API-key encryption key stored in the database.
+ */ async function getMasterEncryptionKey() {
+  // 1. Get master key from environment variable
   const envKey = Deno.env.get('ELVANTO_ENCRYPTION_KEY');
   if (envKey) {
     const keyData = hexToArrayBuffer(envKey) ?? base64ToArrayBuffer(envKey);
@@ -116,7 +103,7 @@ const ENCRYPTED_SETTINGS_ID = '00000000-0000-0000-0000-000000000001';
     }, false, ['decrypt']);
   }
   
-  // 3. DEVELOPMENT ONLY - derive from a fixed string (NOT SECURE)
+  // 2. DEVELOPMENT ONLY - derive from a fixed string (NOT SECURE)
   const devKey = 'dev-key-elvanto-sync-plugin-change-in-production';
   const keyData = new TextEncoder().encode(devKey.padEnd(32, '0').slice(0, 32));
   return crypto.subtle.importKey('raw', keyData, {
@@ -134,11 +121,17 @@ const ENCRYPTED_SETTINGS_ID = '00000000-0000-0000-0000-000000000001';
   return bytes.buffer;
 }
 /**
- * Decrypt the Elvanto API key stored in elvanto_settings.api_key_encrypted.
+ * Decrypt the Elvanto API key using the per-API-key encryption key.
  * Expects base64(iv(12 bytes) + aes-gcm-ciphertext-with-auth-tag).
- */ async function decryptApiKey(ciphertextB64) {
+ * @param ciphertextB64 - The encrypted API key
+ * @param encryptionKeyB64 - The per-API-key encryption key (base64-encoded raw key)
+ */ async function decryptApiKey(ciphertextB64, encryptionKeyB64) {
   try {
-    const key = await getEncryptionKey();
+    const keyData = base64ToArrayBuffer(encryptionKeyB64);
+    const key = await crypto.subtle.importKey('raw', keyData, {
+      name: ENCRYPTION_ALGORITHM
+    }, false, ['decrypt']);
+    
     const combined = base64ToArrayBuffer(ciphertextB64);
     if (combined.byteLength < ENCRYPTION_IV_LENGTH) {
       console.warn('[Sync] Invalid encrypted API key: too short');
@@ -170,10 +163,11 @@ const ENCRYPTED_SETTINGS_ID = '00000000-0000-0000-0000-000000000001';
 /**
  * Decrypt the encryption key stored in elvanto_settings.encryption_key_encrypted.
  * Expects base64(iv(12 bytes) + aes-gcm-ciphertext-with-auth-tag).
+ * Uses the MASTER encryption key from environment variable.
  */
 async function decryptEncryptionKey(ciphertextB64) {
   try {
-    const key = await getEncryptionKey();
+    const key = await getMasterEncryptionKey();
     const combined = base64ToArrayBuffer(ciphertextB64);
     if (combined.byteLength < ENCRYPTION_IV_LENGTH) {
       console.warn('[Sync] Invalid encrypted encryption key: too short');
@@ -193,12 +187,12 @@ async function decryptEncryptionKey(ciphertextB64) {
 }
 
 /**
- * Decrypt the Elvanto API key using a provided encryption key.
+ * Decrypt the Elvanto API key using a provided encryption key (base64-encoded raw key).
  * Expects base64(iv(12 bytes) + aes-gcm-ciphertext-with-auth-tag).
  */
-async function decryptApiKeyWithKey(ciphertextB64, encryptionKey) {
+async function decryptApiKeyWithKey(ciphertextB64, encryptionKeyB64) {
   try {
-    const keyData = base64ToArrayBuffer(encryptionKey);
+    const keyData = base64ToArrayBuffer(encryptionKeyB64);
     const key = await crypto.subtle.importKey('raw', keyData, {
       name: ENCRYPTION_ALGORITHM
     }, false, ['decrypt']);
@@ -240,13 +234,13 @@ async function getCredentials() {
         console.warn('[Sync] Failed to decrypt encryption key');
       } else {
         // Use the encryption key to decrypt the API key
-        const apiKey = await decryptApiKeyWithKey(data.api_key_encrypted, encryptionKey);
+        const apiKey = await decryptApiKey(data.api_key_encrypted, encryptionKey);
         if (apiKey) {
           return {
             apiKey
           };
         }
-        lastCredentialError = 'decrypt API key failed (see decryptApiKeyWithKey warning)';
+        lastCredentialError = 'decrypt API key failed (see decryptApiKey warning)';
       }
     }
   } catch (err) {
@@ -543,6 +537,8 @@ serve(async (req)=>{
     // Handle test connection action
     if (body.action === 'test_connection' && body.api_key) {
       try {
+        // Use people/getAll.json with page_size: 1 to test connection
+        // This is a lightweight call that verifies the API key works
         const response = await fetch('https://api.elvanto.com/v1/people/getAll.json', {
           method: 'POST',
           headers: {

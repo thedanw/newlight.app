@@ -70,7 +70,8 @@ export function ConnectionTab() {
     setTesting(true)
     setTestResult(null)
 
-    const base = 'https://api.elvanto.com'
+    try {
+      const base = 'https://api.elvanto.com'
       const response = await fetch(`${base}/v1/people/getAll.json`, {
         method: 'POST',
         headers: {

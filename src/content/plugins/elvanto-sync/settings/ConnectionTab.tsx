@@ -70,11 +70,7 @@ export function ConnectionTab() {
     setTesting(true)
     setTestResult(null)
 
-    try {
-      // Always use the Vite dev/proxy server which routes to Elvanto API
-      // with proper CORS headers. Direct browser fetches to api.elvanto.com
-      // are blocked by CORS.
-      const base = '/api/elvanto'
+    const base = 'https://api.elvanto.com'
       const response = await fetch(`${base}/v1/people/getAll.json`, {
         method: 'POST',
         headers: {

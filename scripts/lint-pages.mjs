@@ -7,7 +7,7 @@
  *   Page.Root (AppShell)  →  Page.Main  →  Page.Header* + Page.Body
  *                                        →  Page.Footer (optional, OUTSIDE Main)
  *
- * Four checks:
+ * Five checks:
  *   1. PARTIAL compliance — any file that renders ANY `Page.*` slot must
  *      render `Page.Main`, `Page.Header`, and `Page.Body`. Catches a page
  *      that forgets one slot (e.g. renders Header/Body but no Main wrapper,
@@ -22,6 +22,12 @@
  *      Pages register Save/Cancel via `usePageActions()` instead.
  *   4. FORM actions — routed pages that render a `<form>` element must
  *      import `usePageActions` (public submission pages are exempt).
+ *   5. HOSTED SETTINGS — files under a `settings/` directory are hosted by
+ *      the settings split shell (`src/core/settings/dashboard.tsx`), which
+ *      owns the Page scaffold for every /settings route. They must be
+ *      CONTENT-ONLY: any `Page.*` slot there would double-scaffold (nested
+ *      Main / double headers). Detected structurally, so every future
+ *      settings page is covered with no allowlist upkeep.
  *
  * WHY a static script instead of only the dev-time check in Page.Main?
  *   - catches violations in files that never render in the dev browser
@@ -34,6 +40,8 @@
  *   pnpm lint:pages                       # same, via package.json
  *
  * Suppression:
+ *   - structural: hosted settings pages (under a settings/ dir) are exempt
+ *     automatically — the settings split shell owns their scaffold
  *   - file-level: add to FILES_ALLOW_RAW below (use sparingly)
  */
 import { readdirSync, readFileSync } from 'node:fs'
@@ -77,6 +85,20 @@ const PAGE_FILE_PATTERNS = [
   /(?:^|\/)[A-Za-z0-9]+Page\.tsx$/,
   /(?:^|\/)dashboard\.tsx$/,
 ]
+
+/**
+ * Hosted settings components are CONTENT-ONLY by design: they render inside
+ * the settings split shell (`src/core/settings/dashboard.tsx`), which owns
+ * the Page scaffold for every /settings/:section?/:page? URL. Detected
+ * structurally — any file under a `settings/` directory — so newly
+ * registered settings sections/pages are gated correctly with zero
+ * allowlist maintenance. The shell itself is NOT exempt: it must keep
+ * rendering the scaffold so the gate still guards it.
+ */
+const SETTINGS_SHELL = 'src/core/settings/dashboard.tsx'
+
+const isHostedSettingsContent = (rel) =>
+  rel !== SETTINGS_SHELL && /(?:^|\/)settings\//.test(rel)
 
 /**
  * Strip comments and string literals so `Page.Main` inside a doc comment or a
@@ -176,8 +198,19 @@ for (const file of ROOTS.flatMap((r) => walk(r))) {
   const counts = Object.fromEntries(SLOTS.map((slot) => [slot, count(stripped, slot)]))
   const rendersAnySlot = SLOTS.some((slot) => counts[slot] > 0)
   const isRoutedPage = PAGE_FILE_PATTERNS.some((re) => re.test(rel))
+  const hostedSettings = isHostedSettingsContent(rel)
 
-  if (rendersAnySlot) {
+  if (hostedSettings) {
+    // Check 5 — hosted settings components are CONTENT-ONLY: the settings
+    // split shell (src/core/settings/dashboard.tsx) owns Page.Main/Header/
+    // Body for every /settings route. Any Page.* usage here would
+    // double-scaffold (nested Main / double headers) inside the shell.
+    if (rendersAnySlot) {
+      violations.push(
+        `${rel}: is a hosted settings component (under a settings/ dir) but renders Page.* slots — hosted settings sections/pages are CONTENT-ONLY; the settings split shell (src/core/settings/dashboard.tsx) owns <Page.Main>/<Page.Header>/<Page.Body> for them`,
+      )
+    }
+  } else if (rendersAnySlot) {
     // Check 1 — partial compliance: any Page.* usage must include the full
     // Main > Header + Body scaffold.
     if (counts.Main === 0) {
@@ -204,7 +237,8 @@ for (const file of ROOTS.flatMap((r) => walk(r))) {
   }
 
   // Check 3 — routed pages must NOT render Page.Footer (shell-owned now).
-  if (isRoutedPage && counts.Footer > 0) {
+  // (Hosted settings files rendering Footer are already flagged by check 5.)
+  if (isRoutedPage && !hostedSettings && counts.Footer > 0) {
     violations.push(
       `${rel}: renders <Page.Footer> — the footer is SHELL-OWNED (AppShell renders it once). Register actions via usePageActions() instead.`,
     )

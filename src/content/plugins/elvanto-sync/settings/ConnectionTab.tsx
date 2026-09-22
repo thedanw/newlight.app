@@ -3,6 +3,7 @@ import { usePluginAPIContext } from '@/core/plugins/PluginAPI'
 import { useState, useEffect } from 'react'
 import { Stack } from 'styled-system/jsx'
 import { encrypt, decrypt, encryptWithKey, generateEncryptionKey, arrayBufferToBase64 } from '../utils/encryption'
+import { testElvantoConnection } from '../sync/trigger-sync'
 
 /**
  * Connection Tab — API key management and connection testing
@@ -71,23 +72,13 @@ export function ConnectionTab() {
     setTestResult(null)
 
     try {
-      const base = 'https://api.elvanto.com'
-      const response = await fetch(`${base}/v1/people/getAll.json`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Basic ${btoa(keyToTest + ':')}`,
-        },
-        body: JSON.stringify({ page_size: 1 }),
-      })
-
-      const data = await response.json().catch(() => ({}))
-      if (response.ok) {
-        const message = 'Connection successful! Elvanto API responded OK.'
+      const result = await testElvantoConnection(keyToTest)
+      if (result.success) {
+        const message = result.message || 'Connection successful! Elvanto API responded OK.'
         setTestResult({ success: true, message })
         toast.success(message)
       } else {
-        const message = data.error?.message || `HTTP ${response.status}`
+        const message = result.error || 'Connection test failed'
         setTestResult({ success: false, message })
         toast.error(message)
       }

@@ -26,6 +26,12 @@ export interface SyncTriggerResult {
   errors: string[]
 }
 
+export interface TestConnectionResult {
+  success: boolean
+  message?: string
+  error?: string
+}
+
 import { createClient } from '@supabase/supabase-js'
 import { getSupabaseUrl, getSupabaseAnonKey } from '@/core/lib/runtime-config'
 
@@ -103,4 +109,51 @@ export async function triggerElvantoSync(payload: TriggerSyncPayload = {}): Prom
   }
 
   return parsedBody as SyncTriggerResult
+}
+
+/**
+ * Test Elvanto API connection via the Edge Function proxy.
+ * This avoids CORS issues since the Edge Function makes the request server-side.
+ */
+export async function testElvantoConnection(apiKey: string): Promise<TestConnectionResult> {
+  const supabaseUrl = resolveSupabaseUrl()
+  const supabaseAnonKey = getSupabaseAnonKey()
+
+  const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+      detectSessionInUrl: false,
+    }
+  })
+
+  const { data: { session } } = await supabase.auth.getSession()
+  const jwt = session?.access_token || ''
+
+  const response = await fetch(getElvantoSyncWorkerUrl(), {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(jwt ? { Authorization: `Bearer ${jwt}` } : {}),
+    },
+    body: JSON.stringify({ action: 'test_connection', api_key: apiKey }),
+  })
+
+  const parsedBody = await response.json().catch(() => null)
+
+  if (!parsedBody) {
+    return {
+      success: false,
+      error: `Connection test failed (HTTP ${response.status}): empty or non-JSON response body`,
+    }
+  }
+
+  if (!response.ok) {
+    return {
+      success: false,
+      error: parsedBody.error || parsedBody.message || `HTTP ${response.status}`,
+    }
+  }
+
+  return parsedBody as TestConnectionResult
 }

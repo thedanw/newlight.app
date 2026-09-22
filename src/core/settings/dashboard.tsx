@@ -121,7 +121,7 @@ function SettingsSplitShell({
             padding={{ base: '0', lg: '6' }}
             background={{ base: 'transparent', lg: 'gray.subtle.bg' }}
           >
-            <Stack gap="3" role="list">
+            <Stack role="list">
               {sections.length === 0 ? (
                 <Text color="fg.muted" textStyle="sm">No settings sections registered yet.</Text>
               ) : (
@@ -199,7 +199,7 @@ function SettingsSectionCard({
       onClick={() => navigate(`/settings/${section.id}`)}
       className={css({
         cursor: 'pointer',
-        borderRadius: 'l2',
+        borderRadius: 'l3',
         borderWidth: '1px',
         borderColor: isActive ? 'colorPalette.a5' : 'border',
         p: { base: '3', lg: '2' },
@@ -212,10 +212,10 @@ function SettingsSectionCard({
             })}
     >
       <Card.Body>
-        <HStack gap="3" alignItems="center" minW="0">
+        <HStack alignItems="center" minW="0">
           <Box
             boxSize="10"
-            borderRadius="l1"
+            borderRadius="l2"
             bg="colorPalette.solid.bg"
             color="colorPalette.solid.fg"
             display="grid"

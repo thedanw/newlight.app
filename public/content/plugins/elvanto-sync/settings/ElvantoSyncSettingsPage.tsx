@@ -30,9 +30,7 @@ export function ElvantoSyncSettingsPage() {
   const [activeTab, setActiveTab] = useState('connection')
 
   return (
-    <Page.Main>
-      <Page.Header><Page.Heading level={1} icon={Settings} title="Elvanto Sync" /></Page.Header>
-      <Page.Body>
+      <Stack>
       <Heading textStyle="lg">Elvanto Sync</Heading>
       <Text color="fg.muted" textStyle="sm">
         Configure and monitor synchronization with Elvanto ChMS.
@@ -74,7 +72,6 @@ export function ElvantoSyncSettingsPage() {
           </Tabs.Content>
         ))}
       </Tabs.Root>
-      </Page.Body>
-    </Page.Main>
+      </Stack>
   )
 }

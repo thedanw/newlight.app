@@ -9,7 +9,7 @@ import { testElvantoConnection } from '../sync/trigger-sync'
  * Connection Tab — API key management and connection testing
  */
 export function ConnectionTab() {
-  const { settings, toast } = usePluginAPIContext()
+  const { settings, toast, supabase } = usePluginAPIContext()
   const [apiKey, setApiKey] = useState('')
   const [savedKey, setSavedKey] = useState<string | null>(null)
   const [testing, setTesting] = useState(false)
@@ -72,7 +72,7 @@ export function ConnectionTab() {
     setTestResult(null)
 
     try {
-      const result = await testElvantoConnection(keyToTest)
+      const result = await testElvantoConnection(supabase, keyToTest)
       if (result.success) {
         const message = result.message || 'Connection successful! Elvanto API responded OK.'
         setTestResult({ success: true, message })

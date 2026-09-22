@@ -34,6 +34,7 @@ export interface TestConnectionResult {
 
 import { createClient } from '@supabase/supabase-js'
 import { getSupabaseUrl, getSupabaseAnonKey } from '@/core/lib/runtime-config'
+import type { SupabaseClient } from '@supabase/supabase-js'
 
 const EDGE_FUNCTION_NAME = 'elvanto-sync-worker'
 
@@ -49,26 +50,17 @@ export function getElvantoSyncWorkerUrl(): string {
 /**
  * Invoke the elvanto-sync-worker Edge Function.
  *
- * Uses the signed-in user's access token (from the settings session),
- * not the anon key. Surface 401/403 as visible errors.
+ * Uses the signed-in user's access token from the provided Supabase client.
+ * Surface 401/403 as visible errors.
  *
  * @throws Error with status/detail when the request fails or the function
  *         returns a non-OK status.
  */
-export async function triggerElvantoSync(payload: TriggerSyncPayload = {}): Promise<SyncTriggerResult> {
-  const supabaseUrl = resolveSupabaseUrl()
-  const supabaseAnonKey = getSupabaseAnonKey()
-
-  // Create a Supabase client with the user's session token
-  const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-    auth: {
-      persistSession: false,
-      autoRefreshToken: false,
-      detectSessionInUrl: false,
-    }
-  })
-
-  // Get the current user's session
+export async function triggerElvantoSync(
+  supabase: SupabaseClient,
+  payload: TriggerSyncPayload = {}
+): Promise<SyncTriggerResult> {
+  // Get the current user's session from the provided client
   const { data: { session } } = await supabase.auth.getSession()
   const jwt = session?.access_token || ''
 
@@ -115,18 +107,11 @@ export async function triggerElvantoSync(payload: TriggerSyncPayload = {}): Prom
  * Test Elvanto API connection via the Edge Function proxy.
  * This avoids CORS issues since the Edge Function makes the request server-side.
  */
-export async function testElvantoConnection(apiKey: string): Promise<TestConnectionResult> {
-  const supabaseUrl = resolveSupabaseUrl()
-  const supabaseAnonKey = getSupabaseAnonKey()
-
-  const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-    auth: {
-      persistSession: false,
-      autoRefreshToken: false,
-      detectSessionInUrl: false,
-    }
-  })
-
+export async function testElvantoConnection(
+  supabase: SupabaseClient,
+  apiKey: string
+): Promise<TestConnectionResult> {
+  // Get the current user's session from the provided client
   const { data: { session } } = await supabase.auth.getSession()
   const jwt = session?.access_token || ''
 

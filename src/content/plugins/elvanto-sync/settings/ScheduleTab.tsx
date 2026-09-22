@@ -32,7 +32,8 @@ export function ScheduleTab() {
   const handleSyncNow = async () => {
     setLoading(true)
     try {
-      await triggerElvantoSync({ trigger: 'manual' })
+      const { supabase } = usePluginAPIContext()
+      await triggerElvantoSync(supabase, { trigger: 'manual' })
       toast.success('Sync triggered successfully')
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err)

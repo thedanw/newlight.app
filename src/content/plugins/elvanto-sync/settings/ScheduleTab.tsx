@@ -10,7 +10,7 @@ import { triggerElvantoSync } from '../sync/trigger-sync'
  * Schedule Tab — Skeleton (full implementation in Phase 10)
  */
 export function ScheduleTab() {
-  const { settings, toast } = usePluginAPIContext()
+  const { settings, toast, supabase } = usePluginAPIContext()
   const [cronExpression, setCronExpression] = useState('0 2 * * *')
   const [syncDirection, setSyncDirection] = useState<'pull_only' | 'bidirectional'>('pull_only')
   const [loading, setLoading] = useState(false)
@@ -32,7 +32,6 @@ export function ScheduleTab() {
   const handleSyncNow = async () => {
     setLoading(true)
     try {
-      const { supabase } = usePluginAPIContext()
       await triggerElvantoSync(supabase, { trigger: 'manual' })
       toast.success('Sync triggered successfully')
     } catch (err) {

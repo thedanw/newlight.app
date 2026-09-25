@@ -56,7 +56,7 @@ describe('email audience (Batch 4)', () => {
       const supabase = await getMockSupabase()
       const peopleChain = createChain({
         data: [
-          { email: 'a@example.org', firstname: 'A', preferred_name: null, lastname: 'Doe' },
+          { id: 'person-a', email: 'a@example.org', firstname: 'A', preferred_name: null, lastname: 'Doe' },
           { email: 'b@example.org', firstname: 'B', preferred_name: 'B', lastname: 'Smith' },
         ],
         error: null,
@@ -82,6 +82,7 @@ describe('email audience (Batch 4)', () => {
       expect(result).toHaveLength(2)
       expect(result[0].email).toBe('a@example.org')
       expect(result[0].name).toBe('A Doe')
+      expect(result[0].person_id).toBe('person-a')
       expect(result[1].name).toBe('B Smith')
     })
 
@@ -152,7 +153,7 @@ describe('email audience (Batch 4)', () => {
     it('returns recipients for given person IDs', async () => {
       const supabase = await getMockSupabase()
       const chain = createChain({
-        data: [{ email: 'person@example.org', firstname: 'John', preferred_name: null, lastname: 'Doe' }],
+        data: [{ id: 'person-1', email: 'person@example.org', firstname: 'John', preferred_name: null, lastname: 'Doe' }],
         error: null,
       })
       supabase.from.mockReturnValue(chain)
@@ -165,6 +166,7 @@ describe('email audience (Batch 4)', () => {
       expect(result).toHaveLength(1)
       expect(result[0].email).toBe('person@example.org')
       expect(result[0].name).toBe('John Doe')
+      expect(result[0].person_id).toBe('person-1')
     })
 
     it('filters out people without email', async () => {

@@ -43,6 +43,7 @@ export const yesNoSchema = z.enum(['yes', 'no'])
 export const emailRecipientSchema = z.object({
   email: z.string().email(),
   name: z.string().nullable().optional(),
+  person_id: z.string().uuid().nullable().optional(),
 })
 
 export const sendEmailInputSchema = z.object({
@@ -50,11 +51,29 @@ export const sendEmailInputSchema = z.object({
   subject: z.string().min(1),
   body: z.string().min(1),
   from: z.string().email().optional(),
+  consentCategory: emailConsentCategorySchema.optional(),
 })
 
 export const sendEmailResultSchema = z.object({
   messageId: z.string().nullable(),
   acceptedCount: z.number().int().nonnegative(),
+  sendId: z.string().uuid().optional(),
+})
+
+export const trackedSendRecipientSchema = z.object({
+  email: z.string().email(),
+  name: z.string().nullable().optional(),
+  person_id: z.string().uuid().nullable().optional(),
+  consent_category: emailConsentCategorySchema,
+})
+
+export const emailSendRequestSchema = z.object({
+  sendId: z.string().uuid(),
+  recipients: z.array(trackedSendRecipientSchema).min(1),
+  subject: z.string().min(1),
+  body: z.string().min(1),
+  from: z.string().email(),
+  consentCategory: emailConsentCategorySchema,
 })
 
 // ---------------------------------------------------------------------------
@@ -159,4 +178,47 @@ export const emailAudienceSpecSchema = z.object({
   type: emailAudienceTypeSchema,
   ref: z.string().nullable().optional(),
   peopleIds: z.array(z.string().uuid()).optional(),
+})
+
+// ---------------------------------------------------------------------------
+// Email editor settings
+// ---------------------------------------------------------------------------
+
+export const emailEditorThemeSchema = z.enum(['light', 'dark', 'auto'])
+
+export const emailEditorConfigSchema = z.object({
+  theme: emailEditorThemeSchema,
+  licenseKey: z.string(),
+  showBlocksPanel: z.boolean(),
+  showLayersPanel: z.boolean(),
+  showStylesPanel: z.boolean(),
+  defaultTemplate: z.string(),
+})
+
+export const emailSettingsSchema = z.object({
+  transport: emailTransportSchema,
+  smtp: z.object({
+    host: z.string(),
+    port: z.number().int(),
+    username: z.string(),
+    password: z.string(),
+    secure: z.boolean(),
+  }),
+  resend: z.object({
+    apiKey: z.string(),
+    fromEmail: z.string().email(),
+  }),
+  defaults: z.object({
+    fromEmail: z.string().email(),
+    fromName: z.string(),
+    replyToEmail: z.string().email(),
+    replyToName: z.string(),
+  }),
+  branding: z.object({
+    logoUrl: z.string().nullable(),
+    primaryColor: z.string(),
+    footerText: z.string(),
+    includeUnsubscribeFooter: z.boolean(),
+  }),
+  editor: emailEditorConfigSchema,
 })

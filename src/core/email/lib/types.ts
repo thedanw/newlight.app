@@ -3,6 +3,7 @@ import type { Json } from '@/core/lib/database.types'
 export type EmailRecipient = {
   email: string
   name?: string | null
+  person_id?: string | null
 }
 
 export type SendEmailInput = {
@@ -10,11 +11,29 @@ export type SendEmailInput = {
   subject: string
   body: string
   from?: string
+  consentCategory?: EmailConsentCategory
+}
+
+export type TrackedSendRecipient = {
+  email: string
+  name?: string | null
+  person_id?: string | null
+  consent_category: EmailConsentCategory
+}
+
+export type TrackedSendEmailInput = {
+  sendId: string
+  recipients: TrackedSendRecipient[]
+  subject: string
+  body: string
+  from: string
+  consentCategory: EmailConsentCategory
 }
 
 export type SendEmailResult = {
   messageId: string | null
   acceptedCount: number
+  sendId?: string
 }
 
 export type EmailTemplateStatus = 'draft' | 'published' | 'archived'
@@ -52,12 +71,24 @@ export type EmailBranding = {
   includeUnsubscribeFooter: boolean
 }
 
+export type EmailEditorTheme = 'light' | 'dark' | 'auto'
+
+export type EmailEditorConfig = {
+  theme: EmailEditorTheme
+  licenseKey: string
+  showBlocksPanel: boolean
+  showLayersPanel: boolean
+  showStylesPanel: boolean
+  defaultTemplate: string
+}
+
 export type EmailSettings = {
   transport: EmailTransport
   smtp: EmailSmtpConfig
   resend: EmailResendConfig
   defaults: EmailDefaults
   branding: EmailBranding
+  editor: EmailEditorConfig
 }
 
 export type EmailTemplate = {

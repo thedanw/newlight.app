@@ -1,4 +1,4 @@
-import { sendEmail, type EmailRecipient, type SendEmailInput, type SendEmailResult } from '@/core/lib/email'
+import { sendEmailWithTracking, type EmailRecipient, type SendEmailResult } from '@/core/lib/email'
 import { supabase } from '@/core/lib/supabase'
 import { getPeopleList, getSavedListById } from './queries'
 import type { Person } from './types'
@@ -39,7 +39,7 @@ export async function getEmailRecipients(listId: string): Promise<EmailRecipient
     const name = person.preferred_name
       ? `${person.preferred_name} ${person.lastname}`
       : `${person.firstname} ${person.lastname}`
-    recipients.set(email.toLowerCase(), { email, name })
+    recipients.set(email.toLowerCase(), { email, name, person_id: person.id })
   }
   return [...recipients.values()]
 }
@@ -47,19 +47,30 @@ export async function getEmailRecipients(listId: string): Promise<EmailRecipient
 /**
  * Send an email to a set of people and record an audit entry for each
  * recipient so the send is traceable.
+ *
+ * Uses the core tracked-send flow which persists a `email_sends` row and
+ * delegates delivery to the SMTP Edge Function. `consentCategory` defaults to
+ * `broadcasts` and is forwarded so the Edge Function can skip recipients who
+ * have not opted in.
  */
 export async function sendPeopleEmail(
   recipients: EmailRecipient[],
   subject: string,
   body: string,
-): Promise<SendEmailResult> {
+  consentCategory: 'broadcasts' | 'team_updates' = 'broadcasts',
+): Promise<SendEmailResult & { sendId: string }> {
   const trimmedSubject = subject.trim()
   if (!trimmedSubject) throw new Error('Email subject is required.')
   if (!body.trim()) throw new Error('Email body is required.')
   if (recipients.length === 0) throw new Error('No recipients with an email address were found.')
 
-  const input: SendEmailInput = { to: recipients, subject: trimmedSubject, body }
-  const result = await sendEmail(input)
+  const input = {
+    to: recipients,
+    subject: trimmedSubject,
+    body,
+    consentCategory,
+  }
+  const result = await sendEmailWithTracking(input)
 
   await logEmailActivity(recipients, trimmedSubject, result.acceptedCount)
   return result

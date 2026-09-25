@@ -3,7 +3,16 @@ import { lazy } from 'react'
 import type { RouteObject } from 'react-router-dom'
 import { Navigate, Outlet } from 'react-router-dom'
 import { ModuleBreadcrumbProvider } from '@/core/ui'
-import { peopleManifest } from './manifest'
+import { Manifest } from './manifest'
+import { registerSidebarModule } from '@/core/ui/sidebar-registry'
+
+// Register sidebar entry at module load
+registerSidebarModule({
+  id: Manifest.id,
+  label: Manifest.name,
+  icon: Manifest.icon,
+  order: Manifest.number,
+})
 
 // Registers the people module's settings page (core #41 settings-schema demo).
 import './settings'
@@ -17,9 +26,9 @@ const JourneyGridPage = lazy(() => import('./pages/JourneyGrid/Page'))
 const TagsPage = lazy(() => import('./pages/Tags/Page'))
 const EmailPage = lazy(() => import('./pages/Email/Page'))
 
-function PeopleLayout() {
+function ModuleLayout() {
   return (
-    <ModuleBreadcrumbProvider manifest={peopleManifest}>
+    <ModuleBreadcrumbProvider manifest={Manifest}>
       <Outlet />
     </ModuleBreadcrumbProvider>
   )
@@ -27,17 +36,17 @@ function PeopleLayout() {
 
 // Children of the shared `AppShell` (see `core/router.tsx`). The module owns no
 // layout component: its `index` route is the dashboard, mounted at `/people`.
-export const peopleRoutes: RouteObject[] = [
+export const routes: RouteObject[] = [
   {
-    element: <PeopleLayout />,
+    element: <ModuleLayout />,
     children: [
       { index: true, element: <PeopleDashboardPage /> },
       { path: 'new', element: <CreatePersonPage /> },
       { path: ':id', element: <EditPersonPage /> },
       { path: ':id/view', element: <PersonProfilePage /> },
       { path: 'journey', element: <JourneyGridPage /> },
-       { path: 'tags', element: <TagsPage /> },
-       { path: 'email', element: <EmailPage /> },
+      { path: 'tags', element: <TagsPage /> },
+      { path: 'email', element: <EmailPage /> },
       // Legacy forms routes — redirect to the standalone forms module.
       { path: 'forms', element: <Navigate to="/forms" replace /> },
       { path: 'forms/*', element: <Navigate to="/forms" replace /> },

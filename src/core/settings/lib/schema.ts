@@ -11,6 +11,9 @@ import { getAllSettingsSections as getPluginSections, getAllSettingsPages as get
  * deep-linkable surface (`/settings/<sectionId>` and `/settings/<sectionId>/<pageId>`).
  */
 
+/** Dashboard group a settings section renders under. */
+export type SettingsSectionGroup = 'general' | 'modules'
+
 export interface SettingsSection {
   /** Stable id used in the URL: `/settings/<id>` */
   id: string
@@ -20,6 +23,12 @@ export interface SettingsSection {
   component: ComponentType
   /** Lower sorts first. */
   order?: number
+  /**
+   * Dashboard group this section is listed under. Core platform settings
+   * (church info, email, integrations) declare `'general'`; module- and
+   * plugin-registered sections default to `'modules'`.
+   */
+  group?: SettingsSectionGroup
   /**
    * Icon shown in the iOS-style settings list / side nav.
    * Modules should pass their own manifest icon (e.g. `peopleManifest.icon`)
@@ -82,6 +91,30 @@ export function getSettingsSections(): SettingsSection[] {
     seen.add(s.id)
     return true
   }).sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+}
+
+/** Ordered dashboard groups — General Settings first, then Modules. */
+const SECTION_GROUPS: Array<{ group: SettingsSectionGroup; label: string }> = [
+  { group: 'general', label: 'General Settings' },
+  { group: 'modules', label: 'Modules' },
+]
+
+/**
+ * Get settings sections grouped for the iOS-style dashboard list.
+ * Sections without an explicit `group` land in `'modules'`; empty groups
+ * are omitted so a group header never renders without content.
+ */
+export function getSettingsSectionGroups(): Array<{
+  group: SettingsSectionGroup
+  label: string
+  sections: SettingsSection[]
+}> {
+  const sections = getSettingsSections()
+  return SECTION_GROUPS.map(({ group, label }) => ({
+    group,
+    label,
+    sections: sections.filter((s) => (s.group ?? 'modules') === group),
+  })).filter((grouped) => grouped.sections.length > 0)
 }
 
 /**

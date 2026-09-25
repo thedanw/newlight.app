@@ -64,12 +64,18 @@ export async function triggerElvantoSync(
   const { data: { session } } = await supabase.auth.getSession()
   const jwt = session?.access_token || ''
 
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  }
+
+  // Include Authorization header if we have a JWT token
+  if (jwt) {
+    headers.Authorization = `Bearer ${jwt}`
+  }
+
   const response = await fetch(getElvantoSyncWorkerUrl(), {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      ...(jwt ? { Authorization: `Bearer ${jwt}` } : {}),
-    },
+    headers,
     body: JSON.stringify({ trigger: 'manual', ...payload }),
   })
 
@@ -115,12 +121,18 @@ export async function testElvantoConnection(
   const { data: { session } } = await supabase.auth.getSession()
   const jwt = session?.access_token || ''
 
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  }
+
+  // Include Authorization header if we have a JWT token
+  if (jwt) {
+    headers.Authorization = `Bearer ${jwt}`
+  }
+
   const response = await fetch(getElvantoSyncWorkerUrl(), {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      ...(jwt ? { Authorization: `Bearer ${jwt}` } : {}),
-    },
+    headers,
     body: JSON.stringify({ action: 'test_connection', api_key: apiKey }),
   })
 

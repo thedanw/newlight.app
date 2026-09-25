@@ -3,9 +3,9 @@ import { lazy } from 'react'
 import ErrorPage from '@/core/errors/ErrorPage'
 import { AppShell } from '@/core/ui'
 import { RequireAuth } from '@/core/guards/RequireAuth'
-import { exampleRoutes } from '@/modules/example/routes'
-import { formsRoutes } from '@/modules/forms/routes'
-import { peopleRoutes } from '@/modules/people/routes'
+import { routes as developersRoutes } from '@/modules/developers/routes'
+import { routes as formsRoutes } from '@/modules/forms/routes'
+import { routes as peopleRoutes } from '@/modules/people/routes'
 import { coreRoutes } from '@/core/routes'
 
 const FormPublicPage = lazy(() => import('@/modules/forms/pages/PublicPage'))
@@ -29,7 +29,7 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <Navigate to="/people" replace /> },
       { path: 'account', element: <AccountPage /> },
-      { path: 'example', children: exampleRoutes },
+      { path: 'developers', children: developersRoutes },
       { path: 'forms', children: formsRoutes },
       { path: 'people', children: peopleRoutes },
       { path: 'settings', children: coreRoutes },

@@ -28,7 +28,10 @@ importers:
         version: 0.5.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@grapesjs/react':
         specifier: ^2.0.0
-        version: 2.0.0(grapesjs@0.22.16)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+        version: 2.0.0(grapesjs@0.23.6)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@grapesjs/studio-sdk':
+        specifier: ^1.2.1
+        version: 1.2.1(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@supabase/supabase-js':
         specifier: ^2.112.4
         version: 2.116.0
@@ -36,11 +39,8 @@ importers:
         specifier: ^13.0.0
         version: 13.4.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       grapesjs:
-        specifier: ^0.22.16
-        version: 0.22.16
-      grapesjs-preset-newsletter:
-        specifier: ^1.0.2
-        version: 1.0.2
+        specifier: ^0.23.6
+        version: 0.23.6
       lucide-react:
         specifier: ^1.30.0
         version: 1.47.0(react@19.3.0)
@@ -1082,6 +1082,9 @@ packages:
       grapesjs: ^0.22.5
       react: ^18.0.0 || ^19.0.0
       react-dom: ^18.0.0 || ^19.0.0
+
+  '@grapesjs/studio-sdk@1.2.1':
+    resolution: {integrity: sha512-+RkU0BjslsTLl3ovtkRr/lHKNG22l2hYHEsSvJgFUkROSp+qLv4eU//FrpP6r2g57PkamRD2IB/d13u8rgkrMw==}
 
   '@humanfs/core@0.19.2':
     resolution: {integrity: sha512-UhXNm+CFMWcbChXywFwkmhqjs3PRCmcSa/hfBgLIb7oQ5HNb1wS0icWsGtSAUNgefHeI+eBrA8I1fxmbHsGdvA==}
@@ -2600,11 +2603,8 @@ packages:
   graceful-fs@4.2.11:
     resolution: {integrity: sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==}
 
-  grapesjs-preset-newsletter@1.0.2:
-    resolution: {integrity: sha512-z8KJ1ZrTXfASSJZ/tHOcnpcWu4AMr2F/ZfQit+QjimNi3UGowwl7+Yjefuh3R7lbDTrXMMaxhCannCaJo/kPJw==}
-
-  grapesjs@0.22.16:
-    resolution: {integrity: sha512-kCfphgpC7pqJPuMYmIhMR6ueyB3+V67isdpMZOvmuGeWDMomkgzqRWOMH3matfdqIJW7LUivHZo9GeyVQAGmLw==}
+  grapesjs@0.23.6:
+    resolution: {integrity: sha512-I8M/sPWjHm6MLIdUtRFNOKsQ3PtDgIDsc2S8ANkJsfHj3ZoH98oNMMWr64Kx22XgjHCQ4xpUx7nvXyQSKV1mrQ==}
 
   happy-dom@20.14.5:
     resolution: {integrity: sha512-x/RzkpWO40bTjIoT30iQtt64FLLmH/iRcUCN2X//bLx7H3ifkdfPXyqsro/OYtqzIAhiLMMA7mmiOR9C3NOKjQ==}
@@ -5009,13 +5009,21 @@ snapshots:
 
   '@floating-ui/utils@0.2.12': {}
 
-  '@grapesjs/react@2.0.0(grapesjs@0.22.16)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
+  '@grapesjs/react@2.0.0(grapesjs@0.23.6)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
     dependencies:
       '@types/react': 19.3.0
       '@types/react-dom': 19.3.0(@types/react@19.3.0)
-      grapesjs: 0.22.16
+      grapesjs: 0.23.6
       react: 19.3.0
       react-dom: 19.3.0(react@19.3.0)
+
+  '@grapesjs/studio-sdk@1.2.1(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
+    dependencies:
+      '@grapesjs/react': 2.0.0(grapesjs@0.23.6)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      grapesjs: 0.23.6
+    transitivePeerDependencies:
+      - react
+      - react-dom
 
   '@humanfs/core@0.19.2':
     dependencies:
@@ -7177,9 +7185,7 @@ snapshots:
 
   graceful-fs@4.2.11: {}
 
-  grapesjs-preset-newsletter@1.0.2: {}
-
-  grapesjs@0.22.16:
+  grapesjs@0.23.6:
     dependencies:
       '@types/backbone': 1.4.15
       backbone: 1.4.1

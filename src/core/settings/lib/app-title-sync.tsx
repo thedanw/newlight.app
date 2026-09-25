@@ -30,7 +30,7 @@ export function AppTitleSync() {
     // Initial sync
     syncTitle()
 
-    // Listen for settings changes (dispatched by ChurchInformationSection after save)
+    // Listen for settings changes (dispatched by the settings pages after save)
     const handleSettingsChange = () => {
       syncTitle()
     }

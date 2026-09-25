@@ -44,7 +44,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [person, setPerson] = useState<Tables<'people'> | null>(null)
-  const [isProfileLoading, setIsProfileLoading] = useState(false)
+  /**
+   * Id of the auth user whose linked people row has finished loading.
+   * `null` until the first lookup settles. This is deliberately a *user id*
+   * rather than a boolean: a stored `isProfileLoading` flag publishes
+   * `false` for the one render between "session resolved" and "profile
+   * effect ran", which let route guards treat a super admin as unprivileged
+   * and redirect them to /people on every hard load of a guarded URL.
+   * `null` is an id no session can have, so the comparison below can never
+   * accidentally report "resolved" before the query has run.
+   */
+  const [profileResolvedForUserId, setProfileResolvedForUserId] = useState<string | null>(null)
+
+  /**
+   * Derived, not stored: a profile is still loading whenever there is a
+   * signed-in user whose people row we have not resolved yet. Fails closed
+   * for the very first render where `user` is set.
+   */
+  const isProfileLoading = user !== null && profileResolvedForUserId !== user.id
 
   useEffect(() => {
     const hasRealAuth = getSupabaseUrl() && getSupabaseAnonKey()
@@ -86,24 +103,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(false)
   }, [])
 
-  // Load linked person profile whenever the auth user changes
+  // Load linked person profile whenever the auth user changes. Resolving the
+  // lookup stamps the user id it belongs to, which is what clears
+  // `isProfileLoading` (derived above) — the stamp is what makes the "session
+  // resolved but profile not yet queried" render fail closed instead of
+  // letting guards treat the user as unprivileged.
   useEffect(() => {
-    let cancelled = false
     if (!user) {
       setPerson(null)
-      setIsProfileLoading(false)
       return
     }
-    setIsProfileLoading(true)
-    getPersonByAuthUserId(user.id)
+    const userId = user.id
+    let cancelled = false
+    getPersonByAuthUserId(userId)
       .then((p) => {
-        if (!cancelled) setPerson(p)
+        if (cancelled) return
+        setPerson(p)
+        setProfileResolvedForUserId(userId)
       })
       .catch(() => {
-        if (!cancelled) setPerson(null)
-      })
-      .finally(() => {
-        if (!cancelled) setIsProfileLoading(false)
+        if (cancelled) return
+        // A lookup failure is a resolution too: stop the guard spinning
+        // forever, and let it apply the "no linked profile" policy.
+        setPerson(null)
+        setProfileResolvedForUserId(userId)
       })
     return () => {
       cancelled = true

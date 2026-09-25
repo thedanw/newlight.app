@@ -3,10 +3,11 @@ import { useRef, useState, useEffect, useCallback } from 'react'
 import { animate, motion, useMotionValue } from 'framer-motion'
 import { css } from 'styled-system/css'
 import { Avatar, NavTile, PullTab, PullTabDots, NavProvider, useNavContext } from '@/core/ui'
-import { ClipboardList, Users, Sun, Settings, Palette, LogIn } from 'lucide-react'
+import { Sun, Settings, LogIn } from 'lucide-react'
 import { useAuth } from '@/core/auth'
 import { isSettingsTileVisible } from '@/core/auth/lib/permissions'
 import { getAccountTileState } from '@/core/auth/lib/tile-state'
+import { getSidebarModules } from './sidebar-registry'
 
 /* ---------------------------------------------------------------------------
     Sidebar — mobile-first left-side module menu (ui-ux #7):
@@ -22,12 +23,6 @@ import { getAccountTileState } from '@/core/auth/lib/tile-state'
    - account avatar pinned to footer
 --------------------------------------------------------------------------- */
 
-const MODULES = [
-  { id: 'people', label: 'People', icon: Users },
-  { id: 'forms', label: 'Forms', icon: ClipboardList },
-  { id: 'example', label: 'Example', icon: Palette },
-] as const
-
 const FOOTER_TILES = 2 // Account + Settings
 const TILE_SIZE = 66 // px
 
@@ -36,6 +31,9 @@ const SIDEBAR_PADDING = 12 // px
 const PEEK_WIDTH = 5 // px
 const SNAP_VELOCITY_THRESHOLD = 100 // px/s
 const DRAG_CLICK_THRESHOLD = 6 // px of movement before a press counts as a drag
+
+// Get dynamically registered modules from sidebar registry
+const MODULES = getSidebarModules()
 
 // Calculate optimal column count and rows-per-column for given tile count and viewport height
 function calculateLayout(mainTileCount: number, viewportHeight: number) {

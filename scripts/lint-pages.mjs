@@ -65,7 +65,7 @@ const FILES_ALLOW_RAW = [
   // when AppShell/Page.Root itself fails; not a scaffold page.
   'src/core/errors/ErrorPage.tsx',
   // Styleguide demo registry (lives in pages/ but is not a routed page).
-  'src/modules/example/pages/demos.tsx',
+  'src/modules/developers/pages/demos.tsx',
   // Test harness — renders the shell (Page.Root + Page.Footer) to exercise
   // the action footer, not a routed page.
   'src/modules/people/__tests__/form-reorder.test.tsx',

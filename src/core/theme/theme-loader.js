@@ -131,6 +131,8 @@ export async function initializeTheme(accentOrOptions, gray) {
   html.setAttribute('data-sidebar-style', sidebarStyle);
 
   console.log('Theme system initialized with:', { accent, gray: grayOpt, mode, radius, font, sidebarStyle });
+
+  window.dispatchEvent(new CustomEvent('theme-change', { detail: { accent: accent, gray: grayOpt, colorScheme: mode } }));
 }
 
 export async function switchTheme(options = {}) {
@@ -163,6 +165,8 @@ export async function switchTheme(options = {}) {
   ]);
 
   console.log('Theme switched to:', { accent, gray, radius, font, sidebarStyle, colorScheme, headingStyle });
+
+  window.dispatchEvent(new CustomEvent('theme-change', { detail: { accent, gray, colorScheme } }));
 }
 
 export function getCurrentTheme() {

@@ -14,6 +14,7 @@ import { switchRecipe } from "./switch";
 import { textarea } from "./textarea";
 import { fieldset } from "./fieldset";
 import { inputAddon } from "./input-addon";
+import { inputDynamic } from "./input-dynamic";
 import { inputGroup } from "./input-group";
 import { input } from "./input";
 import { splitter } from "./splitter";
@@ -99,6 +100,7 @@ export const recipes = {
   scrollArea,
   splitter,
   input,
+  inputDynamic,
   inputGroup,
   inputAddon,
   fieldset,

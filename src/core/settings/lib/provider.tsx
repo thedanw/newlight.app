@@ -33,6 +33,7 @@ export type AppSettings = {
     appName: string
     churchEmail: string
     website: string
+    churchAddress: string
   }
   logoUrl: string | null
 }

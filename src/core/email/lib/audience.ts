@@ -42,7 +42,7 @@ export async function resolveSavedList(listId: string): Promise<EmailRecipient[]
     tagId?: string
   }
 
-  let query = supabase.from('people').select('email,firstname,preferred_name,lastname')
+  let query = supabase.from('people').select('id,email,firstname,preferred_name,lastname')
 
   if (conditions.demographic) query = query.eq('demographic', conditions.demographic)
   if (conditions.accessPermission) query = query.eq('access_permission', conditions.accessPermission)
@@ -68,6 +68,7 @@ export async function resolveSavedList(listId: string): Promise<EmailRecipient[]
         name: person.preferred_name
           ? `${person.preferred_name} ${person.lastname}`
           : `${person.firstname} ${person.lastname}`,
+        person_id: person.id,
       })),
   )
 }
@@ -80,7 +81,7 @@ export async function resolvePeople(peopleIds: string[]): Promise<EmailRecipient
 
   const { data: people, error } = await supabase
     .from('people')
-    .select('email,firstname,preferred_name,lastname')
+    .select('id,email,firstname,preferred_name,lastname')
     .in('id', peopleIds)
     .is('deleted_at', null)
 
@@ -94,6 +95,7 @@ export async function resolvePeople(peopleIds: string[]): Promise<EmailRecipient
         name: person.preferred_name
           ? `${person.preferred_name} ${person.lastname}`
           : `${person.firstname} ${person.lastname}`,
+        person_id: person.id,
       })),
   )
 }

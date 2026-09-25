@@ -1,6 +1,5 @@
-export { formsManifest } from './manifest'
-export type { FormsManifest } from './manifest'
+export type { Manifest } from './manifest'
 
-export type FormsModuleApi = {
+export type ModuleApi = {
   readonly moduleId: 'forms'
 }

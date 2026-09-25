@@ -2,11 +2,11 @@ import { useCallback, useState, type CSSProperties } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Badge, Button, Card, CloseButton, Dialog, Drawer, Heading, Icon, Loader, Page, SearchInput, Spinner, Table, Tabs, Text } from '@/core/ui'
 import { Box, Grid, HStack, Stack } from 'styled-system/jsx'
-import { exampleManifest } from './manifest'
+import { Manifest } from './manifest'
 import { tocCategories, type TocCategory, type TocComponent } from './pages/toc'
 
-/* ---------------------------------------------------------------------------
-   ExampleDashboardPage — module entry point at /example.
+/** ---------------------------------------------------------------------------
+   DevelopersDashboardPage — module entry point at /developers.
 
    Replaces the temporary styleguide shell (temp-styleguide #38). Uses the
    standard Page layout pattern from the boilerplate template.
@@ -55,7 +55,7 @@ const groupMatchesByCategory = (matches: CatalogComponent[]): TocCategory[] => {
   return [...grouped.values()]
 }
 
-export default function ExampleDashboardPage() {
+export default function DevelopersDashboardPage() {
   const navigate = useNavigate()
   const [demoDialogOpen, setDemoDialogOpen] = useState(false)
   const [demoDrawerOpen, setDemoDrawerOpen] = useState(false)
@@ -76,18 +76,18 @@ export default function ExampleDashboardPage() {
   const filteredCategories = results === null ? tocCategories : groupMatchesByCategory(results)
   const allComponents = results === null ? flattenCatalog() : results
 
-  const openCategory = (categoryId: string) => navigate(`/example/category/${categoryId}`)
-  const openComponent = (categoryId: string) => navigate(`/example/category/${categoryId}`)
+  const openCategory = (categoryId: string) => navigate(`/developers/category/${categoryId}`)
+  const openComponent = (categoryId: string) => navigate(`/developers/category/${categoryId}`)
 
   return (
     <Page.Main>
-      <Page.HeaderTop style={{ '--module-number': exampleManifest.number } as CSSProperties} />
+      <Page.HeaderTop style={{ '--module-number': Manifest.number } as CSSProperties} />
       <Page.Header
-        style={{ '--module-number': exampleManifest.number } as CSSProperties}>
-        <Page.Heading level={0} icon={exampleManifest.icon} title={exampleManifest.name} />
+        style={{ '--module-number': Manifest.number } as CSSProperties}>
+        <Page.Heading level={0} icon={Manifest.icon} title={Manifest.name} />
       </Page.Header>
       <Page.HeaderBottom
-        style={{ '--module-number': exampleManifest.number } as CSSProperties}
+        style={{ '--module-number': Manifest.number } as CSSProperties}
       >
         <Stack>
           <Text textStyle="sm">

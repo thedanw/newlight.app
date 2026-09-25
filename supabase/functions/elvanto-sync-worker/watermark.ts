@@ -33,7 +33,9 @@ export async function saveWatermark(supabase, entity, sourceModified, itemsProce
     value: watermark,
     environment: 'production',
     updated_by: null
-  }, { onConflict: 'key' });
+  }, {
+    onConflict: 'key'
+  });
   if (error) {
     console.error(`[Watermark] Failed to save watermark for ${entity}:`, error);
     throw error;

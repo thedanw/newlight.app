@@ -27,6 +27,8 @@ App-wide Settings dashboard (iOS-settings-style page) consolidates BrandForm dra
    12.3 `lg+`: 280px left nav column (`as="nav"`, `gray.subtle.bg`) persists and the selected page scrolls in the right panel; `base`: list collapses, selected page fills the viewport → deep-linkable, no panel-stack machinery needed
    12.4 Sections must declare an `icon` (module manifest icon; `SlidersHorizontal` fallback) → card list and shell heading share one source
    12.5 lint-pages recognizes hosted settings pages structurally — any file under a `settings/` directory must render zero `Page.*` slots (content-only), while the shell `dashboard.tsx` itself stays guarded → every future settings page is covered with no allowlist upkeep
+   12.6 Card list is grouped (General Settings → Modules) via `SettingsSection.group` + `getSettingsSectionGroups()`; core registrations declare `group: 'general'`, module/plugin sections default to `modules` → grouped iOS list with no view-side section knowledge
+   12.7 The former single "Church Information" section splits into `general` (church name/email/website/address) + `appearance` (app name, logo, theme knobs; `Palette` icon), both hosted content-only and sharing `useAppSettingsForm()` in `lib/app-settings.ts` → user request 2026-09; because `app-settings` is a single upserted JSON value, every page re-saves the whole payload (its own slice edited, the other page's fields passed through); `churchAddress` added to `AppSettings.churchInfo`
 
 ## Approaches Considered
 

@@ -17,13 +17,14 @@ vi.mock('@/core/ui', async () => {
   }
 })
 
-vi.mock('@grapesjs/react', () => ({
-  Editor: ({ children }: { children: React.ReactNode }) => <div data-testid="grapes-editor">{children}</div>,
-  useEditorMaybe: () => null,
+vi.mock('@grapesjs/studio-sdk/style', () => ({}))
+
+vi.mock('@grapesjs/studio-sdk/react', () => ({
+  StudioEditor: ({ children }: { children: React.ReactNode }) => <div data-testid="studio-editor">{children}</div>,
+  useStudioEditor: () => undefined,
 }))
 
 vi.mock('grapesjs', () => ({ default: {} }))
-vi.mock('grapesjs-preset-newsletter', () => ({ default: () => {} }))
 
 vi.mock('../lib/queries', () => ({
   getSenderAliases: vi.fn().mockResolvedValue([]),
@@ -31,6 +32,11 @@ vi.mock('../lib/queries', () => ({
   createTemplate: vi.fn(),
   deleteTemplate: vi.fn(),
   updateTemplate: vi.fn(),
+}))
+
+vi.mock('../lib/settings', () => ({
+  getEmailSettings: vi.fn().mockResolvedValue(null),
+  DEFAULT_EMAIL_SETTINGS: { editor: { theme: 'light', licenseKey: 'DEV_LICENSE_KEY' } },
 }))
 
 vi.mock('../lib/audience', () => ({

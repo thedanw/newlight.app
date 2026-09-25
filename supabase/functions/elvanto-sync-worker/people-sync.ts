@@ -41,7 +41,12 @@ async function getAllPeople(apiKey, dateFilter) {
     const body = {
       page,
       page_size: DEFAULT_PAGE_SIZE,
-      fields: ['gender', 'birthday', 'locations', 'custom_77493627-aaba-426e-48dc-b0b0d8d24c99'] // demographics field UUID from Elvanto API
+      fields: [
+        'gender',
+        'birthday',
+        'locations',
+        'custom_77493627-aaba-426e-48dc-b0b0d8d24c99'
+      ] // demographics field UUID from Elvanto API
     };
     if (dateFilter) body.date_modified = dateFilter;
     const data = await elvantoRequest(apiKey, 'people/getAll', body);
@@ -441,14 +446,28 @@ function sanitizeGender(value) {
   return null;
 }
 function sanitizeMaritalStatus(value) {
-  const valid = ['single', 'engaged', 'married', 'partner', 'widowed', 'divorced', 'separated'];
+  const valid = [
+    'single',
+    'engaged',
+    'married',
+    'partner',
+    'widowed',
+    'divorced',
+    'separated'
+  ];
   if (typeof value === 'string' && valid.includes(value.toLowerCase())) {
     return value.toLowerCase();
   }
   return null;
 }
 function sanitizeAccessPermission(value) {
-  const valid = ['public', 'member_area', 'team_leaders', 'admin', 'super_admin'];
+  const valid = [
+    'public',
+    'member_area',
+    'team_leaders',
+    'admin',
+    'super_admin'
+  ];
   if (typeof value === 'string' && valid.includes(value.toLowerCase())) {
     return value.toLowerCase();
   }

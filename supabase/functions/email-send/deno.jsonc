@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "deno",
+    "strict": true,
+    "jsx": "react-jsx",
+    "esModuleInterop": false,
+    "isolatedModules": true,
+    "noEmit": true
+  },
+  "lint": {
+    "files": ["index.ts", "index.test.ts"]
+  }
+}

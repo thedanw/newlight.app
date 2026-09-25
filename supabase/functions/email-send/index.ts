@@ -17,8 +17,67 @@ const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '
 const SMTP_HOST = Deno.env.get('SMTP_HOST') ?? ''
 const SMTP_PORT = parseInt(Deno.env.get('SMTP_PORT') ?? '465', 10)
 const SMTP_USER = Deno.env.get('SMTP_USER') ?? ''
-const SMTP_PASS = Deno.env.get('SMTP_PASS') ?? ''
 const SMTP_FROM_NAME = Deno.env.get('SMTP_FROM_NAME') ?? 'New Light'
+
+// SMTP_PASS is resolved lazily via getSecret() (env var first, then the
+// encrypted row in email_secrets) — never read from platform_settings.
+const secretCache: Record<string, string | null> = {}
+
+function b64ToBuf(b64: string): Uint8Array {
+  const bin = atob(b64)
+  const out = new Uint8Array(bin.length)
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i)
+  return out
+}
+
+async function getSecret(name: string): Promise<string | null> {
+  if (name in secretCache) return secretCache[name]
+
+  const envKey = name === 'smtp_pass' ? 'SMTP_PASS' : name.toUpperCase()
+  const envVal = Deno.env.get(envKey)
+  if (envVal) {
+    secretCache[name] = envVal
+    return envVal
+  }
+
+  try {
+    const { data: keyRow, error: keyErr } = await supabase
+      .from('email_encryption_keys')
+      .select('key_bytes')
+      .eq('name', 'default')
+      .maybeSingle()
+    if (keyErr || !keyRow?.key_bytes) {
+      secretCache[name] = null
+      return null
+    }
+
+    const keyBytes = b64ToBuf(keyRow.key_bytes as string)
+    const cryptoKey = await crypto.subtle.importKey('raw', keyBytes, { name: 'AES-GCM' }, false, ['decrypt'])
+
+    const { data: sec, error: secErr } = await supabase
+      .from('email_secrets')
+      .select('value_encrypted,nonce')
+      .eq('name', name)
+      .maybeSingle()
+    if (secErr || !sec) {
+      secretCache[name] = null
+      return null
+    }
+
+    const plain = await crypto.subtle.decrypt(
+      { name: 'AES-GCM', iv: b64ToBuf(sec.nonce as string) },
+      cryptoKey,
+      b64ToBuf(sec.value_encrypted as string),
+    )
+    const result = new TextDecoder().decode(plain)
+    secretCache[name] = result
+    return result
+  } catch (err) {
+    console.error('[email-send] Failed to resolve secret', name, err)
+    secretCache[name] = null
+    return null
+  }
+}
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -26,21 +85,21 @@ const corsHeaders = {
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 }
 
-// Server-side allowlist for the `from` field — only these values are accepted
-const FROM_ALLOWLIST = ['workspace@newlight.app', 'no-reply@newlight.app']
+// Roles authorized to send emails (matches the people.access_permission enum)
+const SEND_AUTHORIZED_ROLES = ['team_leaders', 'admin', 'super_admin']
 
-// Roles authorized to send emails
-const SEND_AUTHORIZED_ROLES = ['team_leader', 'admin', 'super_admin']
-
-function assertCanSend(jwt: string): { user: any; permission: string } | null {
+async function assertCanSend(
+  jwt: string,
+  client = supabase,
+): Promise<{ user: any; permission: string } | null> {
   // Get the user from the JWT
-  const { data: { user }, error: userError } = supabase.auth.getUser(jwt)
+  const { data: { user }, error: userError } = await client.auth.getUser(jwt)
   if (userError || !user) {
     return null // 401 - no valid user
   }
 
   // Resolve the user's permission from the people table
-  const { data: person, error: personError } = supabase
+  const { data: person, error: personError } = await client
     .from('people')
     .select('access_permission')
     .eq('id', user.id)
@@ -55,6 +114,21 @@ function assertCanSend(jwt: string): { user: any; permission: string } | null {
   }
 
   return { user, permission }
+}
+
+// Validate the `from` address against the configured sender aliases.
+// Falls back to the env-provided SMTP user when no alias table is populated.
+async function isAllowedSender(from: string, client = supabase): Promise<boolean> {
+  const { data: aliases, error } = await client
+    .from('email_sender_aliases')
+    .select('email')
+    .eq('email', from)
+
+  if (error) return false
+  if (aliases && aliases.length > 0) return true
+
+  // Backwards-compatible fallback: allow the configured SMTP user as a sender.
+  return from.toLowerCase() === SMTP_USER.toLowerCase()
 }
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
@@ -92,6 +166,8 @@ async function hashEmail(email: string): Promise<string> {
   return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('')
 }
 
+export { hashEmail }
+
 async function isSuppressed(email: string): Promise<boolean> {
   const emailHash = await hashEmail(email)
   const { data, error } = await supabase
@@ -128,10 +204,13 @@ function rollupStatus(
   return 'partial'
 }
 
+export { rollupStatus }
+
 async function getTransporter(): Promise<nodemailer.Transporter> {
-  if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS) {
+  const smtpPass = await getSecret('smtp_pass')
+  if (!SMTP_HOST || !SMTP_USER || !smtpPass) {
     throw new Error(
-      'SMTP is not configured. Set SMTP_HOST, SMTP_USER, SMTP_PASS environment variables.',
+      'SMTP is not configured. Set SMTP_HOST, SMTP_USER and either the SMTP_PASS environment variable or an encrypted secret via the Email Settings UI.',
     )
   }
 
@@ -141,7 +220,7 @@ async function getTransporter(): Promise<nodemailer.Transporter> {
     secure: SMTP_PORT === 465,
     auth: {
       user: SMTP_USER,
-      pass: SMTP_PASS,
+      pass: smtpPass,
     },
   })
 
@@ -185,7 +264,8 @@ async function sendIndividualEmail(
   }
 }
 
-serve(async (req: Request) => {
+if (import.meta.main) {
+  serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
@@ -202,7 +282,7 @@ serve(async (req: Request) => {
   const jwt = authHeader.startsWith('Bearer ') ? authHeader.substring(7) : ''
 
   // Auth gate: require valid authenticated user
-  const authResult = assertCanSend(jwt)
+  const authResult = await assertCanSend(jwt)
   if (!authResult) {
     return new Response(
       JSON.stringify({ error: 'Unauthorized' }),
@@ -219,9 +299,9 @@ serve(async (req: Request) => {
     const body = await req.json() as SendRequest
     const { sendId, recipients, subject, body: htmlBody, from, consentCategory } = body
 
-    // Validate `from` against server-side allowlist
-    if (!FROM_ALLOWLIST.includes(from)) {
-      throw new Error('from is not in the allowlist')
+    // Validate `from` against the configured sender aliases
+    if (!(from && (await isAllowedSender(from)))) {
+      throw new Error('from is not an allowed sender alias')
     }
 
     if (!sendId) throw new Error('sendId is required')
@@ -242,19 +322,15 @@ serve(async (req: Request) => {
     for (const recipient of recipients) {
       const email = recipient.email.toLowerCase()
 
-      // Require person_id for consent-checked sends — never treat a missing person as "consented"
-      if (!recipient.person_id) {
-        results.push({ email, status: 'skipped', messageId: null, error: 'person_id required
-
-
-
- The and . and
-
-0 6w-  .------------------- I The0 C and00 C I I The0 The On--- The The0 The \88-i c--0 The- The---0 The The \0 . .0 The \0 c-0 The9 c the0 c The consent check requires a person_id' })
-        skippedOrSuppressed.push({ recipient, status: 'skipped', reason: 'person_id required for consent' })
+      const suppressed = await isSuppressed(email)
+      if (suppressed) {
+        results.push({ email, status: 'suppressed', messageId: null, error: 'unsubscribed' })
+        skippedOrSuppressed.push({ recipient, status: 'suppressed', reason: 'unsubscribed' })
         continue
       }
 
+      // Consent is only enforced for known people; ad-hoc recipients (e.g. test
+      // emails) are still honoured against the suppression list above.
       if (recipient.person_id) {
         const consent = await hasConsent(recipient.person_id, consentCategory)
         if (!consent) {
@@ -262,11 +338,6 @@ serve(async (req: Request) => {
           skippedOrSuppressed.push({ recipient, status: 'skipped', reason: 'consent not given' })
           continue
         }
-      }
-      if (suppressed) {
-        results.push({ email, status: 'suppressed', messageId: null, error: 'unsubscribed' })
-        skippedOrSuppressed.push({ recipient, status: 'suppressed', reason: 'unsubscribed' })
-        continue
       }
 
       results.push({ email, status: 'queued' as const, messageId: null, error: null })
@@ -382,3 +453,4 @@ serve(async (req: Request) => {
     )
   }
 })
+}

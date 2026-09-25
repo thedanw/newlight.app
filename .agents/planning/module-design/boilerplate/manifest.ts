@@ -1,18 +1,14 @@
 import type { LucideIcon } from 'lucide-react'
 import { <Icon> } from 'lucide-react'
 
-export const <module>Manifest = {
+export const Manifest = {
   id: '<moduleId>',
   name: '<Module>',
   icon: <Icon> as LucideIcon,
-  /** Module number — drives the page header hero hue shift (16deg × number). */
+  /** Module number — drives the page header hero hue shift (16deg × number) and sidebar order. */
   number: 2,
   alwaysOn: true,
   basePath: '/<moduleId>',
-  nav: {
-    label: '<Module>',
-    route: '/<moduleId>',
-  },
 } as const
 
-export type <Module>Manifest = typeof <module>Manifest
+export type Manifest = typeof Manifest

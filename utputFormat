@@ -1,0 +1,26 @@
+HTTP/1.1 400 Bad Request
+Date: Thu, 24 Sep 2026 05:03:40 GMT
+Content-Type: application/json
+Transfer-Encoding: chunked
+Connection: keep-alive
+CF-Ray: a3ff3e704dfe4b5e-SYD
+CF-Cache-Status: DYNAMIC
+Access-Control-Allow-Origin: *
+set-cookie: __cf_bm=H8l8Mac0iT.Vb.xxiohTOyUYh7J2fHl9ml3xGnQ36kM-1790226219.567247-1.0.1.1-3DDyFdWVy7oHmfQKyqxd0l3JYpiWTwaAFLAKZpK_ONk0T_9vDyW0QfJfHFCfwNGc7Uq86zuMIWFUJajLoBX0._LyeqJBAoF8P7yrDUI5MdOJxLaLhFgjOfMNvrHigbvz; HttpOnly; SameSite=None; Secure; Path=/; Domain=supabase.co; Expires=Thu, 24 Sep 2026 05:33:40 GMT
+Server: cloudflare
+Vary: Accept-Encoding, Origin
+access-control-allow-credentials: true
+access-control-allow-headers: authorization, x-client-info, apikey, content-type, x-retry-count, traceparent, tracestate, baggage
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS
+access-control-max-age: 86400
+endpoint-load-metrics: application_utilization:2,named_metrics.queue_depth:2
+sb-gateway-version: 1
+sb-project-ref: rupujdsalfekudambviu
+sb-request-id: 01a0d1cc-4233-7905-8add-e3119842650b
+x-deno-execution-id: 988be731-aa0f-4e49-8b19-bd6d789d9ed3
+x-sb-edge-region: ap-southeast-2
+x-served-by: supabase-edge-runtime
+Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+alt-svc: h3=":443"; ma=86400
+
+{"error":"Invalid JSON in request body","message":"No number after minus sign in JSON at position 2 (line 1 column 3)","rawBody":" -encodedCommand XABcACIAdAByAGkAZwBnAGUAcgBcAFwAIgA6AFwAXAAiAG0AYQBuAHUAYQBsAFwAXAAiAA== "}

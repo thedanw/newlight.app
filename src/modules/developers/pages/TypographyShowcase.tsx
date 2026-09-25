@@ -4,7 +4,7 @@ import type { CSSProperties, ReactNode } from 'react'
 import { Badge, Card, Code, Heading, Kbd, Link, Page, Table, Text } from '@/core/ui'
 import { Box, Grid, HStack, Stack } from 'styled-system/jsx'
 import { css } from 'styled-system/css'
-import { exampleManifest } from '../manifest'
+import { Manifest } from '../manifest'
 
 /* ---------------------------------------------------------------------------
    Typography Showcase — the typography category rendered as a high-end brand
@@ -166,7 +166,7 @@ function PatternCard({ title, note, children }: { title: string; note: string; c
 export default function TypographyShowcasePage() {
   return (
     <Page.Main>
-      <Page.Header style={{ '--module-number': exampleManifest.number } as CSSProperties}>
+      <Page.Header style={{ '--module-number': Manifest.number } as CSSProperties}>
         <Page.Heading level={1} icon={Type} title="Typography" />
       </Page.Header>
       <Page.Body>

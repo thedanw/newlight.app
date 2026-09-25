@@ -2,7 +2,8 @@ import type { CSSProperties } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button, Page, Text } from '@/core/ui'
 import { Stack } from 'styled-system/jsx'
-import { ClipboardList, Plus } from 'lucide-react'
+import { Plus } from 'lucide-react'
+import { Manifest } from './manifest'
 
 /**
  * Forms dashboard — a thin landing page that links to the list view.
@@ -11,10 +12,11 @@ import { ClipboardList, Plus } from 'lucide-react'
  */
 export default function FormsDashboardPage() {
   const navigate = useNavigate()
+  const moduleNumberStyle = { '--module-number': Manifest.number } as CSSProperties
   return (
     <Page.Main>
-      <Page.Header style={{ '--module-number': 2 } as CSSProperties}>
-        <Page.Heading level={1} icon={ClipboardList} title="Forms" />
+      <Page.Header style={moduleNumberStyle}>
+        <Page.Heading level={1} icon={Manifest.icon} title={Manifest.name} />
       </Page.Header>
       <Page.Body>
         <Stack>

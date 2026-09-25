@@ -1,9 +1,9 @@
 import { useCallback, useMemo, useState, type CSSProperties } from 'react'
-import { ChevronLeft, ChevronRight, MailIcon, Plus, SlidersHorizontal, Users } from 'lucide-react'
+import { ChevronLeft, ChevronRight, MailIcon, Plus, SlidersHorizontal } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { Button, CloseButton, Collapsible, Input, Page, Pagination, SearchInput, Text } from '@/core/ui'
 import { HStack, Stack } from 'styled-system/jsx'
-import { peopleManifest } from '../../manifest'
+import { Manifest } from '../../manifest'
 import type { PeopleListOptions, Person, PersonPublic, PersonWithJourney } from '../../lib/types'
 import { useCurrentOperatorPermission, usePeopleList } from '../../lib/hooks'
 import { useAuth } from '@/core/auth'
@@ -13,7 +13,7 @@ import { createSavedList, searchPeople } from '../../lib/queries'
 import { SavedListSidebar } from './SavedListSidebar'
 
 const PAGE_SIZE = 50
-const MODULE_NUMBER_STYLE = { '--module-number': peopleManifest.number } as CSSProperties
+const MODULE_NUMBER_STYLE = { '--module-number': Manifest.number } as CSSProperties
 
 export default function PeopleDashboardPage() {
   const navigate = useNavigate()
@@ -51,7 +51,7 @@ export default function PeopleDashboardPage() {
     <Page.Main>
       <Page.HeaderTop style={MODULE_NUMBER_STYLE} />
       <Page.Header style={MODULE_NUMBER_STYLE}>
-        <Page.Heading level={0} icon={Users} title="People" />
+        <Page.Heading level={0} icon={Manifest.icon} title={Manifest.name} />
       </Page.Header>
       <Page.HeaderBottom style={MODULE_NUMBER_STYLE}>
         <Stack gap="3">

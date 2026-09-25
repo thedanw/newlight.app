@@ -1,17 +1,27 @@
+'use client'
 import { lazy } from 'react'
 import type { RouteObject } from 'react-router-dom'
 import { Navigate, Outlet } from 'react-router-dom'
 import { ModuleBreadcrumbProvider } from '@/core/ui'
-import { formsManifest } from './manifest'
+import { Manifest } from './manifest'
+import { registerSidebarModule } from '@/core/ui/sidebar-registry'
+
+// Register sidebar entry at module load
+registerSidebarModule({
+  id: Manifest.id,
+  label: Manifest.name,
+  icon: Manifest.icon,
+  order: Manifest.number,
+})
 
 const FormsDashboardPage = lazy(() => import('./dashboard'))
 const FormsListPage = lazy(() => import('./pages/ListPage'))
 const FormBuilderPage = lazy(() => import('./pages/BuilderPage'))
 const FormSubmissionsPage = lazy(() => import('./pages/SubmissionsPage'))
 
-function FormsLayout() {
+function ModuleLayout() {
   return (
-    <ModuleBreadcrumbProvider manifest={formsManifest}>
+    <ModuleBreadcrumbProvider manifest={Manifest}>
       <Outlet />
     </ModuleBreadcrumbProvider>
   )
@@ -21,9 +31,9 @@ function FormsLayout() {
  * Children of the shared `AppShell` (see `core/router.tsx`). The module owns no
  * layout component: its `index` route is the dashboard, mounted at `/forms`.
  */
-export const formsRoutes: RouteObject[] = [
+export const routes: RouteObject[] = [
   {
-    element: <FormsLayout />,
+    element: <ModuleLayout />,
     children: [
       { index: true, element: <FormsDashboardPage /> },
       { path: 'new', element: <FormBuilderPage /> },

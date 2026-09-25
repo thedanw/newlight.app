@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import { Button, Field, Input, Text } from '@/core/ui'
+import { Button, Field, Input, TabScroller, Tabs, Text } from '@/core/ui'
 import { getSavedLists } from '@/modules/people/lib/queries'
 import type { EmailAudienceType } from '../lib/types'
 import { getPresets } from '../lib/audience'
+import { Stack } from 'styled-system/jsx'
 
 export interface AudiencePickerProps {
   audienceType: EmailAudienceType
@@ -69,48 +70,19 @@ export function AudiencePicker({ audienceType, audienceRef, peopleIds, onChange 
   }
 
   return (
-    <div style={{ border: '1px solid #e5e7eb', borderRadius: '4px', padding: '1rem' }}>
-      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
-        <button
-          type="button"
-          onClick={() => handleTypeChange('saved_list')}
-          style={{
-            padding: '4px 12px',
-            border: audienceType === 'saved_list' ? '2px solid #2563eb' : '1px solid #d1d5db',
-            borderRadius: '4px',
-            background: 'white',
-            cursor: 'pointer',
-          }}
+    <Stack>
+      <TabScroller>
+        <Tabs.Root
+          value={audienceType}
+          onValueChange={(e) => handleTypeChange(e.value as EmailAudienceType)}
         >
-          Saved List
-        </button>
-        <button
-          type="button"
-          onClick={() => handleTypeChange('explicit')}
-          style={{
-            padding: '4px 12px',
-            border: audienceType === 'explicit' ? '2px solid #2563eb' : '1px solid #d1d5db',
-            borderRadius: '4px',
-            background: 'white',
-            cursor: 'pointer',
-          }}
-        >
-          People
-        </button>
-        <button
-          type="button"
-          onClick={() => handleTypeChange('preset')}
-          style={{
-            padding: '4px 12px',
-            border: audienceType === 'preset' ? '2px solid #2563eb' : '1px solid #d1d5db',
-            borderRadius: '4px',
-            background: 'white',
-            cursor: 'pointer',
-          }}
-        >
-          Preset
-        </button>
-      </div>
+          <Tabs.List>
+            <Tabs.Trigger value="saved_list">Saved List</Tabs.Trigger>
+            <Tabs.Trigger value="explicit">People</Tabs.Trigger>
+            <Tabs.Trigger value="preset">Preset</Tabs.Trigger>
+          </Tabs.List>
+        </Tabs.Root>
+      </TabScroller>
 
       {audienceType === 'saved_list' && (
         <Field.Root>
@@ -200,6 +172,6 @@ export function AudiencePicker({ audienceType, audienceRef, peopleIds, onChange 
           </select>
         </Field.Root>
       )}
-    </div>
+    </Stack>
   )
 }

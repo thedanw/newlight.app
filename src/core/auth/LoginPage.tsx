@@ -31,8 +31,7 @@ const logoWrapCss = css({
   borderRadius: 'l2',
   display: 'grid',
   placeItems: 'center',
-  background: 'var(--sidebar-accent)',
-  color: 'var(--sidebar-accent-fg)',
+  background: 'none',
   overflow: 'hidden',
 })
 

@@ -23,11 +23,11 @@ const tracks: JourneyTrack[] = [
 ]
 
 const stages: JourneyStage[] = [
-  { id: 'a1b2c3d4-0000-4000-8000-000000000001', slug: 'contact', label: 'Contact', color: '#e6e3d7', sort_order: 1, is_terminal: false },
-  { id: 'a1b2c3d4-0000-4000-8000-000000000002', slug: 'guest', label: 'Guest', color: '#7ec8b5', sort_order: 2, is_terminal: false },
-  { id: 'a1b2c3d4-0000-4000-8000-000000000003', slug: 'linked', label: 'Linked', color: '#5ab2aa', sort_order: 3, is_terminal: false },
-  { id: 'a1b2c3d4-0000-4000-8000-000000000004', slug: 'regular', label: 'Regular', color: '#1c7782', sort_order: 4, is_terminal: false },
-  { id: 'a1b2c3d4-0000-4000-8000-000000000005', slug: 'archived', label: 'Archived', color: '#6B7280', sort_order: 5, is_terminal: true },
+  { id: 'a1b2c3d4-0000-4000-8000-000000000001', slug: 'contact', label: 'Contact', color: 'var(--colors-gray-200)', sort_order: 1, is_terminal: false },
+  { id: 'a1b2c3d4-0000-4000-8000-000000000002', slug: 'guest', label: 'Guest', color: 'var(--colors-green-500)', sort_order: 2, is_terminal: false },
+  { id: 'a1b2c3d4-0000-4000-8000-000000000003', slug: 'linked', label: 'Linked', color: 'var(--colors-teal-500)', sort_order: 3, is_terminal: false },
+  { id: 'a1b2c3d4-0000-4000-8000-000000000004', slug: 'regular', label: 'Regular', color: 'var(--colors-cyan-600)', sort_order: 4, is_terminal: false },
+  { id: 'a1b2c3d4-0000-4000-8000-000000000005', slug: 'archived', label: 'Archived', color: 'var(--colors-gray-500)', sort_order: 5, is_terminal: true },
 ]
 
 const categories: JourneyTrackCategory[] = [

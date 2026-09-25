@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import './core/theme/theme.css'
 import { initializeTheme } from './core/theme/theme-loader'
+import { ThemeProvider } from './core/theme/ThemeContext'
 import { applyFont, detectFont } from './core/theme/font-loader'
 import { supabase } from './core/lib/supabase'
 import App from './App'
@@ -51,7 +52,9 @@ async function boot() {
 
   createRoot(document.getElementById('root')!).render(
     <StrictMode>
-      <App />
+      <ThemeProvider>
+        <App />
+      </ThemeProvider>
     </StrictMode>,
   )
 }

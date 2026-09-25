@@ -1,18 +1,10 @@
 -- Form Builder Extensions: multi-column layout + conditional logic
 -- Extends the existing forms schema with new field properties and conditions table
 
--- Add new field types for enhanced form builder.
--- NOTE: ALTER TYPE ... ADD VALUE cannot run inside a transaction block
--- (Supabase runs migrations in a transaction), so insert into pg_enum
--- directly via a guarded DO block instead. Idempotent on re-apply.
-DO $$ BEGIN
-  INSERT INTO pg_enum (enumtypid, enumlabel, enumsortorder)
-  SELECT t.oid, label, (SELECT MAX(enumsortorder) + 1 FROM pg_enum WHERE enumtypid = t.oid)
-  FROM pg_type t CROSS JOIN (VALUES ('title'), ('radio'), ('scale'), ('nps'), ('column_container')) AS v(label)
-  WHERE t.typname = 'form_field_type'
-    AND NOT EXISTS (SELECT 1 FROM pg_enum e WHERE e.enumtypid = t.oid AND e.enumlabel = v.label);
-EXCEPTION WHEN duplicate_object THEN NULL;
-END $$;
+-- NOTE: New enum values for form_field_type are added in a separate migration
+-- (20260909000001_form_field_type_extensions.sql) because ALTER TYPE ... ADD VALUE
+-- cannot run inside a transaction block (Supabase runs migrations in a transaction).
+-- That migration must be applied separately via Supabase Dashboard or CLI.
 
 -- New enum for condition operators (guarded: plain CREATE TYPE fails on re-apply)
 DO $$ BEGIN

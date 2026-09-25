@@ -110,6 +110,7 @@ export const tabs = defineSlotRecipe({
           },
         },
         trigger: {  
+          minH: '10',
           color: 'fg.muted',
           borderLeft: '1px solid #00000011',
           _selected: {

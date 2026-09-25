@@ -1,6 +1,5 @@
-export { peopleManifest } from './manifest'
-export type { PeopleManifest } from './manifest'
+export type { Manifest } from './manifest'
 
-export type PeopleModuleApi = {
+export type ModuleApi = {
   readonly moduleId: 'people'
 }

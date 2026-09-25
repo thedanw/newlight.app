@@ -41,7 +41,7 @@ export function useDragOverlay({ children, dropAnimation = null }: UseDragOverla
  *   <div style={{ padding: '8px 12px', borderRadius: 8, background: 'var(--colors-bg-surface)', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
  *     <span style={{ fontWeight: 500 }}>{source?.data?.label}</span>
  *     {source && source.data.childCount > 0 && (
- *       <span style={{ background: 'var(--colors-accent-default)', color: 'var(--colors-accent-fg)', borderRadius: 9999, padding: '0 6px', fontSize: '12px' }}>
+ *       <span style={{ background: 'var(--colors-accent-default)', color: 'var(--colors-accent-fg)', borderRadius: 9999, padding: '0 6px', fontSize: 'var(--text-xs-font-size)' }}>
  *         {source.data.childCount}
  *       </span>
  *     )}

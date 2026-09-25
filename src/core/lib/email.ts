@@ -13,12 +13,7 @@
 
 export type { EmailRecipient, SendEmailInput, SendEmailResult } from '@/core/email/lib/types'
 
-import { sendEmail as coreSendEmail } from '@/core/email/lib/client'
+import { sendEmail as coreSendEmail, sendEmailWithTracking as coreSendTracked } from '@/core/email/lib/client'
 
-/**
- * Send an email through the core platform email service.
- *
- * Delegates to the provider selected by `VITE_EMAIL_TRANSPORT` (default: `noop`).
- * @throws Error if the provider throws or the Edge Function returns an error.
- */
 export const sendEmail = coreSendEmail
+export const sendEmailWithTracking = coreSendTracked

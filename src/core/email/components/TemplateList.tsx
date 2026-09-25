@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Button, Text } from '@/core/ui'
+import { Button, Card, Text } from '@/core/ui'
+import { Box } from 'styled-system/jsx'
 import type { EmailTemplate } from '../lib/types'
 
 export interface TemplateListProps {
@@ -8,6 +9,13 @@ export interface TemplateListProps {
   onDelete: (template: EmailTemplate) => void
   loading?: boolean
 }
+
+const STATUS_COLORS = {
+  all: { bg: 'colorPalette.subtle.bg', border: 'colorPalette.solid.bg', color: 'colorPalette.solid.fg' },
+  draft: { bg: 'colorPalette.subtle.bg', border: 'colorPalette.solid.bg', color: 'colorPalette.solid.fg' },
+  published: { bg: 'colorPalette.subtle.bg', border: 'colorPalette.solid.bg', color: 'colorPalette.solid.fg' },
+  archived: { bg: 'colorPalette.subtle.bg', border: 'colorPalette.solid.bg', color: 'colorPalette.solid.fg' },
+} as const
 
 export function TemplateList({ templates, onEdit, onDelete, loading = false }: TemplateListProps) {
   const [filter, setFilter] = useState<'all' | 'draft' | 'published' | 'archived'>('all')
@@ -20,65 +28,60 @@ export function TemplateList({ templates, onEdit, onDelete, loading = false }: T
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-      <div style={{ display: 'flex', gap: '0.5rem' }}>
-        {(['all', 'draft', 'published', 'archived'] as const).map((f) => (
-          <button
-            key={f}
-            type="button"
-            onClick={() => setFilter(f)}
-            style={{
-              padding: '4px 12px',
-              border: f === filter ? '2px solid #2563eb' : '1px solid #d1d5db',
-              borderRadius: '4px',
-              background: f === filter ? '#eff6ff' : 'white',
-              cursor: 'pointer',
-              fontSize: '0.875rem',
-            }}
-          >
-            {f.charAt(0).toUpperCase() + f.slice(1)}
-          </button>
-        ))}
-      </div>
+    <Box display="flex" flexDirection="column" gap="3">
+      <Box display="flex" gap="2">
+        {(['all', 'draft', 'published', 'archived'] as const).map((f) => {
+          const active = f === filter
+          return (
+            <Button
+              key={f}
+              size="xs"
+              variant={active ? 'solid' : 'outline'}
+              onClick={() => setFilter(f)}
+            >
+              {f.charAt(0).toUpperCase() + f.slice(1)}
+            </Button>
+          )
+        })}
+      </Box>
 
       {filtered.length === 0 && (
         <Text color="fg.muted">No templates found.</Text>
       )}
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+      <Box display="flex" flexDirection="column" gap="2">
         {filtered.map((template) => (
-          <div
+          <Box
             key={template.id}
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              padding: '0.75rem',
-              border: '1px solid #e5e7eb',
-              borderRadius: '4px',
-              background: 'white',
-            }}
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+            p="3"
+            borderWidth="1px"
+            borderColor="border"
+            borderRadius="l1"
+            bg="canvas"
           >
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <Text style={{ fontWeight: 'bold' }}>{template.name}</Text>
-              <Text color="fg.muted" style={{ fontSize: '0.875rem' }}>
+            <Box flex="1" minW="0">
+              <Text fontWeight="bold">{template.name}</Text>
+              <Text color="fg.muted" textStyle="sm">
                 {template.subject || 'No subject'} · {template.status}
               </Text>
-              <Text color="fg.muted" style={{ fontSize: '0.75rem' }}>
+              <Text color="fg.muted" textStyle="xs">
                 Updated {new Date(template.updated_at).toLocaleDateString()}
               </Text>
-            </div>
-            <div style={{ display: 'flex', gap: '0.5rem' }}>
+            </Box>
+            <Box display="flex" gap="2">
               <Button size="sm" variant="plain" onClick={() => onEdit(template)}>
                 Edit
               </Button>
               <Button size="sm" variant="plain" onClick={() => onDelete(template)}>
                 Delete
               </Button>
-            </div>
-          </div>
+            </Box>
+          </Box>
         ))}
-      </div>
-    </div>
+      </Box>
+    </Box>
   )
 }

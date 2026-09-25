@@ -1,16 +1,16 @@
 'use client'
 import { createListCollection } from '@ark-ui/react'
 import type { FileUploadFileRejectDetails } from '@ark-ui/react/file-upload'
-import { CloudUploadIcon, Settings } from 'lucide-react'
+import { CloudUploadIcon } from 'lucide-react'
 import { switchTheme } from '@/core/theme/theme-loader'
-import {
-  applyFont,
-  detectFont,
-  FONT_OPTIONS,
-  type FontKey,
-} from '@/core/theme/font-loader'
-import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
-import { useNavigate } from 'react-router-dom'
+import type {
+  AccentScheme as Accent,
+  GrayScheme as Gray,
+  RadiusKey,
+  SidebarStyle,
+} from '@/core/theme/theme-loader'
+import { applyFont, FONT_OPTIONS, type FontKey } from '@/core/theme/font-loader'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Box, HStack, Stack } from 'styled-system/jsx'
 import { css } from 'styled-system/css'
 import {
@@ -24,82 +24,33 @@ import {
   Heading,
   Icon,
   Input,
-  Page,
   RadioCardGroup,
   Select,
   Slider,
   Text,
-  toaster,
-  useRegisterPageActions,
 } from '@/core/ui'
 import { useSettings } from '../lib/provider'
+import {
+  activeHeadingTokens,
+  HEADING_TOKENS,
+  useAppSettingsForm,
+  type ThemeState,
+} from '../lib/app-settings'
 
 /* ---------------------------------------------------------------------------
-   ChurchInformationPage — the migrated BrandForm surface (8 fields) plus
-   4 new fields (Church Name, App Name, Church Email, Website), persisted to
-   `platform_settings` (single `app-settings` key, decision #15) and the logo
-   uploaded to the `brand-assets` Storage bucket (decision #11).
+   ChurchAppearancePage — hosted content-only "Appearance" settings section
+   (decision #13): app name, logo (uploaded to the `brand-assets` bucket,
+   decision #11), and every theme knob (scheme, accent, gray, sidebar,
+   radius, font, headings) with live preview (ui-ux 10.9), persisted to
+   `platform_settings` (single `app-settings` key, decision #15).
 
-   Self-contained settings page with its own Page.Header, Page.Body, and
-   Page.Footer.
+   Hydration / Apply / Cancel live in `useAppSettingsForm`
+   (../lib/app-settings.ts), which re-saves the whole `app-settings` object
+   so the General page's fields pass through untouched. Hosted content-only
+   page — the settings split shell (../dashboard.tsx) owns the Page scaffold.
 ------------------------------------------------------------------------- */
 
-type ColorScheme = 'light' | 'dark'
-type Accent =
-  | 'amber'
-  | 'blue'
-  | 'bronze'
-  | 'brown'
-  | 'crimson'
-  | 'cyan'
-  | 'gold'
-  | 'grass'
-  | 'green'
-  | 'indigo'
-  | 'iris'
-  | 'jade'
-  | 'lime'
-  | 'mint'
-  | 'neutral'
-  | 'orange'
-  | 'pink'
-  | 'plum'
-  | 'purple'
-  | 'red'
-  | 'ruby'
-  | 'sky'
-  | 'teal'
-  | 'tomato'
-  | 'violet'
-  | 'yellow'
-type Gray = 'neutral' | 'mauve' | 'olive' | 'sage' | 'sand' | 'slate'
-type RadiusKey = 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl'
-type SidebarStyle = 'light' | 'dark' | 'accent-dark' | 'accent-light'
-type HeadingToken = 'bold' | 'uppercase' | 'accent'
-
-type BrandState = {
-  scheme: ColorScheme
-  accent: Accent
-  gray: Gray
-  font: FontKey
-  radius: RadiusKey
-  sidebarStyle: SidebarStyle
-  headings: Record<HeadingToken, boolean>
-}
-
-type ChurchInfo = {
-  churchName: string
-  appName: string
-  churchEmail: string
-  website: string
-}
-
-const EMPTY_CHURCH_INFO: ChurchInfo = {
-  churchName: '',
-  appName: '',
-  churchEmail: '',
-  website: '',
-}
+type HeadingToken = (typeof HEADING_TOKENS)[number]
 
 const RADII: RadiusKey[] = ['none', 'xs', 'sm', 'md', 'lg', 'xl', '2xl']
 const RADIUS_MARKS = RADII.map((radius, index) => ({ value: index, label: radius }))
@@ -192,69 +143,48 @@ const HEADING_OPTIONS: Array<{ value: HeadingToken; label: string }> = [
   { value: 'accent', label: 'Accent color' },
 ]
 
-export default function ChurchInformationPage() {
-  const { supabase, getAppSettings, saveAppSettings } = useSettings()
-  const navigate = useNavigate()
-  const [theme, setTheme] = useState<BrandState>(getInitialState)
-  const [churchInfo, setChurchInfo] = useState<ChurchInfo>(EMPTY_CHURCH_INFO)
-  const [logoUrl, setLogoUrl] = useState<string | null>(null)
+export default function ChurchAppearancePage() {
+  const { supabase } = useSettings()
+
+  const uploadLogo = async (file: File): Promise<string> => {
+    const path = `logos/${crypto.randomUUID()}-${file.name}`
+    const { error } = await supabase.storage.from('brand-assets').upload(path, file)
+    if (error) throw error
+    const { data } = supabase.storage.from('brand-assets').getPublicUrl(path)
+    return data.publicUrl
+  }
+
+  const {
+    theme,
+    setTheme,
+    churchInfo,
+    setChurchField,
+    logoUrl,
+    setLogoUrl,
+    hydrated,
+    markDirty,
+  } = useAppSettingsForm({
+    // Upload any pending draft logo before the shared save runs, so the new
+    // URL lands in the same `app-settings` payload (decision #11).
+    prepareApply: async () => {
+      if (draftLogoFile === null) return
+      const finalLogoUrl = await uploadLogo(draftLogoFile)
+      logoTransferred.current = true
+      setLogoUrl(finalLogoUrl)
+      setDraftLogoUrl(null)
+      setDraftLogoFile(null)
+    },
+  })
+
   const [draftLogoUrl, setDraftLogoUrl] = useState<string | null>(null)
   const [draftLogoFile, setDraftLogoFile] = useState<File | null>(null)
   const [logoError, setLogoError] = useState<string | null>(null)
-  const [saving, setSaving] = useState(false)
-  const [isDirty, setIsDirty] = useState(false)
-  const initialTheme = useRef<BrandState>(getInitialState())
-  const initialChurchInfo = useRef<ChurchInfo>(EMPTY_CHURCH_INFO)
   const logoTransferred = useRef(false)
-  const isDirtyRef = useRef(false)
-  const hasHydrated = useRef(false)
 
+  // Live theme preview — re-themes the shell on every draft change
+  // (ui-ux 10.9). Gated on hydration so the boot theme isn't clobbered.
   useEffect(() => {
-    isDirtyRef.current = isDirty
-  }, [isDirty])
-
-  useEffect(() => {
-    let cancelled = false
-    getAppSettings()
-      .then((settings) => {
-        if (cancelled || !settings) return
-        if (settings.theme) {
-          setTheme((previous) => {
-            const merged = { ...previous, ...settings.theme }
-            const changed =
-              merged.scheme !== previous.scheme ||
-              merged.accent !== previous.accent ||
-              merged.gray !== previous.gray ||
-              merged.font !== previous.font ||
-              merged.radius !== previous.radius ||
-              merged.sidebarStyle !== previous.sidebarStyle ||
-              merged.headings.bold !== previous.headings.bold ||
-              merged.headings.uppercase !== previous.headings.uppercase ||
-              merged.headings.accent !== previous.headings.accent
-            return changed ? merged : previous
-          })
-          initialTheme.current = { ...getInitialState(), ...settings.theme }
-        }
-        if (settings.churchInfo) {
-          setChurchInfo(settings.churchInfo)
-          initialChurchInfo.current = settings.churchInfo
-        }
-        if (settings.logoUrl) {
-          setLogoUrl(settings.logoUrl)
-        }
-        hasHydrated.current = true
-      })
-      .catch((error) => {
-        console.error('Failed to hydrate app settings:', error)
-        hasHydrated.current = true
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [getAppSettings])
-
-  useEffect(() => {
-    if (!hasHydrated.current) return
+    if (!hydrated) return
     switchTheme({
       accent: theme.accent,
       gray: theme.gray,
@@ -265,7 +195,7 @@ export default function ChurchInformationPage() {
       font: theme.font,
     })
     applyFont(theme.font)
-  }, [theme])
+  }, [theme, hydrated])
 
   useEffect(() => {
     return () => {
@@ -275,13 +205,16 @@ export default function ChurchInformationPage() {
     }
   }, [draftLogoUrl])
 
-  const revertToInitial = useCallback(() => {
-    setTheme(initialTheme.current)
-    setChurchInfo(initialChurchInfo.current)
-    switchTheme(initialTheme.current)
-    applyFont(initialTheme.current.font)
-    setIsDirty(false)
-  }, [])
+  /** Single dirty-marking theme update for every control on this page. */
+  const changeTheme = useCallback(
+    (patch: Partial<ThemeState> | ((previous: ThemeState) => ThemeState)) => {
+      setTheme((previous) =>
+        typeof patch === 'function' ? patch(previous) : { ...previous, ...patch },
+      )
+      markDirty()
+    },
+    [setTheme, markDirty],
+  )
 
   const handleFileAccept = (file: File) => {
     setLogoError(null)
@@ -291,7 +224,7 @@ export default function ChurchInformationPage() {
       return url
     })
     setDraftLogoFile(file)
-    setIsDirty(true)
+    markDirty()
   }
 
   const handleFileReject = (details: FileUploadFileRejectDetails) => {
@@ -306,91 +239,24 @@ export default function ChurchInformationPage() {
   }
 
   const setHeading = (token: HeadingToken, checked: boolean) => {
-    setTheme((previous) => ({
+    changeTheme((previous) => ({
       ...previous,
       headings: { ...previous.headings, [token]: checked },
     }))
-    setIsDirty(true)
   }
-
-  const setChurchField = useCallback((field: keyof ChurchInfo, value: string) => {
-    setChurchInfo((previous) => ({ ...previous, [field]: value }))
-    setIsDirty(true)
-  }, [])
-
-  const uploadLogo = async (file: File): Promise<string> => {
-    const path = `logos/${crypto.randomUUID()}-${file.name}`
-    const { error } = await supabase.storage.from('brand-assets').upload(path, file)
-    if (error) throw error
-    const { data } = supabase.storage.from('brand-assets').getPublicUrl(path)
-    return data.publicUrl
-  }
-
-  const handleApply = async () => {
-    setSaving(true)
-    try {
-      let finalLogoUrl = logoUrl
-      if (draftLogoFile !== null) {
-        finalLogoUrl = await uploadLogo(draftLogoFile)
-        logoTransferred.current = true
-        setLogoUrl(finalLogoUrl)
-        setDraftLogoUrl(null)
-        setDraftLogoFile(null)
-      }
-      await saveAppSettings({
-        theme,
-        churchInfo,
-        logoUrl: finalLogoUrl,
-      })
-      initialTheme.current = theme
-      initialChurchInfo.current = churchInfo
-      setIsDirty(false)
-      toaster.create({ title: 'Settings saved', type: 'success' })
-      window.dispatchEvent(new CustomEvent('app-settings-changed'))
-    } catch (error) {
-      console.error('Failed to save settings:', error)
-      toaster.create({ title: 'Failed to save settings', type: 'error' })
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  const handleCancel = () => {
-    revertToInitial()
-    navigate('/settings')
-  }
-
-  useRegisterPageActions({
-    cancel: handleCancel,
-    apply: handleApply,
-    isSaving: saving,
-    isDirty,
-    applyLabel: 'Apply',
-  })
 
   const previewLogo = draftLogoUrl ?? logoUrl
 
   return (
     <>
         <Stack>
+               
           <Card.Root>
             <Card.Header>
-              <Heading textStyle="md">Church Information</Heading>
+              <Heading textStyle="md">Brand Identity</Heading>
             </Card.Header>
             <Card.Body>
-              <Stack
-               
-                display={{ base: 'grid', md: 'grid' }}
-                gridTemplateColumns={{ base: '1fr', md: '1fr 1fr' }}
-              >
-                <Field.Root>
-                  <Field.Label>Church Name</Field.Label>
-                  <Input
-                    value={churchInfo.churchName}
-                    onChange={(event) => setChurchField('churchName', event.target.value)}
-                    placeholder="New Light Church"
-                  />
-                </Field.Root>
+              <Stack>
                 <Field.Root>
                   <Field.Label>App Name</Field.Label>
                   <Input
@@ -398,35 +264,10 @@ export default function ChurchInformationPage() {
                     onChange={(event) => setChurchField('appName', event.target.value)}
                     placeholder="New Light"
                   />
+                  <Field.HelperText>
+                    Shown in the browser tab and on the login screen.
+                  </Field.HelperText>
                 </Field.Root>
-                <Field.Root>
-                  <Field.Label>Church Email</Field.Label>
-                  <Input
-                    type="email"
-                    value={churchInfo.churchEmail}
-                    onChange={(event) => setChurchField('churchEmail', event.target.value)}
-                    placeholder="hello@newlight.church"
-                  />
-                </Field.Root>
-                <Field.Root>
-                  <Field.Label>Website</Field.Label>
-                  <Input
-                    type="url"
-                    value={churchInfo.website}
-                    onChange={(event) => setChurchField('website', event.target.value)}
-                    placeholder="https://newlight.church"
-                  />
-                </Field.Root>
-              </Stack>
-            </Card.Body>
-          </Card.Root>
-
-          <Card.Root>
-            <Card.Header>
-              <Heading textStyle="md">Brand Identity</Heading>
-            </Card.Header>
-            <Card.Body>
-              <Stack>
                 <Stack
                  
                   display={{ base: 'grid', md: 'grid' }}
@@ -519,8 +360,7 @@ export default function ChurchInformationPage() {
                     gap="1.5"
                     value={theme.accent}
                     onValueChange={(details) => {
-                      setIsDirty(true)
-                      setTheme((s) => ({ ...s, accent: (details.value ?? s.accent) as Accent }))
+                      changeTheme((s) => ({ ...s, accent: (details.value ?? s.accent) as Accent }))
                     }}
                   >
                     {ACCENT_OPTIONS.map((option) => (
@@ -556,7 +396,7 @@ export default function ChurchInformationPage() {
                           flex="1"
                           size="sm"
                           variant={theme.scheme === 'light' ? 'solid' : 'outline'}
-                          onClick={() => { setTheme((s) => ({ ...s, scheme: 'light' })); setIsDirty(true) }}
+                          onClick={() => changeTheme((s) => ({ ...s, scheme: 'light' }))}
                         >
                         Light
                         </Button>
@@ -564,7 +404,7 @@ export default function ChurchInformationPage() {
                          flex="1"
                          size="sm"
                          variant={theme.scheme === 'dark' ? 'solid' : 'outline'}
-                         onClick={() => { setTheme((s) => ({ ...s, scheme: 'dark' })); setIsDirty(true) }}
+                         onClick={() => changeTheme((s) => ({ ...s, scheme: 'dark' }))}
                         >
                         Dark
                         </Button>
@@ -580,8 +420,7 @@ export default function ChurchInformationPage() {
                       gap="1.5"
                       value={theme.gray}
                       onValueChange={(details) => {
-                        setIsDirty(true)
-                        setTheme((s) => ({ ...s, gray: (details.value ?? s.gray) as Gray }))
+                        changeTheme((s) => ({ ...s, gray: (details.value ?? s.gray) as Gray }))
                       }}
                     >
                       {GRAY_OPTIONS.map((option) => (
@@ -613,7 +452,7 @@ export default function ChurchInformationPage() {
                    label="Sidebar style"
                    items={SIDEBAR_OPTIONS}
                    value={theme.sidebarStyle}
-                   onChange={(value) => { setTheme((s) => ({ ...s, sidebarStyle: value as SidebarStyle })); setIsDirty(true) }}
+                   onChange={(value) => changeTheme({ sidebarStyle: value as SidebarStyle })}
                    helperText="Sidebar background / text pair (light, dark, or brand)."
                   />
 
@@ -626,7 +465,7 @@ export default function ChurchInformationPage() {
                         max={RADII.length - 1}
                         step={1}
                         value={[RADII.indexOf(theme.radius)]}
-                        onValueChange={(details) => { setIsDirty(true); setTheme((s) => ({ ...s, radius: RADII[details.value[0]] })) }}
+                        onValueChange={(details) => changeTheme((s) => ({ ...s, radius: RADII[details.value[0]] }))}
                       >
                         <Slider.Control>
                           <Slider.Track>
@@ -651,7 +490,7 @@ export default function ChurchInformationPage() {
                   label="Font"
                   items={FONT_OPTIONS}
                   value={theme.font}
-                  onChange={(value) => { setTheme((s) => ({ ...s, font: value as FontKey })); setIsDirty(true) }}
+                  onChange={(value) => changeTheme({ font: value as FontKey })}
                   helperText="Fetches the selected webfont and re-fonts the whole shell live."
                 />
               <Field.Root>
@@ -732,26 +571,4 @@ function ThemeSelect({
   )
 }
 
-function getInitialState(): BrandState {
-  const root = document.documentElement
-  const headingTokens = (root.getAttribute('data-heading-style') ?? '')
-    .split(' ')
-    .filter(Boolean)
-  return {
-    scheme: (root.getAttribute('data-mode') as ColorScheme) ?? 'light',
-    accent: (root.getAttribute('data-color-scheme') as Accent) ?? 'orange',
-    gray: (root.getAttribute('data-gray-color') as Gray) ?? 'neutral',
-    font: detectFont(root),
-    radius: (root.getAttribute('data-radius') as RadiusKey) ?? 'md',
-    sidebarStyle: (root.getAttribute('data-sidebar-style') as SidebarStyle) ?? 'light',
-    headings: Object.fromEntries(
-      HEADING_OPTIONS.map(({ value }) => [value, headingTokens.includes(value)]),
-    ) as Record<HeadingToken, boolean>,
-  }
-}
 
-function activeHeadingTokens(headings: Record<HeadingToken, boolean>): string {
-  return HEADING_OPTIONS.filter((option) => headings[option.value])
-    .map((option) => option.value)
-    .join(' ')
-}

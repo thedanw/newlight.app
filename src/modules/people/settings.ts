@@ -1,6 +1,6 @@
 import { registerSettingsSection } from '@/core/settings/lib/schema'
 import PeopleSettingsPage from './settings/PeopleSettingsPage'
-import { peopleManifest } from './manifest'
+import { Manifest } from './manifest'
 
 /**
  * People module settings registration — demo of the core #41
@@ -8,10 +8,11 @@ import { peopleManifest } from './manifest'
  * at module load; the section deep-links at `/settings/people`.
  */
 registerSettingsSection({
-  id: 'people',
-  title: 'People Settings',
-  description: 'People module settings.',
+  id: Manifest.id,
+  title: `${Manifest.name} Settings`,
+  description: `${Manifest.name} module settings.`,
   component: PeopleSettingsPage,
-  icon: peopleManifest.icon,
-  order: 10,
+  icon: Manifest.icon,
+  order: Manifest.number * 10,
+  group: 'modules',
 })

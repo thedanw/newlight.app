@@ -22,6 +22,14 @@ const iconMap: Record<string, React.ElementType> = {
   warning: CircleAlertIcon,
   success: CheckCircleIcon,
   error: CircleXIcon,
+  loading: Spinner,
+}
+
+const colorPaletteMap: Record<string, string> = {
+  warning: 'orange',
+  success: 'green',
+  error: 'red',
+  loading: 'gray',
 }
 
 const Indicator = forwardRef<SVGSVGElement, IconProps>((props, ref) => {
@@ -31,7 +39,12 @@ const Indicator = forwardRef<SVGSVGElement, IconProps>((props, ref) => {
   if (!StatusIcon) return null
 
   return (
-    <Icon ref={ref} data-type={toast.type} {...props}>
+    <Icon
+      ref={ref}
+      data-type={toast.type}
+      colorPalette={colorPaletteMap[toast.type] ?? 'gray'}
+      {...props}
+    >
       <StatusIcon />
     </Icon>
   )

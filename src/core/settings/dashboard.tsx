@@ -7,8 +7,12 @@ import { ChevronRight, Settings, SlidersHorizontal } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { Card, Heading, Icon, Page, Text } from '@/core/ui'
 import { settingsManifest } from './manifest'
-import { getSettingsPage, getSettingsSection } from './lib/schema'
-import { getSettingsSections, type SettingsSection } from './lib/schema'
+import {
+  getSettingsPage,
+  getSettingsSection,
+  getSettingsSectionGroups,
+  type SettingsSection,
+} from './lib/schema'
 
 const MODULE_NUMBER_STYLE = { '--module-number': settingsManifest.number } as CSSProperties
 
@@ -45,8 +49,33 @@ function resolveHeading(
   return { title: 'Settings', icon: Settings }
 }
 
+/** Grouped iOS-style settings list — "General Settings" (core-registered
+ * sections) then "Modules" (module/plugin-registered sections). Shared by
+ * the dashboard page and the split shell's nav column. */
+function SettingsSectionList({ activeSectionId }: { activeSectionId?: string }) {
+  const groups = useMemo(() => getSettingsSectionGroups(), [])
+  if (groups.length === 0) {
+    return <Text color="fg.muted" textStyle="sm">No settings sections registered yet.</Text>
+  }
+  return (
+    <Stack gap="6">
+      {groups.map(({ group, label, sections }) => (
+        <Stack key={group} gap="2" role="group" aria-label={label}>
+          <Text color="fg.muted" textStyle="xs" fontWeight="semibold">
+            {label}
+          </Text>
+          <Stack role="list">
+            {sections.map((s) => (
+              <SettingsSectionCard key={s.id} section={s} isActive={s.id === activeSectionId} />
+            ))}
+          </Stack>
+        </Stack>
+      ))}
+    </Stack>
+  )
+}
+
 function SettingsDashboard() {
-  const sections = useMemo(() => getSettingsSections(), [])
   const heading = resolveHeading(undefined, undefined)
   return (
     <Page.Main>
@@ -54,15 +83,7 @@ function SettingsDashboard() {
         <Page.Heading level={0} icon={heading.icon} title={heading.title} />
       </Page.Header>
       <Page.Body>
-        <Stack role="list" aria-label="Settings sections">
-          {sections.length === 0 ? (
-            <Text color="fg.muted" textStyle="sm">No settings sections registered yet.</Text>
-          ) : (
-            sections.map((s) => (
-              <SettingsSectionCard key={s.id} section={s} isActive={false} />
-            ))
-          )}
-        </Stack>
+        <SettingsSectionList />
       </Page.Body>
     </Page.Main>
   )
@@ -88,7 +109,6 @@ function SettingsSplitShell({
   page: ReturnType<typeof getSettingsPage>
   children: React.ReactNode
 }) {
-  const sections = useMemo(() => getSettingsSections(), [])
   const activeSectionId = activeSection?.id ?? undefined
   const heading = resolveHeading(activeSection, page)
 
@@ -104,10 +124,10 @@ function SettingsSplitShell({
           minHeight: '0',
           display: 'flex',
           flexDirection: 'column',
-          p:0,
+          p: 0,
         })}
       >
-        <Box display="flex" flex="1 1 auto" minHeight="0" gap='0'>
+        <Box display="flex" flex="1 1 auto" minHeight="0" gap="0">
           <Box
             as="nav"
             aria-label="Settings sections"
@@ -121,23 +141,10 @@ function SettingsSplitShell({
             padding={{ base: '0', lg: '6' }}
             background={{ base: 'transparent', lg: 'gray.subtle.bg' }}
           >
-            <Stack role="list">
-              {sections.length === 0 ? (
-                <Text color="fg.muted" textStyle="sm">No settings sections registered yet.</Text>
-              ) : (
-                sections.map((s) => (
-                  <SettingsSectionCard
-                    key={s.id}
-                    section={s}
-                    isActive={s.id === activeSectionId}
-                  />
-                ))
-              )}
-            </Stack>
+            <SettingsSectionList activeSectionId={activeSectionId} />
           </Box>
 
           <Box
-            as="Content"
             flex="1"
             minW="0"
             minH="0"

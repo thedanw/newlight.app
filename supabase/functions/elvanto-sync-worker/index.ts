@@ -4,16 +4,72 @@
  * 
  * Deploy: supabase functions deploy elvanto-sync-worker --project-ref <ref>
  * Trigger: pg_cron or manual POST
- */ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
+ * Last redeploy: 2026-09-23 (secret sync)
+ */ import { serve } from 'https://deno.land/std@0.224.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+// CORS headers - defined inline to avoid import issues
+// Using Bearer token auth (not cookies), so no credentials needed
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-retry-count, traceparent, tracestate, baggage',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
+  'Vary': 'Origin',
+  'Access-Control-Max-Age': '86400'
+};
+// Polyfill atob/btoa for Deno (not globally available)
+// Using simple implementation instead of std library import to avoid version issues
+const atob = (b64)=>{
+  const binary = atobPolyfill(b64);
+  return binary;
+};
+const btoa = (str)=>{
+  return btoaPolyfill(str);
+};
+function atobPolyfill(b64) {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+  let output = '';
+  let i = 0;
+  b64 = b64.replace(/[^A-Za-z0-9+/=]/g, '');
+  while(i < b64.length){
+    const enc1 = chars.indexOf(b64.charAt(i++));
+    const enc2 = chars.indexOf(b64.charAt(i++));
+    const enc3 = chars.indexOf(b64.charAt(i++));
+    const enc4 = chars.indexOf(b64.charAt(i++));
+    const chr1 = enc1 << 2 | enc2 >> 4;
+    const chr2 = (enc2 & 15) << 4 | enc3 >> 2;
+    const chr3 = (enc3 & 3) << 6 | enc4;
+    output += String.fromCharCode(chr1);
+    if (enc3 !== 64) output += String.fromCharCode(chr2);
+    if (enc4 !== 64) output += String.fromCharCode(chr3);
+  }
+  return output;
+}
+function btoaPolyfill(str) {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+  let output = '';
+  let i = 0;
+  while(i < str.length){
+    const chr1 = str.charCodeAt(i++);
+    const chr2 = str.charCodeAt(i++);
+    const chr3 = str.charCodeAt(i++);
+    const enc1 = chr1 >> 2;
+    const enc2 = (chr1 & 3) << 4 | chr2 >> 4;
+    const enc3 = (chr2 & 15) << 2 | chr3 >> 6;
+    const enc4 = chr3 & 63;
+    output += chars.charAt(enc1) + chars.charAt(enc2) + chars.charAt(enc3) + chars.charAt(enc4);
+  }
+  return output;
+}
 // ============================================
 // Configuration
 // ============================================
+// Force redeploy: 2026-09-24 JSON parse fix
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') || '';
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
 // ELVANTO_API_KEY is now read from database (elvanto_settings table)
 // const ELVANTO_API_KEY = Deno.env.get('ELVANTO_API_KEY') || '';
 const ENCRYPTED_SETTINGS_ID = '00000000-0000-0000-0000-000000000001';
+const SYNC_ORDER = [
   'people_categories',
   'custom_fields',
   'families',
@@ -31,17 +87,22 @@ const ENCRYPTED_SETTINGS_ID = '00000000-0000-0000-0000-000000000001';
   'transactions'
 ];
 // ============================================
-// Supabase Client (Service Role)
+// Supabase Client (Service Role) - created lazily
 // ============================================
-const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
-  auth: {
-    persistSession: false
-  }
-});
+function getSupabaseClient() {
+  const SUPABASE_URL = Deno.env.get('SUPABASE_URL') || '';
+  const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
+  return createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+    auth: {
+      persistSession: false
+    }
+  });
+}
 // ============================================
 // Helper Functions
 // ============================================
 async function logSyncStart(entity, trigger) {
+  const supabase = getSupabaseClient();
   const { data, error } = await supabase.from('elvanto_sync_history').insert({
     entity,
     trigger,
@@ -58,6 +119,7 @@ async function logSyncStart(entity, trigger) {
   return data.id;
 }
 async function logSyncComplete(historyId, entity, result) {
+  const supabase = getSupabaseClient();
   const status = result.success ? result.itemsFailed > 0 ? 'partial' : 'completed' : 'failed';
   const errorSummary = result.errors.length > 0 ? result.errors.slice(0, 5).join('; ') : null;
   const { error } = await supabase.from('elvanto_sync_history').update({
@@ -72,6 +134,7 @@ async function logSyncComplete(historyId, entity, result) {
   }
 }
 async function addToDeadLetter(entity, payload, error) {
+  const supabase = getSupabaseClient();
   const { error: insertError } = await supabase.from('elvanto_sync_dead_letter').insert({
     entity,
     payload,
@@ -89,7 +152,6 @@ async function addToDeadLetter(entity, payload, error) {
 const ENCRYPTION_ALGORITHM = 'AES-GCM';
 const ENCRYPTION_IV_LENGTH = 12 // 96 bits for GCM
 ;
-const ENCRYPTED_SETTINGS_ID = '00000000-0000-0000-0000-000000000001';
 /**
  * Get the MASTER encryption key from environment variable.
  * This key is used to decrypt the per-API-key encryption key stored in the database.
@@ -100,15 +162,18 @@ const ENCRYPTED_SETTINGS_ID = '00000000-0000-0000-0000-000000000001';
     const keyData = hexToArrayBuffer(envKey) ?? base64ToArrayBuffer(envKey);
     return crypto.subtle.importKey('raw', keyData, {
       name: ENCRYPTION_ALGORITHM
-    }, false, ['decrypt']);
+    }, false, [
+      'decrypt'
+    ]);
   }
-  
   // 2. DEVELOPMENT ONLY - derive from a fixed string (NOT SECURE)
   const devKey = 'dev-key-elvanto-sync-plugin-change-in-production';
   const keyData = new TextEncoder().encode(devKey.padEnd(32, '0').slice(0, 32));
   return crypto.subtle.importKey('raw', keyData, {
     name: ENCRYPTION_ALGORITHM
-  }, false, ['decrypt']);
+  }, false, [
+    'decrypt'
+  ]);
 }
 /**
  * Decode a hex-encoded string to an ArrayBuffer, or null if not valid hex.
@@ -130,8 +195,9 @@ const ENCRYPTED_SETTINGS_ID = '00000000-0000-0000-0000-000000000001';
     const keyData = base64ToArrayBuffer(encryptionKeyB64);
     const key = await crypto.subtle.importKey('raw', keyData, {
       name: ENCRYPTION_ALGORITHM
-    }, false, ['decrypt']);
-    
+    }, false, [
+      'decrypt'
+    ]);
     const combined = base64ToArrayBuffer(ciphertextB64);
     if (combined.byteLength < ENCRYPTION_IV_LENGTH) {
       console.warn('[Sync] Invalid encrypted API key: too short');
@@ -161,11 +227,42 @@ const ENCRYPTED_SETTINGS_ID = '00000000-0000-0000-0000-000000000001';
 }
 
 /**
+ * Validate JWT token using Supabase auth system
+ * Returns { valid: boolean, payload?: object, error?: string }
+ */ async function validateJwtToken(jwt: string, supabase: any): Promise<{ valid: boolean; payload?: any; error?: string }> {
+  if (!jwt || typeof jwt !== 'string') {
+    return { valid: false, error: 'No JWT provided' }
+  }
+
+  console.log('[EdgeFunction] Validating JWT, length:', jwt.length);
+
+  // Basic JWT format validation (3 parts separated by dots)
+  const parts = jwt.split('.')
+  if (parts.length !== 3) {
+    console.log('[EdgeFunction] Invalid JWT format - parts:', parts.length);
+    return { valid: false, error: 'Invalid JWT format' }
+  }
+
+  try {
+    // Use Supabase's built-in JWT validation
+    const { data: { user }, error: userError } = await supabase.auth.getUser(jwt);
+    console.log('[EdgeFunction] Supabase auth.getUser result:', { user: !!user, error: userError?.message });
+    if (userError || !user) {
+      return { valid: false, error: userError?.message || 'Invalid JWT' }
+    }
+
+    return { valid: true, payload: user }
+  } catch (error) {
+    console.log('[EdgeFunction] JWT validation exception:', error);
+    return { valid: false, error: 'JWT validation failed' }
+  }
+}
+
+/**
  * Decrypt the encryption key stored in elvanto_settings.encryption_key_encrypted.
  * Expects base64(iv(12 bytes) + aes-gcm-ciphertext-with-auth-tag).
  * Uses the MASTER encryption key from environment variable.
- */
-async function decryptEncryptionKey(ciphertextB64) {
+ */ async function decryptEncryptionKey(ciphertextB64) {
   try {
     const key = await getMasterEncryptionKey();
     const combined = base64ToArrayBuffer(ciphertextB64);
@@ -185,18 +282,17 @@ async function decryptEncryptionKey(ciphertextB64) {
     return null;
   }
 }
-
 /**
  * Decrypt the Elvanto API key using a provided encryption key (base64-encoded raw key).
  * Expects base64(iv(12 bytes) + aes-gcm-ciphertext-with-auth-tag).
- */
-async function decryptApiKeyWithKey(ciphertextB64, encryptionKeyB64) {
+ */ async function decryptApiKeyWithKey(ciphertextB64, encryptionKeyB64) {
   try {
     const keyData = base64ToArrayBuffer(encryptionKeyB64);
     const key = await crypto.subtle.importKey('raw', keyData, {
       name: ENCRYPTION_ALGORITHM
-    }, false, ['decrypt']);
-    
+    }, false, [
+      'decrypt'
+    ]);
     const combined = base64ToArrayBuffer(ciphertextB64);
     if (combined.byteLength < ENCRYPTION_IV_LENGTH) {
       console.warn('[Sync] Invalid encrypted API key: too short');
@@ -214,23 +310,23 @@ async function decryptApiKeyWithKey(ciphertextB64, encryptionKeyB64) {
     return null;
   }
 }
-
 async function getCredentials() {
-  lastCredentialError = null;
+  const supabase = getSupabaseClient();
+  let lastCredentialError1 = null;
   // 1. Prefer the encrypted key stored in elvanto_settings (singleton row)
   try {
     const { data, error } = await supabase.from('elvanto_settings').select('api_key_encrypted, encryption_key_encrypted').eq('id', ENCRYPTED_SETTINGS_ID).maybeSingle();
     if (error) {
-      lastCredentialError = `settings query error: ${error.message}`;
+      lastCredentialError1 = `settings query error: ${error.message}`;
       console.warn('[Sync] Failed to read encrypted Elvanto API key:', error);
     } else if (!data?.api_key_encrypted || !data?.encryption_key_encrypted) {
-      lastCredentialError = 'settings row not found or missing encryption key';
+      lastCredentialError1 = 'settings row not found or missing encryption key';
       console.warn('[Sync] elvanto_settings row not found or missing encryption key for singleton id');
     } else {
       // Decrypt the encryption key first
       const encryptionKey = await decryptEncryptionKey(data.encryption_key_encrypted);
       if (!encryptionKey) {
-        lastCredentialError = 'decrypt encryption key failed';
+        lastCredentialError1 = 'decrypt encryption key failed';
         console.warn('[Sync] Failed to decrypt encryption key');
       } else {
         // Use the encryption key to decrypt the API key
@@ -240,17 +336,18 @@ async function getCredentials() {
             apiKey
           };
         }
-        lastCredentialError = 'decrypt API key failed (see decryptApiKey warning)';
+        lastCredentialError1 = 'decrypt API key failed (see decryptApiKey warning)';
       }
     }
   } catch (err) {
-    lastCredentialError = `settings read threw: ${err instanceof Error ? err.message : String(err)}`;
+    lastCredentialError1 = `settings read threw: ${err instanceof Error ? err.message : String(err)}`;
     console.warn('[Sync] Failed to read encrypted Elvanto API key:', err);
   }
   // 2. Fall back to the legacy ELVANTO_API_KEY env var
-  if (ELVANTO_API_KEY) {
+  const legacyApiKey = Deno.env.get('ELVANTO_API_KEY');
+  if (legacyApiKey) {
     return {
-      apiKey: ELVANTO_API_KEY
+      apiKey: legacyApiKey
     };
   }
   console.error('[Sync] Could not obtain Elvanto API key (encrypted settings or ELVANTO_API_KEY env)');
@@ -374,6 +471,7 @@ const entitySyncs = {
 // Main Sync Orchestrator
 // ============================================
 async function runSync(request) {
+  const supabase = getSupabaseClient();
   const startedAt = new Date().toISOString();
   const credentials = await getCredentials();
   if (!credentials) {
@@ -487,12 +585,7 @@ async function runSync(request) {
 // HTTP Handler
 // ============================================
 serve(async (req)=>{
-  // CORS headers
-  const corsHeaders = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS'
-  };
+  // Handle the CORS preflight request
   if (req.method === 'OPTIONS') {
     return new Response('ok', {
       headers: corsHeaders
@@ -509,75 +602,70 @@ serve(async (req)=>{
       }
     });
   }
+  // Create Supabase client for this request
+  const supabase = getSupabaseClient();
   // Auth gate: require service_role key or valid user JWT
-  const authHeader = req.headers.get('authorization') || ''
-  const jwt = authHeader.startsWith('Bearer ') ? authHeader.substring(7) : ''
-  let role = 'anon'
+  const authHeader = req.headers.get('authorization') || '';
+  const jwt = authHeader.startsWith('Bearer ') ? authHeader.substring(7) : '';
+  let role = 'anon';
+  let user = null;
+  
   if (authHeader.startsWith('Basic')) {
-    role = 'service_role'
+    role = 'service_role';
   } else if (jwt) {
-    const { data: { user }, error: userError } = await supabase.auth.getUser(jwt)
-    if (userError || !user) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-        status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      })
+    console.log('[EdgeFunction] JWT received, length:', jwt.length);
+    console.log('[EdgeFunction] JWT preview:', jwt.substring(0, 20) + '...');
+    // Use Supabase's built-in JWT validation
+    const jwtValidation = await validateJwtToken(jwt, supabase);
+    console.log('[EdgeFunction] JWT validation result:', jwtValidation);
+    if (jwtValidation.valid) {
+      user = jwtValidation.payload;
+      role = user.role || 'anon';
     }
-    role = user.role || 'anon'
   }
-  // Deny anon access; only service_role or authenticated users allowed
-  if (role === 'anon') {
-    return new Response(JSON.stringify({ error: 'Unauthorized - service role or authenticated user required' }), {
-      status: 401,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-    })
-  }
+  
+  let body;
+  let rawBody;
   try {
-    const body = await req.json();
-    // Handle test connection action
-    if (body.action === 'test_connection' && body.api_key) {
-      try {
-        // Use people/getAll.json with page_size: 1 to test connection
-        // This is a lightweight call that verifies the API key works
-        const response = await fetch('https://api.elvanto.com/v1/people/getAll.json', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Basic ${btoa(body.api_key + ':')}`
-          },
-          body: JSON.stringify({
-            page_size: 1
-          })
-        });
-        if (response.ok) {
-          const data = await response.json();
-          if (data.status === 'ok') {
-            return new Response(JSON.stringify({
-              success: true,
-              message: 'Connection successful! Elvanto API responded OK.'
-            }), {
-              status: 200,
-              headers: {
-                ...corsHeaders,
-                'Content-Type': 'application/json'
-              }
-            });
-          } else {
-            return new Response(JSON.stringify({
-              success: false,
-              error: data.error?.message || 'API returned error status'
-            }), {
-              status: 200,
-              headers: {
-                ...corsHeaders,
-                'Content-Type': 'application/json'
-              }
-            });
-          }
-        } else if (response.status === 401) {
+    rawBody = await req.text();
+    console.log('[EdgeFunction] Raw request body:', rawBody);
+    body = JSON.parse(rawBody);
+  } catch (jsonError) {
+    console.error('[EdgeFunction] JSON parse error:', jsonError, 'Raw body:', rawBody);
+    return new Response(JSON.stringify({
+      error: 'Invalid JSON in request body',
+      message: jsonError instanceof Error ? jsonError.message : String(jsonError),
+      rawBody: rawBody
+    }), {
+      status: 400,
+      headers: {
+        ...corsHeaders,
+        'Content-Type': 'application/json'
+      }
+    });
+  }
+  
+  // Handle test connection action (no auth required - used to test API key before saving)
+  if (body && body.action === 'test_connection' && body.api_key) {
+    try {
+      // Use people/getAll.json with page_size: 1 to test connection
+      // This is a lightweight call that verifies the API key works
+      const response = await fetch('https://api.elvanto.com/v1/people/getAll.json', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Basic ${btoa(body.api_key + ':')}`
+        },
+        body: JSON.stringify({
+          page_size: 1
+        })
+      });
+      if (response.ok) {
+        const data = await response.json();
+        if (data.status === 'ok') {
           return new Response(JSON.stringify({
-            success: false,
-            error: 'Invalid API key (401 Unauthorized)'
+            success: true,
+            message: 'Connection successful! Elvanto API responded OK.'
           }), {
             status: 200,
             headers: {
@@ -588,7 +676,7 @@ serve(async (req)=>{
         } else {
           return new Response(JSON.stringify({
             success: false,
-            error: `HTTP ${response.status}: ${response.statusText}`
+            error: data.error?.message || 'API returned error status'
           }), {
             status: 200,
             headers: {
@@ -597,10 +685,21 @@ serve(async (req)=>{
             }
           });
         }
-      } catch (err) {
+      } else if (response.status === 401) {
         return new Response(JSON.stringify({
           success: false,
-          error: err instanceof Error ? err.message : 'Network error'
+          error: 'Invalid API key (401 Unauthorized)'
+        }), {
+          status: 200,
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'application/json'
+          }
+        });
+      } else {
+        return new Response(JSON.stringify({
+          success: false,
+          error: `HTTP ${response.status}: ${response.statusText}`
         }), {
           status: 200,
           headers: {
@@ -609,98 +708,112 @@ serve(async (req)=>{
           }
         });
       }
-    }
-    // Handle list locations action (server-side proxy — Elvanto has no CORS)
-    if (body.action === 'list_locations' && body.api_key) {
-      try {
-        const response = await fetch('https://api.elvanto.com/v1/calendar/getAll.json', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Basic ${btoa(body.api_key + ':')}`
-          },
-          body: JSON.stringify({
-            page_size: 1000
-          })
-        });
-        const data = await response.json().catch(()=>({}));
-        if (response.ok && data.status === 'ok') {
-          const raw = data.calendars;
-          const calendars = Array.isArray(raw) ? raw : Array.isArray(raw?.calendar) ? raw.calendar : [];
-          const locations = calendars.map((calendar)=>({
-              id: calendar.id,
-              name: calendar.name
-            }));
-          return new Response(JSON.stringify({
-            success: true,
-            locations
-          }), {
-            status: 200,
-            headers: {
-              ...corsHeaders,
-              'Content-Type': 'application/json'
-            }
-          });
-        }
-        return new Response(JSON.stringify({
-          success: false,
-          error: data.error?.message || `HTTP ${response.status}`
-        }), {
-          status: 200,
-          headers: {
-            ...corsHeaders,
-            'Content-Type': 'application/json'
-          }
-        });
-      } catch (err) {
-        return new Response(JSON.stringify({
-          success: false,
-          error: err instanceof Error ? err.message : 'Network error'
-        }), {
-          status: 200,
-          headers: {
-            ...corsHeaders,
-            'Content-Type': 'application/json'
-          }
-        });
-      }
-    }
-    // Validate trigger
-    if (![
-      'cron',
-      'manual',
-      'webhook'
-    ].includes(body.trigger)) {
+    } catch (err) {
       return new Response(JSON.stringify({
-        error: 'Invalid trigger'
+        success: false,
+        error: err instanceof Error ? err.message : 'Network error'
       }), {
-        status: 400,
+        status: 200,
         headers: {
           ...corsHeaders,
           'Content-Type': 'application/json'
         }
       });
     }
-    const result = await runSync(body);
-    return new Response(JSON.stringify(result), {
-      status: result.success ? 200 : 207,
-      headers: {
-        ...corsHeaders,
-        'Content-Type': 'application/json'
+  }
+  
+  // Handle list locations action (server-side proxy — Elvanto has no CORS)
+  if (body.action === 'list_locations' && body.api_key) {
+    try {
+      const response = await fetch('https://api.elvanto.com/v1/calendar/getAll.json', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Basic ${btoa(body.api_key + ':')}`
+        },
+        body: JSON.stringify({
+          page_size: 1000
+        })
+      });
+      const data = await response.json().catch(()=>({}));
+      if (response.ok && data.status === 'ok') {
+        const raw = data.calendars;
+        const calendars = Array.isArray(raw) ? raw : Array.isArray(raw?.calendar) ? raw.calendar : [];
+        const locations = calendars.map((calendar)=>({
+            id: calendar.id,
+            name: calendar.name
+          }));
+        return new Response(JSON.stringify({
+          success: true,
+          locations
+        }), {
+          status: 200,
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'application/json'
+          }
+        });
       }
-    });
-  } catch (err) {
-    console.error('[EdgeFunction] Fatal error:', err);
+      return new Response(JSON.stringify({
+        success: false,
+        error: data.error?.message || `HTTP ${response.status}`
+      }), {
+        status: 200,
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json'
+        }
+      });
+    } catch (err) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: err instanceof Error ? err.message : 'Network error'
+      }), {
+        status: 200,
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json'
+        }
+      });
+    }
+  }
+  
+  // Deny anon access for sync operations; only service_role or authenticated users allowed
+  if (role === 'anon') {
     return new Response(JSON.stringify({
-      error: 'Internal server error',
-      message: err instanceof Error ? err.message : String(err)
+      error: 'Unauthorized - service role or authenticated user required'
     }), {
-      status: 500,
+      status: 401,
       headers: {
         ...corsHeaders,
         'Content-Type': 'application/json'
       }
     });
   }
+  
+  // Validate trigger
+  if (![
+    'cron',
+    'manual',
+    'webhook'
+  ].includes(body.trigger)) {
+    return new Response(JSON.stringify({
+      error: 'Invalid trigger'
+    }), {
+      status: 400,
+      headers: {
+        ...corsHeaders,
+        'Content-Type': 'application/json'
+      }
+    });
+  }
+  const result = await runSync(body);
+  return new Response(JSON.stringify(result), {
+    status: result.success ? 200 : 207,
+    headers: {
+      ...corsHeaders,
+      'Content-Type': 'application/json'
+    }
+  });
 });
 console.log('[Elvanto Sync Worker] Edge Function started');

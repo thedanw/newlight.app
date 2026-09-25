@@ -1,14 +1,17 @@
-import { registerSettingsSection } from '@/core/settings/settings-schema'
-import <Module>SettingsPage from './settings/<Module>SettingsPage'
+import { registerSettingsSection } from '@/core/settings/lib/schema'
+import SettingsPage from './settings/SettingsPage'
+import { Manifest } from './manifest'
 
 /**
- * <Module> module settings registration. Imported from `routes.tsx` so it runs
+ * Module settings registration. Imported from `routes.tsx` so it runs
  * at module load; the section deep-links at `/settings/<moduleId>`.
  */
 registerSettingsSection({
-  id: '<moduleId>',
-  title: '<Module> Settings',
-  description: '<Module> module settings.',
-  component: <Module>SettingsPage,
-  order: 20,
+  id: Manifest.id,
+  title: `${Manifest.name} Settings`,
+  description: `${Manifest.name} module settings.`,
+  component: SettingsPage,
+  icon: Manifest.icon,
+  order: Manifest.number * 10,
+  group: 'modules',
 })

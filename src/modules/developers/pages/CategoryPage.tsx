@@ -11,7 +11,7 @@ import {
   Text,
 } from '@/core/ui'
 import { Box, Grid, HStack, Stack } from 'styled-system/jsx'
-import { exampleManifest } from '../manifest'
+import { Manifest } from '../manifest'
 import { tocCategories, type TocCategory } from './toc'
 import { DEMOS } from './demos'
 
@@ -125,8 +125,8 @@ export default function CategoryPage({
   if (!category) {
     return (
       <Page.Main>
-        <Page.Header style={{ '--module-number': exampleManifest.number } as CSSProperties}>
-          <Page.Heading level={2} icon={exampleManifest.icon} title="Not found" />
+        <Page.Header style={{ '--module-number': Manifest.number } as CSSProperties}>
+          <Page.Heading level={2} icon={Manifest.icon} title="Not found" />
         </Page.Header>
         <Page.Body>
           <Text>Category not found.</Text>
@@ -147,7 +147,7 @@ export default function CategoryPage({
 
   return (
     <Page.Main>
-      <Page.Header style={{ '--module-number': exampleManifest.number } as CSSProperties}>
+      <Page.Header style={{ '--module-number': Manifest.number } as CSSProperties}>
         <Page.Heading level={2} icon={category.icon} title={category.name} />
       </Page.Header>
       <Page.Body>

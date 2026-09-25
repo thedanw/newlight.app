@@ -1,13 +1,11 @@
 'use client'
-import { type CSSProperties, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Stack } from 'styled-system/jsx'
-import { Settings } from 'lucide-react'
 import {
   Badge,
   Button,
   Card,
   Heading,
-  Page,
   Switch,
   Text,
   toaster,

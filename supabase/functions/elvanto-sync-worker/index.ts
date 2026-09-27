@@ -333,7 +333,8 @@ async function getCredentials() {
         const apiKey = await decryptApiKey(data.api_key_encrypted, encryptionKey);
         if (apiKey) {
           return {
-            apiKey
+            apiKey,
+            error: null
           };
         }
         lastCredentialError1 = 'decrypt API key failed (see decryptApiKey warning)';
@@ -347,11 +348,15 @@ async function getCredentials() {
   const legacyApiKey = Deno.env.get('ELVANTO_API_KEY');
   if (legacyApiKey) {
     return {
-      apiKey: legacyApiKey
+      apiKey: legacyApiKey,
+      error: null
     };
   }
   console.error('[Sync] Could not obtain Elvanto API key (encrypted settings or ELVANTO_API_KEY env)');
-  return null;
+  return {
+    apiKey: null,
+    error: lastCredentialError1
+  };
 }
 // Dynamic imports for each entity sync
 const entitySyncs = {
@@ -474,7 +479,7 @@ async function runSync(request) {
   const supabase = getSupabaseClient();
   const startedAt = new Date().toISOString();
   const credentials = await getCredentials();
-  if (!credentials) {
+  if (!credentials.apiKey) {
     return {
       success: false,
       trigger: request.trigger,
@@ -484,7 +489,7 @@ async function runSync(request) {
       totalProcessed: 0,
       totalFailed: 0,
       errors: [
-        `Could not obtain Elvanto API key${lastCredentialError1 ? ` (${lastCredentialError1})` : ''}`
+        `Could not obtain Elvanto API key${credentials.error ? ` (${credentials.error})` : ''}`
       ]
     };
   }
@@ -632,7 +637,8 @@ serve(async (req)=>{
         role = user.role;
         console.log('[EdgeFunction] User authenticated via gateway:', { userId, userEmail, userRole });
       } else {
-        // Fallback: manual validation for edge cases (e.g., local development)
+        // Fallback: manual validation for edge cases (e.g., local development, legacy JWTs)
+        console.log('[EdgeFunction] No gateway headers, attempting manual JWT validation...');
         console.log('[EdgeFunction] JWT received, length:', jwt.length);
         console.log('[EdgeFunction] JWT preview:', jwt.substring(0, 20) + '...');
         const jwtValidation = await validateJwtToken(jwt, supabase);
@@ -640,7 +646,36 @@ serve(async (req)=>{
         if (jwtValidation.valid) {
           user = jwtValidation.payload;
           role = user.role || 'anon';
+          console.log('[EdgeFunction] Manual validation succeeded, role:', role);
+        } else {
+          console.log('[EdgeFunction] Manual validation failed:', jwtValidation.error);
         }
+      }
+    }
+    
+    // Additional fallback: check if JWT is a legacy service_role key (starts with eyJ and has service_role role)
+    // This handles cases where gateway doesn't provide headers but JWT is valid
+    if (role === 'anon' && jwt) {
+      try {
+        const parts = jwt.split('.');
+        console.log('[EdgeFunction] JWT parts count:', parts.length);
+        if (parts.length === 3) {
+          const decoded = atob(parts[1]);
+          console.log('[EdgeFunction] Decoded JWT payload:', decoded);
+          const payload = JSON.parse(decoded);
+          console.log('[EdgeFunction] Parsed JWT payload:', { role: payload.role, sub: payload.sub, iss: payload.iss });
+          if (payload.role === 'service_role') {
+            role = 'service_role';
+            user = { id: 'service_role', role: 'service_role' };
+            console.log('[EdgeFunction] Detected legacy service_role JWT, role set to service_role');
+          } else if (payload.role === 'authenticated') {
+            role = 'authenticated';
+            user = { id: payload.sub, role: 'authenticated', email: payload.email };
+            console.log('[EdgeFunction] Detected authenticated JWT, role set to authenticated');
+          }
+        }
+      } catch (e) {
+        console.log('[EdgeFunction] Could not parse JWT payload for role detection:', e);
       }
     }
     

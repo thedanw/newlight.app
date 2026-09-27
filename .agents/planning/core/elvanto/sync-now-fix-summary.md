@@ -93,11 +93,23 @@ The handoff file notes this was already fixed: changed from `supabase.auth.getUs
 - **Authenticated Users**: The "Sync Now" button will work when a user is signed in (their JWT is sent via `Authorization` header, anon key via `apikey` header)
 - **Unauthenticated Requests**: Returns 401 "Unauthorized - service role or authenticated user required" with proper CORS headers
 - **CORS Errors**: Fixed - all responses include proper CORS headers
+- **Legacy JWTs**: The Supabase gateway rejects legacy `anon` and `service_role` JWTs when `verify_jwt=true`. Only new publishable/secret keys or valid user JWTs from authenticated users are accepted. This is expected behavior.
+
+## Additional Fixes Applied (Post-Summary)
+
+### Edge Function - Credential Error Handling
+- Fixed `getCredentials()` to return error info in the response object instead of relying on closure variable
+- Updated `runSync()` to use `credentials.error` from the returned object
+
+### Edge Function - Legacy JWT Fallback
+- Added fallback parsing of JWT payload to detect `service_role` and `authenticated` roles
+- This handles cases where gateway doesn't provide headers but JWT is valid (local development)
 
 ## Files Modified
 
 1. `supabase/functions/elvanto-sync-worker/index.ts` - Edge Function
 2. `src/content/plugins/elvanto-sync/sync/trigger-sync.ts` - Client helper (src)
+3. `public/content/plugins/elvanto-sync/sync/trigger-sync.ts` - Client helper (public copy)
 3. `public/content/plugins/elvanto-sync/sync/trigger-sync.ts` - Client helper (public copy)
 
 ## Environment

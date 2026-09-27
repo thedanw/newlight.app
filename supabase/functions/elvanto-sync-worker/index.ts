@@ -319,9 +319,15 @@ async function getCredentials() {
     if (error) {
       lastCredentialError1 = `settings query error: ${error.message}`;
       console.warn('[Sync] Failed to read encrypted Elvanto API key:', error);
-    } else if (!data?.api_key_encrypted || !data?.encryption_key_encrypted) {
-      lastCredentialError1 = 'settings row not found or missing encryption key';
-      console.warn('[Sync] elvanto_settings row not found or missing encryption key for singleton id');
+    } else if (!data) {
+      lastCredentialError1 = 'settings row not found';
+      console.warn('[Sync] elvanto_settings row not found for singleton id');
+    } else if (!data.api_key_encrypted || data.api_key_encrypted.trim() === '') {
+      lastCredentialError1 = 'settings row missing api_key_encrypted';
+      console.warn('[Sync] elvanto_settings row missing api_key_encrypted');
+    } else if (!data.encryption_key_encrypted || data.encryption_key_encrypted.trim() === '') {
+      lastCredentialError1 = 'settings row missing encryption_key_encrypted';
+      console.warn('[Sync] elvanto_settings row missing encryption_key_encrypted');
     } else {
       // Decrypt the encryption key first
       const encryptionKey = await decryptEncryptionKey(data.encryption_key_encrypted);

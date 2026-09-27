@@ -31,6 +31,7 @@ import { absoluteCenter } from "./absolute-center";
 import { spinner } from "./spinner";
 import { icon } from "./icon";
 import { group } from "./group";
+import { columnStack } from "./column-stack";
 import { toast } from "./toast";
 import { drawer } from "./drawer";
 import { hoverCard } from "./hover-card";
@@ -86,6 +87,7 @@ export const recipes = {
   drawer,
   toast,
   group,
+  columnStack,
   icon,
   spinner,
   absoluteCenter,

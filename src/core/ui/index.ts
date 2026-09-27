@@ -28,6 +28,7 @@ export * as Field from "./field";
 export * as Fieldset from "./fieldset";
 export * as FileUpload from "./file-upload";
 export { Group, type GroupProps } from "./group";
+export { ColumnStack, type ColumnStackProps } from "./column-stack";
 export { Heading, type HeadingProps } from "./heading";
 export * as HoverCard from "./hover-card";
 export { Icon, type IconProps } from "./icon";

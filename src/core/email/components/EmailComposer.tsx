@@ -11,6 +11,7 @@ import {
   Page,
   Select,
   Text,
+  ColumnStack
 } from '@/core/ui'
 import { HStack } from 'styled-system/jsx'
 import { EmailEditor } from './EmailEditor'
@@ -220,7 +221,7 @@ export function EmailComposer({ initialSubject = '', initialBody = '', onSent }:
                 </InputDynamic.Body>
               </InputDynamic.Root>
             </Field.Root>
-            <HStack gap="2">
+            <ColumnStack layout="2-1" stack="md">
               <Field.Root>
                 <Field.Label>Subject</Field.Label>
                 <Input
@@ -238,7 +239,7 @@ export function EmailComposer({ initialSubject = '', initialBody = '', onSent }:
                   placeholder="from@example.com"
                 />
               </Field.Root>
-            </HStack>
+            </ColumnStack>
           </Card.Body>
         </Card.Root>
 

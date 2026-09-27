@@ -10,9 +10,11 @@ import {
 import { CheckIcon, XIcon } from 'lucide-react'
 import { createStyleContext } from 'styled-system/jsx'
 import { inputDynamic } from 'styled-system/recipes'
+import { Input } from '@/core/ui'
 import { css } from 'styled-system/css'
 import { IconButton } from './icon-button'
-import { HStack } from 'styled-system/jsx'
+import { HStack, Stack } from 'styled-system/jsx'
+import { PAD, GAP } from '@/core/theme/spacing-contract'
 
 const { withProvider: styledWithProvider, withContext: styledWithContext } = createStyleContext(inputDynamic)
 
@@ -24,10 +26,6 @@ const StyledBody = styledWithContext(ark.div, 'body')
 const bodyInnerCss = css({
   overflow: 'hidden',
   minHeight: 0,
-})
-
-const bodyContentCss = css({
-  padding: '3',
 })
 
 interface InputDynamicState {
@@ -99,7 +97,7 @@ export const Trigger = forwardRef<HTMLDivElement, TriggerProps>(function Trigger
   return (
     <StyledTrigger ref={ref} {...props}>
       {children ?? (
-        <input
+        <Input
           readOnly
           value={triggerValue}
           placeholder={placeholder}
@@ -108,13 +106,8 @@ export const Trigger = forwardRef<HTMLDivElement, TriggerProps>(function Trigger
           aria-label={triggerValue || placeholder}
           disabled={disabled}
           style={{
-            cursor: disabled ? 'not-allowed' : 'pointer',
-            minWidth: '200px',
-            border: 'none',
-            outline: 'none',
-            width: '100%',
-            background: 'transparent',
             opacity: disabled ? 0.5 : 1,
+            border: '0px',
           }}
         />
       )}
@@ -139,6 +132,9 @@ export const Header = forwardRef<HTMLDivElement, HeaderProps>(function Header(
 
   const handleConfirm = async () => {
     const result = await onConfirm?.()
+    if (result === undefined) {
+      return
+    }
     if (typeof result === 'string') {
       setTriggerValue(result)
     }
@@ -152,20 +148,10 @@ export const Header = forwardRef<HTMLDivElement, HeaderProps>(function Header(
 
   return (
     <StyledHeader ref={ref} {...props}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-2)', padding: 'var(--spacing-3)' }}>
+        <HStack padding="1" gap="1">
         {label && <span style={{ fontWeight: 500, color: 'var(--colors-fg-muted)' }}>{label}</span>}
         {error && <span style={{ color: 'var(--colors-error)', fontSize: 'var(--font-sizes-xs)' }}>{error}</span>}
         <div style={{ flex: 1 }} />
-        <HStack gap="1">
-          <IconButton
-            size="sm"
-            variant="outline"
-            aria-label="Cancel"
-            onClick={handleCancel}
-            style={{ '--btn-color': 'var(--colors-error)' } as React.CSSProperties}
-          >
-            <XIcon size={16} style={{ color: 'var(--colors-error)' }} />
-          </IconButton>
           <IconButton
             size="sm"
             aria-label="Confirm"
@@ -175,8 +161,16 @@ export const Header = forwardRef<HTMLDivElement, HeaderProps>(function Header(
           >
             <CheckIcon size={16} />
           </IconButton>
+          <IconButton
+            size="sm"
+            variant="outline"
+            aria-label="Cancel"
+            onClick={handleCancel}
+            style={{ background: 'var(--colors-gray-a11)' } as React.CSSProperties}
+          >
+            <XIcon size={16} style={{ color: 'var(--colors-gray-surface-bg)' }} />
+          </IconButton>
         </HStack>
-      </div>
     </StyledHeader>
   )
 })
@@ -185,9 +179,9 @@ export type BodyProps = ComponentProps<typeof StyledBody> & { children?: ReactNo
 const Body = forwardRef<HTMLDivElement, BodyProps>(function Body({ children, ...props }, ref) {
   return (
     <StyledBody ref={ref} {...props}>
-      <div className={bodyInnerCss}>
-        <div className={bodyContentCss}>{children}</div>
-      </div>
+      <Stack gap={GAP} className={bodyInnerCss}>
+        <Stack gap={GAP} p={PAD}>{children}</Stack>
+      </Stack>
     </StyledBody>
   )
 })

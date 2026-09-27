@@ -1,9 +1,8 @@
 /* GrapesJS Studio SDK editor stylesheet — the SDK provides its own
    styling via @grapesjs/studio-sdk/style; this file provides scoped
    container styles for the editor and reserves space for the page header. */
-#email-editor-container,
-.gjs-editor-wrapper,
-.gs-editor {
+
+   .gs-studio-root {
   width: 100%;
   height: calc(100dvh - 300px) !important;
   min-height: 500px;

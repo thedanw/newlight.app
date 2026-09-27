@@ -26,11 +26,8 @@ importers:
       '@dnd-kit/react':
         specifier: ^0.5.0
         version: 0.5.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      '@grapesjs/react':
-        specifier: ^2.0.0
-        version: 2.0.0(grapesjs@0.23.6)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@grapesjs/studio-sdk':
-        specifier: ^1.2.1
+        specifier: 1.2.1
         version: 1.2.1(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@supabase/supabase-js':
         specifier: ^2.112.4
@@ -38,9 +35,6 @@ importers:
       framer-motion:
         specifier: ^13.0.0
         version: 13.4.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      grapesjs:
-        specifier: ^0.23.6
-        version: 0.23.6
       lucide-react:
         specifier: ^1.30.0
         version: 1.47.0(react@19.3.0)

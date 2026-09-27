@@ -31,14 +31,13 @@ function b64ToBuf(b64: string): Uint8Array {
 }
 
 async function getSecret(name: string): Promise<string | null> {
-  if (name in secretCache) return secretCache[name]
-
   const envKey = name === 'smtp_pass' ? 'SMTP_PASS' : name.toUpperCase()
   const envVal = Deno.env.get(envKey)
   if (envVal) {
     secretCache[name] = envVal
     return envVal
   }
+  if (secretCache[name]) return secretCache[name]
 
   try {
     const { data: keyRow, error: keyErr } = await supabase
@@ -46,10 +45,7 @@ async function getSecret(name: string): Promise<string | null> {
       .select('key_bytes')
       .eq('name', 'default')
       .maybeSingle()
-    if (keyErr || !keyRow?.key_bytes) {
-      secretCache[name] = null
-      return null
-    }
+    if (keyErr || !keyRow?.key_bytes) return null
 
     const keyBytes = b64ToBuf(keyRow.key_bytes as string)
     const cryptoKey = await crypto.subtle.importKey('raw', keyBytes, { name: 'AES-GCM' }, false, ['decrypt'])
@@ -59,10 +55,7 @@ async function getSecret(name: string): Promise<string | null> {
       .select('value_encrypted,nonce')
       .eq('name', name)
       .maybeSingle()
-    if (secErr || !sec) {
-      secretCache[name] = null
-      return null
-    }
+    if (secErr || !sec) return null
 
     const plain = await crypto.subtle.decrypt(
       { name: 'AES-GCM', iv: b64ToBuf(sec.nonce as string) },
@@ -74,7 +67,6 @@ async function getSecret(name: string): Promise<string | null> {
     return result
   } catch (err) {
     console.error('[email-send] Failed to resolve secret', name, err)
-    secretCache[name] = null
     return null
   }
 }

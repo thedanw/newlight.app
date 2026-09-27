@@ -1,6 +1,16 @@
 // Type declarations for the dynamic theme loader (src/core/theme/theme-loader.js).
 // The loader fetches the selected color-scheme CSS (remap-only, no hex) and
 // writes the matching <html> data-* attributes at runtime.
+//
+// After the accent CSS and data-* attributes are applied, the loader also
+// derives a semantic palette from --colors-color-palette-solid-bg (primary) and
+// --colors-color-palette-solid-bg-hover — see src/core/theme/semantic-colors.ts.
+// It is injected as <style id="theme-semantic">, scoped to
+// html[data-color-scheme][data-mode], and exposes:
+//   --colors-success | --colors-success-hover | --colors-success-active
+//   --colors-warning | --colors-warning-hover | --colors-warning-active
+//   --colors-error   | --colors-error-hover   | --colors-error-active
+//   --colors-info    | --colors-info-hover    | --colors-info-active
 
 /** All 26 Park UI accents (25 chromatic + neutral as monochrome accent). */
 export type AccentScheme =

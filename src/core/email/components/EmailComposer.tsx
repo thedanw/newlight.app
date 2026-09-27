@@ -18,8 +18,9 @@ import { AudiencePicker } from './AudiencePicker'
 import { resolveAudience, filterByConsent } from '../lib/audience'
 import { sendEmailWithTracking } from '../lib/client'
 import { getSenderAliases } from '../lib/queries'
-import { getEmailSettings, DEFAULT_EMAIL_SETTINGS } from '../lib/settings'
-import type { EmailRecipient, SendEmailInput, EmailEditorConfig } from '../lib/types'
+import { getSavedLists } from '@/modules/people/lib/queries'
+import { getEmailSettings } from '../lib/settings'
+import type { EmailRecipient, SendEmailInput } from '../lib/types'
 
 export interface EmailComposerProps {
   initialSubject?: string
@@ -41,7 +42,6 @@ export function EmailComposer({ initialSubject = '', initialBody = '', onSent }:
   const [audienceOpen, setAudienceOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [sent, setSent] = useState(false)
-  const [editorConfig, setEditorConfig] = useState<Partial<EmailEditorConfig>>({})
 
   const consentCategoryCollection = useMemo(
     () =>
@@ -69,17 +69,9 @@ export function EmailComposer({ initialSubject = '', initialBody = '', onSent }:
         if (defaultAlias) setFrom(defaultAlias.email)
       })
       .catch(() => {})
-
-    getEmailSettings()
-      .then((settings) => {
-        if (settings?.editor) {
-          setEditorConfig({ ...DEFAULT_EMAIL_SETTINGS.editor, ...settings.editor })
-        }
-      })
-      .catch(() => {})
   }, [])
 
-  const handleResolveAudience = async (): Promise<string | void> => {
+   const handleResolveAudience = async (): Promise<string | void> => {
     if (audienceType === 'explicit' && peopleIds.length === 0) {
       setError('No people selected')
       return
@@ -99,14 +91,28 @@ export function EmailComposer({ initialSubject = '', initialBody = '', onSent }:
       const filtered = await filterByConsent(resolved, consentCategory)
       setRecipients(filtered)
       setError(null)
-      const summary =
-        filtered.length > 0
-          ? `${filtered.length} recipient${filtered.length === 1 ? '' : 's'} — ${filtered
-              .slice(0, 3)
-              .map((r) => r.name || r.email)
-              .join(', ')}${filtered.length > 3 ? ` +${filtered.length - 3} more` : ''}`
-          : ''
-      return summary
+
+      let triggerSummary = ''
+      if (audienceType === 'explicit') {
+        triggerSummary = `${peopleIds.length} person${peopleIds.length === 1 ? '' : 's'} selected`
+      } else if (audienceType === 'saved_list' && audienceRef) {
+        try {
+          const lists = await getSavedLists()
+          const list = lists.find((l) => l.id === audienceRef)
+          triggerSummary = list?.name ?? 'Saved List selected'
+        } catch {
+          triggerSummary = 'Saved List selected'
+        }
+      } else if (audienceType === 'preset' && audienceRef) {
+        triggerSummary = audienceRef
+      }
+
+      if (filtered.length === 0) {
+        setError('No recipients with consent for this email category')
+        return
+      }
+
+      return triggerSummary
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err))
       return
@@ -214,7 +220,6 @@ export function EmailComposer({ initialSubject = '', initialBody = '', onSent }:
                 </InputDynamic.Body>
               </InputDynamic.Root>
             </Field.Root>
-
             <HStack gap="2">
               <Field.Root>
                 <Field.Label>Subject</Field.Label>
@@ -242,9 +247,9 @@ export function EmailComposer({ initialSubject = '', initialBody = '', onSent }:
             {recipients.length} recipient{recipients.length === 1 ? '' : 's'} ready to send
           </Text>
         )}
-        <Card.Root padding="0">
+        <Card.Root padding="0" border="0">
           <Card.Body>
-            <EmailEditor onChange={(_, html) => setEditorHtml(html)} editorConfig={editorConfig} />
+            <EmailEditor onChange={(_, html) => setEditorHtml(html)} />
           </Card.Body>
         </Card.Root>
         {error && (

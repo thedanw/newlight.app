@@ -1,5 +1,5 @@
 import { supabase } from '@/core/lib/supabase'
-import type { EmailSettings } from './types'
+import type { EmailSettings, EmailEditorConfig } from './types'
 
 const EMAIL_SETTINGS_KEY = 'email-settings'
 const APP_SETTINGS_ENV = import.meta.env.VITE_APP_ENV ?? 'production'
@@ -30,14 +30,34 @@ export const DEFAULT_EMAIL_SETTINGS: EmailSettings = {
     includeUnsubscribeFooter: true,
   },
   editor: {
-    theme: 'light',
-    licenseKey: 'DEV_LICENSE_KEY',
-    showBlocksPanel: true,
-    showLayersPanel: true,
-    showStylesPanel: true,
+    licenseKey: '',
+    project: { type: 'email' },
+    assets: {
+      providers: ['local'],
+      upload: true,
+    },
+    fonts: {
+      providers: ['google-fonts'],
+    },
+    components: {},
+    pages: {},
     defaultTemplate:
       '<mjml><mj-body><mj-section><mj-column><mj-text>Edit your text here...</mj-text></mj-column></mj-section></mj-body></mjml>',
+    theme: 'dark',
   },
+}
+
+// Helper to serialize EmailEditorConfig to JSON-compatible object
+function serializeEditorConfig(config: EmailEditorConfig): EmailEditorConfig {
+  return {
+    licenseKey: config.licenseKey,
+    project: config.project,
+    assets: config.assets ?? {},
+    fonts: config.fonts ?? {},
+    components: config.components ?? {},
+    pages: config.pages ?? {},
+    defaultTemplate: config.defaultTemplate ?? '',
+  }
 }
 
 export async function getEmailSettings(): Promise<EmailSettings | null> {
@@ -66,6 +86,7 @@ export async function saveEmailSettings(settings: EmailSettings): Promise<void> 
     ...settings,
     smtp: { ...smtpSafe, username: username ?? '', password: '' },
     resend: { ...resendSafe, apiKey: '' },
+    editor: settings.editor ? serializeEditorConfig(settings.editor) : undefined,
   }
 
   const { error } = await supabase.from('platform_settings').upsert(

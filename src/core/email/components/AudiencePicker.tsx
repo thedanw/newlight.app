@@ -1,6 +1,7 @@
-import { useState } from 'react'
-import { Button, Field, Input, TabScroller, Tabs, Text } from '@/core/ui'
-import { getSavedLists } from '@/modules/people/lib/queries'
+import { useEffect, useMemo, useState } from 'react'
+import { Button, Field, Input, Select, TabScroller, Tabs, Text } from '@/core/ui'
+import { createListCollection } from '@ark-ui/react'
+import { getSavedLists, searchPeople } from '@/modules/people/lib/queries'
 import type { EmailAudienceType } from '../lib/types'
 import { getPresets } from '../lib/audience'
 import { Stack } from 'styled-system/jsx'
@@ -17,7 +18,8 @@ export function AudiencePicker({ audienceType, audienceRef, peopleIds, onChange 
   const [availablePresets, setAvailablePresets] = useState<string[]>([])
   const [peopleSearch, setPeopleSearch] = useState('')
   const [searchResults, setSearchResults] = useState<Array<{ id: string; name: string }>>([])
-  const [showSearch, setShowSearch] = useState(false)
+  const [resultsVisible, setResultsVisible] = useState(true)
+  const [searchPerformed, setSearchPerformed] = useState(false)
   const [loading, setLoading] = useState(false)
 
   const [selectedList, setSelectedList] = useState(audienceRef ?? '')
@@ -26,30 +28,65 @@ export function AudiencePicker({ audienceType, audienceRef, peopleIds, onChange 
     new Set(peopleIds ?? []),
   )
 
-  useState(() => {
+  // Create list collections for Park UI Select
+  const listCollection = useMemo(() => createListCollection({
+    items: availableLists.map((list) => ({ label: list.name, value: list.id }))
+  }), [availableLists])
+
+  const presetCollection = useMemo(() => createListCollection({
+    items: availablePresets.map((preset) => ({ label: preset, value: preset }))
+  }), [availablePresets])
+
+  const showSearch = resultsVisible
+  const hasResults = searchResults.length > 0
+
+  useEffect(() => {
     getSavedLists()
       .then((lists) => setAvailableLists(lists.map((l) => ({ id: l.id, name: l.name }))))
       .catch(() => [])
     setAvailablePresets(getPresets())
-  })
+  }, [])
 
   const handleTypeChange = (type: EmailAudienceType) => {
     onChange(type, undefined, type === 'explicit' ? [...selectedPeople] : undefined)
   }
 
-  const handleSearchPeople = async () => {
-    if (!peopleSearch.trim()) return
+  const handleSearchPeople = async (searchTerm = peopleSearch) => {
+    const term = searchTerm.trim()
+    if (!term) {
+      setSearchResults([])
+      setSearchPerformed(true)
+      return
+    }
     setLoading(true)
     try {
-      const { searchPeople } = await import('@/modules/people/lib/queries')
-      const results = await searchPeople(peopleSearch)
-      setSearchResults(results.map((p) => ({ id: p.id, name: `${p.firstname} ${p.lastname}` })))
-    } catch (err) {
+      const results = await searchPeople(term)
+      const seen = new Map<string, { id: string; name: string }>()
+      for (const p of results) {
+        const key = p.id
+        if (!seen.has(key)) {
+          seen.set(key, { id: p.id, name: `${p.firstname || ''} ${p.lastname || ''}`.trim() })
+        }
+      }
+      setSearchResults([...seen.values()])
+      setSearchPerformed(true)
+    } catch {
       setSearchResults([])
+      setSearchPerformed(true)
     } finally {
       setLoading(false)
     }
   }
+
+  useEffect(() => {
+    if (peopleSearch.trim()) {
+      const timer = setTimeout(() => handleSearchPeople(), 300)
+      return () => clearTimeout(timer)
+    } else {
+      setSearchResults([])
+      setSearchPerformed(false)
+    }
+  }, [peopleSearch])
 
   const togglePerson = (id: string) => {
     const next = new Set(selectedPeople)
@@ -81,97 +118,128 @@ export function AudiencePicker({ audienceType, audienceRef, peopleIds, onChange 
             <Tabs.Trigger value="explicit">People</Tabs.Trigger>
             <Tabs.Trigger value="preset">Preset</Tabs.Trigger>
           </Tabs.List>
+          <Tabs.Content value="saved_list">
+            <Field.Root>
+              <Field.Label>Saved List</Field.Label>
+              <Select.Root multiple value={selectedList ? [selectedList] : []} onValueChange={(details) => handleListChange(details.value[0] ?? '')}>
+                <Select.Control>
+                  <Select.Trigger>
+                    <Select.ValueText placeholder="Select a list..." />
+                    <Select.Indicator />
+                  </Select.Trigger>
+                </Select.Control>
+                <Select.Positioner>
+                  <Select.Content>
+                    <Select.Item item={{ label: 'Select a list...', value: '' }}>
+                      <Select.ItemText>Select a list...</Select.ItemText>
+                    </Select.Item>
+                    {listCollection.items.map((item) => (
+                      <Select.Item key={item.value} item={item}>
+                        <Select.ItemText>{item.label}</Select.ItemText>
+                        <Select.ItemIndicator />
+                      </Select.Item>
+                    ))}
+                  </Select.Content>
+                </Select.Positioner>
+              </Select.Root>
+            </Field.Root>
+          </Tabs.Content>
+
+          <Tabs.Content value="explicit">
+            <Stack gap="2">
+              <Field.Root>
+                <Field.Label>Search People</Field.Label>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <Input
+                    value={peopleSearch}
+                    onChange={(e) => setPeopleSearch(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') handleSearchPeople(peopleSearch).then(() => setResultsVisible(true))
+                    }}
+                    placeholder="Search by name or email"
+                  />
+                  {!showSearch && hasResults && (
+                    <Button onClick={() => setResultsVisible(true)} variant="plain">
+                      Show Results
+                    </Button>
+                  )}
+                  {!showSearch && !hasResults && (
+                    <Button onClick={() => handleSearchPeople(peopleSearch).then(() => setResultsVisible(true))} disabled={loading}>
+                      {loading ? 'Searching...' : 'Search'}
+                    </Button>
+                  )}
+                </div>
+              </Field.Root>
+
+              {showSearch && (
+                <div style={{ maxHeight: '200px', overflowY: 'auto', border: '1px solid #e5e7eb' }}>
+                  {searchResults.map((person) => (
+                    <label
+                      key={person.id}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        padding: '0.25rem 0.5rem',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedPeople.has(person.id)}
+                        onChange={() => togglePerson(person.id)}
+                      />
+                      {person.name || person.id}
+                    </label>
+                  ))}
+                  {searchResults.length === 0 && !loading && searchPerformed && (
+                    <div style={{ padding: '0.5rem' }}>No results</div>
+                  )}
+                </div>
+              )}
+
+              {showSearch && hasResults && (
+                <Button onClick={() => setResultsVisible(false)} variant="plain">
+                  Hide Results
+                </Button>
+              )}
+
+              {selectedPeople.size > 0 && (
+                <Text color="fg.muted">
+                  {selectedPeople.size} person{selectedPeople.size === 1 ? '' : 's'} selected
+                </Text>
+              )}
+            </Stack>
+          </Tabs.Content>
+
+          <Tabs.Content value="preset">
+            <Field.Root>
+              <Field.Label>Preset</Field.Label>
+              <Select.Root multiple value={selectedPreset ? [selectedPreset] : []} onValueChange={(details) => handlePresetChange(details.value[0] ?? '')}>
+                <Select.Control>
+                  <Select.Trigger>
+                    <Select.ValueText placeholder="Select a preset..." />
+                    <Select.Indicator />
+                  </Select.Trigger>
+                </Select.Control>
+                <Select.Positioner>
+                  <Select.Content>
+                    <Select.Item item={{ label: 'Select a preset...', value: '' }}>
+                      <Select.ItemText>Select a preset...</Select.ItemText>
+                    </Select.Item>
+                    {presetCollection.items.map((item) => (
+                      <Select.Item key={item.value} item={item}>
+                        <Select.ItemText>{item.label}</Select.ItemText>
+                        <Select.ItemIndicator />
+                      </Select.Item>
+                    ))}
+                  </Select.Content>
+                </Select.Positioner>
+              </Select.Root>
+            </Field.Root>
+          </Tabs.Content>
         </Tabs.Root>
       </TabScroller>
-
-      {audienceType === 'saved_list' && (
-        <Field.Root>
-          <Field.Label>Saved List</Field.Label>
-          <select
-            value={selectedList}
-            onChange={(e) => handleListChange(e.target.value)}
-            style={{ width: '100%' }}
-          >
-            <option value="">Select a list...</option>
-            {availableLists.map((list) => (
-              <option key={list.id} value={list.id}>
-                {list.name}
-              </option>
-            ))}
-          </select>
-        </Field.Root>
-      )}
-
-      {audienceType === 'explicit' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-          <Field.Root>
-            <Field.Label>Search People</Field.Label>
-            <div style={{ display: 'flex', gap: '0.5rem' }}>
-              <Input
-                value={peopleSearch}
-                onChange={(e) => setPeopleSearch(e.target.value)}
-                placeholder="Search by name or email"
-              />
-              <Button onClick={handleSearchPeople} disabled={loading || !peopleSearch.trim()}>
-                {loading ? 'Searching...' : 'Search'}
-              </Button>
-            </div>
-          </Field.Root>
-
-          <Button onClick={() => setShowSearch(!showSearch)}>
-            {showSearch ? 'Hide Results' : 'Show Results'}
-          </Button>
-
-          {showSearch && (
-            <div style={{ maxHeight: '200px', overflowY: 'auto', border: '1px solid #e5e7eb' }}>
-              {searchResults.map((person) => (
-                <label
-                  key={person.id}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5rem',
-                    padding: '0.25rem 0.5rem',
-                    cursor: 'pointer',
-                  }}
-                >
-                  <input
-                    type="checkbox"
-                    checked={selectedPeople.has(person.id)}
-                    onChange={() => togglePerson(person.id)}
-                  />
-                  {person.name || person.id}
-                </label>
-              ))}
-              {searchResults.length === 0 && !loading && <div style={{ padding: '0.5rem' }}>No results</div>}
-            </div>
-          )}
-
-          {selectedPeople.size > 0 && (
-            <Text color="fg.muted">
-              {selectedPeople.size} person{selectedPeople.size === 1 ? '' : 's'} selected
-            </Text>
-          )}
-        </div>
-      )}
-
-      {audienceType === 'preset' && (
-        <Field.Root>
-          <Field.Label>Preset</Field.Label>
-          <select
-            value={selectedPreset}
-            onChange={(e) => handlePresetChange(e.target.value)}
-            style={{ width: '100%' }}
-          >
-            <option value="">Select a preset...</option>
-            {availablePresets.map((preset) => (
-              <option key={preset} value={preset}>
-                {preset}
-              </option>
-            ))}
-          </select>
-        </Field.Root>
-      )}
     </Stack>
   )
 }

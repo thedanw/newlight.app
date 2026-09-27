@@ -2,96 +2,68 @@ import { describe, expect, it, vi } from 'vitest'
 
 vi.mock('@/core/lib/supabase', () => ({ supabase: { from: vi.fn() } }))
 
-describe('email blocks registry (Batch 7)', () => {
-  it('returns all 7 builtin blocks', async () => {
-    const { getBuiltinBlocks } = await import('../lib/blocks')
-    const blocks = getBuiltinBlocks()
-    expect(blocks).toHaveLength(7)
-    expect(blocks.map((b) => b.type)).toEqual([
-      'text',
-      'heading',
-      'image',
-      'button',
-      'spacer',
-      'divider',
-      'columns',
-    ])
-  })
-
-  it('getAllEmailBlocks includes builtins + registered', async () => {
-    const { getAllEmailBlocks, registerEmailBlock, clearRegisteredBlocks } = await import('../lib/blocks')
-    clearRegisteredBlocks()
-    registerEmailBlock({
+describe('email blocks registry (Studio SDK)', () => {
+  it('returns registered components', async () => {
+    const { getRegisteredComponents, registerEmailComponent, clearRegisteredComponents } = await import('../lib/blocks')
+    clearRegisteredComponents()
+    registerEmailComponent({
       type: 'custom',
-      label: 'Custom',
-      icon: '*',
-      category: 'custom',
-      defaultContent: '<p>Custom</p>',
+      model: { defaultContent: '<p>Custom</p>' },
+      view: {},
+      traits: {},
     })
-    const all = getAllEmailBlocks()
-    expect(all.some((b) => b.type === 'custom')).toBe(true)
-    expect(all.some((b) => b.type === 'text')).toBe(true)
-    clearRegisteredBlocks()
+    const components = getRegisteredComponents()
+    expect(components).toHaveLength(1)
+    expect(components[0].type).toBe('custom')
+    clearRegisteredComponents()
   })
 
-  it('lookup by type returns the correct block', async () => {
-    const { getEmailBlock } = await import('../lib/blocks')
-    const block = getEmailBlock('button')
-    expect(block?.label).toBe('Button')
-    expect(block?.category).toBe('basic')
-  })
-
-  it('lookup returns undefined for unknown type', async () => {
-    const { getEmailBlock } = await import('../lib/blocks')
-    expect(getEmailBlock('nonexistent')).toBeUndefined()
-  })
-
-  it('registerEmailBlock throws on duplicate', async () => {
-    const { registerEmailBlock, clearRegisteredBlocks } = await import('../lib/blocks')
-    clearRegisteredBlocks()
-    registerEmailBlock({
+  it('registerEmailComponent throws on duplicate', async () => {
+    const { registerEmailComponent, clearRegisteredComponents } = await import('../lib/blocks')
+    clearRegisteredComponents()
+    registerEmailComponent({
       type: 'dup',
-      label: 'Dup',
-      icon: '*',
-      category: 'test',
-      defaultContent: '<p></p>',
+      model: {},
+      view: {},
+      traits: {},
     })
     expect(() =>
-      registerEmailBlock({
+      registerEmailComponent({
         type: 'dup',
-        label: 'Dup2',
-        icon: '*',
-        category: 'test',
-        defaultContent: '<p></p>',
+        model: {},
+        view: {},
+        traits: {},
       }),
-    ).toThrow('Email block type already registered')
-    clearRegisteredBlocks()
+    ).toThrow('Email component type already registered')
+    clearRegisteredComponents()
   })
 
-  it('clearRegisteredBlocks resets the registry', async () => {
-    const { registerEmailBlock, getRegisteredBlocks, clearRegisteredBlocks } = await import('../lib/blocks')
-    clearRegisteredBlocks()
-    registerEmailBlock({
+  it('clearRegisteredComponents resets the registry', async () => {
+    const { registerEmailComponent, getRegisteredComponents, clearRegisteredComponents } = await import('../lib/blocks')
+    clearRegisteredComponents()
+    registerEmailComponent({
       type: 'temp',
-      label: 'Temp',
-      icon: '*',
-      category: 'test',
-      defaultContent: '<p></p>',
+      model: {},
+      view: {},
+      traits: {},
     })
-    expect(getRegisteredBlocks()).toHaveLength(1)
-    clearRegisteredBlocks()
-    expect(getRegisteredBlocks()).toHaveLength(0)
+    expect(getRegisteredComponents()).toHaveLength(1)
+    clearRegisteredComponents()
+    expect(getRegisteredComponents()).toHaveLength(0)
   })
 
-  it('blocks have required fields', async () => {
-    const { getBuiltinBlocks } = await import('../lib/blocks')
-    const blocks = getBuiltinBlocks()
-    for (const b of blocks) {
-      expect(b.type).toBeTruthy()
-      expect(b.label).toBeTruthy()
-      expect(b.icon).toBeTruthy()
-      expect(b.category).toBeTruthy()
-      expect(b.defaultContent).toBeTruthy()
-    }
+  it('getStudioComponents returns registered components', async () => {
+    const { getStudioComponents, registerEmailComponent, clearRegisteredComponents } = await import('../lib/blocks')
+    clearRegisteredComponents()
+    registerEmailComponent({
+      type: 'custom',
+      model: { defaultContent: '<p>Custom</p>' },
+      view: {},
+      traits: {},
+    })
+    const components = getStudioComponents()
+    expect(components.custom).toBeDefined()
+    expect(components.custom.type).toBe('custom')
+    clearRegisteredComponents()
   })
 })

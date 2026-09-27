@@ -20,6 +20,7 @@ export const tabs = defineSlotRecipe({
       },
     },
     list: {
+      gap: '0',
       display: 'flex',
       position: 'relative',
       isolation: 'isolate',
@@ -46,6 +47,8 @@ export const tabs = defineSlotRecipe({
       },
     },
     content: {
+      pl:GAP,
+      pr:GAP,
       focusVisibleRing: 'inside',
 
       _horizontal: {
@@ -65,19 +68,15 @@ export const tabs = defineSlotRecipe({
   variants: {
     size: {
       xs: {
-        list: { gap: '1' },
         trigger: { minW: '8', fontSize: 'xs', px: '3', gap: '2' },
       },
       sm: {
-        list: { gap: '1' },
         trigger: { minW: '9', fontSize: 'sm', px: '3.5', gap: '2' },
       },
       md: {
-        list: { gap: '1' },
         trigger: { minW: '10', fontSize: 'sm', px: '4', gap: '2' },
       },
       lg: {
-        list: { gap: '1' },
         trigger: { minW: '11', fontSize: 'md', px: '4.5', gap: '2' },
       },
     },

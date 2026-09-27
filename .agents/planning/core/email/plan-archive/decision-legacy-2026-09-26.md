@@ -1,15 +1,17 @@
-# Decision: Core Email Utility — Send-Only Composer + Studio SDK Drag-Drop Editor
+# Decision: Core Email Utility — Send-Only Composer + Drag-Drop Editor (LEGACY - Pre Studio SDK)
 
 ## Status
 
-Planning lock confirmed 2026-08-08; architecture and compatibility review refreshed 2026-09-12. **Studio SDK upgrade authorized 2026-09-26.** This document governs implementation planning only. No email implementation is authorized by this file.
+Planning lock confirmed 2026-08-08; architecture and compatibility review refreshed 2026-09-12. This document governs implementation planning only. No email implementation is authorized by this file.
+
+**ARCHIVED 2026-09-26** — Superseded by Studio SDK upgrade. See current `decision.md` for active decisions.
 
 ## Aliases
 
 - Email = always-on core utility under `src/core/email`, not `src/modules/email`
 - Core Email API = `src/core/email/public.ts` plus the compatibility surface in `src/core/lib/email.ts`
 - Composer = email creation UI (editor + audience + sender + send)
-- Studio SDK = GrapesJS Studio SDK (`@grapesjs/studio-sdk`) with `project.type: 'email'`
+- GrapesJS = drag-and-drop editor (`grapesjs` + `grapesjs-preset-newsletter`)
 - Block = editor component such as text, image, button, spacer, columns, or a module-provided data block
 - Data block = block populated by another module and captured as an edit-time HTML snapshot
 - Snapshot = rendered HTML stored with a template; no send-time data binding in the MVP
@@ -19,11 +21,10 @@ Planning lock confirmed 2026-08-08; architecture and compatibility review refres
 - SMTP = Google Workspace outbound via a Supabase Edge Function
 - Edge Fn = Supabase Edge Function (Deno) that owns SMTP credentials and queue processing
 - Sender = global SMTP account configured by a Super Admin, with same-domain per-user alias override
-- License Key = Studio SDK license key (non-secret, stored in `platform_settings` via `EmailEditorConfig.licenseKey`)
 
 ## What & Why
 
-Build a send-only email capability for church staff to compose branded messages, select people from existing saved lists or a person profile, and send through Google Workspace SMTP. The capability is a core utility so every module can consume one typed API without creating a new module dependency. The MVP includes reusable templates, a **GrapesJS Studio SDK** visual builder with MJML email project type, audience selection, send history/status, consent and suppression enforcement, and a public one-click unsubscribe page.
+Build a send-only email capability for church staff to compose branded messages, select people from existing saved lists or a person profile, and send through Google Workspace SMTP. The capability is a core utility so every module can consume one typed API without creating a new module dependency. The MVP includes reusable templates, a GrapesJS block editor, audience selection, send history/status, consent and suppression enforcement, and a public one-click unsubscribe page.
 
 ## Who
 
@@ -41,17 +42,16 @@ Build a send-only email capability for church staff to compose branded messages,
 - Template HTML is sanitized before storage and send. Use `sanitize-html@2.17.7` after a Deno/browser compatibility check; if Deno cannot import it, use a small allowlist sanitizer with identical tests.
 - No SMTP credentials or service-role keys in the client, database settings, logs, or source code.
 - Supabase Edge Function uses Deno and pins `npm:nodemailer@9.1.1`; Google Workspace SMTP uses port 465 for the MVP.
-- **Studio SDK** uses `@grapesjs/studio-sdk@^1.2.1` with `project.type: 'email'` for MJML-based newsletter composition.
+- GrapesJS uses `^0.22.5` (resolved 0.22.16) because `@grapesjs/react@2.0.0` declares `grapesjs@^0.22.5`; 0.23.x is outside that peer range.
 - All email tables use RLS. The Edge Function uses a service-role client only for server-side queue writes and SMTP processing.
 - Send history is durable: `email_sends` and `email_recipients` record queued/sent/failed/suppressed/skipped outcomes.
-- Templates store Studio SDK project JSON plus rendered snapshot HTML. Data blocks are edit-time snapshots.
+- Templates store GrapesJS JSON plus rendered snapshot HTML. Data blocks are edit-time snapshots.
 - Audience selection is saved-list, explicit-person, or registered preset based. No arbitrary query builder.
 - Consent fields live in the People model: `consent_broadcasts` and `consent_team_updates`, using the existing `yes_no` domain with Blank represented by null.
 - Youth/child consent is admin-managed. A parent-facing consent flow is out of scope.
 - AU Spam Act requirements are enforced at send time: consent gate, sender identity, functional unsubscribe, and suppression exclusion.
 - PWA remains read-only offline; composer/editor and send operations are online-only.
 - Expected volume is low (<50/day typical; 200–300 per periodic broadcast), within the planned Workspace limits.
-- **License Key**: Studio SDK license key stored in `platform_settings` (non-secret). On `localhost`, any string works (`DEV_LICENSE_KEY`). On production domains, a valid license from GrapesJS Dashboard is required.
 
 ## Non-Goals
 
@@ -72,7 +72,6 @@ Build a send-only email capability for church staff to compose branded messages,
 - Consent defaults to Blank/null; a send is rejected or skips recipients unless the relevant consent is Yes.
 - The Edge Function can import npm dependencies and reach SMTP port 465. ⚠️ Verify in local and hosted runtime.
 - Existing hand-maintained `src/core/lib/database.types.ts` is updated alongside the migration.
-- **Studio SDK license**: A valid license key can be obtained for production deployment. Local development uses `DEV_LICENSE_KEY`.
 
 ## Decision Log
 
@@ -81,12 +80,9 @@ Build a send-only email capability for church staff to compose branded messages,
 | 1 | Place the capability in `src/core/email` and expose `public.ts` | Makes email an always-on typed utility without a stale feature-module directory. |
 | 1.1 | Keep `src/core/lib/email.ts` as a compatibility wrapper | Existing People code imports this path; preserving it avoids a breaking migration. |
 | 1.2 | Add thin authenticated and public route slices | `src/core/router.tsx` remains the only router assembly point; unsubscribe stays outside the shell. |
-| 2 | **Use GrapesJS Studio SDK (`@grapesjs/studio-sdk`) with `project.type: 'email'`** | Provides a complete visual builder with built-in MJML/email components, asset management, modern UI, and React 19 compatibility. Replaces `grapesjs` + `grapesjs-preset-newsletter` + `@grapesjs/react`. |
-| 2.1 | Store Studio SDK project JSON and rendered snapshot HTML | Preserves edit fidelity and avoids send-time module coupling. |
-| 2.2 | Use Studio SDK component system for built-in and custom blocks | Leverages Studio SDK's component architecture; module-provided data blocks register as custom components. |
-| 2.3 | **License key stored in `platform_settings` via `EmailEditorConfig.licenseKey`** | Non-secret configuration; `DEV_LICENSE_KEY` works on localhost; production requires valid key from GrapesJS Dashboard. |
-| 2.4 | **Built-in email components replace `grapesjs-preset-newsletter`** | Studio SDK email project type includes text, image, button, columns, divider, spacer, HTML, and MJML components natively. |
-| 2.5 | **Asset management via Studio SDK asset providers** | Configure asset upload/storage via Studio SDK configuration; supports external providers. |
+| 2 | Use GrapesJS with the newsletter preset and `@grapesjs/react` v2 | Provides drag-and-drop blocks, portable HTML/CSS, React 19 compatibility, and an extension surface. |
+| 2.1 | Store editor JSON and rendered snapshot HTML | Preserves edit fidelity and avoids send-time module coupling. |
+| 2.2 | Use a typed block registry with built-ins and future module registrations | Lets other modules contribute data blocks without importing email internals. |
 | 3 | Send through a Supabase Edge Function using Google Workspace SMTP | Keeps secrets server-side and fits the existing Supabase architecture. |
 | 3.1 | Use port 465 and `secure: true` for the MVP | Avoids commonly blocked SMTP ports and matches Workspace relay guidance. |
 | 3.2 | Use a global sender plus same-domain alias override | Provides consistent branding and a personal sender without accepting arbitrary From addresses. |
@@ -98,14 +94,11 @@ Build a send-only email capability for church staff to compose branded messages,
 | 6 | Provide a public one-click unsubscribe route with an opaque token hash | Prevents email addresses from being exposed in unsubscribe URLs and creates a durable suppression record. |
 | 7 | Role surface: Team Leaders may send within their visible audience; Admins manage templates; Super Admins manage sender settings | Matches the locked UX roles while keeping settings and broad access restricted. |
 | 8 | Store non-secret email settings in `platform_settings`; store SMTP credentials only in Edge Function environment variables | Follows existing settings architecture and prevents secret leakage. |
-| 9 | Use Park UI chrome and Studio SDK default theme (light/auto) | Keeps the feature consistent with the existing design system; Studio SDK handles editor theming. |
+| 9 | Use Park UI chrome and a light-only editor | Keeps the feature consistent with the existing design system and avoids dark-theme editor work in the MVP. |
 | 10 | Test pure logic with Vitest and Edge Function behavior with Deno tests; run Supabase migration checks separately | Matches the repository's current test and backend tooling. |
-| 11 | **Declare `theme: "dark"` in StudioEditor options to activate custom theming** | Studio SDK requires a base theme (`light` or `dark`) to be specified for `customTheme` to take effect. We use `dark` as the base since our custom colors are dark-themed. |
-| 12 | **Map custom theme colors to Park UI CSS variables** | Instead of hardcoded colors, the `customTheme.colors` configuration references Park UI semantic CSS variables (e.g., `var(--colors-color-palette-solid-bg)`, `var(--colors-fg-default)`, `var(--colors-gray-surface-bg)`). This ensures the editor automatically adapts when the user changes accent/gray/mode via the app settings, which are loaded from Supabase and applied via `theme-loader.js`. |
-| 13 | **Sync editor theme with app theme via `useAppTheme()` hook** | The `EmailEditor` component uses `useAppTheme()` hook to read the current theme mode (`light`/`dark`) from the app's theme context (which loads from Supabase `platform_settings` on boot). A `useEffect` calls `editorRef.current.setConfig({ theme })` when the app theme changes, keeping the editor in sync with the user's preference. |
 
 ## Decision Gap Log
 
-- Resolved: placement, editor (Studio SDK), transport, sender model, audience scope, consent fields, unsubscribe UX, roles, settings ownership, data-block contract, license key management.
-- Verify during implementation: Deno/npm import behavior for `nodemailer@^9`, hosted reachability of SMTP port 465, Workspace app-password requirements, production SPF/DKIM/DMARC, Studio SDK license key validation in production.
-- Track separately: full `contact_channels` migration, send-time dynamic data blocks, granular unsubscribe categories, open/click analytics, parent-facing consent management, Studio SDK advanced features (AI plugins, custom renderers, multi-page projects).
+- Resolved: placement, editor, transport, sender model, audience scope, consent fields, unsubscribe UX, roles, settings ownership, and data-block contract.
+- Verify during implementation: Deno/npm import behavior for `nodemailer@^9`, hosted reachability of SMTP port 465, Workspace app-password requirements, and production SPF/DKIM/DMARC.
+- Track separately: full `contact_channels` migration, send-time dynamic data blocks, granular unsubscribe categories, open/click analytics, and parent-facing consent management.

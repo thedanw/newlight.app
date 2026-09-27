@@ -28,7 +28,7 @@ import {
   DEFAULT_EMAIL_SETTINGS,
 } from '../lib/settings'
 import { sendEmailWithTracking } from '../lib/client'
-import type { EmailSettings, EmailTransport, EmailEditorTheme } from '../lib/types'
+import type { EmailSettings, EmailTransport } from '../lib/types'
 
 const TRANSPORT_OPTIONS: Array<{ label: string; value: EmailTransport; description: string }> = [
   { label: 'SMTP', value: 'smtp', description: 'Send through your own mail server (e.g. Google Workspace)' },
@@ -98,11 +98,19 @@ export default function EmailSettingsPage() {
     setIsDirty(true)
   }
 
-  const updateEditor = (field: keyof EmailSettings['editor'], value: string | boolean) => {
-    setSettings((s) => ({
-      ...s,
-      editor: { ...s.editor, [field]: value },
-    }))
+  const updateEditor = (field: keyof NonNullable<EmailSettings['editor']>, value: string | boolean | Record<string, unknown> | Array<unknown>) => {
+    setSettings((s) => {
+      const currentEditor = s.editor ?? DEFAULT_EMAIL_SETTINGS.editor
+      const updatedEditor = { ...currentEditor, [field]: value }
+      // Ensure licenseKey is never undefined
+      if (field === 'licenseKey' && updatedEditor.licenseKey === undefined) {
+        updatedEditor.licenseKey = ''
+      }
+      return {
+        ...s,
+        editor: updatedEditor as EmailSettings['editor'],
+      }
+    })
     setIsDirty(true)
   }
 
@@ -640,13 +648,41 @@ export default function EmailSettingsPage() {
           <Stack gap="4">
             <Card.Root>
               <Card.Header>
+                <Heading textStyle="sm">Studio SDK License</Heading>
+              </Card.Header>
+              <Card.Body>
+                <Field.Root>
+                  <Field.Label>License Key</Field.Label>
+                  <Input
+                    value={settings.editor?.licenseKey ?? ''}
+                    onChange={(e) => updateEditor('licenseKey', e.target.value)}
+                    placeholder="DEV_LICENSE_KEY"
+                  />
+                  <Field.HelperText>
+                    Use <code>DEV_LICENSE_KEY</code> for local development. For production deployments, create an SDK
+                    license at the{' '}
+                    <a
+                      href="https://app.grapesjs.com/dashboard/sdk/licenses"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      GrapesJS Dashboard
+                    </a>
+                    .
+                  </Field.HelperText>
+                </Field.Root>
+              </Card.Body>
+            </Card.Root>
+
+            <Card.Root>
+              <Card.Header>
                 <Heading textStyle="sm">Editor Theme</Heading>
               </Card.Header>
               <Card.Body>
                 <RadioCardGroup.Root
                   aria-label="Editor theme"
-                  value={settings.editor.theme}
-                  onValueChange={(details) => updateEditor('theme', details.value as EmailEditorTheme)}
+                  value={settings.editor?.theme ?? 'dark'}
+                  onValueChange={(details) => updateEditor('theme', details.value as 'light' | 'dark')}
                 >
                   <RadioCardGroup.Item key="light" value="light" marginBottom="2">
                     <RadioCardGroup.ItemHiddenInput />
@@ -670,46 +706,7 @@ export default function EmailSettingsPage() {
                       </Stack>
                     </RadioCardGroup.ItemText>
                   </RadioCardGroup.Item>
-                  <RadioCardGroup.Item key="auto" value="auto" marginBottom="2">
-                    <RadioCardGroup.ItemHiddenInput />
-                    <RadioCardGroup.ItemText>
-                      <Stack gap="1">
-                        <Text fontWeight="medium">Auto</Text>
-                        <Text color="fg.muted" textStyle="sm">
-                          Follows your system theme preference.
-                        </Text>
-                      </Stack>
-                    </RadioCardGroup.ItemText>
-                  </RadioCardGroup.Item>
                 </RadioCardGroup.Root>
-              </Card.Body>
-            </Card.Root>
-
-            <Card.Root>
-              <Card.Header>
-                <Heading textStyle="sm">Studio SDK License</Heading>
-              </Card.Header>
-              <Card.Body>
-                <Field.Root>
-                  <Field.Label>License Key</Field.Label>
-                  <Input
-                    value={settings.editor.licenseKey}
-                    onChange={(e) => updateEditor('licenseKey', e.target.value)}
-                    placeholder="DEV_LICENSE_KEY"
-                  />
-                  <Field.HelperText>
-                    Use <code>DEV_LICENSE_KEY</code> for local development. For production deployments, create an SDK
-                    license at the{' '}
-                    <a
-                      href="https://app.grapesjs.com/dashboard/sdk/licenses"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      GrapesJS Dashboard
-                    </a>
-                    .
-                  </Field.HelperText>
-                </Field.Root>
               </Card.Body>
             </Card.Root>
 
@@ -721,7 +718,7 @@ export default function EmailSettingsPage() {
                 <Field.Root>
                   <Field.Label>MJML Template</Field.Label>
                   <Textarea
-                    value={settings.editor.defaultTemplate}
+                    value={settings.editor?.defaultTemplate ?? ''}
                     onChange={(e) => updateEditor('defaultTemplate', e.target.value)}
                     placeholder='<mjml><mj-body><mj-section><mj-column><mj-text>...</mj-text></mj-column></mj-section></mj-body></mjml>'
                     rows={6}
@@ -735,52 +732,52 @@ export default function EmailSettingsPage() {
 
             <Card.Root>
               <Card.Header>
-                <Heading textStyle="sm">Editor Panels</Heading>
+                <Heading textStyle="sm">Asset Providers</Heading>
               </Card.Header>
               <Card.Body>
-                <Stack gap="3">
-                  <Field.Root display="flex" alignItems="center" gap="2">
-                    <Field.Label>Blocks panel</Field.Label>
-                    <Switch.Root
-                      checked={settings.editor.showBlocksPanel}
-                      onCheckedChange={(details) => updateEditor('showBlocksPanel', details.checked)}
-                    >
-                      <Switch.HiddenInput />
-                      <Switch.Control>
-                        <Switch.Thumb />
-                      </Switch.Control>
-                    </Switch.Root>
-                    <Field.HelperText>Show the drag-and-drop blocks sidebar.</Field.HelperText>
-                  </Field.Root>
+                <Field.Root>
+                  <Field.Label>Asset Providers</Field.Label>
+                  <Input
+                    value={settings.editor?.assets?.providers?.join(', ') ?? 'local'}
+                    onChange={(e) => updateEditor('assets', { providers: e.target.value.split(',').map(s => s.trim()) })}
+                    placeholder="local, google-fonts"
+                  />
+                  <Field.HelperText>
+                    Comma-separated list of asset providers (e.g., local, google-fonts, unsplash).
+                  </Field.HelperText>
+                </Field.Root>
+                <Field.Root display="flex" alignItems="center" gap="2" marginTop="3">
+                  <Field.Label>Enable Asset Upload</Field.Label>
+                  <Switch.Root
+                    checked={settings.editor?.assets?.upload ?? true}
+                    onCheckedChange={(details) => updateEditor('assets', { ...settings.editor?.assets, upload: details.checked })}
+                  >
+                    <Switch.HiddenInput />
+                    <Switch.Control>
+                      <Switch.Thumb />
+                    </Switch.Control>
+                  </Switch.Root>
+                  <Field.HelperText>Allow uploading assets directly in the editor.</Field.HelperText>
+                </Field.Root>
+              </Card.Body>
+            </Card.Root>
 
-                  <Field.Root display="flex" alignItems="center" gap="2">
-                    <Field.Label>Layers panel</Field.Label>
-                    <Switch.Root
-                      checked={settings.editor.showLayersPanel}
-                      onCheckedChange={(details) => updateEditor('showLayersPanel', details.checked)}
-                    >
-                      <Switch.HiddenInput />
-                      <Switch.Control>
-                        <Switch.Thumb />
-                      </Switch.Control>
-                    </Switch.Root>
-                    <Field.HelperText>Show the layer hierarchy sidebar.</Field.HelperText>
-                  </Field.Root>
-
-                  <Field.Root display="flex" alignItems="center" gap="2">
-                    <Field.Label>Styles panel</Field.Label>
-                    <Switch.Root
-                      checked={settings.editor.showStylesPanel}
-                      onCheckedChange={(details) => updateEditor('showStylesPanel', details.checked)}
-                    >
-                      <Switch.HiddenInput />
-                      <Switch.Control>
-                        <Switch.Thumb />
-                      </Switch.Control>
-                    </Switch.Root>
-                    <Field.HelperText>Show the style properties sidebar.</Field.HelperText>
-                  </Field.Root>
-                </Stack>
+            <Card.Root>
+              <Card.Header>
+                <Heading textStyle="sm">Font Providers</Heading>
+              </Card.Header>
+              <Card.Body>
+                <Field.Root>
+                  <Field.Label>Font Providers</Field.Label>
+                  <Input
+                    value={settings.editor?.fonts?.providers?.join(', ') ?? 'google-fonts'}
+                    onChange={(e) => updateEditor('fonts', { providers: e.target.value.split(',').map(s => s.trim()) })}
+                    placeholder="google-fonts, custom"
+                  />
+                  <Field.HelperText>
+                    Comma-separated list of font providers (e.g., google-fonts, custom).
+                  </Field.HelperText>
+                </Field.Root>
               </Card.Body>
             </Card.Root>
           </Stack>

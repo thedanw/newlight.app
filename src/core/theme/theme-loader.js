@@ -1,5 +1,7 @@
 "use client";
 
+import { applySemanticColors } from './semantic-colors';
+
 // Theme loader for dynamic color loading.
 // The base theme shell (src/core/theme/theme.css) is imported statically by
 // main.tsx. EVERY selectable palette — accent AND gray — is compiled ahead of
@@ -13,6 +15,11 @@
 //                         scripts/generate-theme-colors.mjs ACCENTS
 //   data-gray-color   = neutral | mauve | olive | sage | sand | slate (gray scheme)
 //   data-mode         = light | dark
+//
+// After the accent CSS is in the document and the data-* attributes are set,
+// the Park UI primary (--colors-color-palette-solid-bg) is resolved and the
+// semantic palette (success / warning / error / info + hover / active) is
+// derived from it — see src/core/theme/semantic-colors.ts.
 
 let loadedThemes = new Set();
 let currentAccent = 'orange';
@@ -130,6 +137,10 @@ export async function initializeTheme(accentOrOptions, gray) {
   html.setAttribute('data-font', font);
   html.setAttribute('data-sidebar-style', sidebarStyle);
 
+  // Accent CSS + data-* attributes are both in place now, so the primary can
+  // be resolved and the semantic palette derived for this accent/mode.
+  applySemanticColors(accent, mode);
+
   console.log('Theme system initialized with:', { accent, gray: grayOpt, mode, radius, font, sidebarStyle });
 
   window.dispatchEvent(new CustomEvent('theme-change', { detail: { accent: accent, gray: grayOpt, colorScheme: mode } }));
@@ -163,6 +174,10 @@ export async function switchTheme(options = {}) {
     loadTypographyTheme(),
     loadSidebarTheme(sidebarStyle),
   ]);
+
+  // Accent CSS is loaded and the data-* attributes were set above, so the
+  // primary can be re-resolved for the new accent/mode.
+  applySemanticColors(accent, colorScheme);
 
   console.log('Theme switched to:', { accent, gray, radius, font, sidebarStyle, colorScheme, headingStyle });
 

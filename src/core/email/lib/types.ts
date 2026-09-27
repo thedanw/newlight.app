@@ -42,7 +42,46 @@ export type EmailRecipientStatus = 'queued' | 'sent' | 'failed' | 'suppressed' |
 export type EmailTransport = 'smtp' | 'resend' | 'noop'
 export type EmailConsentCategory = 'broadcasts' | 'team_updates'
 export type EmailAudienceType = 'saved_list' | 'explicit' | 'preset'
-export type EmailEditorJson = Json
+
+// Studio SDK Project Data Types
+export interface StudioComponent {
+  type: string
+  tagName?: string
+  attributes?: Record<string, string>
+  components?: StudioComponent[]
+  content?: string
+  style?: Record<string, string>
+  classes?: string[]
+  traits?: Record<string, Json>
+}
+
+export interface StudioPage {
+  id: string
+  name: string
+  component: StudioComponent
+  styles?: Record<string, string>
+}
+
+export interface StudioAsset {
+  id: string
+  type: string
+  src: string
+  name?: string
+}
+
+export interface StudioSettings {
+  [key: string]: Json
+}
+
+export interface StudioProject {
+  pages: StudioPage[]
+  assets: StudioAsset[]
+  settings: StudioSettings
+  styles?: Record<string, string>
+  components?: StudioComponent[]
+}
+
+export type EmailEditorJson = StudioProject
 
 export type EmailSmtpConfig = {
   host: string
@@ -71,15 +110,38 @@ export type EmailBranding = {
   includeUnsubscribeFooter: boolean
 }
 
-export type EmailEditorTheme = 'light' | 'dark' | 'auto'
+// Studio SDK Editor Configuration (JSON-compatible for platform_settings)
+export type StudioAssetConfig = {
+  providers?: string[]
+  upload?: boolean
+}
+
+export type StudioFontConfig = {
+  providers?: string[]
+  customFonts?: Array<{ name: string; url: string }>
+}
+
+export type StudioComponentConfig = {
+  [componentType: string]: {
+    model?: Record<string, Json>
+    view?: Record<string, Json>
+    traits?: Record<string, Json>
+  }
+}
+
+export type StudioPageConfig = Record<string, Json>
+
+export type EmailEditorTheme = 'light' | 'dark'
 
 export type EmailEditorConfig = {
-  theme: EmailEditorTheme
   licenseKey: string
-  showBlocksPanel: boolean
-  showLayersPanel: boolean
-  showStylesPanel: boolean
-  defaultTemplate: string
+  project: { type: 'email' }
+  assets?: StudioAssetConfig
+  fonts?: StudioFontConfig
+  components?: StudioComponentConfig
+  pages?: StudioPageConfig
+  defaultTemplate?: string
+  theme?: EmailEditorTheme
 }
 
 export type EmailSettings = {
@@ -88,7 +150,7 @@ export type EmailSettings = {
   resend: EmailResendConfig
   defaults: EmailDefaults
   branding: EmailBranding
-  editor: EmailEditorConfig
+  editor?: EmailEditorConfig
 }
 
 export type EmailTemplate = {

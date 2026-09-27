@@ -1,27 +1,12 @@
-import type { Json } from '@/core/lib/database.types'
-import { getEmailBlockSpec } from './blocks'
+import type { StudioProject, StudioPage, StudioComponent } from './types'
 import sanitizeHtml from 'sanitize-html'
 
-type GrapesNode = {
-  type?: string
-  tag?: string
-  content?: string
-  children?: GrapesNode[]
-  attrs?: Record<string, string>
-  className?: string
-  text?: string
-  src?: string
-  href?: string
-  cells?: GrapesNode[]
+function isStudioComponent(obj: unknown): obj is StudioComponent {
+  return typeof obj === 'object' && obj !== null && !Array.isArray(obj) && 'type' in obj
 }
 
-function isGrapesNode(obj: unknown): obj is GrapesNode {
-  return typeof obj === 'object' && obj !== null && !Array.isArray(obj)
-}
-
-function getChildren(node: GrapesNode): GrapesNode[] {
-  if (node.children) return node.children.filter(isGrapesNode)
-  if (node.cells) return node.cells.filter(isGrapesNode)
+function getChildren(component: StudioComponent): StudioComponent[] {
+  if (component.components) return component.components.filter(isStudioComponent)
   return []
 }
 
@@ -29,20 +14,25 @@ function attrsToHtml(attrs: Record<string, string> | undefined): string {
   if (!attrs) return ''
   return Object.entries(attrs)
     .filter(([, v]) => v !== undefined && v !== null)
-    .map(([k, v]) => `${k}="${v.replace(/"/g, '&quot;')}"`)
+    .map(([k, v]) => `${k}="${v.replace(/"/g, '"')}"`)
     .join(' ')
 }
 
-function renderNode(node: GrapesNode): string {
-  if (!isGrapesNode(node)) return ''
+function renderComponent(component: StudioComponent): string {
+  if (!isStudioComponent(component)) return ''
 
-  const tag = node.tag ?? node.type ?? 'div'
-  const attrStr = attrsToHtml(node.attrs)
+  const tag = component.tagName ?? component.type ?? 'div'
+  const attrStr = attrsToHtml(component.attributes)
 
-  if (node.content !== undefined) {
-    const safeContent = sanitizeHtml(node.content).trim()
+  // Filter out dangerous tags first
+  if (tag === 'script' || tag === 'style' || tag === 'iframe') {
+    return ''
+  }
+
+  if (component.content !== undefined) {
+    const safeContent = sanitizeHtml(component.content).trim()
     if (tag === 'img') {
-      return `<img${attrStr ? ` ${attrStr}` : ''} src="${(node.attrs?.src ?? node.src ?? '').replace(/"/g, '&quot;')}" alt="${(node.attrs?.alt ?? '').replace(/"/g, '&quot;')}" />`
+      return `<img${attrStr ? ` ${attrStr}` : ''} src="${(component.attributes?.src ?? '').replace(/"/g, '"')}" alt="${(component.attributes?.alt ?? '').replace(/"/g, '"')}" />`
     }
     if (tag === 'br') return '<br />'
     if (tag === 'hr') return `<hr${attrStr ? ` ${attrStr}` : ''} />`
@@ -55,54 +45,33 @@ function renderNode(node: GrapesNode): string {
   if (tag === 'br') return '<br />'
   if (tag === 'hr') return `<hr${attrStr ? ` ${attrStr}` : ''} />`
 
-  const children = getChildren(node)
-  const childHtml = children.map(renderNode).join('')
+  const children = getChildren(component)
+  const childHtml = children.map(renderComponent).join('')
 
   if (tag === 'text' || tag === 'p') {
-    const text = node.text ?? ''
+    const text = component.content ?? ''
     return `<p>${sanitizeHtml(text)}</p>`
-  }
-
-  if (tag === 'script' || tag === 'style' || tag === 'iframe') {
-    return ''
   }
 
   return `<${tag}${attrStr ? ` ${attrStr}` : ''}>${childHtml}</${tag}>`
 }
 
-export function renderSnapshot(editorJson: Json | null): string {
-  if (!editorJson || typeof editorJson !== 'object') return ''
+function renderPage(page: StudioPage): string {
+  if (!page.component) return ''
+  return renderComponent(page.component)
+}
 
-  const root = editorJson as {
-    root?: GrapesNode | GrapesNode[]
-    nodes?: GrapesNode[]
-    blocks?: GrapesNode[]
-    components?: GrapesNode | GrapesNode[]
+export function renderSnapshot(project: StudioProject | null): string {
+  if (!project || typeof project !== 'object') return ''
+
+  // Studio SDK project format has pages array
+  if (!project.pages || !Array.isArray(project.pages)) {
+    return ''
   }
 
-  let nodes: GrapesNode[] = []
-  if (root.root) {
-    nodes = Array.isArray(root.root) ? root.root : [root.root]
-  } else if (root.components) {
-    nodes = Array.isArray(root.components) ? root.components : [root.components]
-  } else if (root.nodes) {
-    nodes = root.nodes
-  } else if (root.blocks) {
-    nodes = root.blocks
-  } else {
-    nodes = Object.values(root).filter(isGrapesNode) as GrapesNode[]
-  }
-
-  const rendered = nodes
-    .filter((n) => n.type !== 'script' && n.type !== 'style')
-    .map((n) => {
-      const block = n.type && getEmailBlockSpec(n.type)
-      if (block && n.content === undefined) {
-        const nodeToRender = { ...n, content: block.defaultContent }
-        return renderNode(nodeToRender)
-      }
-      return renderNode(n)
-    })
+  const rendered = project.pages
+    .filter((page) => page.component)
+    .map(renderPage)
     .filter(Boolean)
     .join('\n')
 

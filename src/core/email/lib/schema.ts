@@ -181,18 +181,42 @@ export const emailAudienceSpecSchema = z.object({
 })
 
 // ---------------------------------------------------------------------------
+// Studio SDK Configuration Schemas
+// ---------------------------------------------------------------------------
+
+export const studioAssetConfigSchema = z.object({
+  providers: z.array(z.string()).optional(),
+  upload: z.boolean().optional(),
+}).passthrough()
+
+export const studioFontConfigSchema = z.object({
+  providers: z.array(z.string()).optional(),
+  customFonts: z.array(z.object({
+    name: z.string(),
+    url: z.string().url(),
+  })).optional(),
+}).passthrough()
+
+export const studioComponentConfigSchema = z.record(z.string(), z.object({
+  model: z.record(z.string(), z.unknown()).optional(),
+  view: z.record(z.string(), z.unknown()).optional(),
+  traits: z.record(z.string(), z.unknown()).optional(),
+}))
+
+export const studioPageConfigSchema = z.record(z.string(), z.unknown())
+
+// ---------------------------------------------------------------------------
 // Email editor settings
 // ---------------------------------------------------------------------------
 
-export const emailEditorThemeSchema = z.enum(['light', 'dark', 'auto'])
-
 export const emailEditorConfigSchema = z.object({
-  theme: emailEditorThemeSchema,
   licenseKey: z.string(),
-  showBlocksPanel: z.boolean(),
-  showLayersPanel: z.boolean(),
-  showStylesPanel: z.boolean(),
-  defaultTemplate: z.string(),
+  project: z.object({ type: z.literal('email') }),
+  assets: studioAssetConfigSchema.optional(),
+  fonts: studioFontConfigSchema.optional(),
+  components: studioComponentConfigSchema.optional(),
+  pages: studioPageConfigSchema.optional(),
+  defaultTemplate: z.string().optional(),
 })
 
 export const emailSettingsSchema = z.object({
@@ -220,5 +244,5 @@ export const emailSettingsSchema = z.object({
     footerText: z.string(),
     includeUnsubscribeFooter: z.boolean(),
   }),
-  editor: emailEditorConfigSchema,
+  editor: emailEditorConfigSchema.optional(),
 })

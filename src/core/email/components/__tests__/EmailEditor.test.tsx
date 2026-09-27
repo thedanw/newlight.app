@@ -2,13 +2,15 @@ import { render } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { ThemeProvider } from '@/core/theme/ThemeContext'
 
-vi.mock('@grapesjs/studio-sdk/style', () => ({}))
+vi.mock('grapesjs', () => ({ __esModule: true, default: {} }))
+vi.mock('grapesjs-preset-newsletter', () => ({ __esModule: true, default: {} }))
 
-vi.mock('@grapesjs/studio-sdk/react', () => ({
-  StudioEditor: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="studio-editor">{children}</div>
+vi.mock('@grapesjs/react', () => ({
+  __esModule: true,
+  default: ({ children }: { children?: React.ReactNode }) => (
+    <div data-testid="grapes-editor">{children}</div>
   ),
-  useStudioEditor: () => undefined,
+  useEditorMaybe: () => undefined,
 }))
 
 const renderWithTheme = (ui: React.ReactElement) => render(<ThemeProvider>{ui}</ThemeProvider>)
@@ -29,11 +31,5 @@ describe('EmailEditor (Batch 7)', () => {
     const mod = await import('../EmailEditor')
     expect(mod.EmailEditor).toBeDefined()
     expect(typeof mod.EmailEditor).toBe('function')
-  })
-
-  it('exports DEFAULT_EDITOR_CONFIG', async () => {
-    const mod = await import('../EmailEditor')
-    expect(mod.DEFAULT_EDITOR_CONFIG).toBeDefined()
-    expect(mod.DEFAULT_EDITOR_CONFIG.theme).toBe('light')
   })
 })

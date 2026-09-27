@@ -16,3 +16,5 @@ export const defineSemanticTokens = {
   colors: <T>(tokens: T): T => tokens,
   colorPalettes: <T>(tokens: T): T => tokens,
 }
+
+export const defineSlotRecipe = <T>(recipe: T): T => recipe

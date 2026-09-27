@@ -71,25 +71,26 @@ Make email sending actually work end-to-end: fix the broken edge function, close
 
 ## Files Touched
 - `supabase/functions/email-send/index.ts` — `getSecret()` env-first → DB-decrypt fallback; `serve()` guarded by `import.meta.main`; exported `hashEmail`/`rollupStatus`.
-- `supabase/functions/email-send/deno.jsonc` (new — 4.2)
-- `supabase/functions/email-send/index.test.ts` (new — 4.2; tests pure helpers; full handler tests deferred, no Deno locally)
-- `supabase/functions/email-secrets/index.ts` (NEW — super_admin-gated AES-256-GCM upsert/has/remove; auto-provisions encryption key)
-- `supabase/functions/email-secrets/deno.jsonc` (NEW)
-- `supabase/migrations/20260925000000_create_email_secrets.sql` (NEW — `email_secrets` + `email_encryption_keys`, RLS deny-authenticated / service_role-only)
+- `supabase/functions/email-send/deno.jsonc` (new)
+- `supabase/functions/email-send/index.test.ts` (new — tests `hashEmail`/`rollupStatus`; full handler tests deferred, no Deno locally)
+- `supabase/functions/email-secrets/index.ts` (NEW — super_admin-gated AES-256-GCM upsert/has/remove; auto-provisions encryption key; no dashboard env)
+- `supabase/functions/email-secrets/deno.jsonc` (new)
+- `supabase/migrations/20260925000000_create_email_secrets.sql` (NEW — `email_secrets` + `email_encryption_keys`, deny-authenticated / service_role-only)
 - `src/core/email/lib/types.ts` (2.1 — `person_id` on `EmailRecipient`; pre-existing, verified)
-- `src/core/email/lib/client.ts` (2.2 `sendEmailWithTracking`; async `getConfig`/`getProvider` resolved from `platform_settings`, env fallback only)
-- `src/core/email/lib/audience.ts` (2.4 — person_id enrichment)
+- `src/core/email/lib/client.ts` (2.2 `sendEmailWithTracking`; async `getConfig`/`getProvider` from `platform_settings`, env fallback only)
+- `src/core/email/lib/audience.ts` (2.4 — `person_id` enrichment)
 - `src/core/email/lib/settings.ts` (3.1 secrets stripped; + `saveEmailSecret`/`hasEmailSecret` calling `email-secrets`)
 - `src/core/email/lib/schema.ts` (4.3 — pre-existing `emailSendRequestSchema`; verified, not modified)
-- `src/core/email/settings/EmailSettingsPage.tsx` (2.5 tracked test-email; masked write-only SMTP password/Resend key fields + probes + Gmail note + troubleshoot codes)
+- `src/core/email/settings/EmailSettingsPage.tsx` (masked write-only SMTP password / Resend key fields + probes + Gmail note + troubleshoot codes)
 - `src/core/email/components/EmailComposer.tsx` (2.3 — tracked send + consentCategory)
+- `src/core/email/components/EmailEditor.tsx` (rewritten to free `@grapesjs/react` + `grapesjs` core; removed paid `@grapesjs/studio-sdk` license dependency; HTML via `editor.getHtml()`)
 - `src/core/email/components/AudiencePicker.tsx` (removed unused `HStack` import)
+- `src/core/email/components/__tests__/EmailEditor.test.tsx` (mocks updated for `@grapesjs/react`/`grapesjs`)
 - `src/core/email/__tests__/client.tracking.test.ts` (NEW — 6 tests: noop lifecycle, smtp delegation, failure rollback, provider resolution)
-- `src/core/email/__tests__/audience.test.ts` (person_id assertions)
+- `src/core/email/__tests__/audience.test.ts` (`person_id` assertions)
 - `src/core/lib/email.ts` (barrel — re-exports `sendEmailWithTracking`)
-- `src/modules/people/lib/email.ts` (person_id pass-through + tracked send + consentCategory)
-- `src/core/email/lib/settings.ts` (3.1 secrets stripped; + `saveEmailSecret`/`hasEmailSecret` calling `email-secrets`)
-- `src/core/email/settings/EmailSettingsPage.tsx` (masked write-only SMTP password / Resend key fields + "configured" probes + Gmail note + troubleshoot codes)
+- `src/modules/people/lib/email.ts` (`person_id` pass-through + tracked send + consentCategory)
+
 
 ## Status (marked 2026-09-25)
 | Batch | Status | Notes |
@@ -99,10 +100,11 @@ Make email sending actually work end-to-end: fix the broken edge function, close
 | 3.1 — Secret hygiene | Complete | Passwords/api keys stripped from `platform_settings`; stored encrypted in `email_secrets`. |
 | 3.2 — Settings UX | Complete | Masked write-only SMTP password / Resend key fields with "configured" probes; Gmail App Password note. |
 | 3.3 — TroubleshootDrawer | Complete | Gmail SMTP error codes (535/5.7.8, 5.7.30/5.7.14, 5.7.1) added. |
-| 4.1 — Client tests | Complete | `client.tracking.test.ts` (6 tests) + `audience.test.ts` person_id assertions. 172 vitest pass. |
-| 4.2 — Edge tests | Written | `deno.jsonc` + `index.test.ts` (`hashEmail`/`rollupStatus`); full handler tests deferred (no Deno locally). |
+| 4.1 — Client tests | Complete | `client.tracking.test.ts` (6 tests) + `audience.test.ts` person_id assertions. 173 vitest pass. |
+| 4.2 — Edge tests | Written | `email-send/index.test.ts` (`hashEmail`/`rollupStatus`); full handler tests deferred (no Deno locally). |
 | 4.3 — Schema | Complete | `emailSendRequestSchema`/`trackedSendRecipientSchema` conform. |
-| 5 — Deploy | Pending (external) | `email-send` + `email-secrets` deploy; migration apply (see User Actions). |
+| 5 — Deploy | Pending (external) | `email-send` + `email-secrets` + `email-unsubscribe` deploy; migration apply (see User Actions). |
+| Editor (A+D follow-on) | Complete | Replaced paid `@grapesjs/studio-sdk` (`StudioEditor`, `licenseKey: 'DEV_LICENSE_KEY'` → "license not found") with the free `@grapesjs/react` + `grapesjs` core. `EmailEditor.tsx` now renders unlicensed GrapesJS; blocks registered from `lib/blocks`; HTML exported via `editor.getHtml()`. `@grapesjs/react` + `grapesjs` were already in `package.json`. `EmailEditor.test.tsx` mocks updated; 4 tests pass. |
 
 ## Security decision (recorded 2026-09-25)
 - SMTP password / Resend API key are **never** persisted to `platform_settings`. They are entered in the Email Settings UI, sent over TLS to the `email-secrets` edge function (super_admin-gated), AES-256-GCM encrypted with a server-provisioned key in `email_encryption_keys` (service_role-only), and stored in `email_secrets`. The browser never reads the plaintext back — only a `hasSecret` probe drives the "configured" UI state.
@@ -115,3 +117,6 @@ Make email sending actually work end-to-end: fix the broken edge function, close
 3. `supabase functions deploy email-send email-secrets email-unsubscribe`.
 4. Set edge-function env vars `SMTP_HOST`, `SMTP_PORT=465`, `SMTP_USER` (full Gmail address) in Supabase Dashboard (functions). `SMTP_PASS` only needed as an override fallback — otherwise enter it in-app (super_admin).
 5. Google Account: enable 2FA → generate an **App Password** for Gmail SMTP.
+
+## Editor note (2026-09-25)
+- `license not found` came from `@grapesjs/studio-sdk` (paid) with placeholder `licenseKey: 'DEV_LICENSE_KEY'`. Swapped to the free `@grapesjs/react` + `grapesjs` (already in `package.json`), removing the license dependency. `@grapesjs/studio-sdk` is still listed in `package.json` but no longer imported — `pnpm remove @grapesjs/studio-sdk` (optional cleanup, requires install) is safe to run.

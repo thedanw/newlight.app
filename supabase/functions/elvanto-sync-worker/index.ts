@@ -484,7 +484,7 @@ async function runSync(request) {
       totalProcessed: 0,
       totalFailed: 0,
       errors: [
-        `Could not obtain Elvanto API key${lastCredentialError ? ` (${lastCredentialError})` : ''}`
+        `Could not obtain Elvanto API key${lastCredentialError1 ? ` (${lastCredentialError1})` : ''}`
       ]
     };
   }
@@ -585,65 +585,85 @@ async function runSync(request) {
 // HTTP Handler
 // ============================================
 serve(async (req)=>{
-  // Handle the CORS preflight request
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', {
-      headers: corsHeaders
-    });
-  }
-  if (req.method !== 'POST') {
-    return new Response(JSON.stringify({
-      error: 'Method not allowed'
-    }), {
-      status: 405,
-      headers: {
-        ...corsHeaders,
-        'Content-Type': 'application/json'
-      }
-    });
-  }
-  // Create Supabase client for this request
-  const supabase = getSupabaseClient();
-  // Auth gate: require service_role key or valid user JWT
-  const authHeader = req.headers.get('authorization') || '';
-  const jwt = authHeader.startsWith('Bearer ') ? authHeader.substring(7) : '';
-  let role = 'anon';
-  let user = null;
-  
-  if (authHeader.startsWith('Basic')) {
-    role = 'service_role';
-  } else if (jwt) {
-    console.log('[EdgeFunction] JWT received, length:', jwt.length);
-    console.log('[EdgeFunction] JWT preview:', jwt.substring(0, 20) + '...');
-    // Use Supabase's built-in JWT validation
-    const jwtValidation = await validateJwtToken(jwt, supabase);
-    console.log('[EdgeFunction] JWT validation result:', jwtValidation);
-    if (jwtValidation.valid) {
-      user = jwtValidation.payload;
-      role = user.role || 'anon';
-    }
-  }
-  
-  let body;
-  let rawBody;
+  // Global error handler to ensure CORS headers are always returned
   try {
-    rawBody = await req.text();
-    console.log('[EdgeFunction] Raw request body:', rawBody);
-    body = JSON.parse(rawBody);
-  } catch (jsonError) {
-    console.error('[EdgeFunction] JSON parse error:', jsonError, 'Raw body:', rawBody);
-    return new Response(JSON.stringify({
-      error: 'Invalid JSON in request body',
-      message: jsonError instanceof Error ? jsonError.message : String(jsonError),
-      rawBody: rawBody
-    }), {
-      status: 400,
-      headers: {
-        ...corsHeaders,
-        'Content-Type': 'application/json'
+    // Handle the CORS preflight request
+    if (req.method === 'OPTIONS') {
+      return new Response('ok', {
+        headers: corsHeaders
+      });
+    }
+    if (req.method !== 'POST') {
+      return new Response(JSON.stringify({
+        error: 'Method not allowed'
+      }), {
+        status: 405,
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json'
+        }
+      });
+    }
+    // Create Supabase client for this request
+    const supabase = getSupabaseClient();
+    // Auth gate: require service_role key or valid user JWT
+    // When verify_jwt=true, the gateway validates JWT and provides user info via headers
+    const authHeader = req.headers.get('authorization') || '';
+    const jwt = authHeader.startsWith('Bearer ') ? authHeader.substring(7) : '';
+    let role = 'anon';
+    let user = null;
+    
+    // Debug: log all headers
+    console.log('[EdgeFunction] All headers:', Object.fromEntries(req.headers.entries()));
+    
+    if (authHeader.startsWith('Basic')) {
+      role = 'service_role';
+    } else if (jwt) {
+      // With verify_jwt=true, the gateway validates the JWT and provides user info in headers
+      // Use gateway-provided headers instead of manual validation
+      const userId = req.headers.get('x-supabase-user-id');
+      const userEmail = req.headers.get('x-supabase-user-email');
+      const userRole = req.headers.get('x-supabase-user-role');
+      
+      console.log('[EdgeFunction] Gateway headers:', { userId, userEmail, userRole });
+      
+      if (userId) {
+        user = { id: userId, email: userEmail, role: userRole || 'authenticated' };
+        role = user.role;
+        console.log('[EdgeFunction] User authenticated via gateway:', { userId, userEmail, userRole });
+      } else {
+        // Fallback: manual validation for edge cases (e.g., local development)
+        console.log('[EdgeFunction] JWT received, length:', jwt.length);
+        console.log('[EdgeFunction] JWT preview:', jwt.substring(0, 20) + '...');
+        const jwtValidation = await validateJwtToken(jwt, supabase);
+        console.log('[EdgeFunction] JWT validation result:', jwtValidation);
+        if (jwtValidation.valid) {
+          user = jwtValidation.payload;
+          role = user.role || 'anon';
+        }
       }
-    });
-  }
+    }
+    
+    let body;
+    let rawBody;
+    try {
+      rawBody = await req.text();
+      console.log('[EdgeFunction] Raw request body:', rawBody);
+      body = JSON.parse(rawBody);
+    } catch (jsonError) {
+      console.error('[EdgeFunction] JSON parse error:', jsonError, 'Raw body:', rawBody);
+      return new Response(JSON.stringify({
+        error: 'Invalid JSON in request body',
+        message: jsonError instanceof Error ? jsonError.message : String(jsonError),
+        rawBody: rawBody
+      }), {
+        status: 400,
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json'
+        }
+      });
+    }
   
   // Handle test connection action (no auth required - used to test API key before saving)
   if (body && body.action === 'test_connection' && body.api_key) {
@@ -815,5 +835,19 @@ serve(async (req)=>{
       'Content-Type': 'application/json'
     }
   });
+  } catch (error) {
+    // Global error handler - ensure CORS headers are always returned
+    console.error('[EdgeFunction] Unhandled error:', error);
+    return new Response(JSON.stringify({
+      error: 'Internal server error',
+      message: error instanceof Error ? error.message : String(error)
+    }), {
+      status: 500,
+      headers: {
+        ...corsHeaders,
+        'Content-Type': 'application/json'
+      }
+    });
+  }
 });
 console.log('[Elvanto Sync Worker] Edge Function started');

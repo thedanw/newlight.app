@@ -64,6 +64,9 @@ export async function triggerElvantoSync(
   const { data: { session } } = await supabase.auth.getSession()
   const jwt = session?.access_token || ''
 
+  // Get the anon key for the apikey header (required by Supabase gateway)
+  const anonKey = getSupabaseAnonKey()
+
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
   }
@@ -71,6 +74,11 @@ export async function triggerElvantoSync(
   // Include Authorization header if we have a JWT token
   if (jwt) {
     headers.Authorization = `Bearer ${jwt}`
+  }
+
+  // Include apikey header for Supabase gateway (required when verify_jwt=true)
+  if (anonKey) {
+    headers.apikey = anonKey
   }
 
   const response = await fetch(getElvantoSyncWorkerUrl(), {
@@ -121,6 +129,9 @@ export async function testElvantoConnection(
   const { data: { session } } = await supabase.auth.getSession()
   const jwt = session?.access_token || ''
 
+  // Get the anon key for the apikey header (required by Supabase gateway)
+  const anonKey = getSupabaseAnonKey()
+
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
   }
@@ -128,6 +139,11 @@ export async function testElvantoConnection(
   // Include Authorization header if we have a JWT token
   if (jwt) {
     headers.Authorization = `Bearer ${jwt}`
+  }
+
+  // Include apikey header for Supabase gateway (required when verify_jwt=true)
+  if (anonKey) {
+    headers.apikey = anonKey
   }
 
   const response = await fetch(getElvantoSyncWorkerUrl(), {

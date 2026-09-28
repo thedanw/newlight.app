@@ -842,7 +842,8 @@ serve(async (req)=>{
   // Handle discover fields action (server-side proxy — Elvanto has no CORS)
   if (body.action === 'discover_fields' && body.api_key) {
     try {
-      const [categoriesRes, customFieldsRes, locationsRes] = await Promise.all([
+      // Fetch categories and custom fields directly (these endpoints exist)
+      const [categoriesRes, customFieldsRes] = await Promise.all([
         fetch('https://api.elvanto.com/v1/people/categories/getAll.json', {
           method: 'POST',
           headers: {
@@ -858,32 +859,59 @@ serve(async (req)=>{
             'Authorization': `Basic ${btoa(body.api_key + ':')}`
           },
           body: JSON.stringify({ page_size: 1000 })
-        }),
-        fetch('https://api.elvanto.com/v1/locations/getAll.json', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Basic ${btoa(body.api_key + ':')}`
-          },
-          body: JSON.stringify({ page_size: 1000 })
         })
       ]);
       
-      const [categoriesData, customFieldsData, locationsData] = await Promise.all([
+      const [categoriesData, customFieldsData] = await Promise.all([
         categoriesRes.json().catch(() => ({})),
-        customFieldsRes.json().catch(() => ({})),
-        locationsRes.json().catch(() => ({}))
+        customFieldsRes.json().catch(() => ({}))
       ]);
       
       const categories = categoriesData.categories?.category ?? [];
       const customFields = customFieldsData.custom_fields?.custom_field ?? [];
-      const locations = locationsData.locations?.location ?? [];
+      
+      // Locations and demographics don't have dedicated endpoints.
+      // Must fetch all people and extract unique locations/demographics from person records.
+      const peopleRes = await fetch('https://api.elvanto.com/v1/people/getAll.json', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Basic ${btoa(body.api_key + ':')}`
+        },
+        body: JSON.stringify({ page_size: 1000, fields: ['locations', 'demographics'] })
+      });
+      
+      const peopleData = await peopleRes.json().catch(() => ({}));
+      const people = peopleData.people?.person ?? [];
+      
+      // Extract unique locations from all people
+      const locationMap = new Map<string, string>();
+      const demographicSet = new Set<string>();
+      
+      for (const person of people) {
+        // Extract locations
+        const locs = person.locations?.location ?? [];
+        for (const loc of locs) {
+          if (loc.id && loc.name) {
+            locationMap.set(loc.id, loc.name);
+          }
+        }
+        // Extract demographics
+        const demos = person.demographics ?? [];
+        for (const demo of demos) {
+          if (demo) demographicSet.add(demo);
+        }
+      }
+      
+      const locations = Array.from(locationMap.entries()).map(([id, name]) => ({ id, name }));
+      const demographics = Array.from(demographicSet);
       
       return new Response(JSON.stringify({
         success: true,
         categories: categories.map((c: any) => ({ id: c.id, name: c.name })),
         customFields: customFields.map((cf: any) => ({ id: cf.id, name: cf.name, type: cf.type })),
-        locations: locations.map((l: any) => ({ id: l.id, name: l.name }))
+        locations,
+        demographics
       }), {
         status: 200,
         headers: {

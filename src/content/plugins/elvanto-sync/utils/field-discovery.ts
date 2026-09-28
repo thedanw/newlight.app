@@ -9,6 +9,7 @@ export interface DiscoveredFieldCatalog {
   categories: Array<{ id: string; name: string }>
   customFields: Array<{ id: string; name: string; type: string }>
   locations: Array<{ id: string; name: string }>
+  demographics: string[]
   discoveredAt: string
 }
 
@@ -71,6 +72,7 @@ async function discoverViaEdgeFunction(apiKey: string): Promise<DiscoveredFieldC
     categories: data.categories ?? [],
     customFields: data.customFields ?? [],
     locations: data.locations ?? [],
+    demographics: data.demographics ?? [],
     discoveredAt: new Date().toISOString(),
   }
 }
@@ -80,16 +82,32 @@ export async function discoverElvantoFields(apiKey: string): Promise<DiscoveredF
   
   if (isDev) {
     // In dev, use Vite proxy directly
-    const [categoriesRes, customFieldsRes, locationsRes] = await Promise.all([
+    const [categoriesRes, customFieldsRes, peopleRes] = await Promise.all([
       elvantoRequest<{ categories: { category: ElvantoCategory[] } }>(apiKey, 'people/categories/getAll').catch(() => ({ categories: { category: [] } })),
       elvantoRequest<{ custom_fields: { custom_field: ElvantoCustomField[] } }>(apiKey, 'people/customFields/getAll').catch(() => ({ custom_fields: { custom_field: [] } })),
-      elvantoRequest<{ locations: { location: ElvantoLocation[] } }>(apiKey, 'locations/getAll').catch(() => ({ locations: { location: [] } })),
+      elvantoRequest<{ people: { person: any[] } }>(apiKey, 'people/getAll', { page_size: 1000, fields: ['locations', 'demographics'] }).catch(() => ({ people: { person: [] } })),
     ])
+    
+    // Extract unique locations and demographics from people
+    const locationMap = new Map<string, string>()
+    const demographicSet = new Set<string>()
+    
+    for (const person of peopleRes.people?.person ?? []) {
+      const locs = person.locations?.location ?? []
+      for (const loc of locs) {
+        if (loc.id && loc.name) locationMap.set(loc.id, loc.name)
+      }
+      const demos = person.demographics ?? []
+      for (const demo of demos) {
+        if (demo) demographicSet.add(demo)
+      }
+    }
     
     return {
       categories: (categoriesRes.categories?.category ?? []).map((c) => ({ id: c.id, name: c.name })),
       customFields: (customFieldsRes.custom_fields?.custom_field ?? []).map((cf) => ({ id: cf.id, name: cf.name, type: cf.type })),
-      locations: (locationsRes.locations?.location ?? []).map((l) => ({ id: l.id, name: l.name })),
+      locations: Array.from(locationMap.entries()).map(([id, name]) => ({ id, name })),
+      demographics: Array.from(demographicSet),
       discoveredAt: new Date().toISOString(),
     }
   } else {
@@ -113,6 +131,11 @@ export function getElvantoFieldOptions(catalog: DiscoveredFieldCatalog | null): 
 
   for (const loc of catalog.locations) {
     options.push({ value: `locations:${loc.id}`, label: `Location: ${loc.name} (${loc.id})` })
+  }
+
+  // Add demographics as field options (they map to the 'demographics' field in Elvanto)
+  for (const demo of catalog.demographics ?? []) {
+    options.push({ value: `demographics:${demo}`, label: `Demographic: ${demo}` })
   }
 
   return options

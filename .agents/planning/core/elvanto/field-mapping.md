@@ -9,9 +9,10 @@ Mappings live in `elvanto_sync_config` (JSONB value arrays). Keys are **plugin-p
 ## UI (Field Mappings tab)
 
 - Requires a saved API key (else points to Connection tab).
-- **Discover Elvanto Fields** → `utils\field-discovery.ts` fetches categories/custom fields/locations → saves catalog → dropdown options: `category_id:<uuid>`, `custom_<uuid>`, `locations:<uuid>`.
-  - **Dev**: Vite proxy `/api/elvanto` → `https://api.elvanto.com` (with `rewrite` to strip `/api/elvanto` prefix)
-  - **Prod**: Edge function action `discover_fields` (server-side proxy, avoids CORS)
+- **Discover Elvanto Fields** → `utils\field-discovery.ts` fetches categories/custom fields/locations/demographics → saves catalog → dropdown options: `category_id:<uuid>`, `custom_<uuid>`, `locations:<uuid>`, `demographics:<value>`.
+  - **Dev**: Vite proxy `/api/elvanto` → `https://api.elvanto.com` (with `rewrite` to strip `/api/elvanto` prefix); locations & demographics extracted from `people/getAll` records
+  - **Prod**: Edge function action `discover_fields` (server-side proxy, avoids CORS); locations & demographics extracted from `people/getAll` records
+- **Note**: Elvanto has no dedicated `locations/getAll` or `demographics/getAll` endpoints. Both are extracted by fetching all people (`people/getAll` with `fields: ['locations', 'demographics']`) and compiling unique values from person records.
 - Two-column table (`settings\components\FieldMappingTable.tsx`): app field ≈60 options (identity, demographics, address, contact, consents/medical/safe-ministry, admin, `journey`, `elvanto_*` shadows) vs Elvanto field ≈53 options (incl. opt-in `home_*`/`mailing_*`); per-rule direction (`DirectionSelect`), transform (dropdown), conditions (`MappingRow`: equals / not_equals / in / exists / and / or). Add/delete/duplicate/reorder rows; **Save** persists with recomputed priorities. Defaults: `DEFAULT_MAPPINGS` (27 rules) used when no config exists — identity both-ways at priority 100; pull rules for `demographic←category_id`, `journey.sunday_services←category_id`, `journey←locations.location[]`, shadows at priority 10; push rules only for `access_permission→admin`.
 - **Validation in code:** none enforced client-side beyond de-dup of option labels (legacy UI design's rule set — no duplicate/required-field checks — is design, not implemented).
 

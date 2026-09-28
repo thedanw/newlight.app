@@ -9,7 +9,8 @@ Full API surface (47+ endpoints, auth flows, per-entity field lists) lives in th
 | edge `people-sync` (sync) | `people/getAll` | page_size **500**, max 200 pages, opt-in `fields: [gender, birthday, locations, custom_77493627-…]` (hardcoded demographics custom-field UUID), incremental filter sent as top-level `date_modified` |
 | edge action `test_connection` | `people/getAll` | page_size 1, Basic auth — connectivity check |
 | edge action `list_locations` | `calendar/getAll` | page_size 1000 — **locations are modelled as Calendars** |
-| UI `field-discovery` | `people/categories/getAll`, `people/customFields/getAll`, `locations/getAll` | populate mapping dropdown catalog |
+| edge action `discover_fields` | `people/categories/getAll`, `people/customFields/getAll`, `people/getAll` (with `fields: ['locations', 'demographics']`) | populate mapping dropdown catalog; locations & demographics extracted from people records (no dedicated endpoints) |
+| UI `field-discovery` (dev) | `people/categories/getAll`, `people/customFields/getAll`, `people/getAll` (with `fields: ['locations', 'demographics']`) | dev via Vite proxy; locations & demographics extracted from people records |
 | UI `sync\elvanto-api.ts` (Locations tab) | `calendar/getAll` | dev via Vite proxy, prod via edge `list_locations` |
 
 No other entity endpoints execute: `household-sync`/`journey-sync` are DB-only; the 12 placeholder entities in `SYNC_ORDER` never fetch (though `src\...\sync\mapping-engine.ts` declares an `elvantoEndpoint` per entity — that table is dormant).

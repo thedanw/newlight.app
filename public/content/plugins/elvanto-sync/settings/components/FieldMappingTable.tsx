@@ -282,6 +282,7 @@ function MappingRuleCard({ rule, index, appFields, elvantoFields, dynamicElvanto
     items: [
       { label: '— None (Identity) —', value: '' },
       { label: 'category_to_journey_stage', value: 'category_to_journey_stage' },
+      { label: 'demographics_array_to_enum', value: 'demographics_array_to_enum' },
       { label: 'location_to_journey_tracks', value: 'location_to_journey_tracks' },
       { label: 'defacto_to_partner', value: 'defacto_to_partner' },
       { label: 'school_grade_to_kindy_year', value: 'school_grade_to_kindy_year' },

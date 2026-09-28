@@ -25,6 +25,36 @@
   return mapping[normalized] ?? 'contact';
 }
 // ============================================
+// 1b. demographics_array_to_enum
+// Elvanto demographics array ["Youth"] → Supabase demographic enum (adult|youth|child)
+// ============================================
+/**
+ * Converts Elvanto demographics array to Supabase demographic enum.
+ * Elvanto stores demographics as array: ["Youth"], ["Adults"], ["Child"]
+ * Supabase expects single lowercase enum: "adult" | "youth" | "child"
+ * Takes first array element, lowercases, maps known values.
+ * Defaults to "adult" for unknown/empty/multiple values.
+ */ export function demographics_array_to_enum(demographicsArray, _context) {
+  if (!demographicsArray || !Array.isArray(demographicsArray) || demographicsArray.length === 0) {
+    return 'adult'; // safe default
+  }
+  // Take first value (human error if multiple, but handle gracefully)
+  const first = String(demographicsArray[0]).trim().toLowerCase();
+  
+  // Map known Elvanto values to Supabase enum
+  const mapping = {
+    'youth': 'youth',
+    'adults': 'adult',
+    'adult': 'adult',
+    'child': 'child',
+    'children': 'child',
+    'kid': 'child',
+    'kids': 'child',
+  };
+  
+  return mapping[first] ?? 'adult'; // default to adult for unknown
+}
+// ============================================
 // 1b. category_to_demographic
 // People Category name → demographic enum (adult | youth | child)
 // ============================================
@@ -272,6 +302,7 @@ export function format_departments(departments) {
 export const TRANSFORMS = {
   category_to_journey_stage,
   category_to_demographic,
+  demographics_array_to_enum,
   location_to_journey_tracks,
   defacto_to_partner,
   school_grade_to_kindy_year,

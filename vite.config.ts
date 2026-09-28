@@ -44,6 +44,7 @@ export default defineConfig({
         target: 'https://api.elvanto.com',
         changeOrigin: true,
         secure: false,
+        rewrite: (path) => path.replace(/^\/api\/elvanto/, ''),
       },
     },
   },

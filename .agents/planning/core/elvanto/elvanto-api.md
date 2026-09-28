@@ -22,10 +22,12 @@ No other entity endpoints execute: `household-sync`/`journey-sync` are DB-only; 
 
 | Context | Path |
 |---|---|
-| Dev browser | Vite proxy `/api/elvanto → https://api.elvanto.com` (`vite.config.ts`, `changeOrigin`), Basic auth added client-side |
+| Dev browser | Vite proxy `/api/elvanto → https://api.elvanto.com` (`vite.config.ts`, `changeOrigin`, `rewrite: path => path.replace(/^\/api\/elvanto/, '')`), Basic auth added client-side |
 | Prod browser (locations) | Edge function action `list_locations` (server-side fetch, responds with CORS) |
-| Prod browser (discovery) | `field-discovery` builds the direct `https://api.elvanto.com` URL outside dev — **likely CORS-blocked in prod builds**; only the Locations tab uses the sanctioned proxy/edge paths |
+| Prod browser (discovery) | Edge function action `discover_fields` (server-side fetch, responds with CORS) |
 | Sync engine | Edge function server-side fetches only |
+
+**Key fix**: Vite proxy `rewrite` option strips `/api/elvanto` prefix before forwarding to `https://api.elvanto.com`. Without it, requests went to `https://api.elvanto.com/api/elvanto/v1/...` → 404.
 
 ## Response handling facts
 

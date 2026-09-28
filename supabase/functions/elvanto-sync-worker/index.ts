@@ -839,6 +839,72 @@ serve(async (req)=>{
     }
   }
   
+  // Handle discover fields action (server-side proxy — Elvanto has no CORS)
+  if (body.action === 'discover_fields' && body.api_key) {
+    try {
+      const [categoriesRes, customFieldsRes, locationsRes] = await Promise.all([
+        fetch('https://api.elvanto.com/v1/people/categories/getAll.json', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Basic ${btoa(body.api_key + ':')}`
+          },
+          body: JSON.stringify({ page_size: 1000 })
+        }),
+        fetch('https://api.elvanto.com/v1/people/customFields/getAll.json', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Basic ${btoa(body.api_key + ':')}`
+          },
+          body: JSON.stringify({ page_size: 1000 })
+        }),
+        fetch('https://api.elvanto.com/v1/locations/getAll.json', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Basic ${btoa(body.api_key + ':')}`
+          },
+          body: JSON.stringify({ page_size: 1000 })
+        })
+      ]);
+      
+      const [categoriesData, customFieldsData, locationsData] = await Promise.all([
+        categoriesRes.json().catch(() => ({})),
+        customFieldsRes.json().catch(() => ({})),
+        locationsRes.json().catch(() => ({}))
+      ]);
+      
+      const categories = categoriesData.categories?.category ?? [];
+      const customFields = customFieldsData.custom_fields?.custom_field ?? [];
+      const locations = locationsData.locations?.location ?? [];
+      
+      return new Response(JSON.stringify({
+        success: true,
+        categories: categories.map((c: any) => ({ id: c.id, name: c.name })),
+        customFields: customFields.map((cf: any) => ({ id: cf.id, name: cf.name, type: cf.type })),
+        locations: locations.map((l: any) => ({ id: l.id, name: l.name }))
+      }), {
+        status: 200,
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json'
+        }
+      });
+    } catch (err) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: err instanceof Error ? err.message : 'Network error'
+      }), {
+        status: 200,
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json'
+        }
+      });
+    }
+  }
+  
   // Deny anon access for sync operations; only service_role or authenticated users allowed
   if (role === 'anon') {
     return new Response(JSON.stringify({

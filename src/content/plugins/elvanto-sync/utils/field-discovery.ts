@@ -43,18 +43,58 @@ async function elvantoRequest<T>(
   return data as T
 }
 
-export async function discoverElvantoFields(apiKey: string): Promise<DiscoveredFieldCatalog> {
-  const [categoriesRes, customFieldsRes, locationsRes] = await Promise.all([
-    elvantoRequest<{ categories: { category: ElvantoCategory[] } }>(apiKey, 'people/categories/getAll').catch(() => ({ categories: { category: [] } })),
-    elvantoRequest<{ custom_fields: { custom_field: ElvantoCustomField[] } }>(apiKey, 'people/customFields/getAll').catch(() => ({ custom_fields: { custom_field: [] } })),
-    elvantoRequest<{ locations: { location: ElvantoLocation[] } }>(apiKey, 'locations/getAll').catch(() => ({ locations: { location: [] } })),
-  ])
+async function discoverViaEdgeFunction(apiKey: string): Promise<DiscoveredFieldCatalog> {
+  // Use the edge function as a CORS proxy for field discovery
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || ''
+  const response = await fetch(`${supabaseUrl}/functions/v1/elvanto-sync-worker`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY || ''}`,
+    },
+    body: JSON.stringify({
+      action: 'discover_fields',
+      api_key: apiKey
+    }),
+  })
+
+  if (!response.ok) {
+    throw new Error(`Edge function error: ${response.status}`)
+  }
+
+  const data = await response.json()
+  if (!data.success) {
+    throw new Error(data.error || 'Edge function discovery failed')
+  }
 
   return {
-    categories: (categoriesRes.categories?.category ?? []).map((c) => ({ id: c.id, name: c.name })),
-    customFields: (customFieldsRes.custom_fields?.custom_field ?? []).map((cf) => ({ id: cf.id, name: cf.name, type: cf.type })),
-    locations: (locationsRes.locations?.location ?? []).map((l) => ({ id: l.id, name: l.name })),
+    categories: data.categories ?? [],
+    customFields: data.customFields ?? [],
+    locations: data.locations ?? [],
     discoveredAt: new Date().toISOString(),
+  }
+}
+
+export async function discoverElvantoFields(apiKey: string): Promise<DiscoveredFieldCatalog> {
+  const isDev = import.meta.env.DEV
+  
+  if (isDev) {
+    // In dev, use Vite proxy directly
+    const [categoriesRes, customFieldsRes, locationsRes] = await Promise.all([
+      elvantoRequest<{ categories: { category: ElvantoCategory[] } }>(apiKey, 'people/categories/getAll').catch(() => ({ categories: { category: [] } })),
+      elvantoRequest<{ custom_fields: { custom_field: ElvantoCustomField[] } }>(apiKey, 'people/customFields/getAll').catch(() => ({ custom_fields: { custom_field: [] } })),
+      elvantoRequest<{ locations: { location: ElvantoLocation[] } }>(apiKey, 'locations/getAll').catch(() => ({ locations: { location: [] } })),
+    ])
+    
+    return {
+      categories: (categoriesRes.categories?.category ?? []).map((c) => ({ id: c.id, name: c.name })),
+      customFields: (customFieldsRes.custom_fields?.custom_field ?? []).map((cf) => ({ id: cf.id, name: cf.name, type: cf.type })),
+      locations: (locationsRes.locations?.location ?? []).map((l) => ({ id: l.id, name: l.name })),
+      discoveredAt: new Date().toISOString(),
+    }
+  } else {
+    // In production, use edge function proxy to avoid CORS issues
+    return discoverViaEdgeFunction(apiKey)
   }
 }
 

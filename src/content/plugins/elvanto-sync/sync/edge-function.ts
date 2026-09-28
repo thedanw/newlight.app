@@ -504,10 +504,7 @@ serve(async (req) => {
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Basic ${btoa(body.api_key + ':')}`,
-          },
-            body: JSON.stringify({
-              page_size: 1
-            })
+          }
         })
 
         if (response.ok) {

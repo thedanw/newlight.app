@@ -840,6 +840,7 @@ serve(async (req)=>{
   }
   
   // Handle discover fields action (server-side proxy — Elvanto has no CORS)
+  // Must be before auth gate like test_connection/list_locations
   if (body.action === 'discover_fields' && body.api_key) {
     try {
       // Fetch categories and custom fields directly (these endpoints exist)

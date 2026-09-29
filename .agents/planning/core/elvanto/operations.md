@@ -46,6 +46,18 @@ Schedule tab → edit cron expression (validated client-side; default `0 2 * * *
 | Run stuck `running` in history | Runtime | Function logs (Supabase functions logs) for the invocation; no scheduler to restart — trigger again. |
 | Counts 0 / stale data | Sync | Watermark (`watermark_<entity>` config rows) — clear to force full scan; `fullScan` payload flag; entity placeholders (12 of 15 entities are stubs by design). |
 | Dead letters accumulating | Data errors | Error text per row; each sync error is logged there by design — fix cause, Retry (deletes row), re-run sync. |
+| `Invalid page size` on test connection | Elvanto API | Elvanto `people/getAll` minimum `page_size` is **10** — edge function `test_connection` action uses `page_size: 10` (was 1). |
+| `demos is not iterable` on field discovery | Elvanto API | `demographics` field can be string or array — use `Array.isArray(person.demographics) ? person.demographics : []` in both edge function and client field-discovery. |
+| 403 `Forbidden - super_admin role required` on sync | Auth | Sync operations require `people.access_permission = 'super_admin'` (checked via `auth_user_id`). Discovery actions (`test_connection`, `discover_fields`, `list_locations`) allow any authenticated user. |
+| 0 locations / demographics discovered | Elvanto API | No dedicated endpoints — must fetch `people/getAll` with `fields: ['locations', 'demographics']` and extract unique values from person records. |
+
+## Key Elvanto API Findings (learned during debugging)
+
+1. **No `locations/getAll` or `demographics/getAll` endpoints exist** — both must be extracted from `people/getAll` records
+2. **`people/getAll` minimum `page_size` is 10** — `page_size: 1` returns "Invalid page size" error
+3. **`demographics` field is inconsistent** — can be string, array, or null; always use `Array.isArray()` check
+4. **Locations are modelled as Calendars** — `calendar/getAll` returns locations (used by `list_locations` action)
+5. **CORS requires server-side proxy** — Elvanto sends no CORS headers; use edge function actions for production browser calls
 
 ## Salvaged from the legacy runbook (`ELVANTO_SYNC_PLUGIN_RUNBOOK.md`, removed — git history)
 

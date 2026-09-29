@@ -706,11 +706,258 @@ serve(async (req)=>{
       });
     }
   
-  // Handle test connection action (no auth required - used to test API key before saving)
-  if (body && body.action === 'test_connection' && body.api_key) {
+  // Handle discovery actions FIRST (no auth required - used before saving credentials)
+  // These actions are: test_connection, list_locations, discover_fields
+  const isDiscoveryAction = body && (body.action === 'test_connection' || body.action === 'list_locations' || body.action === 'discover_fields');
+  
+  if (isDiscoveryAction && body.api_key) {
+    console.log('[EdgeFunction] Handling discovery action:', body.action);
+    
+    if (body.action === 'test_connection') {
+      try {
+        // Use people/getAll.json with page_size: 10 to test connection
+        // This is a lightweight call that verifies the API key works
+        // Elvanto API minimum page_size is 10
+        const response = await fetch('https://api.elvanto.com/v1/people/getAll.json', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Basic ${btoa(body.api_key + ':')}`
+          },
+          body: JSON.stringify({
+            page_size: 10
+          })
+        });
+        if (response.ok) {
+          const data = await response.json();
+          if (data.status === 'ok') {
+            return new Response(JSON.stringify({
+              success: true,
+              message: 'Connection successful! Elvanto API responded OK.'
+            }), {
+              status: 200,
+              headers: {
+                ...corsHeaders,
+                'Content-Type': 'application/json'
+              }
+            });
+          } else {
+            return new Response(JSON.stringify({
+              success: false,
+              error: data.error?.message || 'API returned error status'
+            }), {
+              status: 200,
+              headers: {
+                ...corsHeaders,
+                'Content-Type': 'application/json'
+              }
+            });
+          }
+        } else if (response.status === 401) {
+          return new Response(JSON.stringify({
+            success: false,
+            error: 'Invalid API key (401 Unauthorized)'
+          }), {
+            status: 200,
+            headers: {
+              ...corsHeaders,
+              'Content-Type': 'application/json'
+            }
+          });
+        } else {
+          return new Response(JSON.stringify({
+            success: false,
+            error: `HTTP ${response.status}: ${response.statusText}`
+          }), {
+            status: 200,
+            headers: {
+              ...corsHeaders,
+              'Content-Type': 'application/json'
+            }
+          });
+        }
+      } catch (err) {
+        return new Response(JSON.stringify({
+          success: false,
+          error: err instanceof Error ? err.message : 'Network error'
+        }), {
+          status: 200,
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'application/json'
+          }
+        });
+      }
+    }
+    
+    if (body.action === 'list_locations') {
+      try {
+        const response = await fetch('https://api.elvanto.com/v1/calendar/getAll.json', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Basic ${btoa(body.api_key + ':')}`
+          },
+          body: JSON.stringify({
+            page_size: 1000
+          })
+        });
+        const data = await response.json().catch(()=>({}));
+        if (response.ok && data.status === 'ok') {
+          const raw = data.calendars;
+          const calendars = Array.isArray(raw) ? raw : Array.isArray(raw?.calendar) ? raw.calendar : [];
+          const locations = calendars.map((calendar)=>({
+              id: calendar.id,
+              name: calendar.name
+            }));
+          return new Response(JSON.stringify({
+            success: true,
+            locations
+          }), {
+            status: 200,
+            headers: {
+              ...corsHeaders,
+              'Content-Type': 'application/json'
+            }
+          });
+        }
+        return new Response(JSON.stringify({
+          success: false,
+          error: data.error?.message || `HTTP ${response.status}`
+        }), {
+          status: 200,
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'application/json'
+          }
+        });
+      } catch (err) {
+        return new Response(JSON.stringify({
+          success: false,
+          error: err instanceof Error ? err.message : 'Network error'
+        }), {
+          status: 200,
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'application/json'
+          }
+        });
+      }
+    }
+    
+    if (body.action === 'discover_fields') {
+      try {
+        // Fetch categories and custom fields directly (these endpoints exist)
+        const [categoriesRes, customFieldsRes] = await Promise.all([
+          fetch('https://api.elvanto.com/v1/people/categories/getAll.json', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Basic ${btoa(body.api_key + ':')}`
+            },
+            body: JSON.stringify({ page_size: 1000 })
+          }),
+          fetch('https://api.elvanto.com/v1/people/customFields/getAll.json', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Basic ${btoa(body.api_key + ':')}`
+            },
+            body: JSON.stringify({ page_size: 1000 })
+          })
+        ]);
+        
+        const [categoriesData, customFieldsData] = await Promise.all([
+          categoriesRes.json().catch(() => ({})),
+          customFieldsRes.json().catch(() => ({}))
+        ]);
+        
+        const categories = categoriesData.categories?.category ?? [];
+        const customFields = customFieldsData.custom_fields?.custom_field ?? [];
+        
+        // Locations and demographics don't have dedicated endpoints.
+        // Must fetch all people and extract unique locations/demographics from person records.
+        const peopleRes = await fetch('https://api.elvanto.com/v1/people/getAll.json', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Basic ${btoa(body.api_key + ':')}`
+          },
+          body: JSON.stringify({ page_size: 1000, fields: ['locations', 'demographics'] })
+        });
+        
+        const peopleData = await peopleRes.json().catch(() => ({}));
+        const people = peopleData.people?.person ?? [];
+        
+        // Extract unique locations from all people
+        const locationMap = new Map<string, string>();
+        const demographicSet = new Set<string>();
+        
+        for (const person of people) {
+          // Extract locations
+          const locs = person.locations?.location ?? [];
+          for (const loc of locs) {
+            if (loc.id && loc.name) {
+              locationMap.set(loc.id, loc.name);
+            }
+          }
+          // Extract demographics
+          const demos = Array.isArray(person.demographics) ? person.demographics : [];
+          for (const demo of demos) {
+            if (demo) demographicSet.add(demo);
+          }
+        }
+        
+        const locations = Array.from(locationMap.entries()).map(([id, name]) => ({ id, name }));
+        const demographics = Array.from(demographicSet);
+        
+        return new Response(JSON.stringify({
+          success: true,
+          categories: categories.map((c: any) => ({ id: c.id, name: c.name })),
+          customFields: customFields.map((cf: any) => ({ id: cf.id, name: cf.name, type: cf.type })),
+          locations,
+          demographics
+        }), {
+          status: 200,
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'application/json'
+          }
+        });
+      } catch (err) {
+        return new Response(JSON.stringify({
+          success: false,
+          error: err instanceof Error ? err.message : 'Network error'
+        }), {
+          status: 200,
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'application/json'
+          }
+        });
+      }
+    }
+  }
+  
+  // Deny anon access for all other operations; require authenticated user
+  // Sync operations (trigger: cron/manual/webhook) - require super_admin role (checked via user profile)
+  const isSyncOperation = body && body.trigger && ['cron', 'manual', 'webhook'].includes(body.trigger);
+  
+  if (role === 'anon') {
+    return new Response(JSON.stringify({
+      error: 'Unauthorized - authentication required'
+    }), {
+      status: 401,
+      headers: {
+        ...corsHeaders,
+        'Content-Type': 'application/json'
+      }
+    });
+  }
     try {
-      // Use people/getAll.json with page_size: 1 to test connection
+      // Use people/getAll.json with page_size: 10 to test connection
       // This is a lightweight call that verifies the API key works
+      // Elvanto API minimum page_size is 10
       const response = await fetch('https://api.elvanto.com/v1/people/getAll.json', {
         method: 'POST',
         headers: {
@@ -718,7 +965,7 @@ serve(async (req)=>{
           'Authorization': `Basic ${btoa(body.api_key + ':')}`
         },
         body: JSON.stringify({
-          page_size: 1
+          page_size: 10
         })
       });
       if (response.ok) {
@@ -783,161 +1030,13 @@ serve(async (req)=>{
     }
   }
   
-  // Handle list locations action (server-side proxy — Elvanto has no CORS)
-  if (body.action === 'list_locations' && body.api_key) {
-    try {
-      const response = await fetch('https://api.elvanto.com/v1/calendar/getAll.json', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Basic ${btoa(body.api_key + ':')}`
-        },
-        body: JSON.stringify({
-          page_size: 1000
-        })
-      });
-      const data = await response.json().catch(()=>({}));
-      if (response.ok && data.status === 'ok') {
-        const raw = data.calendars;
-        const calendars = Array.isArray(raw) ? raw : Array.isArray(raw?.calendar) ? raw.calendar : [];
-        const locations = calendars.map((calendar)=>({
-            id: calendar.id,
-            name: calendar.name
-          }));
-        return new Response(JSON.stringify({
-          success: true,
-          locations
-        }), {
-          status: 200,
-          headers: {
-            ...corsHeaders,
-            'Content-Type': 'application/json'
-          }
-        });
-      }
-      return new Response(JSON.stringify({
-        success: false,
-        error: data.error?.message || `HTTP ${response.status}`
-      }), {
-        status: 200,
-        headers: {
-          ...corsHeaders,
-          'Content-Type': 'application/json'
-        }
-      });
-    } catch (err) {
-      return new Response(JSON.stringify({
-        success: false,
-        error: err instanceof Error ? err.message : 'Network error'
-      }), {
-        status: 200,
-        headers: {
-          ...corsHeaders,
-          'Content-Type': 'application/json'
-        }
-      });
-    }
-  }
+  // Deny anon access for all other operations; require authenticated user
+  // Sync operations (trigger: cron/manual/webhook) - require super_admin role (checked via user profile)
+  const isSyncOperation = body && body.trigger && ['cron', 'manual', 'webhook'].includes(body.trigger);
   
-  // Handle discover fields action (server-side proxy — Elvanto has no CORS)
-  // Must be before auth gate like test_connection/list_locations
-  if (body.action === 'discover_fields' && body.api_key) {
-    try {
-      // Fetch categories and custom fields directly (these endpoints exist)
-      const [categoriesRes, customFieldsRes] = await Promise.all([
-        fetch('https://api.elvanto.com/v1/people/categories/getAll.json', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Basic ${btoa(body.api_key + ':')}`
-          },
-          body: JSON.stringify({ page_size: 1000 })
-        }),
-        fetch('https://api.elvanto.com/v1/people/customFields/getAll.json', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Basic ${btoa(body.api_key + ':')}`
-          },
-          body: JSON.stringify({ page_size: 1000 })
-        })
-      ]);
-      
-      const [categoriesData, customFieldsData] = await Promise.all([
-        categoriesRes.json().catch(() => ({})),
-        customFieldsRes.json().catch(() => ({}))
-      ]);
-      
-      const categories = categoriesData.categories?.category ?? [];
-      const customFields = customFieldsData.custom_fields?.custom_field ?? [];
-      
-      // Locations and demographics don't have dedicated endpoints.
-      // Must fetch all people and extract unique locations/demographics from person records.
-      const peopleRes = await fetch('https://api.elvanto.com/v1/people/getAll.json', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Basic ${btoa(body.api_key + ':')}`
-        },
-        body: JSON.stringify({ page_size: 1000, fields: ['locations', 'demographics'] })
-      });
-      
-      const peopleData = await peopleRes.json().catch(() => ({}));
-      const people = peopleData.people?.person ?? [];
-      
-      // Extract unique locations from all people
-      const locationMap = new Map<string, string>();
-      const demographicSet = new Set<string>();
-      
-      for (const person of people) {
-        // Extract locations
-        const locs = person.locations?.location ?? [];
-        for (const loc of locs) {
-          if (loc.id && loc.name) {
-            locationMap.set(loc.id, loc.name);
-          }
-        }
-        // Extract demographics
-        const demos = person.demographics ?? [];
-        for (const demo of demos) {
-          if (demo) demographicSet.add(demo);
-        }
-      }
-      
-      const locations = Array.from(locationMap.entries()).map(([id, name]) => ({ id, name }));
-      const demographics = Array.from(demographicSet);
-      
-      return new Response(JSON.stringify({
-        success: true,
-        categories: categories.map((c: any) => ({ id: c.id, name: c.name })),
-        customFields: customFields.map((cf: any) => ({ id: cf.id, name: cf.name, type: cf.type })),
-        locations,
-        demographics
-      }), {
-        status: 200,
-        headers: {
-          ...corsHeaders,
-          'Content-Type': 'application/json'
-        }
-      });
-    } catch (err) {
-      return new Response(JSON.stringify({
-        success: false,
-        error: err instanceof Error ? err.message : 'Network error'
-      }), {
-        status: 200,
-        headers: {
-          ...corsHeaders,
-          'Content-Type': 'application/json'
-        }
-      });
-    }
-  }
-  
-  // Deny anon access for sync operations; only service_role or authenticated users allowed
   if (role === 'anon') {
     return new Response(JSON.stringify({
-      error: 'Unauthorized - service role or authenticated user required'
+      error: 'Unauthorized - authentication required'
     }), {
       status: 401,
       headers: {
@@ -945,6 +1044,30 @@ serve(async (req)=>{
         'Content-Type': 'application/json'
       }
     });
+  }
+  
+  // For sync operations, require super_admin role (check via people table access_permission)
+  if (isSyncOperation) {
+    // Check if user has super_admin access_permission in people table
+    const { data: person } = await supabase
+      .from('people')
+      .select('access_permission')
+      .eq('auth_user_id', user.id)
+      .maybeSingle();
+    
+    const isSuperAdmin = person?.access_permission === 'super_admin' || role === 'service_role';
+    
+    if (!isSuperAdmin) {
+      return new Response(JSON.stringify({
+        error: 'Forbidden - super_admin role required for sync operations'
+      }), {
+        status: 403,
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json'
+        }
+      });
+    }
   }
   
   // Validate trigger

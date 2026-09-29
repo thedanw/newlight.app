@@ -1,3 +1,5 @@
+/// <reference types="https://esm.sh/deno@1.4 0.0/types" />
+
 /**
  * Elvanto Sync Edge Function — Main entry point for Supabase Edge Function
  * Orchestrates entity syncs in FK-safe order, logs history, handles dead letters
@@ -474,7 +476,7 @@ async function runSync(request: SyncRequest): Promise<SyncResponse> {
 // HTTP Handler
 // ============================================
 
-serve(async (req) => {
+serve(async (req: Request) => {
   // CORS headers
   const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
@@ -504,7 +506,10 @@ serve(async (req) => {
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Basic ${btoa(body.api_key + ':')}`,
-          }
+          },
+            body: JSON.stringify({
+              page_size: 100
+            })
         })
 
         if (response.ok) {

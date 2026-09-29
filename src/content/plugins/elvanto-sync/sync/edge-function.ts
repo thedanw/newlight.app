@@ -1,3 +1,5 @@
+/// <reference types="https://esm.sh/deno@1.4 0.0/types" />
+
 /**
  * Elvanto Sync Edge Function — Main entry point for Supabase Edge Function
  * Orchestrates entity syncs in FK-safe order, logs history, handles dead letters

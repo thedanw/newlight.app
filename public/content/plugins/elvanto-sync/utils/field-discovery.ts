@@ -44,14 +44,15 @@ async function elvantoRequest<T>(
   return data as T
 }
 
-async function discoverViaEdgeFunction(apiKey: string): Promise<DiscoveredFieldCatalog> {
+async function discoverViaEdgeFunction(apiKey: string, supabaseUrl: string, accessToken: string): Promise<DiscoveredFieldCatalog> {
   // Use the edge function as a CORS proxy for field discovery
-  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || ''
+  // Requires user's access token (JWT) for authentication
   const response = await fetch(`${supabaseUrl}/functions/v1/elvanto-sync-worker`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY || ''}`,
+      'Authorization': `Bearer ${accessToken}`,
+      'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY || '',
     },
     body: JSON.stringify({
       action: 'discover_fields',
@@ -77,7 +78,10 @@ async function discoverViaEdgeFunction(apiKey: string): Promise<DiscoveredFieldC
   }
 }
 
-export async function discoverElvantoFields(apiKey: string): Promise<DiscoveredFieldCatalog> {
+export async function discoverElvantoFields(
+  apiKey: string,
+  options?: { supabaseUrl?: string; accessToken?: string }
+): Promise<DiscoveredFieldCatalog> {
   const isDev = import.meta.env.DEV
   
   if (isDev) {
@@ -97,7 +101,7 @@ export async function discoverElvantoFields(apiKey: string): Promise<DiscoveredF
       for (const loc of locs) {
         if (loc.id && loc.name) locationMap.set(loc.id, loc.name)
       }
-      const demos = person.demographics ?? []
+      const demos = Array.isArray(person.demographics) ? person.demographics : []
       for (const demo of demos) {
         if (demo) demographicSet.add(demo)
       }
@@ -112,7 +116,10 @@ export async function discoverElvantoFields(apiKey: string): Promise<DiscoveredF
     }
   } else {
     // In production, use edge function proxy to avoid CORS issues
-    return discoverViaEdgeFunction(apiKey)
+    // Requires supabaseUrl and accessToken for authentication
+    const supabaseUrl = options?.supabaseUrl || import.meta.env.VITE_SUPABASE_URL || ''
+    const accessToken = options?.accessToken || ''
+    return discoverViaEdgeFunction(apiKey, supabaseUrl, accessToken)
   }
 }
 

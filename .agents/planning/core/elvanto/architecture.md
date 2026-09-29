@@ -15,8 +15,16 @@
 | Layer | Behaviour |
 |---|---|
 | Supabase gateway | `verify_jwt = true` (all functions, `supabase\config.toml`) — the gateway validates the JWT; requires the `apikey` header alongside `Authorization`. Legacy anon/service_role JWTs are rejected at the gateway (expected). |
-| Function role gate | `Basic` Authorization → `service_role`; Bearer JWT → role from gateway headers `x-supabase-user-id/email/role`; else manual `validateJwtToken` fallback (local dev); else legacy payload role detection. `role = anon` → 401 + CORS. Actions `test_connection`/`list_locations` run before the gate. |
+| Function role gate | `Basic` Authorization → `service_role`; Bearer JWT → role from gateway headers `x-supabase-user-id/email/role`; else manual `validateJwtToken` fallback (local dev); else legacy payload role detection. `role = anon` → 401 + CORS. **Discovery actions** (`test_connection`, `list_locations`, `discover_fields`) run before the gate — allow any authenticated user. **Sync operations** (`trigger: cron/manual/webhook`) require `super_admin` access_permission in `people` table (checked via `auth_user_id`). |
 | Elvanto API | Basic auth with the API key as username, blank password (server-side only — Elvanto sends no CORS headers, so the browser never calls it directly except via the Vite dev proxy). |
+
+**Auth flow for UI actions:**
+- Connection tab → `test_connection` action → any authenticated user
+- Field Mappings tab → `discover_fields` action → any authenticated user  
+- Locations tab → `list_locations` action → any authenticated user
+- Schedule tab / Sync Now → `trigger: manual` → requires `people.access_permission = 'super_admin'` (via `auth_user_id`)
+
+Credentials: edge reads singleton `elvanto_settings` row `00000000-0000-0000-0000-000000000001` — `encryption_key_encrypted` decrypts under the master key (`ELVANTO_ENCRYPTION_KEY`, dev fallback string shared with the client), which decrypts `api_key_encrypted` (AES-GCM, 12-byte IV, base64(iv+ciphertext+tag)); both fields blank-checked; fallback legacy env `ELVANTO_API_KEY`. Known gap: the UI's save path only persists `api_key_encrypted` (`setCredentials` takes one argument), so `encryption_key_encrypted` must be seeded out-of-band or the env fallback used — see [operations.md](operations.md) troubleshooting.
 
 Credentials: edge reads singleton `elvanto_settings` row `00000000-0000-0000-0000-000000000001` — `encryption_key_encrypted` decrypts under the master key (`ELVANTO_ENCRYPTION_KEY`, dev fallback string shared with the client), which decrypts `api_key_encrypted` (AES-GCM, 12-byte IV, base64(iv+ciphertext+tag)); both fields blank-checked; fallback legacy env `ELVANTO_API_KEY`. Known gap: the UI's save path only persists `api_key_encrypted` (`setCredentials` takes one argument), so `encryption_key_encrypted` must be seeded out-of-band or the env fallback used — see [operations.md](operations.md) troubleshooting.
 

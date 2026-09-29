@@ -5,12 +5,13 @@ import { useState, useEffect } from 'react'
 import { FieldMappingTable } from './components/FieldMappingTable'
 import { discoverElvantoFields, getElvantoFieldOptions } from '../utils/field-discovery'
 import { decrypt } from '../utils/encryption'
+import { getSupabaseUrl, getSupabaseAnonKey } from '@/core/lib/runtime-config'
 
 /**
  * Field Mappings Tab — Full implementation with two-column mapping table
  */
 export function FieldMappingTab() {
-  const { settings, toast } = usePluginAPIContext()
+  const { settings, toast, supabase } = usePluginAPIContext()
   const [hasConnection, setHasConnection] = useState(false)
   const [checkingConnection, setCheckingConnection] = useState(true)
   const [discovering, setDiscovering] = useState(false)
@@ -42,12 +43,18 @@ export function FieldMappingTab() {
       }
 
       const decrypted = await decrypt(creds.apiKey)
-      const catalog = await discoverElvantoFields(decrypted)
+      
+      // Get user's session for authentication
+      const { data: { session } } = await supabase.auth.getSession()
+      const accessToken = session?.access_token || ''
+      const supabaseUrl = getSupabaseUrl() || ''
+      
+      const catalog = await discoverElvantoFields(decrypted, { supabaseUrl, accessToken })
       setDiscoveredCatalog(catalog)
       
       await settings.setConfig('elvanto_field_catalog', catalog)
       
-      const totalFields = catalog.categories.length + catalog.customFields.length + catalog.locations.length
+      const totalFields = catalog.categories.length + catalog.customFields.length + catalog.locations.length + (catalog.demographics?.length ?? 0)
       toast.success(`Discovered ${totalFields} dynamic fields from Elvanto`)
     } catch (err) {
       console.error('[FieldMappingTab] Failed to discover fields:', err)

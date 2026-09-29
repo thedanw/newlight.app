@@ -26,8 +26,6 @@
 
 Credentials: edge reads singleton `elvanto_settings` row `00000000-0000-0000-0000-000000000001` — `encryption_key_encrypted` decrypts under the master key (`ELVANTO_ENCRYPTION_KEY`, dev fallback string shared with the client), which decrypts `api_key_encrypted` (AES-GCM, 12-byte IV, base64(iv+ciphertext+tag)); both fields blank-checked; fallback legacy env `ELVANTO_API_KEY`. Known gap: the UI's save path only persists `api_key_encrypted` (`setCredentials` takes one argument), so `encryption_key_encrypted` must be seeded out-of-band or the env fallback used — see [operations.md](operations.md) troubleshooting.
 
-Credentials: edge reads singleton `elvanto_settings` row `00000000-0000-0000-0000-000000000001` — `encryption_key_encrypted` decrypts under the master key (`ELVANTO_ENCRYPTION_KEY`, dev fallback string shared with the client), which decrypts `api_key_encrypted` (AES-GCM, 12-byte IV, base64(iv+ciphertext+tag)); both fields blank-checked; fallback legacy env `ELVANTO_API_KEY`. Known gap: the UI's save path only persists `api_key_encrypted` (`setCredentials` takes one argument), so `encryption_key_encrypted` must be seeded out-of-band or the env fallback used — see [operations.md](operations.md) troubleshooting.
-
 ## Copy relationships (read before editing)
 
 - `public\content\plugins\elvanto-sync\` = generated mirror of `src\content\plugins\elvanto-sync\` (byte-identical; produced by `scripts\copy-plugins.mjs` on every dev/build; committed to git). **Edit `src\` only.**

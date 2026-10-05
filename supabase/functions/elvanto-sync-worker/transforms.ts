@@ -30,17 +30,18 @@
 // ============================================
 /**
  * Converts Elvanto demographics array to Supabase demographic enum.
- * Elvanto stores demographics as array: ["Youth"], ["Adults"], ["Child"]
+ * Elvanto stores demographics as object: {demographic: [{id: "...", name: "Adults"}]}
  * Supabase expects single lowercase enum: "adult" | "youth" | "child"
- * Takes first array element, lowercases, maps known values.
+ * Extracts the name from the first demographic object, lowercases, maps known values.
  * Defaults to "adult" for unknown/empty/multiple values.
- */ export function demographics_array_to_enum(demographicsArray, _context) {
-  if (!demographicsArray || !Array.isArray(demographicsArray) || demographicsArray.length === 0) {
+ */ export function demographics_array_to_enum(demographicsObj, _context) {
+  // Handle Elvanto's actual response structure: {demographic: [{id: "...", name: "Adults"}]}
+  if (!demographicsObj || !demographicsObj.demographic || !Array.isArray(demographicsObj.demographic) || demographicsObj.demographic.length === 0) {
     return 'adult'; // safe default
   }
-  // Take first value (human error if multiple, but handle gracefully)
-  const first = String(demographicsArray[0]).trim().toLowerCase();
-  
+  // Take first demographic object and extract its name
+  const firstDemo = demographicsObj.demographic[0];
+  const first = String(firstDemo?.name || firstDemo).trim().toLowerCase();
   // Map known Elvanto values to Supabase enum
   const mapping = {
     'youth': 'youth',
@@ -49,9 +50,8 @@
     'child': 'child',
     'children': 'child',
     'kid': 'child',
-    'kids': 'child',
+    'kids': 'child'
   };
-  
   return mapping[first] ?? 'adult'; // default to adult for unknown
 }
 // ============================================
@@ -297,6 +297,22 @@ export function format_departments(departments) {
     ].filter(Boolean).join('||')).join(',');
 }
 // ============================================
+// 12. source_to_journey_track_stage
+// Category/Demographic → Journey Track + Stage (via config)
+// ============================================
+/**
+ * Maps Elvanto category_id or demographic name to a specific journey track + stage
+ * Uses categoryDemographicMappings from context (loaded from elvanto_sync_config)
+ * Returns { trackId, stage } or null if no mapping found
+ * This transform is used by applyCategoryDemographicTrackStageMappings in people-sync.ts
+ * which handles the multi-target output directly
+ */ export function source_to_journey_track_stage(sourceValue, context) {
+  // This transform is a placeholder - the actual logic is in applyCategoryDemographicTrackStageMappings
+  // which has access to the full config and elvantoRecord
+  // We keep this for completeness and potential future use
+  return null;
+}
+// ============================================
 // Transform Registry
 // ============================================
 export const TRANSFORMS = {
@@ -317,7 +333,8 @@ export const TRANSFORMS = {
   lowercase_enum,
   trim_suffix,
   parse_departments,
-  format_departments
+  format_departments,
+  source_to_journey_track_stage
 };
 export function getTransform(name) {
   return TRANSFORMS[name];

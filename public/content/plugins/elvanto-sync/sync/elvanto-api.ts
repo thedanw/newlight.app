@@ -22,21 +22,68 @@ export interface ElvantoLocation {
   name: string
 }
 
+export interface ElvantoCategory {
+  id: string
+  name: string
+}
+
+export interface ElvantoDemographic {
+  name: string
+}
+
 function getEdgeFunctionKey(): string {
   return getSupabaseAnonKey()
 }
 
 /**
- * Normalize a `calendar/getAll` payload into `{ id, name }[]`.
- * The response wraps the list in `data.calendars.calendar[]` (pagination
- * envelope) but we also tolerate a bare `data.calendars[]` array.
+ * Normalize a `people/getAll` payload to extract unique locations from person records.
+ * Locations are nested in `person.locations.location[]`.
  */
-function normalizeCalendars(data: unknown): ElvantoLocation[] {
-  const calendars = (data as any)?.calendars
-  const items = Array.isArray(calendars)
-    ? calendars
-    : Array.isArray(calendars?.calendar)
-      ? calendars.calendar
+function normalizeLocationsFromPeople(data: unknown): ElvantoLocation[] {
+  const people = (data as any)?.people?.person ?? []
+  const locationMap = new Map<string, string>()
+
+  for (const person of people) {
+    const locations = person.locations?.location ?? []
+    for (const loc of locations) {
+      if (loc.id && loc.name) {
+        locationMap.set(loc.id, loc.name)
+      }
+    }
+  }
+
+  return Array.from(locationMap.entries()).map(([id, name]) => ({ id, name }))
+}
+
+/**
+ * Normalize a `people/getAll` payload to extract unique demographics from person records.
+ * Demographics are in `person.demographics.demographic[]` (array of objects with id and name).
+ */
+function normalizeDemographicsFromPeople(data: unknown): ElvantoDemographic[] {
+  const people = (data as any)?.people?.person ?? []
+  const demographicSet = new Set<string>()
+
+  for (const person of people) {
+    const demographicsObj = person.demographics
+    if (demographicsObj && Array.isArray(demographicsObj.demographic)) {
+      for (const demo of demographicsObj.demographic) {
+        if (demo && demo.name) demographicSet.add(demo.name)
+      }
+    }
+  }
+
+  return Array.from(demographicSet).map(name => ({ name }))
+}
+
+/**
+ * Normalize a `people/categories/getAll` payload into `{ id, name }[]`.
+ */
+function normalizeCategories(data: unknown): ElvantoCategory[] {
+  const categories = (data as any)?.categories
+  const items = Array.isArray(categories)
+    ? categories
+    : Array.isArray(categories?.category)
+      ? categories.category
       : []
 
   return items
@@ -45,21 +92,20 @@ function normalizeCalendars(data: unknown): ElvantoLocation[] {
 }
 
 /**
- * Fetch Elvanto locations/campuses (modeled as Calendars for this integration)
- * via `calendar/getAll`. Uses the Vite proxy in dev and the Edge Function in
- * production to avoid the API's missing CORS headers.
+ * Fetch Elvanto locations by extracting them from all people records via `people/getAll`.
+ * Uses the Vite proxy in dev and the Edge Function in production to avoid CORS issues.
  *
  * @throws Error with a descriptive message when the request fails.
  */
 export async function fetchElvantoLocations(apiKey: string): Promise<ElvantoLocation[]> {
   if (import.meta.env.DEV) {
-    const response = await fetch(`${ELVANTO_VITE_PROXY_BASE}/v1/calendar/getAll.json`, {
+    const response = await fetch(`${ELVANTO_VITE_PROXY_BASE}/v1/people/getAll.json`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Basic ${btoa(apiKey + ':')}`,
       },
-      body: JSON.stringify({ page_size: 1000 }),
+      body: JSON.stringify({ page_size: 1000, fields: ['locations'] }),
     })
 
     const data = await response.json().catch(() => ({}))
@@ -67,7 +113,7 @@ export async function fetchElvantoLocations(apiKey: string): Promise<ElvantoLoca
       throw new Error(data.error?.message || `Elvanto API error: ${response.status}`)
     }
 
-    return normalizeCalendars(data)
+    return normalizeLocationsFromPeople(data)
   }
 
   // Production — proxy through the Supabase Edge Function (has CORS headers).
@@ -90,4 +136,98 @@ export async function fetchElvantoLocations(apiKey: string): Promise<ElvantoLoca
   }
 
   return payload.locations ?? []
+}
+
+/**
+ * Fetch Elvanto demographics by extracting them from all people records via `people/getAll`.
+ * Uses the Vite proxy in dev and the Edge Function in production to avoid CORS issues.
+ *
+ * @throws Error with a descriptive message when the request fails.
+ */
+export async function fetchElvantoDemographics(apiKey: string): Promise<ElvantoDemographic[]> {
+  if (import.meta.env.DEV) {
+    const response = await fetch(`${ELVANTO_VITE_PROXY_BASE}/v1/people/getAll.json`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Basic ${btoa(apiKey + ':')}`,
+      },
+      body: JSON.stringify({ page_size: 1000, fields: ['demographics'] }),
+    })
+
+    const data = await response.json().catch(() => ({}))
+    if (!response.ok || data.status !== 'ok') {
+      throw new Error(data.error?.message || `Elvanto API error: ${response.status}`)
+    }
+
+    return normalizeDemographicsFromPeople(data)
+  }
+
+  // Production — proxy through the Supabase Edge Function (has CORS headers).
+  const edgeKey = getEdgeFunctionKey()
+  const response = await fetch(getElvantoSyncWorkerUrl(), {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(edgeKey ? { apikey: edgeKey, Authorization: `Bearer ${edgeKey}` } : {}),
+    },
+    body: JSON.stringify({ action: 'list_demographics', api_key: apiKey }),
+  })
+
+  const payload = await response.json().catch(() => ({}))
+  if (!response.ok) {
+    throw new Error(payload?.message || payload?.error || `Elvanto sync worker request failed (HTTP ${response.status})`)
+  }
+  if (!payload?.success) {
+    throw new Error(payload?.error || 'Failed to fetch demographics from Elvanto')
+  }
+
+  return payload.demographics ?? []
+}
+
+/**
+ * Fetch Elvanto categories via the dedicated `people/categories/getAll` endpoint.
+ * Uses the Vite proxy in dev and the Edge Function in production to avoid CORS issues.
+ *
+ * @throws Error with a descriptive message when the request fails.
+ */
+export async function fetchElvantoCategories(apiKey: string): Promise<ElvantoCategory[]> {
+  if (import.meta.env.DEV) {
+    const response = await fetch(`${ELVANTO_VITE_PROXY_BASE}/v1/people/categories/getAll.json`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Basic ${btoa(apiKey + ':')}`,
+      },
+      body: JSON.stringify({ page_size: 1000 }),
+    })
+
+    const data = await response.json().catch(() => ({}))
+    if (!response.ok || data.status !== 'ok') {
+      throw new Error(data.error?.message || `Elvanto API error: ${response.status}`)
+    }
+
+    return normalizeCategories(data)
+  }
+
+  // Production — proxy through the Supabase Edge Function (has CORS headers).
+  const edgeKey = getEdgeFunctionKey()
+  const response = await fetch(getElvantoSyncWorkerUrl(), {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(edgeKey ? { apikey: edgeKey, Authorization: `Bearer ${edgeKey}` } : {}),
+    },
+    body: JSON.stringify({ action: 'list_categories', api_key: apiKey }),
+  })
+
+  const payload = await response.json().catch(() => ({}))
+  if (!response.ok) {
+    throw new Error(payload?.message || payload?.error || `Elvanto sync worker request failed (HTTP ${response.status})`)
+  }
+  if (!payload?.success) {
+    throw new Error(payload?.error || 'Failed to fetch categories from Elvanto')
+  }
+
+  return payload.categories ?? []
 }

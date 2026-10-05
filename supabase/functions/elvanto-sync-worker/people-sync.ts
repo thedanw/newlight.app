@@ -6,10 +6,10 @@
  * field mappings from `elvanto_sync_config`, and upserts rows into `people`
  * (PK id, unique elvanto_id) in batched chunks.
  */ import { getTransform } from './transforms.ts';
-import { saveWatermark } from './watermark.ts';
-import { getDateFilterForEntity } from './mapping-engine.ts';
+import { saveWatermark, formatForElvanto, loadWatermark, getDateFilterFromWatermark } from './watermark.ts';
 const ELVANTO_BASE_URL = 'https://api.elvanto.com/v1';
 const DEFAULT_PAGE_SIZE = 500;
+const SEARCH_PAGE_SIZE = 1000;
 const MAX_PAGES = 200;
 const UPSERT_CHUNK_SIZE = 200;
 // Fallback journey when no track mappings produced updates (DB CHECK journey <> '{}')
@@ -34,7 +34,43 @@ async function elvantoRequest(apiKey, endpoint, body) {
   }
   return response.json();
 }
-async function getAllPeople(apiKey, dateFilter) {
+
+/**
+ * Fetch people using people/search with date_modified filter for incremental sync.
+ * Elvanto's people/search supports date_modified with >= comparison (UTC).
+ * Returns all matching people across pages.
+ */
+async function searchPeopleByDateModified(apiKey, dateModified) {
+  const all = [];
+  let page = 1;
+  const dateFilter = dateModified.split(' ')[0]; // Extract YYYY-MM-DD from "YYYY-MM-DD HH:MM:SS"
+  console.log(`[PeopleSync] Incremental sync: searching for people modified since ${dateFilter}`);
+  
+  for(;;){
+    const body = {
+      page,
+      page_size: SEARCH_PAGE_SIZE,
+      search: {
+        date_modified: dateFilter
+      },
+      fields: [
+        'gender',
+        'birthday',
+        'locations',
+        'demographics'
+      ]
+    };
+    const data = await elvantoRequest(apiKey, 'people/search', body);
+    const batch = data?.people?.person ?? [];
+    const total = data?.people?.total ?? 0;
+    all.push(...batch);
+    if (batch.length === 0 || all.length >= total || page >= MAX_PAGES) break;
+    page++;
+  }
+  return all;
+}
+
+async function getAllPeople(apiKey, _dateFilter) {
   const all = [];
   let page = 1;
   for(;;){
@@ -45,10 +81,10 @@ async function getAllPeople(apiKey, dateFilter) {
         'gender',
         'birthday',
         'locations',
-        'custom_77493627-aaba-426e-48dc-b0b0d8d24c99'
-      ] // demographics field UUID from Elvanto API
+        'demographics'
+      ] // demographics field + custom field UUID from Elvanto API
     };
-    if (dateFilter) body.date_modified = dateFilter;
+    // if (dateFilter) body.date_modified = dateFilter; // DISABLED: Elvanto API ignores this parameter on getAll
     const data = await elvantoRequest(apiKey, 'people/getAll', body);
     const batch = data?.people?.person ?? [];
     const total = data?.people?.total ?? 0;
@@ -152,7 +188,7 @@ function evaluateConditionNode(node, record) {
 }
 /**
  * Apply all field mappings to an Elvanto record to produce an app record
- */ async function applyMappings(supabase, entity, elvantoRecord, direction, mappings, locationPairings) {
+ */ async function applyMappings(supabase, entity, elvantoRecord, direction, mappings, locationPairings, categoryDemographicMappings, statusStageOverrides) {
   const appRecord = {};
   const journeyUpdates = {};
   const errors = [];
@@ -160,13 +196,22 @@ function evaluateConditionNode(node, record) {
   const applicableMappings = mappings.filter((m)=>m.direction === direction || m.direction === 'both');
   // Sort by priority (higher first)
   applicableMappings.sort((a, b)=>(b.priority ?? 0) - (a.priority ?? 0));
+  // Fetch current permission from database for promote-only logic
+  const { data: existingPerson } = await supabase
+    .from('people')
+    .select('access_permission')
+    .eq('elvanto_id', elvantoRecord.id)
+    .maybeSingle();
   // Create context for transforms
   const context = {
     elvantoRecord,
     appRecord,
     entity,
     direction,
-    locationPairings
+    locationPairings,
+    categoryDemographicMappings,
+    statusStageOverrides,
+    currentPermission: existingPerson?.access_permission
   };
   for (const mapping of applicableMappings){
     try {
@@ -185,7 +230,7 @@ function evaluateConditionNode(node, record) {
           continue;
         }
         if (mapping.elvantoField === 'category_id' || mapping.elvantoField.includes('category')) {
-          // Category-based journey track (Sunday Services)
+          // Category-based journey track (Sunday Services) - legacy single-track
           const trackId = await resolveJourneyTrackId(supabase, 'sunday-services');
           if (trackId) {
             journeyUpdates[trackId] = transformedValue;
@@ -202,8 +247,17 @@ function evaluateConditionNode(node, record) {
   // Handle location → journey tracks mapping (multi-target)
   const locationMapping = mappings.find((m)=>m.elvantoField === 'locations.location[]' || m.elvantoField.includes('location'));
   if (locationMapping && direction === 'pull') {
-    const locationJourneyUpdates = await applyLocationTrackMappings(supabase, elvantoRecord, locationPairings);
+    const locationJourneyUpdates = await applyLocationTrackMappings(supabase, elvantoRecord, locationPairings, statusStageOverrides);
     Object.assign(journeyUpdates, locationJourneyUpdates);
+  }
+  // Handle category/demographic → journey track + stage mappings (multi-target)
+  if (direction === 'pull' && categoryDemographicMappings.length > 0) {
+    const catDemoJourneyUpdates = await applyCategoryDemographicTrackStageMappings(elvantoRecord, categoryDemographicMappings);
+    Object.assign(journeyUpdates, catDemoJourneyUpdates);
+  }
+  // Apply status stage overrides to ALL journey tracks (universal overrides)
+  if (direction === 'pull' && Object.keys(statusStageOverrides).length > 0) {
+    applyStatusStageOverrides(journeyUpdates, elvantoRecord, statusStageOverrides);
   }
   return {
     appRecord,
@@ -213,7 +267,7 @@ function evaluateConditionNode(node, record) {
 }
 /**
  * Apply location-to-journey-track mappings
- */ async function applyLocationTrackMappings(_supabase, elvantoRecord, locationPairings) {
+ */ async function applyLocationTrackMappings(_supabase, elvantoRecord, locationPairings, statusStageOverrides) {
   const updates = {};
   const locations = elvantoRecord.locations?.location;
   if (!locations || !Array.isArray(locations)) return updates;
@@ -223,12 +277,76 @@ function evaluateConditionNode(node, record) {
     const pairing = locationPairings.find((p)=>p.elvanto_location_id === loc.id);
     if (pairing?.journey_track_id) {
       // Determine stage based on person status (conservative default: contact)
-      const stage = computeLocationStage(elvantoRecord);
+      let stage = computeLocationStage(elvantoRecord);
+      // Apply status overrides if configured
+      if (elvantoRecord.contact === 1 && statusStageOverrides.contact) {
+        stage = statusStageOverrides.contact;
+      } else if (elvantoRecord.archived === 1 && statusStageOverrides.archived) {
+        stage = statusStageOverrides.archived;
+      } else if (elvantoRecord.deceased === 1 && statusStageOverrides.deceased) {
+        stage = statusStageOverrides.deceased;
+      }
       updates[pairing.journey_track_id] = stage;
     }
   }
   return updates;
 }
+
+/**
+ * Apply category/demographic → journey track + stage mappings
+ * Elvanto categories/demographics map to specific tracks with specific stages
+ */ async function applyCategoryDemographicTrackStageMappings(elvantoRecord, mappings) {
+  const updates = {};
+  
+  // Get category_id from record
+  const categoryId = elvantoRecord.category_id;
+  
+  // Get demographics from record (Elvanto returns {demographic: [{id, name}]})
+  let demographicName = null;
+  if (elvantoRecord.demographics?.demographic && Array.isArray(elvantoRecord.demographics.demographic) && elvantoRecord.demographics.demographic.length > 0) {
+    demographicName = elvantoRecord.demographics.demographic[0]?.name;
+  }
+  
+  for (const mapping of mappings) {
+    let matches = false;
+    
+    if (mapping.source_type === 'category' && categoryId && mapping.source_value === categoryId) {
+      matches = true;
+    } else if (mapping.source_type === 'demographic' && demographicName && mapping.source_value === demographicName) {
+      matches = true;
+    }
+    
+    if (matches && mapping.journey_track_id && mapping.stage) {
+      updates[mapping.journey_track_id] = mapping.stage;
+    }
+  }
+  
+  return updates;
+}
+
+/**
+ * Apply status stage overrides to ALL journey tracks (universal overrides)
+ * contact=1, archived=1, deceased=1 override stage on every track
+ */ function applyStatusStageOverrides(journeyUpdates, elvantoRecord, statusStageOverrides) {
+  // Determine which override applies (priority: deceased > archived > contact)
+  let overrideStage = null;
+  
+  if (elvantoRecord.deceased === 1 && statusStageOverrides.deceased) {
+    overrideStage = statusStageOverrides.deceased;
+  } else if (elvantoRecord.archived === 1 && statusStageOverrides.archived) {
+    overrideStage = statusStageOverrides.archived;
+  } else if (elvantoRecord.contact === 1 && statusStageOverrides.contact) {
+    overrideStage = statusStageOverrides.contact;
+  }
+  
+  if (overrideStage) {
+    // Apply to ALL existing journey tracks
+    for (const trackId of Object.keys(journeyUpdates)) {
+      journeyUpdates[trackId] = overrideStage;
+    }
+  }
+}
+
 /**
  * Compute journey stage for location-based track based on person status
  */ function computeLocationStage(elvantoRecord) {
@@ -275,6 +393,24 @@ async function loadLocationPairings(supabase) {
   }
   return Array.isArray(data?.value) ? data.value : [];
 }
+
+async function loadCategoryDemographicTrackStageMappings(supabase) {
+  const { data, error } = await supabase.from('elvanto_sync_config').select('value').eq('key', 'elvanto-sync_category_demographic_track_stage_mappings').maybeSingle();
+  if (error) {
+    console.error('[PeopleSync] Failed to load category/demographic track-stage mappings:', error);
+    return [];
+  }
+  return Array.isArray(data?.value) ? data.value : [];
+}
+
+async function loadStatusStageOverrides(supabase) {
+  const { data, error } = await supabase.from('elvanto_sync_config').select('value').eq('key', 'elvanto-sync_status_stage_overrides').maybeSingle();
+  if (error) {
+    console.error('[PeopleSync] Failed to load status stage overrides:', error);
+    return {};
+  }
+  return data?.value ?? {};
+}
 // ============================================
 // Main People Sync Function
 // ============================================
@@ -291,26 +427,46 @@ export async function syncPeople(supabase, apiKey, options = {}) {
     // Load field mappings and location pairings from config
     const mappings = await loadFieldMappings(supabase);
     const locationPairings = await loadLocationPairings(supabase);
-    // Determine date filter for incremental sync
-    let dateFilter = null;
-    if (!options.fullScan) {
-      dateFilter = await getDateFilterForEntity(supabase, entity);
+    const categoryDemographicMappings = await loadCategoryDemographicTrackStageMappings(supabase);
+    const statusStageOverrides = await loadStatusStageOverrides(supabase);
+    
+    // Determine sync mode: incremental (using people/search) or full scan (people/getAll)
+    const fullScan = options.fullScan === true;
+    let people = [];
+    let syncMode = 'full';
+    
+    if (!fullScan) {
+      // Try to load watermark for incremental sync
+      const watermark = await loadWatermark(supabase, entity);
+      const dateFilter = watermark ? getDateFilterFromWatermark(watermark) : null;
+      
+      if (dateFilter) {
+        // Use incremental sync via people/search with date_modified filter
+        syncMode = 'incremental';
+        console.log(`[PeopleSync] Starting ${syncMode} sync (since ${dateFilter})`);
+        people = await searchPeopleByDateModified(apiKey, dateFilter);
+      } else {
+        console.log('[PeopleSync] No watermark found, falling back to full scan');
+        people = await getAllPeople(apiKey, null);
+      }
+    } else {
+      console.log('[PeopleSync] Starting full scan sync (forced)');
+      people = await getAllPeople(apiKey, null);
     }
-    console.log(`[PeopleSync] Starting sync${dateFilter ? ` (since ${dateFilter})` : ' (full scan)'}`);
-    // Fetch all people (paginated internally by getAllPeople)
-    const people = await getAllPeople(apiKey, dateFilter || undefined);
+    
     const total = people.length;
     if (total === 0) {
-      console.log('[PeopleSync] No people to sync');
+      console.log(`[PeopleSync] No people to sync (${syncMode} mode)`);
       return result;
     }
+    console.log(`[PeopleSync] ${syncMode} sync: ${total} people to process`);
     // Process in chunks for batched upserts
     const upsertRows = [];
     let lastDateModified = null;
     for (const person of people){
       try {
         // Apply field mappings
-        const { appRecord, journeyUpdates, errors } = await applyMappings(supabase, entity, person, 'pull', mappings, locationPairings);
+        const { appRecord, journeyUpdates, errors } = await applyMappings(supabase, entity, person, 'pull', mappings, locationPairings, categoryDemographicMappings, statusStageOverrides);
         if (errors.length) {
           result.errors.push(...errors.map((e)=>`Person ${person.id}: ${e}`));
           result.itemsFailed++;
@@ -357,9 +513,9 @@ export async function syncPeople(supabase, apiKey, options = {}) {
         result.itemsProcessed += upsertRows.length;
       }
     }
-    // Update watermark
+    // Update watermark (format for Elvanto API: space format, UTC, no timezone)
     if (lastDateModified) {
-      await saveWatermark(supabase, entity, lastDateModified, result.itemsProcessed);
+      await saveWatermark(supabase, entity, formatForElvanto(lastDateModified), result.itemsProcessed);
       result.lastDateModified = lastDateModified;
     }
     console.log(`[PeopleSync] Completed: ${result.itemsProcessed} processed, ${result.itemsFailed} failed`);
@@ -390,6 +546,13 @@ export async function syncPeople(supabase, apiKey, options = {}) {
 // Helper Functions
 // ============================================
 function preparePersonUpsert(person, appRecord, journeyUpdates) {
+  // Helper to convert empty strings to null for date fields
+  const parseDate = (val) => {
+    if (!val || val === '' || val === '0000-00-00') return null;
+    // Handle MM-DD format (anniversary dates without year)
+    if (/^\d{2}-\d{2}$/.test(val)) return null;
+    return val;
+  };
   return {
     // Identity
     elvanto_id: person.id,
@@ -406,8 +569,8 @@ function preparePersonUpsert(person, appRecord, journeyUpdates) {
     // Demographics
     demographic: sanitizeDemographic(appRecord.demographic ?? mapCategoryToDemographic(person.category_id)),
     gender: sanitizeGender(appRecord.gender ?? mapGender(person.gender)),
-    date_of_birth: appRecord.date_of_birth ?? person.birthday,
-    anniversary: appRecord.anniversary ?? person.anniversary,
+    date_of_birth: parseDate(appRecord.date_of_birth ?? person.birthday),
+    anniversary: parseDate(appRecord.anniversary ?? person.anniversary),
     marital_status: sanitizeMaritalStatus(appRecord.marital_status ?? mapMaritalStatus(person.marital_status)),
     kindy_start_year: appRecord.kindy_start_year ?? mapSchoolGradeToKindyYear(person.school_grade),
     school_name: appRecord.school_name ?? null,

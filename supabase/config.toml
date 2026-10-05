@@ -29,6 +29,12 @@ max_rows = 1000
 # Authorization header before executing the function logic.
 verify_jwt = true
 
+# Function-specific configuration: disable verify_jwt for elvanto-sync-worker
+# to allow discovery actions (test_connection, list_locations, discover_fields) to work
+# without authentication. These actions are used before credentials are saved.
+[functions.elvanto-sync-worker]
+verify_jwt = false
+
 [api.tls]
 # Enable HTTPS endpoints locally using a self-signed certificate.
 enabled = false

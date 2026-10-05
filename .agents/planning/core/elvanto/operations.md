@@ -29,6 +29,11 @@ Schedule tab → edit cron expression (validated client-side; default `0 2 * * *
 ## Deploy / environment (described actions)
 
 - Edge function: deploy the `elvanto-sync-worker` function from `supabase\functions\elvanto-sync-worker\` to project ref `rupujdsalfekudambviu` (repo config expects `verify_jwt = true`; the function itself implements its own auth gate + CORS). Header comments mark last redeploys (2026-09-23 secret sync / 2026-09-24 JSON-parse fix).
+- **CLI deploy fix**: Supabase CLI doesn't accept `--access-token` flag for `functions deploy`, but it **does read `SUPABASE_ACCESS_TOKEN` environment variable**. Use:
+  ```bash
+  $env:SUPABASE_ACCESS_TOKEN = "sbp_..."; supabase functions deploy elvanto-sync-worker --project-ref rupujdsalfekudambviu
+  ```
+  The token is stored in `.env` as `SUPABASE_TOKEN=` (not `SUPABASE_ACCESS_TOKEN`).
 - Schema: apply the `supabase\migrations\` chain (see [database.md](database.md)); the `encryption_key_encrypted` backfill migration is idempotent.
 - Secrets: server master key `ELVANTO_ENCRYPTION_KEY` (function secrets/env); client `VITE_ELVANTO_ENCRYPTION_KEY` (build env). In dev both fall back to a shared fixed string — acceptable only locally.
 - Config files: `supabase\config.toml` (`verify_jwt = true` for all functions), `vite.config.ts` (dev proxy `/api/elvanto`).
@@ -50,6 +55,7 @@ Schedule tab → edit cron expression (validated client-side; default `0 2 * * *
 | `demos is not iterable` on field discovery | Elvanto API | `demographics` field can be string or array — use `Array.isArray(person.demographics) ? person.demographics : []` in both edge function and client field-discovery. |
 | 403 `Forbidden - super_admin role required` on sync | Auth | Sync operations require `people.access_permission = 'super_admin'` (checked via `auth_user_id`). Discovery actions (`test_connection`, `discover_fields`, `list_locations`) allow any authenticated user. |
 | 0 locations / demographics discovered | Elvanto API | No dedicated endpoints — must fetch `people/getAll` with `fields: ['locations', 'demographics']` and extract unique values from person records. |
+| **Watermark/date filter ignored** | Elvanto API | **`people/getAll` does NOT support date filtering** — all parameters (`date_modified`, `since`, `modified_since`, `updated_since`) are ignored. Full scan always performed. Watermark updated but not used for filtering. Code updated to remove broken filter. |
 
 ## Key Elvanto API Findings (learned during debugging)
 

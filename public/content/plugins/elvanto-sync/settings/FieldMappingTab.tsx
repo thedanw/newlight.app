@@ -139,9 +139,9 @@ export function FieldMappingTab() {
               <Text color="fg.muted" textStyle="sm">
                 Last discovered: {new Date(discoveredCatalog.discoveredAt).toLocaleString()}
                 {' • '}
-                {discoveredCatalog.categories.length} categories, {' '}
-                {discoveredCatalog.customFields.length} custom fields, {' '}
-                {discoveredCatalog.locations.length} locations
+                {(discoveredCatalog.categories?.length ?? 0)} categories, {' '}
+                {(discoveredCatalog.customFields?.length ?? 0)} custom fields, {' '}
+                {(discoveredCatalog.locations?.length ?? 0)} locations
               </Text>
             )}
             </Stack>

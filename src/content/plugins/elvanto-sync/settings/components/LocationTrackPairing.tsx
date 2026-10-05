@@ -196,7 +196,7 @@ export function LocationTrackPairing() {
         <Heading textStyle="md">Location ↔ Track Pairing</Heading>
         <HStack gap="2">
           <Button variant="outline" size="sm" onClick={handleFetchLocations} loading={fetching} disabled={fetching}>
-            Fetch Fresh Locations
+            Fetch Locations, Demographics & Categories
           </Button>
           <Button variant="outline" size="sm" onClick={handleAutoCreate} loading={creating} disabled={creating}>
             Auto-Create Missing Tracks

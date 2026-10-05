@@ -128,15 +128,15 @@ export function getElvantoFieldOptions(catalog: DiscoveredFieldCatalog | null): 
 
   const options: Array<{ value: string; label: string }> = []
 
-  for (const cat of catalog.categories) {
+  for (const cat of catalog.categories ?? []) {
     options.push({ value: `category_id:${cat.id}`, label: `Category: ${cat.name} (${cat.id})` })
   }
 
-  for (const cf of catalog.customFields) {
+  for (const cf of catalog.customFields ?? []) {
     options.push({ value: `custom_${cf.id}`, label: `Custom Field: ${cf.name} (${cf.id})` })
   }
 
-  for (const loc of catalog.locations) {
+  for (const loc of catalog.locations ?? []) {
     options.push({ value: `locations:${loc.id}`, label: `Location: ${loc.name} (${loc.id})` })
   }
 

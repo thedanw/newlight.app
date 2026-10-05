@@ -16,7 +16,9 @@ export function applyMappings(record, trigger) {
 export async function getDateFilterForEntity(supabase, entity) {
   const watermark = await loadWatermark(supabase, entity);
   if (!watermark?.sourceModified) return null;
-  return watermark.sourceModified;
+  // Format for Elvanto API (space format, no timezone, UTC)
+  const { formatForElvanto } = await import('./watermark.ts');
+  return formatForElvanto(watermark.sourceModified);
 }
 export async function updateEntityWatermark(supabase, entity, elvantoRecords) {
   if (elvantoRecords.length === 0) return;
@@ -25,6 +27,8 @@ export async function updateEntityWatermark(supabase, entity, elvantoRecords) {
     return modified > max ? modified : max;
   }, '');
   if (latest) {
-    await saveWatermark(supabase, entity, parseElvantoDateModified(latest), elvantoRecords.length);
+    // Store in Elvanto format (space, no timezone, UTC)
+    const { formatForElvanto, parseElvantoDateModified } = await import('./watermark.ts');
+    await saveWatermark(supabase, entity, formatForElvanto(parseElvantoDateModified(latest)), elvantoRecords.length);
   }
 }

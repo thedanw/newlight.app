@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { Stack, HStack, Box } from 'styled-system/jsx'
-import { Heading, Text, Button, Card, Alert, Select, Badge, Link, Table } from '@/core/ui'
+import { Heading, Text, Button, Card, Alert, Select, Badge, Link, Table, Input, IconButton, Accordion, useRegisterPageActions } from '@/core/ui'
 import { usePluginAPIContext } from '@/core/plugins/PluginAPI'
 import { createListCollection } from '@ark-ui/react'
-import { ChevronsUpDownIcon, CheckIcon, MapPin, GitBranch, Shield, Download } from 'lucide-react'
+import { ChevronsUpDownIcon, CheckIcon, MapPin, GitBranch, Shield, Download, TrashIcon, PlusIcon } from 'lucide-react'
 import { decrypt } from '@/content/plugins/elvanto-sync/utils/encryption'
 import { fetchElvantoCategories, fetchElvantoDemographics, fetchElvantoLocations } from '@/content/plugins/elvanto-sync/sync/elvanto-api'
 
@@ -32,12 +32,24 @@ interface ElvantoLocation {
   name: string
 }
 
-interface JourneyGridMapping {
+interface ConditionRow {
+  id: string
+  field: 'category' | 'demographic' | 'location' | 'status_contact' | 'status_archived'
+  operator: 'equals' | 'not_equals' | 'contains'
+  value: string
+}
+
+interface TransformRow {
+  id: string
   trackId: string
   stageId: string
-  sourceType: 'category' | 'demographic' | 'location' | 'status_contact' | 'status_archived'
-  sourceValue: string
-  sourceLabel: string
+}
+
+interface TransformGroup {
+  id: string
+  name: string
+  conditions: ConditionRow[]
+  transforms: TransformRow[]
 }
 
 const STAGE_OPTIONS: JourneyStage[] = [
@@ -49,16 +61,41 @@ const STAGE_OPTIONS: JourneyStage[] = [
   { id: 'deleted_privacy_data', label: 'Deleted (Privacy Data)' },
 ]
 
+const CONDITION_FIELD_OPTIONS = [
+  { value: 'category', label: 'Category' },
+  { value: 'demographic', label: 'Demographic' },
+  { value: 'location', label: 'Location' },
+  { value: 'status_contact', label: 'Status: Contact' },
+  { value: 'status_archived', label: 'Status: Archived/Deceased' },
+]
+
+const OPERATOR_OPTIONS = [
+  { value: 'equals', label: 'Equals' },
+  { value: 'not_equals', label: 'Does not equal' },
+  { value: 'contains', label: 'Contains' },
+]
+
+const LOGIC_OPTIONS = [
+  { value: 'AND', label: 'AND' },
+  { value: 'OR', label: 'OR' },
+  { value: 'XOR', label: 'XOR' },
+]
+
+let idCounter = 0
+const nextId = () => `local_${Date.now()}_${++idCounter}`
+
 export function MapJourneysTab() {
   const { settings, toast, supabase } = usePluginAPIContext()
   const [journeyTracks, setJourneyTracks] = useState<JourneyTrack[]>([])
   const [elvantoCategories, setElvantoCategories] = useState<ElvantoCategory[]>([])
   const [elvantoDemographics, setElvantoDemographics] = useState<ElvantoDemographic[]>([])
   const [elvantoLocations, setElvantoLocations] = useState<ElvantoLocation[]>([])
-  const [mappings, setMappings] = useState<JourneyGridMapping[]>([])
+  const [transformGroups, setTransformGroups] = useState<TransformGroup[]>([])
   const [loading, setLoading] = useState(true)
   const [fetching, setFetching] = useState<Record<string, boolean>>({})
   const [saving, setSaving] = useState(false)
+  const initialGroupsRef = useRef<TransformGroup[]>([])
+  const [isDirty, setIsDirty] = useState(false)
 
   useEffect(() => {
     loadData()
@@ -67,10 +104,33 @@ export function MapJourneysTab() {
   const loadData = async () => {
     setLoading(true)
     try {
-      const savedMappings = await settings.getConfig<JourneyGridMapping[]>('journey_grid_mappings')
-      if (savedMappings) {
-        setMappings(savedMappings)
+      // Try new transform groups format first
+      const groups = await settings.getConfig<TransformGroup[]>('journey_transform_groups')
+      if (groups && groups.length > 0) {
+        setTransformGroups(groups)
+        initialGroupsRef.current = JSON.parse(JSON.stringify(groups))
+      } else {
+        // Migrate old flat mappings to new format
+        const oldMappings = await settings.getConfig<any[]>('journey_grid_mappings')
+        const migrated: TransformGroup[] = (oldMappings || []).map(m => ({
+          id: nextId(),
+          name: `${m.trackId || m.journey_track_id} → ${m.stageId || m.stage}`,
+          conditions: [{
+            id: nextId(),
+            field: m.sourceType || m.source_type || 'category',
+            operator: 'equals' as const,
+            value: m.sourceValue || m.source_value || '',
+          }],
+          transforms: [{
+            id: nextId(),
+            trackId: m.trackId || m.journey_track_id,
+            stageId: m.stageId || m.stage,
+          }],
+        }))
+        setTransformGroups(migrated)
+        initialGroupsRef.current = JSON.parse(JSON.stringify(migrated))
       }
+      setIsDirty(false)
 
       const { data: tracks } = await supabase
         .from('journey_tracks')
@@ -149,8 +209,8 @@ export function MapJourneysTab() {
   const handleSave = async () => {
     setSaving(true)
     try {
-      await settings.setConfig('journey_grid_mappings', mappings)
-      toast.success('Journey grid mappings saved')
+      await settings.setConfig('journey_transform_groups', transformGroups)
+      toast.success('Journey transform groups saved')
     } catch (err) {
       console.error('[MapJourneysTab] Failed to save:', err)
       toast.error('Failed to save mappings')
@@ -159,38 +219,130 @@ export function MapJourneysTab() {
     }
   }
 
-  const updateMapping = (trackId: string, stageId: string, updates: Partial<JourneyGridMapping>) => {
-    setMappings(prev => {
-      const existing = prev.find(m => m.trackId === trackId && m.stageId === stageId)
-      if (existing) {
-        return prev.map(m => 
-          m.trackId === trackId && m.stageId === stageId ? { ...m, ...updates } : m
-        )
-      } else {
-        return [...prev, { trackId, stageId, ...updates } as JourneyGridMapping]
+  const handleCancel = () => {
+    setTransformGroups(JSON.parse(JSON.stringify(initialGroupsRef.current)))
+    setIsDirty(false)
+  }
+
+  useRegisterPageActions({
+    cancel: handleCancel,
+    apply: handleSave,
+    isSaving: saving,
+    isDirty,
+    applyLabel: 'Save Grid Mappings',
+  })
+
+  const markDirty = useCallback(() => setIsDirty(true), [])
+
+  const addGroup = () => {
+    setTransformGroups(prev => [...prev, {
+      id: nextId(),
+      name: `Transform ${prev.length + 1}`,
+      conditions: [],
+      transforms: [],
+    }])
+    markDirty()
+  }
+
+  const removeGroup = (groupId: string) => {
+    setTransformGroups(prev => prev.filter(g => g.id !== groupId))
+    markDirty()
+  }
+
+  const updateGroupName = (groupId: string, name: string) => {
+    setTransformGroups(prev => prev.map(g => g.id === groupId ? { ...g, name } : g))
+    markDirty()
+  }
+
+  const addCondition = (groupId: string) => {
+    setTransformGroups(prev => prev.map(g => {
+      if (g.id !== groupId) return g
+      return {
+        ...g,
+        conditions: [...g.conditions, {
+          id: nextId(),
+          field: 'category',
+          operator: 'equals',
+          value: '',
+        }],
       }
-    })
+    }))
+    markDirty()
   }
 
-  const removeMapping = (trackId: string, stageId: string) => {
-    setMappings(prev => prev.filter(m => !(m.trackId === trackId && m.stageId === stageId)))
+  const updateCondition = (groupId: string, conditionId: string, updates: Partial<ConditionRow>) => {
+    setTransformGroups(prev => prev.map(g => {
+      if (g.id !== groupId) return g
+      return {
+        ...g,
+        conditions: g.conditions.map(c => c.id === conditionId ? { ...c, ...updates } : c),
+      }
+    }))
+    markDirty()
   }
 
-  const getMapping = (trackId: string, stageId: string) => {
-    return mappings.find(m => m.trackId === trackId && m.stageId === stageId)
+  const removeCondition = (groupId: string, conditionId: string) => {
+    setTransformGroups(prev => prev.map(g => {
+      if (g.id !== groupId) return g
+      return {
+        ...g,
+        conditions: g.conditions.filter(c => c.id !== conditionId),
+      }
+    }))
+    markDirty()
   }
 
-  const getSourceCollection = (sourceType: string) => {
-    let items: Array<{ id: string; name: string }> = []
-    if (sourceType === 'category') items = elvantoCategories
-    else if (sourceType === 'demographic') items = elvantoDemographics.map(d => ({ id: d.name, name: d.name }))
-    else if (sourceType === 'location') items = elvantoLocations
-    else if (sourceType === 'status_contact') items = [{ id: 'contact', name: 'Contact = 1' }]
-    else if (sourceType === 'status_archived') items = [{ id: 'archived', name: 'Archived/Deceased = 1' }]
-    
-    return createListCollection({
-      items: [{ label: `Select ${sourceType}...`, value: '' }, ...items.map(item => ({ label: item.name, value: item.id }))]
-    })
+  const addTransform = (groupId: string) => {
+    setTransformGroups(prev => prev.map(g => {
+      if (g.id !== groupId) return g
+      return {
+        ...g,
+        transforms: [...g.transforms, {
+          id: nextId(),
+          trackId: journeyTracks[0]?.id || '',
+          stageId: STAGE_OPTIONS[0]?.id || '',
+        }],
+      }
+    }))
+    markDirty()
+  }
+
+  const updateTransform = (groupId: string, transformId: string, updates: Partial<TransformRow>) => {
+    setTransformGroups(prev => prev.map(g => {
+      if (g.id !== groupId) return g
+      return {
+        ...g,
+        transforms: g.transforms.map(t => t.id === transformId ? { ...t, ...updates } : t),
+      }
+    }))
+    markDirty()
+  }
+
+  const removeTransform = (groupId: string, transformId: string) => {
+    setTransformGroups(prev => prev.map(g => {
+      if (g.id !== groupId) return g
+      return {
+        ...g,
+        transforms: g.transforms.filter(t => t.id !== transformId),
+      }
+    }))
+    markDirty()
+  }
+
+  const getConditionValueOptions = (field: ConditionRow['field']) => {
+    switch (field) {
+      case 'category':
+        return elvantoCategories.map(c => ({ value: c.id, label: c.name }))
+      case 'demographic':
+        return elvantoDemographics.map(d => ({ value: d.name, label: d.name }))
+      case 'location':
+        return elvantoLocations.map(l => ({ value: l.id, label: l.name }))
+      case 'status_contact':
+      case 'status_archived':
+        return [{ value: '1', label: 'Active' }]
+      default:
+        return []
+    }
   }
 
   if (loading) {
@@ -218,7 +370,7 @@ export function MapJourneysTab() {
         </Card.Header>
         <Card.Body>
           <Stack gap="3">
-            <HStack gap="3" css={{ flexWrap: 'wrap' }}>
+            <HStack alignItems="start" justifyContent={{ base: 'space-between', md: 'Start' }} flexWrap="wrap">
                 <Stack alignItems="center">
                 <Button 
                     variant="outline" 
@@ -270,7 +422,6 @@ export function MapJourneysTab() {
                     {elvantoLocations.length > 0 ? `${elvantoLocations.length} fetched` : 'Not fetched'}
                 </Text>
               </Stack>
-              <Stack>
               <Button 
                 variant="solid" 
                 size="lg"
@@ -284,13 +435,10 @@ export function MapJourneysTab() {
               >
                 <HStack gap="1" alignItems="center">
                   <Download size={18} />
-                    <Text fontWeight="medium">Fetch All</Text>
+                    <Text fontWeight="medium">All</Text>
                 </HStack>
               </Button>
-                    <Text textStyle="xs" color="fg.muted">
-                      Fetch Categories, Demographics & Locations
-                    </Text>
-                    </Stack>
+
             </HStack>
 
             {(elvantoCategories.length > 0 || elvantoDemographics.length > 0 || elvantoLocations.length > 0) && (
@@ -307,131 +455,310 @@ export function MapJourneysTab() {
         </Card.Body>
       </Card.Root>
 
-      {/* Step 2: Journey Grid - at the bottom */}
+      {/* Step 2: Transform Groups */}
       <Card.Root>
         <Card.Header>
           <HStack justifyContent="space-between" alignItems="center" css={{ flexWrap: 'wrap', gap: 2 }}>
             <Stack>
               <Card.Title>Step 2: Journey Grid</Card.Title>
               <Card.Description>
-                Map Elvanto sources (Categories, Demographics, Locations, Status) to Journey Tracks × Stages.
+                Define conditional transform groups to assign Journey Tracks and Stages.
               </Card.Description>
             </Stack>
             <HStack gap="2">
-              <Button onClick={handleSave} loading={saving} disabled={saving}>
-                Save Grid Mappings
+              <Button onClick={addGroup} size="sm">
+                <HStack gap="1" alignItems="center">
+                  <PlusIcon size={16} />
+                  <Text>Add Transform group</Text>
+                </HStack>
               </Button>
             </HStack>
           </HStack>
         </Card.Header>
         <Card.Body>
-          <Alert.Root>
-            <Alert.Title>Journey Grid Mapping</Alert.Title>
-            <Text textStyle="sm" color="fg.muted">
-              Rows = Journey Tracks, Columns = Journey Stages. Each cell defines which Elvanto source assigns a person to that Track + Stage.
-              <Link href="/settings/people" textStyle="sm" color="colorPalette.fg">
-                Set/Edit/Delete tracks in /settings/people
-              </Link>
-            </Text>
-          </Alert.Root>
-
           {journeyTracks.length === 0 ? (
             <Stack align="center" p="8">
               <Text color="fg.muted">No Journey Tracks found.</Text>
               <Link href="/settings/people" mt="2">Create tracks in /settings/people</Link>
             </Stack>
+          ) : transformGroups.length === 0 ? (
+            <Stack align="center" p="8">
+              <Text color="fg.muted">No transform groups defined.</Text>
+              <Button onClick={addGroup} variant="outline" size="sm" mt="2">
+                <HStack gap="1" alignItems="center">
+                  <PlusIcon size={16} />
+                  <Text>Add Transform group</Text>
+                </HStack>
+              </Button>
+            </Stack>
           ) : (
-            <Box overflowX="auto" minW="0">
-                <Table.Root>
-                    <Table.Head>
-                    <Table.Row>
-                        <Table.Header>Track / Stage</Table.Header>
-                        {STAGE_OPTIONS.map(stage => (
-                        <Table.Header key={stage.id} css={{ textAlign: 'center' }}>
-                            {stage.label}
-                        </Table.Header>
-                        ))}
-                    </Table.Row>
-                    </Table.Head>
-                    <Table.Body>
-                        {journeyTracks.map(track => (
-                            <Table.Row key={track.id}>
-                            <Table.Cell css={{ fontWeight: 'medium', bg: 'gray.1' }}>
-                                {track.name}
-                                {track.elvanto_location_id && (
-                                <Badge variant="subtle" mt="1" fontSize="xs">
-                                    Location: {track.elvanto_location_id.slice(0, 8)}...
-                                </Badge>
-                                )}
-                            </Table.Cell>
-                            {STAGE_OPTIONS.map(stage => {
-                                const mapping = getMapping(track.id, stage.id)
-                                const sourceType = mapping?.sourceType || ''
-                                const sourceValue = mapping?.sourceValue || ''
-                                const sourceLabel = mapping?.sourceLabel || ''
-                                
-                                return (
-                                <Table.Cell key={`cell-${track.id}-${stage.id}`} css={{ p: 1, textAlign: 'center' }}>
-                                    <Stack gap="1" minW="140px">
-                                    <Select.Root 
-                                        collection={getSourceCollection(sourceType || 'category')} 
-                                        value={sourceValue ? [sourceValue] : []} 
+            <Accordion.Root collapsible>
+              {transformGroups.map(group => (
+                <Accordion.Item key={group.id} value={group.id}>
+                  <Accordion.ItemTrigger>
+                    <HStack flex="1" alignItems="center" gap="2">
+                      <Input
+                        value={group.name}
+                        onChange={(e) => updateGroupName(group.id, e.target.value)}
+                        onClick={(e) => e.stopPropagation()}
+                        size="sm"
+                        css={{ maxW: '300px' }}
+                      />
+                      <Text textStyle="xs" color="fg.muted">
+                        {group.conditions.length} condition{group.conditions.length !== 1 ? 's' : ''}, {group.transforms.length} transform{group.transforms.length !== 1 ? 's' : ''}
+                      </Text>
+                    </HStack>
+                    <IconButton 
+                      variant="ghost" 
+                      size="sm" 
+                      color="red"
+                      onClick={(e) => { e.stopPropagation(); removeGroup(group.id) }}
+                      aria-label="Delete group"
+                    >
+                      <TrashIcon size={16} />
+                    </IconButton>
+                  </Accordion.ItemTrigger>
+                  <Accordion.ItemContent>
+                    <Accordion.ItemBody>
+                      <Stack gap="4" mt="4">
+                        {/* Conditions Section */}
+                        <Card.Root size="sm">
+                          <Card.Header>
+                            <HStack justifyContent="space-between" alignItems="center">
+                              <Card.Title textStyle="sm">Conditions</Card.Title>
+                              <Button size="xs" variant="outline" onClick={() => addCondition(group.id)}>
+                                <HStack gap="1" alignItems="center">
+                                  <PlusIcon size={14} />
+                                  <Text>Add condition</Text>
+                                </HStack>
+                              </Button>
+                            </HStack>
+                          </Card.Header>
+                          <Card.Body>
+                            {group.conditions.length === 0 ? (
+                              <Text textStyle="xs" color="fg.muted">No conditions. Click "Add condition" to define when this group applies.</Text>
+                            ) : (
+                              <Stack gap="2">
+                                {group.conditions.map((condition, index) => (
+                                  <Stack key={condition.id} gap="2">
+                                    {index > 0 && (
+                                      <HStack justifyContent="center">
+                                        <Select.Root
+                                          collection={createListCollection({ items: LOGIC_OPTIONS })}
+                                          value={[group.conditions[index]?.logic || 'AND']}
+                                          onValueChange={(details) => {
+                                            const newConditions = [...group.conditions]
+                                            if (newConditions[index]) {
+                                              newConditions[index] = { ...newConditions[index], logic: details.value[0] as ConditionRow['logic'] }
+                                              setTransformGroups(prev => prev.map(g => g.id === group.id ? { ...g, conditions: newConditions } : g))
+                                              markDirty()
+                                            }
+                                          }}
+                                          width="fit-content"
+                                        >
+                                          <Select.Control>
+                                            <Select.Trigger size="xs">
+                                              <Select.ValueText />
+                                              <Select.Indicator />
+                                            </Select.Trigger>
+                                            <Select.Positioner>
+                                              <Select.Content>
+                                                {LOGIC_OPTIONS.map(opt => (
+                                                  <Select.Item key={opt.value} item={opt}>
+                                                    <Select.ItemText>{opt.label}</Select.ItemText>
+                                                  </Select.Item>
+                                                ))}
+                                              </Select.Content>
+                                            </Select.Positioner>
+                                          </Select.Control>
+                                        </Select.Root>
+                                      </HStack>
+                                    )}
+                                    <HStack gap="2" alignItems="center" flexWrap="wrap">
+                                      <Select.Root
+                                        collection={createListCollection({ items: CONDITION_FIELD_OPTIONS })}
+                                        value={[condition.field]}
                                         onValueChange={(details) => {
-                                        const selected = details.value[0] || ''
-                                        const sourceItems = sourceType === 'category' ? elvantoCategories :
-                                                            sourceType === 'demographic' ? elvantoDemographics.map(d => ({ id: d.name, name: d.name })) :
-                                                            sourceType === 'location' ? elvantoLocations :
-                                                            sourceType === 'status_contact' ? [{ id: 'contact', name: 'Contact = 1' }] :
-                                                            [{ id: 'archived', name: 'Archived/Deceased = 1' }]
-                                            const label = sourceItems.find(i => i.id === selected)?.name || ''
-                                            updateMapping(track.id, stage.id, { 
-                                            sourceType: sourceType as any, 
-                                            sourceValue: selected, 
-                                            sourceLabel: label 
-                                            })
+                                          const newField = details.value[0] as ConditionRow['field']
+                                          updateCondition(group.id, condition.id, { field: newField, value: '' })
                                         }}
-                                    >
+                                        width="fit-content"
+                                      >
                                         <Select.Control>
-                                        <Select.Trigger minWidth="140px">
-                                            <Select.ValueText placeholder="Select source..." />
-                                            <Select.Indicator><ChevronsUpDownIcon /></Select.Indicator>
+                                          <Select.Trigger size="sm" minWidth="140px">
+                                            <Select.ValueText />
+                                            <Select.Indicator />
+                                          </Select.Trigger>
+                                          <Select.Positioner>
+                                            <Select.Content>
+                                              {CONDITION_FIELD_OPTIONS.map(opt => (
+                                                <Select.Item key={opt.value} item={opt}>
+                                                  <Select.ItemText>{opt.label}</Select.ItemText>
+                                                </Select.Item>
+                                              ))}
+                                            </Select.Content>
+                                          </Select.Positioner>
+                                        </Select.Control>
+                                      </Select.Root>
+
+                                      <Select.Root
+                                        collection={createListCollection({ items: OPERATOR_OPTIONS })}
+                                        value={[condition.operator]}
+                                        onValueChange={(details) => updateCondition(group.id, condition.id, { operator: details.value[0] as ConditionRow['operator'] })}
+                                        width="fit-content"
+                                      >
+                                        <Select.Control>
+                                          <Select.Trigger size="sm" minWidth="140px">
+                                            <Select.ValueText />
+                                            <Select.Indicator />
+                                          </Select.Trigger>
+                                          <Select.Positioner>
+                                            <Select.Content>
+                                              {OPERATOR_OPTIONS.map(opt => (
+                                                <Select.Item key={opt.value} item={opt}>
+                                                  <Select.ItemText>{opt.label}</Select.ItemText>
+                                                </Select.Item>
+                                              ))}
+                                            </Select.Content>
+                                          </Select.Positioner>
+                                        </Select.Control>
+                                      </Select.Root>
+
+                                      <Select.Root
+                                        collection={createListCollection({ items: getConditionValueOptions(condition.field) })}
+                                        value={condition.value ? [condition.value] : []}
+                                        onValueChange={(details) => updateCondition(group.id, condition.id, { value: details.value[0] || '' })}
+                                        width="fit-content"
+                                        disabled={getConditionValueOptions(condition.field).length === 0}
+                                      >
+                                        <Select.Control>
+                                          <Select.Trigger size="sm" minWidth="140px">
+                                            <Select.ValueText placeholder="Select value..." />
+                                            <Select.Indicator />
+                                          </Select.Trigger>
+                                          <Select.Positioner>
+                                            <Select.Content>
+                                              {getConditionValueOptions(condition.field).map(opt => (
+                                                <Select.Item key={opt.value} item={opt}>
+                                                  <Select.ItemText>{opt.label}</Select.ItemText>
+                                                </Select.Item>
+                                              ))}
+                                            </Select.Content>
+                                          </Select.Positioner>
+                                        </Select.Control>
+                                      </Select.Root>
+
+                                      <IconButton 
+                                        variant="ghost" 
+                                        size="sm" 
+                                        color="red"
+                                        onClick={() => removeCondition(group.id, condition.id)}
+                                        aria-label="Remove condition"
+                                      >
+                                        <TrashIcon size={16} />
+                                      </IconButton>
+                                    </HStack>
+                                  </Stack>
+                                ))}
+                              </Stack>
+                            )}
+                          </Card.Body>
+                        </Card.Root>
+
+                        {/* Transforms Section */}
+                        <Card.Root size="sm">
+                          <Card.Header>
+                            <HStack justifyContent="space-between" alignItems="center">
+                              <Card.Title textStyle="sm">Transforms</Card.Title>
+                              <Button size="xs" variant="outline" onClick={() => addTransform(group.id)}>
+                                <HStack gap="1" alignItems="center">
+                                  <PlusIcon size={14} />
+                                  <Text>Add transform</Text>
+                                </HStack>
+                              </Button>
+                            </HStack>
+                          </Card.Header>
+                          <Card.Body>
+                            {group.transforms.length === 0 ? (
+                              <Text textStyle="xs" color="fg.muted">No transforms. Click "Add transform" to assign tracks and stages.</Text>
+                            ) : (
+                              <Stack gap="2">
+                                {group.transforms.map(transform => (
+                                  <HStack key={transform.id} gap="2" alignItems="center" flexWrap="wrap">
+                                    <Select.Root
+                                      collection={createListCollection({ 
+                                        items: journeyTracks.map(t => ({ value: t.id, label: t.name }))
+                                      })}
+                                      value={[transform.trackId]}
+                                      onValueChange={(details) => updateTransform(group.id, transform.id, { trackId: details.value[0] || '' })}
+                                      width="fit-content"
+                                    >
+                                      <Select.Control>
+                                        <Select.Trigger size="sm" minWidth="160px">
+                                          <Select.ValueText placeholder="Select track..." />
+                                          <Select.Indicator />
                                         </Select.Trigger>
                                         <Select.Positioner>
-                                            <Select.Content>
-                                            {getSourceCollection(sourceType || 'category').items.map((item) => (
-                                                <Select.Item key={item.value} item={item}>
-                                                <Select.ItemText>{item.label}</Select.ItemText>
-                                                <Select.ItemIndicator><CheckIcon /></Select.ItemIndicator>
-                                                </Select.Item>
+                                          <Select.Content>
+                                            {journeyTracks.map(t => (
+                                              <Select.Item key={t.id} item={{ value: t.id, label: t.name }}>
+                                                <Select.ItemText>{t.name}</Select.ItemText>
+                                              </Select.Item>
                                             ))}
-                                            </Select.Content>
+                                          </Select.Content>
                                         </Select.Positioner>
-                                        </Select.Control>
+                                      </Select.Control>
                                     </Select.Root>
-                                    {sourceLabel && (
-                                        <Text textStyle="xs" color="fg.muted">{sourceLabel}</Text>
-                                    )}
-                                    {mapping && (
-                                        <Button 
-                                        variant="outline" 
-                                        size="xs" 
-                                        color="red"
-                                        onClick={() => removeMapping(track.id, stage.id)}
-                                        >
-                                        Clear
-                                        </Button>
-                                    )}
-                                    </Stack>
-                                </Table.Cell>
-                                )
-                            })}
-                            </Table.Row>
-                        ))}
-                    </Table.Body>
-                </Table.Root>
-            </Box>
-              )}
+
+                                    <Select.Root
+                                      collection={createListCollection({ 
+                                        items: STAGE_OPTIONS.map(s => ({ value: s.id, label: s.label }))
+                                      })}
+                                      value={[transform.stageId]}
+                                      onValueChange={(details) => updateTransform(group.id, transform.id, { stageId: details.value[0] || '' })}
+                                      width="fit-content"
+                                    >
+                                      <Select.Control>
+                                        <Select.Trigger size="sm" minWidth="140px">
+                                          <Select.ValueText placeholder="Select stage..." />
+                                          <Select.Indicator />
+                                        </Select.Trigger>
+                                        <Select.Positioner>
+                                          <Select.Content>
+                                            {STAGE_OPTIONS.map(s => (
+                                              <Select.Item key={s.id} item={{ value: s.id, label: s.label }}>
+                                                <Select.ItemText>{s.label}</Select.ItemText>
+                                              </Select.Item>
+                                            ))}
+                                          </Select.Content>
+                                        </Select.Positioner>
+                                      </Select.Control>
+                                    </Select.Root>
+
+                                    <IconButton 
+                                      variant="ghost" 
+                                      size="sm" 
+                                      color="red"
+                                      onClick={() => removeTransform(group.id, transform.id)}
+                                      aria-label="Remove transform"
+                                    >
+                                      <TrashIcon size={16} />
+                                    </IconButton>
+                                  </HStack>
+                                ))}
+                              </Stack>
+                            )}
+                          </Card.Body>
+                        </Card.Root>
+                      </Stack>
+                    </Accordion.ItemBody>
+                  </Accordion.ItemContent>
+                </Accordion.Item>
+              ))}
+            </Accordion.Root>
+          )}
         </Card.Body>
       </Card.Root>
      </Stack>
-)}
+  )
+}

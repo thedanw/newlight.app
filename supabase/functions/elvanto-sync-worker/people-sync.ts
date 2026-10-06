@@ -188,7 +188,7 @@ function evaluateConditionNode(node, record) {
 }
 /**
  * Apply all field mappings to an Elvanto record to produce an app record
- */ async function applyMappings(supabase, entity, elvantoRecord, direction, mappings, locationPairings, categoryDemographicMappings, statusStageOverrides) {
+ */ async function applyMappings(supabase, entity, elvantoRecord, direction, mappings, locationPairings, categoryDemographicMappings, statusStageOverrides, journeyTransformGroups) {
   const appRecord = {};
   const journeyUpdates = {};
   const errors = [];
@@ -250,13 +250,17 @@ function evaluateConditionNode(node, record) {
     const locationJourneyUpdates = await applyLocationTrackMappings(supabase, elvantoRecord, locationPairings, statusStageOverrides);
     Object.assign(journeyUpdates, locationJourneyUpdates);
   }
-  // Handle category/demographic → journey track + stage mappings (multi-target)
-  if (direction === 'pull' && categoryDemographicMappings.length > 0) {
+  // Handle journey transform groups (new conditional format)
+  if (direction === 'pull' && journeyTransformGroups && journeyTransformGroups.length > 0) {
+    const groupJourneyUpdates = await applyJourneyTransformGroups(elvantoRecord, journeyTransformGroups);
+    Object.assign(journeyUpdates, groupJourneyUpdates);
+  } else if (direction === 'pull' && categoryDemographicMappings.length > 0) {
+    // Fallback to legacy category/demographic mappings if no transform groups
     const catDemoJourneyUpdates = await applyCategoryDemographicTrackStageMappings(elvantoRecord, categoryDemographicMappings);
     Object.assign(journeyUpdates, catDemoJourneyUpdates);
   }
-  // Apply status stage overrides to ALL journey tracks (universal overrides)
-  if (direction === 'pull' && Object.keys(statusStageOverrides).length > 0) {
+  // Apply status stage overrides to ALL journey tracks (universal overrides) - legacy fallback
+  if (direction === 'pull' && Object.keys(statusStageOverrides).length > 0 && (!journeyTransformGroups || journeyTransformGroups.length === 0)) {
     applyStatusStageOverrides(journeyUpdates, elvantoRecord, statusStageOverrides);
   }
   return {
@@ -411,6 +415,92 @@ async function loadStatusStageOverrides(supabase) {
   }
   return data?.value ?? {};
 }
+
+async function loadJourneyTransformGroups(supabase) {
+  const { data, error } = await supabase.from('elvanto_sync_config').select('value').eq('key', 'journey_transform_groups').maybeSingle();
+  if (error) {
+    console.error('[PeopleSync] Failed to load journey transform groups:', error);
+    return [];
+  }
+  return Array.isArray(data?.value) ? data.value : [];
+}
+
+function evaluateCondition(condition, elvantoRecord) {
+  let fieldValue = null;
+  
+  if (condition.field === 'category') {
+    fieldValue = elvantoRecord.category_id;
+  } else if (condition.field === 'demographic') {
+    const demographics = elvantoRecord.demographics?.demographic;
+    if (Array.isArray(demographics) && demographics.length > 0) {
+      fieldValue = demographics[0]?.name || null;
+    }
+  } else if (condition.field === 'location') {
+    const locations = elvantoRecord.locations?.location;
+    if (Array.isArray(locations)) {
+      fieldValue = locations.map(l => l?.id).filter(Boolean);
+    }
+  } else if (condition.field === 'status_contact') {
+    fieldValue = elvantoRecord.contact === 1 ? '1' : '0';
+  } else if (condition.field === 'status_archived') {
+    fieldValue = (elvantoRecord.archived === 1 || elvantoRecord.deceased === 1) ? '1' : '0';
+  }
+  
+  if (fieldValue === null || fieldValue === undefined) return false;
+  
+  if (condition.operator === 'equals') {
+    if (Array.isArray(fieldValue)) {
+      return fieldValue.includes(condition.value);
+    }
+    return String(fieldValue) === String(condition.value);
+  } else if (condition.operator === 'not_equals') {
+    if (Array.isArray(fieldValue)) {
+      return !fieldValue.includes(condition.value);
+    }
+    return String(fieldValue) !== String(condition.value);
+  } else if (condition.operator === 'contains') {
+    return String(fieldValue).toLowerCase().includes(String(condition.value).toLowerCase());
+  }
+  
+  return false;
+}
+
+function evaluateGroupConditions(group, elvantoRecord) {
+  if (!group.conditions || group.conditions.length === 0) return true;
+  
+  let result = evaluateCondition(group.conditions[0], elvantoRecord);
+  
+  for (let i = 1; i < group.conditions.length; i++) {
+    const conditionResult = evaluateCondition(group.conditions[i], elvantoRecord);
+    const logic = group.conditions[i].logic || 'AND';
+    
+    if (logic === 'AND') {
+      result = result && conditionResult;
+    } else if (logic === 'OR') {
+      result = result || conditionResult;
+    } else if (logic === 'XOR') {
+      result = (result || conditionResult) && !(result && conditionResult);
+    }
+  }
+  
+  return result;
+}
+
+async function applyJourneyTransformGroups(elvantoRecord, transformGroups) {
+  const updates = {};
+  
+  for (const group of transformGroups) {
+    if (!evaluateGroupConditions(group, elvantoRecord)) continue;
+    
+    for (const transform of group.transforms) {
+      if (transform.trackId && transform.stageId) {
+        updates[transform.trackId] = transform.stageId;
+      }
+    }
+  }
+  
+  return updates;
+}
 // ============================================
 // Main People Sync Function
 // ============================================
@@ -429,6 +519,7 @@ export async function syncPeople(supabase, apiKey, options = {}) {
     const locationPairings = await loadLocationPairings(supabase);
     const categoryDemographicMappings = await loadCategoryDemographicTrackStageMappings(supabase);
     const statusStageOverrides = await loadStatusStageOverrides(supabase);
+    const journeyTransformGroups = await loadJourneyTransformGroups(supabase);
     
     // Determine sync mode: incremental (using people/search) or full scan (people/getAll)
     const fullScan = options.fullScan === true;
@@ -466,7 +557,7 @@ export async function syncPeople(supabase, apiKey, options = {}) {
     for (const person of people){
       try {
         // Apply field mappings
-        const { appRecord, journeyUpdates, errors } = await applyMappings(supabase, entity, person, 'pull', mappings, locationPairings, categoryDemographicMappings, statusStageOverrides);
+        const { appRecord, journeyUpdates, errors } = await applyMappings(supabase, entity, person, 'pull', mappings, locationPairings, categoryDemographicMappings, statusStageOverrides, journeyTransformGroups);
         if (errors.length) {
           result.errors.push(...errors.map((e)=>`Person ${person.id}: ${e}`));
           result.itemsFailed++;

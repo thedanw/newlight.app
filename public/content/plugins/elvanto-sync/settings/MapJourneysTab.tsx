@@ -508,15 +508,17 @@ export function MapJourneysTab() {
                         {group.conditions.length} condition{group.conditions.length !== 1 ? 's' : ''}, {group.transforms.length} transform{group.transforms.length !== 1 ? 's' : ''}
                       </Text>
                     </HStack>
-                    <IconButton 
+                    <Button 
+                      as="span"
                       variant="ghost" 
                       size="sm" 
                       color="red"
                       onClick={(e) => { e.stopPropagation(); removeGroup(group.id) }}
                       aria-label="Delete group"
+                      css={{ cursor: 'pointer' }}
                     >
                       <TrashIcon size={16} />
-                    </IconButton>
+                    </Button>
                   </Accordion.ItemTrigger>
                   <Accordion.ItemContent>
                     <Accordion.ItemBody>

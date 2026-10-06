@@ -524,76 +524,45 @@ export function MapJourneysTab() {
                     <Accordion.ItemBody>
                       <Stack gap="4" mt="4">
                         {/* Conditions Section */}
-                        <Card.Root size="sm">
-                          <Card.Header>
-                            <HStack justifyContent="space-between" alignItems="center">
-                              <Card.Title textStyle="sm">Conditions</Card.Title>
-                              <Button size="xs" variant="outline" onClick={() => addCondition(group.id)}>
-                                <HStack gap="1" alignItems="center">
-                                  <PlusIcon size={14} />
-                                  <Text>Add condition</Text>
-                                </HStack>
-                              </Button>
-                            </HStack>
-                          </Card.Header>
-                          <Card.Body>
-                            {group.conditions.length === 0 ? (
-                              <Text textStyle="xs" color="fg.muted">No conditions. Click "Add condition" to define when this group applies.</Text>
-                            ) : (
-                              <Stack gap="2">
-                                {group.conditions.map((condition, index) => (
-                                  <Stack key={condition.id} gap="2">
-                                    {index > 0 && (
-                                      <HStack justifyContent="center">
-                                        <Select.Root
-                                          collection={createListCollection({ items: LOGIC_OPTIONS })}
-                                          value={[group.conditions[index]?.logic || 'AND']}
-                                          onValueChange={(details) => {
-                                            const newConditions = [...group.conditions]
-                                            if (newConditions[index]) {
-                                              newConditions[index] = { ...newConditions[index], logic: details.value[0] as ConditionRow['logic'] }
-                                              setTransformGroups(prev => prev.map(g => g.id === group.id ? { ...g, conditions: newConditions } : g))
-                                              markDirty()
-                                            }
-                                          }}
-                                          width="fit-content"
-                                        >
-                                          <Select.Control>
-                                            <Select.Trigger size="xs">
-                                              <Select.ValueText />
-                                              <Select.Indicator />
-                                            </Select.Trigger>
-                                            <Select.Positioner>
-                                              <Select.Content>
-                                                {LOGIC_OPTIONS.map(opt => (
-                                                  <Select.Item key={opt.value} item={opt}>
-                                                    <Select.ItemText>{opt.label}</Select.ItemText>
-                                                  </Select.Item>
-                                                ))}
-                                              </Select.Content>
-                                            </Select.Positioner>
-                                          </Select.Control>
-                                        </Select.Root>
-                                      </HStack>
-                                    )}
-                                    <HStack gap="2" alignItems="center" flexWrap="wrap">
+                        <Box borderWidth="1px" borderColor="border.subtle" borderRadius="md" p="4">
+                          <HStack justifyContent="space-between" alignItems="center" mb="3">
+                            <Text textStyle="sm" fontWeight="medium">Conditions</Text>
+                            <Button size="xs" variant="outline" onClick={() => addCondition(group.id)}>
+                              <HStack gap="1" alignItems="center">
+                                <PlusIcon size={14} />
+                                <Text>Add condition</Text>
+                              </HStack>
+                            </Button>
+                          </HStack>
+                          {group.conditions.length === 0 ? (
+                            <Text textStyle="xs" color="fg.muted">No conditions. Click "Add condition" to define when this group applies.</Text>
+                          ) : (
+                            <Stack gap="2">
+                              {group.conditions.map((condition, index) => (
+                                <Stack key={condition.id} gap="2">
+                                  {index > 0 && (
+                                    <HStack justifyContent="center">
                                       <Select.Root
-                                        collection={createListCollection({ items: CONDITION_FIELD_OPTIONS })}
-                                        value={[condition.field]}
+                                        collection={createListCollection({ items: LOGIC_OPTIONS })}
+                                        value={[group.conditions[index]?.logic || 'AND']}
                                         onValueChange={(details) => {
-                                          const newField = details.value[0] as ConditionRow['field']
-                                          updateCondition(group.id, condition.id, { field: newField, value: '' })
+                                          const newConditions = [...group.conditions]
+                                          if (newConditions[index]) {
+                                            newConditions[index] = { ...newConditions[index], logic: details.value[0] as ConditionRow['logic'] }
+                                            setTransformGroups(prev => prev.map(g => g.id === group.id ? { ...g, conditions: newConditions } : g))
+                                            markDirty()
+                                          }
                                         }}
                                         width="fit-content"
                                       >
                                         <Select.Control>
-                                          <Select.Trigger size="sm" minWidth="140px">
+                                          <Select.Trigger size="xs">
                                             <Select.ValueText />
                                             <Select.Indicator />
                                           </Select.Trigger>
                                           <Select.Positioner>
                                             <Select.Content>
-                                              {CONDITION_FIELD_OPTIONS.map(opt => (
+                                              {LOGIC_OPTIONS.map(opt => (
                                                 <Select.Item key={opt.value} item={opt}>
                                                   <Select.ItemText>{opt.label}</Select.ItemText>
                                                 </Select.Item>
@@ -602,109 +571,28 @@ export function MapJourneysTab() {
                                           </Select.Positioner>
                                         </Select.Control>
                                       </Select.Root>
-
-                                      <Select.Root
-                                        collection={createListCollection({ items: OPERATOR_OPTIONS })}
-                                        value={[condition.operator]}
-                                        onValueChange={(details) => updateCondition(group.id, condition.id, { operator: details.value[0] as ConditionRow['operator'] })}
-                                        width="fit-content"
-                                      >
-                                        <Select.Control>
-                                          <Select.Trigger size="sm" minWidth="140px">
-                                            <Select.ValueText />
-                                            <Select.Indicator />
-                                          </Select.Trigger>
-                                          <Select.Positioner>
-                                            <Select.Content>
-                                              {OPERATOR_OPTIONS.map(opt => (
-                                                <Select.Item key={opt.value} item={opt}>
-                                                  <Select.ItemText>{opt.label}</Select.ItemText>
-                                                </Select.Item>
-                                              ))}
-                                            </Select.Content>
-                                          </Select.Positioner>
-                                        </Select.Control>
-                                      </Select.Root>
-
-                                      <Select.Root
-                                        collection={createListCollection({ items: getConditionValueOptions(condition.field) })}
-                                        value={condition.value ? [condition.value] : []}
-                                        onValueChange={(details) => updateCondition(group.id, condition.id, { value: details.value[0] || '' })}
-                                        width="fit-content"
-                                        disabled={getConditionValueOptions(condition.field).length === 0}
-                                      >
-                                        <Select.Control>
-                                          <Select.Trigger size="sm" minWidth="140px">
-                                            <Select.ValueText placeholder="Select value..." />
-                                            <Select.Indicator />
-                                          </Select.Trigger>
-                                          <Select.Positioner>
-                                            <Select.Content>
-                                              {getConditionValueOptions(condition.field).map(opt => (
-                                                <Select.Item key={opt.value} item={opt}>
-                                                  <Select.ItemText>{opt.label}</Select.ItemText>
-                                                </Select.Item>
-                                              ))}
-                                            </Select.Content>
-                                          </Select.Positioner>
-                                        </Select.Control>
-                                      </Select.Root>
-
-                                      <IconButton 
-                                        variant="ghost" 
-                                        size="sm" 
-                                        color="red"
-                                        onClick={() => removeCondition(group.id, condition.id)}
-                                        aria-label="Remove condition"
-                                      >
-                                        <TrashIcon size={16} />
-                                      </IconButton>
                                     </HStack>
-                                  </Stack>
-                                ))}
-                              </Stack>
-                            )}
-                          </Card.Body>
-                        </Card.Root>
-
-                        {/* Transforms Section */}
-                        <Card.Root size="sm">
-                          <Card.Header>
-                            <HStack justifyContent="space-between" alignItems="center">
-                              <Card.Title textStyle="sm">Transforms</Card.Title>
-                              <Button size="xs" variant="outline" onClick={() => addTransform(group.id)}>
-                                <HStack gap="1" alignItems="center">
-                                  <PlusIcon size={14} />
-                                  <Text>Add transform</Text>
-                                </HStack>
-                              </Button>
-                            </HStack>
-                          </Card.Header>
-                          <Card.Body>
-                            {group.transforms.length === 0 ? (
-                              <Text textStyle="xs" color="fg.muted">No transforms. Click "Add transform" to assign tracks and stages.</Text>
-                            ) : (
-                              <Stack gap="2">
-                                {group.transforms.map(transform => (
-                                  <HStack key={transform.id} gap="2" alignItems="center" flexWrap="wrap">
+                                  )}
+                                  <HStack gap="2" alignItems="center" flexWrap="wrap">
                                     <Select.Root
-                                      collection={createListCollection({ 
-                                        items: journeyTracks.map(t => ({ value: t.id, label: t.name }))
-                                      })}
-                                      value={[transform.trackId]}
-                                      onValueChange={(details) => updateTransform(group.id, transform.id, { trackId: details.value[0] || '' })}
+                                      collection={createListCollection({ items: CONDITION_FIELD_OPTIONS })}
+                                      value={[condition.field]}
+                                      onValueChange={(details) => {
+                                        const newField = details.value[0] as ConditionRow['field']
+                                        updateCondition(group.id, condition.id, { field: newField, value: '' })
+                                      }}
                                       width="fit-content"
                                     >
                                       <Select.Control>
-                                        <Select.Trigger size="sm" minWidth="160px">
-                                          <Select.ValueText placeholder="Select track..." />
+                                        <Select.Trigger size="sm" minWidth="140px">
+                                          <Select.ValueText />
                                           <Select.Indicator />
                                         </Select.Trigger>
                                         <Select.Positioner>
                                           <Select.Content>
-                                            {journeyTracks.map(t => (
-                                              <Select.Item key={t.id} item={{ value: t.id, label: t.name }}>
-                                                <Select.ItemText>{t.name}</Select.ItemText>
+                                            {CONDITION_FIELD_OPTIONS.map(opt => (
+                                              <Select.Item key={opt.value} item={opt}>
+                                                <Select.ItemText>{opt.label}</Select.ItemText>
                                               </Select.Item>
                                             ))}
                                           </Select.Content>
@@ -713,23 +601,45 @@ export function MapJourneysTab() {
                                     </Select.Root>
 
                                     <Select.Root
-                                      collection={createListCollection({ 
-                                        items: STAGE_OPTIONS.map(s => ({ value: s.id, label: s.label }))
-                                      })}
-                                      value={[transform.stageId]}
-                                      onValueChange={(details) => updateTransform(group.id, transform.id, { stageId: details.value[0] || '' })}
+                                      collection={createListCollection({ items: OPERATOR_OPTIONS })}
+                                      value={[condition.operator]}
+                                      onValueChange={(details) => updateCondition(group.id, condition.id, { operator: details.value[0] as ConditionRow['operator'] })}
                                       width="fit-content"
                                     >
                                       <Select.Control>
                                         <Select.Trigger size="sm" minWidth="140px">
-                                          <Select.ValueText placeholder="Select stage..." />
+                                          <Select.ValueText />
                                           <Select.Indicator />
                                         </Select.Trigger>
                                         <Select.Positioner>
                                           <Select.Content>
-                                            {STAGE_OPTIONS.map(s => (
-                                              <Select.Item key={s.id} item={{ value: s.id, label: s.label }}>
-                                                <Select.ItemText>{s.label}</Select.ItemText>
+                                            {OPERATOR_OPTIONS.map(opt => (
+                                              <Select.Item key={opt.value} item={opt}>
+                                                <Select.ItemText>{opt.label}</Select.ItemText>
+                                              </Select.Item>
+                                            ))}
+                                          </Select.Content>
+                                        </Select.Positioner>
+                                      </Select.Control>
+                                    </Select.Root>
+
+                                    <Select.Root
+                                      collection={createListCollection({ items: getConditionValueOptions(condition.field) })}
+                                      value={condition.value ? [condition.value] : []}
+                                      onValueChange={(details) => updateCondition(group.id, condition.id, { value: details.value[0] || '' })}
+                                      width="fit-content"
+                                      disabled={getConditionValueOptions(condition.field).length === 0}
+                                    >
+                                      <Select.Control>
+                                        <Select.Trigger size="sm" minWidth="140px">
+                                          <Select.ValueText placeholder="Select value..." />
+                                          <Select.Indicator />
+                                        </Select.Trigger>
+                                        <Select.Positioner>
+                                          <Select.Content>
+                                            {getConditionValueOptions(condition.field).map(opt => (
+                                              <Select.Item key={opt.value} item={opt}>
+                                                <Select.ItemText>{opt.label}</Select.ItemText>
                                               </Select.Item>
                                             ))}
                                           </Select.Content>
@@ -741,17 +651,99 @@ export function MapJourneysTab() {
                                       variant="ghost" 
                                       size="sm" 
                                       color="red"
-                                      onClick={() => removeTransform(group.id, transform.id)}
-                                      aria-label="Remove transform"
+                                      onClick={() => removeCondition(group.id, condition.id)}
+                                      aria-label="Remove condition"
                                     >
                                       <TrashIcon size={16} />
                                     </IconButton>
                                   </HStack>
-                                ))}
-                              </Stack>
-                            )}
-                          </Card.Body>
-                        </Card.Root>
+                                </Stack>
+                              ))}
+                            </Stack>
+                          )}
+                        </Box>
+
+                        {/* Transforms Section */}
+                        <Box borderWidth="1px" borderColor="border.subtle" borderRadius="md" p="4">
+                          <HStack justifyContent="space-between" alignItems="center" mb="3">
+                            <Text textStyle="sm" fontWeight="medium">Transforms</Text>
+                            <Button size="xs" variant="outline" onClick={() => addTransform(group.id)}>
+                              <HStack gap="1" alignItems="center">
+                                <PlusIcon size={14} />
+                                <Text>Add transform</Text>
+                              </HStack>
+                            </Button>
+                          </HStack>
+                          {group.transforms.length === 0 ? (
+                            <Text textStyle="xs" color="fg.muted">No transforms. Click "Add transform" to assign tracks and stages.</Text>
+                          ) : (
+                            <Stack gap="2">
+                              {group.transforms.map(transform => (
+                                <HStack key={transform.id} gap="2" alignItems="center" flexWrap="wrap">
+                                  <Select.Root
+                                    collection={createListCollection({ 
+                                      items: journeyTracks.map(t => ({ value: t.id, label: t.name }))
+                                    })}
+                                    value={[transform.trackId]}
+                                    onValueChange={(details) => updateTransform(group.id, transform.id, { trackId: details.value[0] || '' })}
+                                    width="fit-content"
+                                  >
+                                    <Select.Control>
+                                      <Select.Trigger size="sm" minWidth="160px">
+                                        <Select.ValueText placeholder="Select track..." />
+                                        <Select.Indicator />
+                                      </Select.Trigger>
+                                      <Select.Positioner>
+                                        <Select.Content>
+                                          {journeyTracks.map(t => (
+                                            <Select.Item key={t.id} item={{ value: t.id, label: t.name }}>
+                                              <Select.ItemText>{t.name}</Select.ItemText>
+                                            </Select.Item>
+                                          ))}
+                                        </Select.Content>
+                                      </Select.Positioner>
+                                    </Select.Control>
+                                  </Select.Root>
+
+                                  <Select.Root
+                                    collection={createListCollection({ 
+                                      items: STAGE_OPTIONS.map(s => ({ value: s.id, label: s.label }))
+                                    })}
+                                    value={[transform.stageId]}
+                                    onValueChange={(details) => updateTransform(group.id, transform.id, { stageId: details.value[0] || '' })}
+                                    width="fit-content"
+                                  >
+                                    <Select.Control>
+                                      <Select.Trigger size="sm" minWidth="140px">
+                                        <Select.ValueText placeholder="Select stage..." />
+                                        <Select.Indicator />
+                                      </Select.Trigger>
+                                      <Select.Positioner>
+                                        <Select.Content>
+                                          {STAGE_OPTIONS.map(s => (
+                                            <Select.Item key={s.id} item={{ value: s.id, label: s.label }}>
+                                              <Select.ItemText>{s.label}</Select.ItemText>
+                                            </Select.Item>
+                                          ))}
+                                        </Select.Content>
+                                      </Select.Positioner>
+                                    </Select.Control>
+                                  </Select.Root>
+
+                                  <IconButton 
+                                    variant="ghost" 
+                                    size="sm" 
+                                    color="red"
+                                    onClick={() => removeTransform(group.id, transform.id)}
+                                    aria-label="Remove transform"
+                                  >
+                                    <TrashIcon size={16} />
+                                  </IconButton>
+                                </HStack>
+                              ))}
+                            </Stack>
+                          )}
+                        </Box>
                       </Stack>
                     </Accordion.ItemBody>
                   </Accordion.ItemContent>

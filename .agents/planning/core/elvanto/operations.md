@@ -7,7 +7,7 @@ Actions are described, not scripted (repo policy: no commands in docs). Equivale
 - **Normal path:** Settings → Integrations → Elvanto Sync → Schedule tab → **Sync Now** → `triggerElvantoSync()` POSTs `{trigger: 'manual'}` with the signed-in session JWT + anon `apikey`. Requires a signed-in user (anon requests are refused at the function gate with 401+that401 carries CORS).
 - Result: HTTP 200 (all entities succeeded) or **207** with `success: false` (any failures) — the UI surfaces `details`/`errors` from the body. Optional `entity`/`fullScan` payload fields scope or force a full pull (helpers accept them; the UI sends neither).
 - Dashboard widget's Sync Now button is **broken** (calls the helper without its required client argument) and its status figures are hardcoded placeholders — use the History tab as the real status source.
-- There is **no scheduler** (see [architecture.md](architecture.md)): the stored cron expression does nothing until a scheduler consumes it.
+- There is a **scheduler** (see [architecture.md](architecture.md)): `functions/elvanto-sync-cron.ts` is a Cloudflare Pages Function with a cron trigger that POSTs `{trigger: "cron"}` to the Edge Function on the configured schedule. The stored `elvanto-sync_cron_expression` in the UI is informational; the actual schedule is defined in the function's `config.schedule` export.
 
 ## Read history
 

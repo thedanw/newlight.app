@@ -36,7 +36,8 @@ Credentials: edge reads singleton `elvanto_settings` row `00000000-0000-0000-000
 ## Scheduling reality
 
 - Schedule tab stores `elvanto-sync_cron_expression` (default `0 2 * * *`) and `elvanto-sync_sync_direction` (`pull_only` default); `utils\cron.ts` validates expressions client-side.
-- **Nothing consumes them**: no pg_cron job, no platform schedule, no server-side reader. Automated runs are currently impossible — syncs happen when a signed-in user presses Sync Now (or any other direct POST). Legacy docs claiming pg_cron are stale (audit C3/C4/C6).
+- **Scheduler:** `functions/elvanto-sync-cron.ts` is a Cloudflare Pages Function with a cron trigger that POSTs `{trigger: "cron"}` to the Edge Function on the configured schedule. The stored `elvanto-sync_cron_expression` in the UI is informational; the actual schedule is defined in the function's `config.schedule` export (default `0 2 * * *`, daily at 02:00 UTC). The cron function requires `SUPABASE_SERVICE_ROLE_KEY` to be configured as a Secret in the Cloudflare Pages dashboard.
+- Automated runs now possible via the cron function — syncs happen on schedule without user interaction, in addition to manual Sync Now.
 
 ## Push / write-back
 

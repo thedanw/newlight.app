@@ -339,7 +339,10 @@ export function MapJourneysTab() {
         return elvantoLocations.map(l => ({ value: l.id, label: l.name }))
       case 'status_contact':
       case 'status_archived':
-        return [{ value: '1', label: 'Active' }]
+        return [
+          { value: '1', label: 'Yes' },
+          { value: '0', label: 'No' },
+        ]
       default:
         return []
     }

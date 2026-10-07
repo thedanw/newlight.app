@@ -1,14 +1,13 @@
 import { useState, lazy, Suspense, type ComponentType } from 'react'
 import { Page, Heading, Text, Tabs, TabScroller } from '@/core/ui'
 import { Stack, Box } from 'styled-system/jsx'
-import { Settings, AlertTriangle, Calendar, Clock, Columns3, MapPin, Plug, GitBranch, Shield, Route } from 'lucide-react'
+import { Settings, Activity, Calendar, Columns3, MapPin, Plug, GitBranch, Shield, Route } from 'lucide-react'
 
 const ConnectionTab = lazy(() => import('./ConnectionTab').then(m => ({ default: m.ConnectionTab })))
 const FieldMappingTab = lazy(() => import('./FieldMappingTab').then(m => ({ default: m.FieldMappingTab })))
 const MapJourneysTab = lazy(() => import('./MapJourneysTab').then(m => ({ default: m.MapJourneysTab })))
 const ScheduleTab = lazy(() => import('./ScheduleTab').then(m => ({ default: m.ScheduleTab })))
-const HistoryTab = lazy(() => import('./HistoryTab').then(m => ({ default: m.HistoryTab })))
-const DeadLetterTab = lazy(() => import('./DeadLetterTab').then(m => ({ default: m.DeadLetterTab })))
+const ActivityTab = lazy(() => import('./ActivityTab').then(m => ({ default: m.ActivityTab })))
 
 interface TabConfig {
   id: string
@@ -22,8 +21,7 @@ const TABS: TabConfig[] = [
   { id: 'field-mappings', label: 'Field Mappings', icon: Columns3, component: FieldMappingTab },
   { id: 'map-journeys', label: 'Map Journeys', icon: Route, component: MapJourneysTab },
   { id: 'schedule', label: 'Schedule', icon: Calendar, component: ScheduleTab },
-  { id: 'history', label: 'History', icon: Clock, component: HistoryTab },
-  { id: 'dead-letter', label: 'Dead Letter', icon: AlertTriangle, component: DeadLetterTab },
+  { id: 'activity', label: 'Activity', icon: Activity, component: ActivityTab },
 ]
 
 export function ElvantoSyncSettingsPage() {

@@ -1,4 +1,5 @@
-import { Heading, Text, Card, Table, Badge, Button, Dialog, Select } from '@/core/ui'
+import { Text, Card, Table, Button, Dialog, Select } from '@/core/ui'
+import { SemanticStatusBadge } from './SemanticStatusBadge'
 import { usePluginAPIContext } from '@/core/plugins/PluginAPI'
 import { useState, useEffect, useMemo } from 'react'
 import { Box, HStack, Stack } from 'styled-system/jsx'
@@ -139,30 +140,6 @@ export function DeadLetterTable() {
 
   return (
     <Stack>
-      <HStack justify="space-between" alignItems="center">
-        <Heading textStyle="md">Dead Letter Queue</Heading>
-        <HStack gap="2">
-          <Select.Root collection={pageSizeCollection} value={[String(pageSize)]} onValueChange={(details) => { setPageSize(Number(details.value[0])); setPage(1); }}>
-            <Select.Control>
-              <Select.Trigger minWidth="80px">
-                <Select.ValueText />
-                <Select.Indicator><ChevronsUpDownIcon /></Select.Indicator>
-              </Select.Trigger>
-            </Select.Control>
-            <Select.Positioner>
-              <Select.Content>
-                {pageSizeCollection.items.map((item) => (
-                  <Select.Item key={item.value} item={item}>
-                    <Select.ItemText>{item.label}</Select.ItemText>
-                    <Select.ItemIndicator><CheckIcon /></Select.ItemIndicator>
-                  </Select.Item>
-                ))}
-              </Select.Content>
-            </Select.Positioner>
-          </Select.Root>
-        </HStack>
-      </HStack>
-
       <Card.Root>
         <Card.Header>
           <Card.Title>Filters</Card.Title>
@@ -222,9 +199,29 @@ export function DeadLetterTable() {
         <Card.Header>
           <HStack justify="space-between" alignItems="center">
             <Card.Title>Failed Items</Card.Title>
-            <Text textStyle="sm" color="fg.muted">
-              Showing {deadLetters.length} of {total} items
-            </Text>
+            <HStack gap="3">
+              <Text textStyle="sm" color="fg.muted">
+                Showing {deadLetters.length} of {total} items
+              </Text>
+              <Select.Root collection={pageSizeCollection} value={[String(pageSize)]} onValueChange={(details) => { setPageSize(Number(details.value[0])); setPage(1); }}>
+                <Select.Control>
+                  <Select.Trigger minWidth="80px">
+                    <Select.ValueText />
+                    <Select.Indicator><ChevronsUpDownIcon /></Select.Indicator>
+                  </Select.Trigger>
+                </Select.Control>
+                <Select.Positioner>
+                  <Select.Content>
+                    {pageSizeCollection.items.map((item) => (
+                      <Select.Item key={item.value} item={item}>
+                        <Select.ItemText>{item.label}</Select.ItemText>
+                        <Select.ItemIndicator><CheckIcon /></Select.ItemIndicator>
+                      </Select.Item>
+                    ))}
+                  </Select.Content>
+                </Select.Positioner>
+              </Select.Root>
+            </HStack>
           </HStack>
         </Card.Header>
         <Card.Body>
@@ -259,9 +256,9 @@ export function DeadLetterTable() {
                       <Table.Cell>{item.last_attempt_at ? new Date(item.last_attempt_at).toLocaleString() : '—'}</Table.Cell>
                       <Table.Cell>
                         {item.resolved_at ? (
-                          <Badge variant="solid" color="green">Resolved</Badge>
+                          <SemanticStatusBadge tone="success">Resolved</SemanticStatusBadge>
                         ) : (
-                          <Badge variant="solid" color="red">Pending</Badge>
+                          <SemanticStatusBadge tone="error">Pending</SemanticStatusBadge>
                         )}
                       </Table.Cell>
                       <Table.Cell>
@@ -327,9 +324,6 @@ export function DeadLetterTable() {
       </Card.Root>
 
       <Dialog.Root open={!!selectedItem} onOpenChange={(details) => !details.open && setSelectedItem(null)}>
-        <Dialog.Trigger asChild>
-          <Button variant="outline" size="sm">View Payload</Button>
-        </Dialog.Trigger>
         <Dialog.Content maxWidth="800px">
           <Dialog.Header>
             <Dialog.Title>Payload Details</Dialog.Title>

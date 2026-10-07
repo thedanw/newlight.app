@@ -1,4 +1,5 @@
 import { Heading, Text, Card, Badge, Button, Alert } from '@/core/ui'
+import { SemanticStatusBadge } from '../settings/components/SemanticStatusBadge'
 import { Stack } from 'styled-system/jsx'
 import { usePluginAPIContext } from '@/core/plugins/PluginAPI'
 import { useState, useEffect } from 'react'
@@ -58,12 +59,14 @@ export function ElvantoSyncStatusWidget() {
     }
   }
 
+  // Semantic colours matching the Activity tab: Success = Completed,
+  // Warning = Running, Error = Failed (partial shares Warning).
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'completed': return <Badge variant="solid" color="green">{status}</Badge>
-      case 'partial': return <Badge variant="solid" color="orange">{status}</Badge>
-      case 'failed': return <Badge variant="solid" color="red">{status}</Badge>
-      case 'running': return <Badge variant="solid" color="blue">{status}</Badge>
+      case 'completed': return <SemanticStatusBadge tone="success">{status}</SemanticStatusBadge>
+      case 'partial': return <SemanticStatusBadge tone="warning">{status}</SemanticStatusBadge>
+      case 'failed': return <SemanticStatusBadge tone="error">{status}</SemanticStatusBadge>
+      case 'running': return <SemanticStatusBadge tone="warning">{status}</SemanticStatusBadge>
       default: return <Badge variant="surface">{status}</Badge>
     }
   }

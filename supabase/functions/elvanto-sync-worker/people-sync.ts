@@ -188,7 +188,7 @@ function evaluateConditionNode(node, record) {
 }
 /**
  * Apply all field mappings to an Elvanto record to produce an app record
- */ async function applyMappings(supabase, entity, elvantoRecord, direction, mappings, locationPairings, categoryDemographicMappings, statusStageOverrides, journeyTransformGroups) {
+ */ async function applyMappings(supabase, entity, elvantoRecord, direction, mappings, locationPairings, categoryDemographicMappings, statusStageOverrides, journeyTransformGroups, permissionMap = {}) {
   const appRecord = {};
   const journeyUpdates = {};
   const errors = [];
@@ -196,13 +196,8 @@ function evaluateConditionNode(node, record) {
   const applicableMappings = mappings.filter((m)=>m.direction === direction || m.direction === 'both');
   // Sort by priority (higher first)
   applicableMappings.sort((a, b)=>(b.priority ?? 0) - (a.priority ?? 0));
-  // Fetch current permission from database for promote-only logic
-  const { data: existingPerson } = await supabase
-    .from('people')
-    .select('access_permission')
-    .eq('elvanto_id', elvantoRecord.id)
-    .maybeSingle();
-  // Create context for transforms
+  // Create context for transforms. currentPermission is supplied via the
+  // permissionMap batch-fetched in syncPeople (avoids a per-person N+1 query).
   const context = {
     elvantoRecord,
     appRecord,
@@ -211,7 +206,7 @@ function evaluateConditionNode(node, record) {
     locationPairings,
     categoryDemographicMappings,
     statusStageOverrides,
-    currentPermission: existingPerson?.access_permission
+    currentPermission: permissionMap[elvantoRecord.id]
   };
   for (const mapping of applicableMappings){
     try {
@@ -417,7 +412,7 @@ async function loadStatusStageOverrides(supabase) {
 }
 
 async function loadJourneyTransformGroups(supabase) {
-  const { data, error } = await supabase.from('elvanto_sync_config').select('value').eq('key', 'journey_transform_groups').maybeSingle();
+  const { data, error } = await supabase.from('elvanto_sync_config').select('value').eq('key', 'elvanto-sync_journey_transform_groups').maybeSingle();
   if (error) {
     console.error('[PeopleSync] Failed to load journey transform groups:', error);
     return [];
@@ -425,53 +420,73 @@ async function loadJourneyTransformGroups(supabase) {
   return Array.isArray(data?.value) ? data.value : [];
 }
 
-function evaluateCondition(condition, elvantoRecord) {
+function evaluateJourneyCondition(condition, elvantoRecord) {
   let fieldValue = null;
+  let fieldValues = []; // Array of values to check against (both IDs and names)
   
   if (condition.field === 'category') {
     fieldValue = elvantoRecord.category_id;
+    fieldValues = [fieldValue];
+    // Also check category name if available
+    if (elvantoRecord.category?.name) {
+      fieldValues.push(elvantoRecord.category.name);
+    }
   } else if (condition.field === 'demographic') {
     const demographics = elvantoRecord.demographics?.demographic;
     if (Array.isArray(demographics) && demographics.length > 0) {
       fieldValue = demographics[0]?.name || null;
+      fieldValues = [fieldValue];
+      // Also check demographic IDs
+      demographics.forEach(d => {
+        if (d?.id) fieldValues.push(d.id);
+        if (d?.name) fieldValues.push(d.name);
+      });
     }
   } else if (condition.field === 'location') {
     const locations = elvantoRecord.locations?.location;
     if (Array.isArray(locations)) {
+      // Collect both IDs and names for matching
+      locations.forEach(l => {
+        if (l?.id) fieldValues.push(l.id);
+        if (l?.name) fieldValues.push(l.name);
+      });
+      // Use IDs as primary fieldValue for backward compatibility
       fieldValue = locations.map(l => l?.id).filter(Boolean);
     }
   } else if (condition.field === 'status_contact') {
     fieldValue = elvantoRecord.contact === 1 ? '1' : '0';
+    fieldValues = [fieldValue];
   } else if (condition.field === 'status_archived') {
     fieldValue = (elvantoRecord.archived === 1 || elvantoRecord.deceased === 1) ? '1' : '0';
+    fieldValues = [fieldValue];
   }
   
-  if (fieldValue === null || fieldValue === undefined) return false;
+  // Filter out null/undefined values
+  fieldValues = fieldValues.filter(v => v !== null && v !== undefined);
+  if (fieldValues.length === 0) return false;
   
-  if (condition.operator === 'equals') {
-    if (Array.isArray(fieldValue)) {
-      return fieldValue.includes(condition.value);
+  const checkValue = (val) => {
+    if (condition.operator === 'equals') {
+      return String(val) === String(condition.value);
+    } else if (condition.operator === 'not_equals') {
+      return String(val) !== String(condition.value);
+    } else if (condition.operator === 'contains') {
+      return String(val).toLowerCase().includes(String(condition.value).toLowerCase());
     }
-    return String(fieldValue) === String(condition.value);
-  } else if (condition.operator === 'not_equals') {
-    if (Array.isArray(fieldValue)) {
-      return !fieldValue.includes(condition.value);
-    }
-    return String(fieldValue) !== String(condition.value);
-  } else if (condition.operator === 'contains') {
-    return String(fieldValue).toLowerCase().includes(String(condition.value).toLowerCase());
-  }
+    return false;
+  };
   
-  return false;
+  // Check against all collected values (IDs and names)
+  return fieldValues.some(checkValue);
 }
 
 function evaluateGroupConditions(group, elvantoRecord) {
   if (!group.conditions || group.conditions.length === 0) return true;
   
-  let result = evaluateCondition(group.conditions[0], elvantoRecord);
+  let result = evaluateJourneyCondition(group.conditions[0], elvantoRecord);
   
   for (let i = 1; i < group.conditions.length; i++) {
-    const conditionResult = evaluateCondition(group.conditions[i], elvantoRecord);
+    const conditionResult = evaluateJourneyCondition(group.conditions[i], elvantoRecord);
     const logic = group.conditions[i].logic || 'AND';
     
     if (logic === 'AND') {
@@ -554,10 +569,27 @@ export async function syncPeople(supabase, apiKey, options = {}) {
     // Process in chunks for batched upserts
     const upsertRows = [];
     let lastDateModified = null;
+    // Batch-fetch existing access_permissions once up front. applyMappings
+    // previously ran a per-person SELECT for every person (N+1), which
+    // multiplied DB round-trips and CPU on large people sets and pushed
+    // the function past its compute limit (HTTP 546). Chunked to keep
+    // the IN() filter within URL length limits.
+    const permissionMap = {};
+    const elvantoIds = people.map(p => p.id).filter(Boolean);
+    for (let i = 0; i < elvantoIds.length; i += 100) {
+      const idChunk = elvantoIds.slice(i, i + 100);
+      const { data: existingRows } = await supabase
+        .from('people')
+        .select('elvanto_id, access_permission')
+        .in('elvanto_id', idChunk);
+      for (const row of existingRows || []) {
+        permissionMap[row.elvanto_id] = row.access_permission;
+      }
+    }
     for (const person of people){
       try {
         // Apply field mappings
-        const { appRecord, journeyUpdates, errors } = await applyMappings(supabase, entity, person, 'pull', mappings, locationPairings, categoryDemographicMappings, statusStageOverrides, journeyTransformGroups);
+        const { appRecord, journeyUpdates, errors } = await applyMappings(supabase, entity, person, 'pull', mappings, locationPairings, categoryDemographicMappings, statusStageOverrides, journeyTransformGroups, permissionMap);
         if (errors.length) {
           result.errors.push(...errors.map((e)=>`Person ${person.id}: ${e}`));
           result.itemsFailed++;

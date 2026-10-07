@@ -1,25 +1,16 @@
-import { Box, Stack } from 'styled-system/jsx'
-import { Heading, Text, Card, Table, Badge, Button, Input, Dialog, Alert, Select } from '@/core/ui'
+import { Box, HStack, Stack } from 'styled-system/jsx'
+import { Accordion, Text, Card, Table, Badge, Button, Input, Dialog, Alert, Select } from '@/core/ui'
 import { usePluginAPIContext } from '@/core/plugins/PluginAPI'
 import { useState, useEffect, useMemo } from 'react'
 import { createListCollection } from '@ark-ui/react'
 import { ChevronsUpDownIcon, CheckIcon } from 'lucide-react'
-
-interface SyncHistoryItem {
-  id: string
-  entity: string
-  trigger: 'cron' | 'manual' | 'webhook'
-  started_at: string
-  completed_at: string | null
-  status: 'running' | 'completed' | 'partial' | 'failed'
-  items_processed: number
-  items_failed: number
-  error_summary: string | null
-  triggered_by_user: string | null
-}
+import { SemanticStatusBadge, type SemanticTone } from './SemanticStatusBadge'
+import { groupRunsIntoBatches, type SyncHistoryItem } from './sync-batch'
 
 /**
- * Sync History Table — Paginated table with filters and "View Details" modal
+ * Sync History Table — Paginated batches of sync runs rendered as a Park UI
+ * Accordion (one item per worker batch), with filters and a "View Details"
+ * modal per endpoint run. Statuses use the theme's semantic colours.
  */
 export function SyncHistoryTable() {
   const { toast, supabase } = usePluginAPIContext()
@@ -61,7 +52,8 @@ export function SyncHistoryTable() {
         query = query.gte('started_at', filters.dateFrom)
       }
       if (filters.dateTo) {
-        query = query.lte('started_at', filters.dateTo)
+        // Date inputs yield YYYY-MM-DD (midnight); include the whole end day.
+        query = query.lte('started_at', `${filters.dateTo}T23:59:59.999Z`)
       }
 
       const { data, error, count } = await query
@@ -78,15 +70,17 @@ export function SyncHistoryTable() {
     }
   }
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'completed': return <Badge variant="solid">{status}</Badge>
-      case 'partial': return <Badge variant="surface">{status}</Badge>
-      case 'failed': return <Badge variant="outline">{status}</Badge>
-      case 'running': return <Badge variant="subtle">{status}</Badge>
-      default: return <Badge variant="subtle">{status}</Badge>
-    }
+  // Semantic colour per sync status (theme vars from semantic-colors.ts).
+  const STATUS_TONE: Record<string, SemanticTone> = {
+    completed: 'success',
+    partial: 'warning',
+    failed: 'error',
+    running: 'warning',
   }
+
+  const getStatusBadge = (status: string) => (
+    <SemanticStatusBadge tone={STATUS_TONE[status] ?? 'info'}>{status}</SemanticStatusBadge>
+  )
 
   const getTriggerBadge = (trigger: string) => {
     switch (trigger) {
@@ -152,32 +146,11 @@ export function SyncHistoryTable() {
 
   const totalPages = Math.ceil(total / pageSize)
 
+  // One accordion item per worker batch of endpoint runs.
+  const batches = useMemo(() => groupRunsIntoBatches(history), [history])
+
   return (
     <Stack>
-      <Stack flexDirection="row" justify="space-between" align="center">
-        <Heading textStyle="md">Sync History</Heading>
-        <Stack flexDirection="row" gap="2">
-          <Select.Root collection={pageSizeCollection} value={[String(pageSize)]} onValueChange={(details) => { setPageSize(Number(details.value[0])); setPage(1); }}>
-            <Select.Control>
-              <Select.Trigger minWidth="80px">
-                <Select.ValueText />
-                <Select.Indicator><ChevronsUpDownIcon /></Select.Indicator>
-              </Select.Trigger>
-            </Select.Control>
-            <Select.Positioner>
-              <Select.Content>
-                {pageSizeCollection.items.map((item) => (
-                  <Select.Item key={item.value} item={item}>
-                    <Select.ItemText>{item.label}</Select.ItemText>
-                    <Select.ItemIndicator><CheckIcon /></Select.ItemIndicator>
-                  </Select.Item>
-                ))}
-              </Select.Content>
-            </Select.Positioner>
-          </Select.Root>
-        </Stack>
-      </Stack>
-
       {/* Filters */}
       <Card.Root>
         <Card.Header>
@@ -242,14 +215,34 @@ export function SyncHistoryTable() {
         </Card.Body>
       </Card.Root>
 
-      {/* History Table */}
+      {/* Batched Sync History */}
       <Card.Root>
         <Card.Header>
           <Stack flexDirection="row" justify="space-between" align="center">
             <Card.Title>Sync Runs</Card.Title>
-            <Text textStyle="sm" color="fg.muted">
-              Showing {history.length} of {total} runs
-            </Text>
+            <HStack gap="3">
+              <Text textStyle="sm" color="fg.muted">
+                {`Showing ${batches.length} ${batches.length === 1 ? 'batch' : 'batches'} · ${history.length} of ${total} runs`}
+              </Text>
+              <Select.Root collection={pageSizeCollection} value={[String(pageSize)]} onValueChange={(details) => { setPageSize(Number(details.value[0])); setPage(1); }}>
+                <Select.Control>
+                  <Select.Trigger minWidth="80px">
+                    <Select.ValueText />
+                    <Select.Indicator><ChevronsUpDownIcon /></Select.Indicator>
+                  </Select.Trigger>
+                </Select.Control>
+                <Select.Positioner>
+                  <Select.Content>
+                    {pageSizeCollection.items.map((item) => (
+                      <Select.Item key={item.value} item={item}>
+                        <Select.ItemText>{item.label}</Select.ItemText>
+                        <Select.ItemIndicator><CheckIcon /></Select.ItemIndicator>
+                      </Select.Item>
+                    ))}
+                  </Select.Content>
+                </Select.Positioner>
+              </Select.Root>
+            </HStack>
           </Stack>
         </Card.Header>
         <Card.Body>
@@ -259,42 +252,74 @@ export function SyncHistoryTable() {
             <Text color="fg.muted" textAlign="center" p="6">No sync history found</Text>
           ) : (
             <>
-              <Box overflowX="auto" minW="0">
-              <Table.Root>
-                <Table.Head>
-                  <Table.Row>
-                    <Table.Header>Entity</Table.Header>
-                    <Table.Header>Trigger</Table.Header>
-                    <Table.Header>Started</Table.Header>
-                    <Table.Header>Completed</Table.Header>
-                    <Table.Header>Duration</Table.Header>
-                    <Table.Header>Status</Table.Header>
-                    <Table.Header>Processed</Table.Header>
-                    <Table.Header>Failed</Table.Header>
-                    <Table.Header>Actions</Table.Header>
-                  </Table.Row>
-                </Table.Head>
-                <Table.Body>
-                  {history.map((run) => (
-                    <Table.Row key={run.id}>
-                      <Table.Cell>{run.entity}</Table.Cell>
-                      <Table.Cell>{getTriggerBadge(run.trigger)}</Table.Cell>
-                      <Table.Cell>{formatDate(run.started_at)}</Table.Cell>
-                      <Table.Cell>{formatDate(run.completed_at)}</Table.Cell>
-                      <Table.Cell>{formatDuration(run.started_at, run.completed_at)}</Table.Cell>
-                      <Table.Cell>{getStatusBadge(run.status)}</Table.Cell>
-                      <Table.Cell>{run.items_processed.toLocaleString()}</Table.Cell>
-                      <Table.Cell>{run.items_failed.toLocaleString()}</Table.Cell>
-                      <Table.Cell>
-                        <Button variant="outline" size="sm" onClick={() => handleViewDetails(run)}>
-                          View Details
-                        </Button>
-                      </Table.Cell>
-                    </Table.Row>
-                  ))}
-                </Table.Body>
-              </Table.Root>
-              </Box>
+              <Accordion.Root collapsible>
+                {batches.map((batch) => (
+                  <Accordion.Item key={batch.key} value={batch.key}>
+                    <Accordion.ItemTrigger>
+                      <HStack flex="1" justify="space-between" gap="3" alignItems="center" flexWrap="wrap">
+                        <HStack gap="2" alignItems="center">
+                          {getTriggerBadge(batch.trigger)}
+                          <Text textStyle="sm" fontWeight="medium">{formatDate(batch.startedAt)}</Text>
+                          <Text textStyle="xs" color="fg.muted">
+                            {batch.completedAt ? `→ ${formatDate(batch.completedAt)}` : '→ Running…'}
+                          </Text>
+                          <Text textStyle="xs" color="fg.muted">
+                            {batch.rows.length} endpoint{batch.rows.length === 1 ? '' : 's'}
+                          </Text>
+                        </HStack>
+                        <HStack gap="3" alignItems="center">
+                          <Text textStyle="xs" color="fg.muted">
+                            {batch.itemsProcessed.toLocaleString()} processed
+                          </Text>
+                          <Text textStyle="xs" color={batch.itemsFailed > 0 ? 'var(--colors-error)' : 'fg.muted'}>
+                            {batch.itemsFailed.toLocaleString()} failed
+                          </Text>
+                          {getStatusBadge(batch.status)}
+                        </HStack>
+                      </HStack>
+                      <Accordion.ItemIndicator />
+                    </Accordion.ItemTrigger>
+                    <Accordion.ItemContent>
+                      <Accordion.ItemBody>
+                        <Box overflowX="auto" minW="0">
+                          <Table.Root>
+                            <Table.Head>
+                              <Table.Row>
+                                <Table.Header>Entity</Table.Header>
+                                <Table.Header>Started</Table.Header>
+                                <Table.Header>Completed</Table.Header>
+                                <Table.Header>Duration</Table.Header>
+                                <Table.Header>Status</Table.Header>
+                                <Table.Header>Processed</Table.Header>
+                                <Table.Header>Failed</Table.Header>
+                                <Table.Header>Actions</Table.Header>
+                              </Table.Row>
+                            </Table.Head>
+                            <Table.Body>
+                              {batch.rows.map((run) => (
+                                <Table.Row key={run.id}>
+                                  <Table.Cell>{run.entity}</Table.Cell>
+                                  <Table.Cell>{formatDate(run.started_at)}</Table.Cell>
+                                  <Table.Cell>{formatDate(run.completed_at)}</Table.Cell>
+                                  <Table.Cell>{formatDuration(run.started_at, run.completed_at)}</Table.Cell>
+                                  <Table.Cell>{getStatusBadge(run.status)}</Table.Cell>
+                                  <Table.Cell>{run.items_processed.toLocaleString()}</Table.Cell>
+                                  <Table.Cell>{run.items_failed.toLocaleString()}</Table.Cell>
+                                  <Table.Cell>
+                                    <Button variant="outline" size="sm" onClick={() => handleViewDetails(run)}>
+                                      View Details
+                                    </Button>
+                                  </Table.Cell>
+                                </Table.Row>
+                              ))}
+                            </Table.Body>
+                          </Table.Root>
+                        </Box>
+                      </Accordion.ItemBody>
+                    </Accordion.ItemContent>
+                  </Accordion.Item>
+                ))}
+              </Accordion.Root>
 
               {/* Pagination */}
               {totalPages > 1 && (
@@ -377,7 +402,7 @@ export function SyncHistoryTable() {
                 </Stack>
                 <Stack flexDirection="row">
                   <Text textStyle="sm" color="fg.muted" minWidth="120px">Failed</Text>
-                  <Text textStyle="sm" color={selectedItem && selectedItem.items_failed > 0 ? 'red' : 'inherit'}>
+                  <Text textStyle="sm" color={selectedItem && selectedItem.items_failed > 0 ? 'var(--colors-error)' : 'inherit'}>
                     {selectedItem?.items_failed.toLocaleString()}
                   </Text>
                 </Stack>

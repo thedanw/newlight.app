@@ -1,6 +1,6 @@
 import { supabase } from '@/core/lib/supabase'
 import type { Json } from '@/core/lib/database.types'
-import type { HouseholdDetails, JourneyGrid, JourneyStage, JourneyTrack, JourneyTrackCategory, PeopleListOptions, Person, PersonPublic, PersonRelationship, PersonWithJourney, Tag } from './types'
+import type { Demographic, HouseholdDetails, JourneyGrid, JourneyStage, JourneyTrack, JourneyTrackCategory, PeopleListOptions, Person, PersonPublic, PersonRelationship, PersonWithJourney, Tag } from './types'
 
 const DEFAULT_PAGE_SIZE = 50
 
@@ -225,6 +225,12 @@ export async function getJourneyTracks(): Promise<JourneyGrid['tracks']> {
 
 export async function getJourneyStages(): Promise<JourneyGrid['stages']> {
   const { data, error } = await supabase.from('journey_stages').select('*').order('sort_order')
+  if (error) throw error
+  return data ?? []
+}
+
+export async function getDemographics(): Promise<Demographic[]> {
+  const { data, error } = await supabase.from('demographics').select('*').is('deleted_at', null).order('sort_order')
   if (error) throw error
   return data ?? []
 }

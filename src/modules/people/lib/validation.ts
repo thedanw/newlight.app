@@ -7,7 +7,7 @@ export const personFormSchema = z.object({
   middle_name: z.string().nullable(),
   email: z.union([z.string().email('Enter a valid email address.'), z.literal(''), z.null()]),
   date_of_birth: z.union([z.string().date('Enter a valid date of birth.'), z.literal(''), z.null()]).refine((date) => !date || date <= new Date().toISOString().slice(0, 10), 'Date of birth cannot be in the future.'),
-  demographic: z.enum(['adult', 'youth', 'child']),
+  demographic: z.string().min(1, 'Demographic is required.'),
   gender: z.enum(['male', 'female']).nullable(),
   marital_status: z.enum(['single', 'engaged', 'married', 'partner', 'widowed', 'divorced', 'separated']).nullable(),
   school_name: z.string().nullable(),

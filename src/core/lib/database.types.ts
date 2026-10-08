@@ -18,7 +18,7 @@ type PersonRow = {
   middle_name: string | null
   lastname: string
   email: string | null
-  demographic: Database['public']['Enums']['demographic']
+  demographic: string
   gender: Database['public']['Enums']['gender'] | null
   date_of_birth: string | null
   anniversary: string | null
@@ -61,6 +61,17 @@ type PersonRow = {
   picture_url: string | null
   _synced_at: string
   _source_modified: string
+}
+
+type DemographicsRow = {
+  id: string
+  name: string
+  slug: string
+  profile_type: Database['public']['Enums']['profile_type']
+  icon_type: string
+  icon_name: string | null
+  sort_order: number
+  deleted_at: string | null
 }
 
 type PersonRelationshipRow = {
@@ -279,11 +290,12 @@ export type Database = {
       email_recipients: TableDefinition<EmailRecipientRow>
       email_unsubscribes: TableDefinition<EmailUnsubscribeRow>
       email_sender_aliases: TableDefinition<EmailSenderAliasRow>
+      demographics: TableDefinition<DemographicsRow>
     }
     Views: Record<string, never>
     Functions: Record<string, never>
     Enums: {
-      demographic: 'adult' | 'youth' | 'child'
+      profile_type: 'adult' | 'youth' | 'child'
       gender: 'male' | 'female'
       marital_status: 'single' | 'engaged' | 'married' | 'partner' | 'widowed' | 'divorced' | 'separated'
       access_permission: 'public' | 'member_area' | 'team_leaders' | 'admin' | 'super_admin'

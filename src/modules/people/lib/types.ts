@@ -22,6 +22,7 @@ export type FormSubmitAction = Form['submit_action']
 export type JourneyTrack = Tables<'journey_tracks'>
 export type JourneyTrackCategory = Tables<'journey_track_categories'>
 export type JourneyStage = Tables<'journey_stages'>
+export type Demographic = Tables<'demographics'>
 
 export type PersonWithJourney = Person & {
   household: Household | null

@@ -16,12 +16,13 @@ Scope: In: `supabase/migrations/`, `src/modules/people/**`, `src/core/{lib,auth,
 4. What have I learned? — `findings.md`
 5. What have I tried? — Completed checkboxes + Error Log
 
-Current: Batch 1, Subphase 1.1
+Current: Batch 2 done (2.4 triage open) -> Batch 3, Subphase 3.1 done -> 3.2
 
 ## Error Log
 | # | Batch | Error | Fix Attempted | Resolution |
 |---|-------|-------|---------------|------------|
-| 1 | | | | |
+| 1 | 1 | 8.1 gate `pnpm typecheck — 0 errors` unachievable: 75 pre-existing errors at baseline (incl. unrelated modules) | Plan change (Plan Change row): 1.2 rule "pre-existing → don't fix" conflicts with 8.1 absolute gate | Gate amended: **0 errors in touched files; total ≤ 75 baseline**. Recorded findings#baseline. |
+| 2 | 1 | HEAD drifted `fe5818e` → `b047abd` (2 prior fix commits) + plan.md dirty at start | Reconciled refs, committed doc edit (`9538675`) | 1.1 completed against `b047abd`; no impact on tasks |
 
 ## Batch Protocol (shared — applies to every batch)
 - **Tools**: atomic todo list, max 1 in-progress; subagents per subphase flags — spawn for independent >5 min / parallel file ops / research; never for sequential deps, <2 min edits, shared mutable state
@@ -37,15 +38,16 @@ Current: Batch 1, Subphase 1.1
 ## Batch 1: Setup & Foundation
 
 **Start: Sync**
-- [ ] Mark completed tasks in `plan.md` (update checkboxes/status)
-- [ ] Read `findings.md` for key discoveries
-- [ ] **Context Check**: If estimated context > 70%, run compaction before proceeding
+- [x] Mark completed tasks in `plan.md` (update checkboxes/status)
+- [x] Read `findings.md` for key discoveries
+- [x] **Context Check**: If estimated context > 70%, run compaction before proceeding
 
 **Context**
 - Goal: ParkUI tabs + custom demographics + icons; Map Journeys tab owns Elvanto→demographic conversion
 - This Batch: Verify clean `main`, capture baseline, answer open questions, freeze migration recipe
 - Prev: None — fresh plan; `findings.md` pre-populated from 2026-10-08 audit
 - Key: findings.md#locked-decisions, findings.md#git-state
+- Status: ✅ complete 2026-10-08 (1.1–1.4; details in subphases below)
 
 ### Subphase 1.1: Git verification ✅ 2026-10-08
 Context: `main` @ `b047abd` (fe5818e + 2 prior fix commits: MapJourneysTab stages, JourneySection slug keys — complementary, no conflict); work directly on existing `main`/`origin` — no feature branch. Only dirty file at start = plan.md optimise edit (committed as docs).
@@ -55,31 +57,26 @@ Todo:
 Subagent: No
 Deliverable: clean `main` verified against `origin`
 
-### Subphase 1.2: Baseline verification
+### Subphase 1.2: Baseline verification ✅ 2026-10-08
 Context: executor must know pre-existing failures before touching code.
 Todo:
-- [ ] `pnpm typecheck` — capture output
-- [ ] `pnpm test` — capture pass/fail counts
-- [ ] Paste into `findings.md#baseline`; pre-existing failures → Error Log row, do NOT fix here
-Subagent: No
-Deliverable: documented baseline
+- [x] `pnpm typecheck` — capture output (FAIL exit 2, **75 pre-existing errors** — details findings#baseline)
+- [x] `pnpm test` — capture pass/fail counts (PASS 53/53 files, 0 failed, 21s)
+- [x] Paste into `findings.md#baseline`; pre-existing failures → Error Log row, do NOT fix here (Error Log #1: 8.1 gate amended)
 
-### Subphase 1.3: Open verifications
+### Subphase 1.3: Open verifications ✅ 2026-10-08 (inline — no subagent tool in this env)
 Context: 5 unknowns gate migration + sync work; answers may adjust Batches 2/7.
 Todo:
-- [ ] Answer `findings.md#open-verifications` items 1–5 (search_people columns; migration apply workflow; transform registry names; legacy config usage; lucide seed exports)
-- [ ] Write answers into findings.md beside each item
-- [ ] If an answer contradicts a task below: re-read plan, edit affected subphase, add "Plan Change" row to Error Log
-Subagent: Yes — research >5 min (prompt: "Answer items 1–5 in .agents/planning/people/plan/findings.md#open-verifications; deliverable: answers written into that file; constraints: read-only, cite file:line")
+- [x] Answer `findings.md#open-verifications` items 1–5 (1: search_people = `setof people`/`p.*`, no change; 2: apply = `npx supabase db push` linked project; 3: removal list exact; 4: config writer orphaned → keep loader dormant; 5: lucide seeds valid)
+- [x] Write answers into findings.md beside each item
+- [x] No answer contradicts a task below — plan reconciled (only Error Log #1 gate amendment)
 Deliverable: 5 answers recorded, plan reconciled
 
-### Subphase 1.4: Freeze migration recipe
+### Subphase 1.4: Freeze migration recipe ✅ 2026-10-08
 Context: read-before-decide; Batch 2 must not improvise schema.
 Todo:
-- [ ] Re-read `findings.md#schema-target`; reconcile with 1.3 answers (view/RPC recreation, apply workflow, seed icons)
-- [ ] Confirm unchanged or edit findings.md (recipe = SSOT for the SQL)
-Subagent: No
-Deliverable: frozen migration recipe
+- [x] Re-read `findings.md#schema-target`; reconcile with 1.3 answers (view recreation confirmed required; search_people untouched; seeds confirmed; apply = `db push`)
+- [x] Confirmed unchanged — recipe frozen as SSOT for the SQL (answers added context only)
 
 **Compaction**
 - Summarize completed tasks in one line; details → findings.md
@@ -100,31 +97,29 @@ Deliverable: frozen migration recipe
 - Prev: B1 — clean `main` verified, baseline + 5 answers recorded, recipe frozen
 - Key: findings.md#schema-target, findings.md#verification-sql
 
-### Subphase 2.1: Write migration
+### Subphase 2.1: Write migration ✅ 2026-10-08
 Context: recipe frozen; mirror idempotent patterns (`drop policy if exists`, `create or replace view`) from existing migrations.
 Todo:
-- [ ] Create `supabase/migrations/20261008090000_create_demographics.sql`: `profile_type` enum; `demographics` table + partial unique slug index + RLS + grants (authenticated rw, **anon select** for public filters, service_role all — mirror journey tables); seed adult/youth/child (profile_type matching; icons per 1.3.5; sort_order 0/1/2)
-- [ ] Same file: `alter people.demographic` → varchar `using`, FK → `demographics.slug`, default `'adult'`; recreate `people_public` (keep anon column list + `security_invoker = off` + GRANT — copy `20260919100200:57-70`); `drop type demographic` last
-- [ ] Grep migrations for other `::demographic` / enum dependencies; record hits in findings.md
-Subagent: No (single file, serial)
+- [x] Create `supabase/migrations/20261008090000_create_demographics.sql`: `profile_type` enum; `demographics` table + partial unique slug index + RLS + grants (authenticated rw, **anon select** for public filters, service_role all — mirror journey tables); seed adult/youth/child (User/GraduationCap/Baby, sort_order 0/1/2) — DO-block enum guard, `on conflict` seeds, drop-view-before-alter
+- [x] Same file: `alter people.demographic` → varchar `using`, FK `people_demographic_fk` → `demographics.slug`, default `'adult'`; recreate `people_public` (exact `20260919100200:56-71` copy incl. grants); `drop type demographic` last
+- [x] Grep migrations for other `::demographic` / enum dependencies; record hits in findings.md (none — findings#schema-target appended "Enum dependency grep")
 Deliverable: migration file matches recipe
 
-### Subphase 2.2: Apply + verify schema
+### Subphase 2.2: Apply + verify schema ✅ 2026-10-08
 Todo:
-- [ ] Apply per 1.3.2 answer (local `supabase db reset` or hosted push to dev project)
-- [ ] Run every query in `findings.md#verification-sql`; paste results beside them
-- [ ] Failure → fix migration idempotently, log Error Log; 3-strike → STOP/ask
-Subagent: No
+- [x] Apply per 1.3.2 answer (`npx supabase db push` to linked project; dry-run first → 1 migration queued; real push exit 0)
+- [x] Run every query in `findings.md#verification-sql`; paste results beside them (Management API `database/query` — ALL PASS: FK, varchar+default, 3 seeds, 0 orphans, view varchar; +RLS/policies/grants/enum-dropped/distribution evidence)
+- [x] Failure → none (exit 0 first run)
 Deliverable: verified schema — 0 orphans, FK exists, view returns slug
 
-### Subphase 2.3: Types + validation (TDD)
+### Subphase 2.3: Types + validation (TDD) ✅ 2026-10-08
 Context: `database.types.ts` is hand-maintained; integrity now comes from the FK, not zod.
 Todo:
-- [ ] FAILING test `src/modules/people/lib/validation.test.ts`: schema accepts custom slug `young-adult`, rejects `''` (currently fails — z.enum)
-- [ ] `src/core/lib/database.types.ts`: `PersonRow.demographic: string` (:21); remove `Enums.demographic` (:286), add `profile_type`; add `demographics` Tables entry
-- [ ] `lib/types.ts`: export `Demographic = Tables<'demographics'>`; `PeopleListOptions['demographic']` stays string (:45)
-- [ ] `lib/validation.ts:10` → `z.string().min(1, 'Demographic is required')`; test passes
-Subagent: Yes — types file and validation test are independent (parallel)
+- [x] FAILING test `src/modules/people/lib/validation.test.ts`: schema accepts custom slug `young-adult`, rejects `''` (RED confirmed: 2 failed / 2 passed)
+- [x] `src/core/lib/database.types.ts`: `PersonRow.demographic: string` (:21); replace `Enums.demographic` with `profile_type`; add `DemographicsRow` + `demographics` Tables entry
+- [x] `lib/types.ts`: export `Demographic = Tables<'demographics'>`; `PeopleListOptions['demographic']` stays string via `Person['demographic']` (:45)
+- [x] `lib/validation.ts:10` → `z.string().min(1, 'Demographic is required.')`; test passes (GREEN 4/4)
+Subagent: executed inline (no subagent tool in this env)
 Deliverable: validation test green
 
 ### Subphase 2.4: Fallout triage
@@ -142,8 +137,8 @@ Deliverable: triage list; typecheck clean except known list
 
 ## Batch 3: Data layer (TDD — queries, hooks, helpers)
 
-**Start: Sync**
-- [ ] Mark completed tasks in `plan.md` (update checkboxes/status)
+- [x] Mark completed tasks in `plan.md` (update checkboxes/status) -- Batch 2 (2.1-2.3 verified) + 3.1
+- [x] Read `findings.md` for key discoveries (schema-target, verification-sql, code-impacted)
 - [ ] Read `findings.md` for key discoveries
 - [ ] **Context Check**: If estimated context > 70%, run compaction before proceeding
 
@@ -153,16 +148,16 @@ Deliverable: triage list; typecheck clean except known list
 - Prev: B2 — schema live + verified; types/validation updated; expected-failure list recorded
 - Key: findings.md#code-impacted, findings.md#existing-patterns-to-copy
 
-### Subphase 3.1: Read + profile_type helpers (TDD)
+### Subphase 3.1 DONE 2026-10-08 Read + profile_type helpers (TDD)
 Todo:
-- [ ] FAILING tests: `getDemographics()` returns active rows ordered by `sort_order` (filters `deleted_at`); `resolveProfileType(demographics, 'adult')` → `'adult'`, unknown slug → `'adult'` (safe default = today's behaviour), custom slug → its `profile_type`
-- [ ] Implement `getDemographics()` in `lib/queries.ts` (mirror `getJourneySettings` :238 style)
-- [ ] Implement pure `resolveProfileType` in new `src/modules/people/lib/demographic-helpers.ts`
-- [ ] Add `useDemographics()` to `lib/hooks.ts` (via `useAsyncQuery` — consumers live outside settings)
+- [x] FAILING tests written first (RED: demographics.test.ts `getDemographics is not a function`); `resolveProfileType` tests (3) + `getDemographics` mocked-chain tests (2) -- GREEN 5/5
+- [x] Implement `getDemographics()` in `lib/queries.ts` (mirrors `getJourneySettings` style: is deleted_at null + order sort_order)
+- [x] Pure `resolveProfileType` in `src/modules/people/lib/demographic-helpers.ts` (unknown slug -> adult safe default)
+- [x] `useDemographics()` in `lib/hooks.ts` via `useAsyncQuery` key demographics
 Subagent: No (one domain, serial)
 Deliverable: tested read path + resolver
 
-### Subphase 3.2: create/save (TDD)
+### Subphase 3.2 (TODO) -- 2026-10-08 create/save (TDD)
 Context: slug generated once from name and never edited (findings#locked-decisions 5); extract `slugify` from `JourneySettingsManager.tsx:38-44` into shared `lib/slug.ts` (DRY) and re-import there.
 Todo:
 - [ ] FAILING tests: create requires name; slug = slugify(name); duplicate active slug → clear error ("already exists"); save edits name/profile_type/icon but never slug; profile_type defaults `'adult'`
@@ -171,7 +166,7 @@ Todo:
 Subagent: No (same file as 3.1)
 Deliverable: tested create/save + shared slugify
 
-### Subphase 3.3: delete-with-migration (TDD) — feature 2 core
+### Subphase 3.3 (TODO) -- 2026-10-08 delete-with-migration (TDD) -- feature 2 core
 Context: mirror `deleteJourneyTrack` (`queries.ts:310-325`) + audit decisions B.6/#4.9; re-read findings#code-impacted DB rows.
 Todo:
 - [ ] FAILING tests for `deleteDemographic(sourceId, targetSlug)`:
@@ -184,7 +179,7 @@ Todo:
 Subagent: Yes — test file independent of 3.2 impl (parallel)
 Deliverable: tested delete-with-migration
 
-### Subphase 3.4: Data-layer gate
+### Subphase 3.4 (TODO) -- 2026-10-08 Data-layer gate
 Todo:
 - [ ] `pnpm test` green except findings expected-failure list; `pnpm typecheck` green
 - [ ] Clear applicable items from the expected-failure list

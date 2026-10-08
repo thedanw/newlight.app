@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
-import { getCurrentOperatorPermission, getHouseholdById, getHouseholds, getJourneyCategories, getJourneyGrid, getJourneyStages, getJourneyTracks, getPeopleList, getPersonById, getPersonGuardians, getPublicPeopleList, getPublicPersonById, searchPeople } from './queries'
+import { getCurrentOperatorPermission, getDemographics, getHouseholdById, getHouseholds, getJourneyCategories, getJourneyGrid, getJourneyStages, getJourneyTracks, getPeopleList, getPersonById, getPersonGuardians, getPublicPeopleList, getPublicPersonById, searchPeople } from './queries'
 import { getPersonTags, getTags } from './queries'
-import type { HouseholdDetails, JourneyGrid, JourneyStage, JourneyTrack, JourneyTrackCategory, PeopleListOptions, Person, PersonPublic, PersonWithJourney } from './types'
+import type { Demographic, HouseholdDetails, JourneyGrid, JourneyStage, JourneyTrack, JourneyTrackCategory, PeopleListOptions, Person, PersonPublic, PersonWithJourney } from './types'
 
 type AsyncState<T> = {
   data: T | null
@@ -76,6 +76,10 @@ export function useJourneyStages(): AsyncState<JourneyStage[]> {
 
 export function useJourneyCategories(): AsyncState<JourneyTrackCategory[]> {
   return useAsyncQuery(getJourneyCategories, 'journey-categories')
+}
+
+export function useDemographics(): AsyncState<Demographic[]> {
+  return useAsyncQuery(getDemographics, 'demographics')
 }
 
 export function useCurrentOperatorPermission(): AsyncState<Person['access_permission'] | null> {

@@ -20,11 +20,11 @@ import {
   listTransforms,
 } from './transforms'
 
-// UUIDs used by transforms.ts — kept here so tests stay in sync with the real values
-const CONTACT = 'a1b2c3d4-0000-4000-8000-000000000001'
-const GUEST = 'a1b2c3d4-0000-4000-8000-000000000002'
-const LINKED = 'a1b2c3d4-0000-4000-8000-000000000003'
-const REGULAR = 'a1b2c3d4-0000-4000-8000-000000000004'
+// Stage SLUGS used by transforms.ts — callers resolve slug→id at runtime via stage map
+const CONTACT = 'contact'
+const GUEST = 'guest'
+const LINKED = 'linked'
+const REGULAR = 'regular'
 
 describe('Transform Functions', () => {
   describe('category_to_journey_stage', () => {

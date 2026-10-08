@@ -129,7 +129,7 @@ export async function syncJourney(
       result.success = false
       return result
     }
-    
+
     let page = 1
     const pageSize = 1000
     let hasMore = true
@@ -146,19 +146,35 @@ export async function syncJourney(
       
       for (const person of people) {
         try {
-          // Compute journey updates for this person
+          // Compute journey updates for this person (stage values are canonical slugs)
           const journeyUpdates = computeJourneyUpdates(
             person,
             categoryNameMap,
             trackIds,
             locationPairings
           )
-          
+
           if (Object.keys(journeyUpdates).length === 0) {
             // No journey tracks to update for this person
             continue
           }
-          
+
+          // Resolve stage slugs to stage UUIDs (migration 20260908200000 moved
+          // journey_stages PK slug→uuid; stages created through JourneySettingsManager
+          // carry random UUIDs, so hardcoded deterministic UUIDs are no longer valid).
+          const stageMap = await loadStageMap(supabase)
+          for (const [trackId, stageValue] of Object.entries(journeyUpdates)) {
+            if (stageValue && typeof stageValue === 'string' && stageMap.has(stageValue)) {
+              journeyUpdates[trackId] = stageMap.get(stageValue)!
+            } else if (stageValue && typeof stageValue === 'string' && !stageMap.has(stageValue)) {
+              // Unknown slug — skip rather than write an orphan UUID
+              delete journeyUpdates[trackId]
+            }
+          }
+          if (Object.keys(journeyUpdates).length === 0) {
+            continue
+          }
+
           // Update person's journey JSONB
           const { error } = await supabase
             .from('people')
@@ -282,6 +298,9 @@ function computeJourneyUpdates(
 }
 
 // Deterministic UUIDs for seeded journey stages (must match the migration seed values)
+// DEPRECATED — stages created through JourneySettingsManager carry random UUIDs, so
+// hardcoded UUIDs are no longer valid. computeSundayStage/computeLocationStage now
+// return canonical slugs; the caller resolves slugs to stage ids at runtime.
 const STAGE_UUIDS = {
   contact: 'a1b2c3d4-0000-4000-8000-000000000001',
   guest: 'a1b2c3d4-0000-4000-8000-000000000002',
@@ -294,34 +313,34 @@ const STAGE_UUIDS = {
 function computeSundayStage(person: ElvantoPerson, categoryName: string): string | null {
   // Status overrides (priority order)
   if (person.contact === 1 || person.suspended === 1) {
-    return STAGE_UUIDS.archived
+    return 'archived'
   }
   if (person.archived === 1 || person.deceased === 1) {
-    return STAGE_UUIDS.deleted_privacy_data
+    return 'deleted_privacy_data'
   }
 
   // Category mapping
   const normalized = categoryName.trim().replace(/[*_]+$/, '').toLowerCase()
 
   const mapping: Record<string, string> = {
-    'sunday guest': STAGE_UUIDS.guest,
-    'sunday linked': STAGE_UUIDS.linked,
-    'sunday regular': STAGE_UUIDS.regular,
-    'community connection': STAGE_UUIDS.contact,
+    'sunday guest': 'guest',
+    'sunday linked': 'linked',
+    'sunday regular': 'regular',
+    'community connection': 'contact',
   }
 
-  return mapping[normalized] ?? STAGE_UUIDS.contact
+  return mapping[normalized] ?? 'contact'
 }
 
 function computeLocationStage(person: ElvantoPerson): string {
   // Same status overrides as Sunday Services
   if (person.contact === 1 || person.suspended === 1) {
-    return STAGE_UUIDS.archived
+    return 'archived'
   }
   if (person.archived === 1 || person.deceased === 1) {
-    return STAGE_UUIDS.deleted_privacy_data
+    return 'deleted_privacy_data'
   }
-  return STAGE_UUIDS.contact // Conservative default
+  return 'contact' // Conservative default
 }
 
 // ============================================

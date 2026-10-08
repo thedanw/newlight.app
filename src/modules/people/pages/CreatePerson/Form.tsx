@@ -5,7 +5,8 @@ import { Stack } from 'styled-system/jsx'
 import type { Person } from '../../lib/types'
 import type { PersonInput } from '../../lib/queries'
 import { createHousehold } from '../../lib/queries'
-import { useCurrentOperatorPermission, useHouseholds, useJourneyTracks } from '../../lib/hooks'
+import { resolveStageId } from '../../lib/journey-grid-helpers'
+import { useCurrentOperatorPermission, useHouseholds, useJourneyStages, useJourneyTracks } from '../../lib/hooks'
 import { personFormSchema } from '../../lib/validation'
 
 type PersonFormProps = {
@@ -41,6 +42,7 @@ export function PersonForm({ initialValue, submitLabel, onSubmit, onCancel, allo
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const tracksQuery = useJourneyTracks()
+  const stagesQuery = useJourneyStages()
   const householdsQuery = useHouseholds()
   const operatorPermission = useCurrentOperatorPermission()
   const canEditAdminFields = allowAdminFields && (operatorPermission.data === 'admin' || operatorPermission.data === 'super_admin')
@@ -73,7 +75,16 @@ export function PersonForm({ initialValue, submitLabel, onSubmit, onCancel, allo
 
   const submit = async () => {
     const tracks = tracksQuery.data?.length ? journeyTracks : manualJourneyTracks.split(',').map((track) => track.trim()).filter(Boolean)
-    const nextValue = { ...value, journey: Object.fromEntries(tracks.map((track) => [track, value.journey[track] ?? 'contact'])) }
+    const stages = stagesQuery.data ?? []
+    const contactStageId = resolveStageId(stages, 'contact') ?? stages.find((s) => !s.is_terminal)?.id ?? null
+    if (!contactStageId && tracks.length > 0) {
+      setError('Configure journey stages before adding tracks.')
+      return
+    }
+    const nextValue = {
+      ...value,
+      journey: Object.fromEntries(tracks.map((track) => [track, value.journey[track] ?? contactStageId])),
+    }
     const result = personFormSchema.safeParse(nextValue)
     if (!result.success) {
       setError(result.error.issues[0]?.message ?? 'Check the form values.')

@@ -160,7 +160,7 @@ export function JourneySettingsManager() {
   const handleDeleteStage = useCallback(async (stageId: string) => {
     if (!data) return
     try {
-      await deleteJourneyStage(stageId)
+      await deleteJourneyStage(stageId, localStages)
       setLocalStages((cur) => cur.filter((s) => s.id !== stageId))
       setStageOrder((cur) => cur.filter((s) => s !== stageId))
       setMessage('Stage deleted.')

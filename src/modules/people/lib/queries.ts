@@ -281,17 +281,18 @@ export async function createJourneyStage(slug: string, label: string, sortOrder:
   return saveJourneyStage({ id: crypto.randomUUID(), slug: slug.trim(), label: label.trim(), color: null, sort_order: sortOrder, is_terminal: false })
 }
 
-const seededJourneyStageIds = new Set([
-  'a1b2c3d4-0000-4000-8000-000000000001', // contact
-  'a1b2c3d4-0000-4000-8000-000000000002', // guest
-  'a1b2c3d4-0000-4000-8000-000000000003', // linked
-  'a1b2c3d4-0000-4000-8000-000000000004', // regular
-  'a1b2c3d4-0000-4000-8000-000000000005', // archived
-  'a1b2c3d4-0000-4000-8000-000000000006', // deleted_privacy_data
+const PROTECTED_STAGE_SLUGS = new Set([
+  'contact',
+  'guest',
+  'linked',
+  'regular',
+  'archived',
+  'deleted_privacy_data',
 ])
 
-export async function deleteJourneyStage(stageId: string): Promise<void> {
-  if (seededJourneyStageIds.has(stageId)) throw new Error('Seeded journey stages cannot be deleted.')
+export async function deleteJourneyStage(stageId: string, stages: JourneyStage[]): Promise<void> {
+  const stage = stages.find((s) => s.id === stageId)
+  if (stage && PROTECTED_STAGE_SLUGS.has(stage.slug)) throw new Error('Seeded journey stages cannot be deleted.')
   const { error } = await supabase.from('journey_stages').delete().eq('id', stageId)
   if (error) throw error
 }

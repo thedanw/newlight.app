@@ -10,7 +10,7 @@
  *   1. Adds an `id` UUID column as the new primary key (stable, immutable)
  *   2. Drops the PK on `slug` and makes it a unique (but editable) column
  *   3. Migrates `people.journey` JSON values from slug → UUID
- *   4. Creates a slug→id mapping function for the Elvanto sync plugin
+ *   4. (Removed) Elvanto sync now resolves slugs to IDs at runtime via `loadStageMap`
  */
 
 -- 1. Add new id column if it doesn't already exist (idempotent)

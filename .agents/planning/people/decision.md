@@ -23,7 +23,7 @@ Church admins/staff managing people; household members self-viewing; groups/serv
 
 ## Scope
 ### Tables (app-owned)
-households, addresses, contact_channels, people (journey JSONB), people_relationships, tags, people_tags, user_roles, journey_tracks, journey_track_categories, journey_stages, people_audit, saved_lists, forms, form_fields, form_submissions
+households, addresses, people (journey JSONB), people_relationships, tags, people_tags, user_roles, journey_tracks, journey_track_categories, journey_stages, people_audit, saved_lists, forms, form_fields, form_submissions
 
 ### Tables (mirror — Elvanto-owned)
 people_categories, custom_fields, custom_field_values, people_flows, people_flow_steps, people_flow_step_members
@@ -32,13 +32,13 @@ people_categories, custom_fields, custom_field_values, people_flows, people_flow
 people.elvanto_*, people.mobile (mirrors primary mobile for auth OTP), people.elvanto_locations (raw locations[] — journey seeding input), people.elvanto_custom_fields (EAV mirror)
 
 ### Field groups by demographic
-Personal/Demographics/Address: All · Contact (email + contact_channels): Adult · Guardians: Youth+Child · Medical: Youth+Child · Consents: Youth+Child · Child Safety (WWCC/SMT/SMC): Youth+Adult · Admin (access_permission, date_professed, legacy_*, country, timezone, picture_url): Admin role
+Personal/Demographics/Address: All · Contact (email + mobile): Adult · Guardians: Youth+Child · Medical: Youth+Child · Consents: Youth+Child · Child Safety (WWCC/SMT/SMC): Youth+Adult · Admin (access_permission, date_professed, legacy_*, country, timezone, picture_url): Admin role
 
 ### Profile type UI
 Edit heading `Edit Adult/Youth/Child`; view heading `<Demographic> Profile`; banner `Profile Type: <demographic>` + `Change Type` → edit page (DemographicsSection)
 
 ### Module API
-getById(s), getByHousehold, getGuardians, getByDemographic, getByJourneyTrack, getWithValidWWCC, getWithSafeMinistry, getJourneyGrid, search
+getById(s), getByHousehold, getGuardians, getByDemographic, getByJourneyTrack, getJourneyGrid, search
 
 ### Tags categories
 location, journey_track, demographic, status, custom
@@ -60,7 +60,7 @@ Workflows, Reporting, Duplicate detection/merge, CSV import/export, PWA offline 
 
 ### 1 Foundational data model
 1.1 Keep people module always-on → foundation for all modules
-1.2–1.14 Foundational data model & schema (households, contact_channels, custom_fields jsonb, PG enums, journey stages as table rows, field visibility, child-safety, RLS, guardians, tags, journey grid, people_audit, seeds) → [core/database/decision.md §B.1–B.7](../core/database/decision.md)
+1.2–1.14 Foundational data model & schema (households, custom_fields jsonb, PG enums, journey stages as table rows, field visibility, child-safety, RLS, guardians, tags, journey grid, people_audit, seeds) → [core/database/decision.md §B.1–B.7](../core/database/decision.md)
 1.15 Expose journey grid + track APIs to modules → cross-module queries
 1.16 Soft-delete (deleted_at); hard delete only for error entries → never lose legitimate records (child safety)
 1.17 Demographic progression: Jan 1 pg_cron; Year 5→6 child→youth; post-Year 12 youth→adult; no admin confirmation; logged (auto_progression); admins notified in-app + email → mirrors Australian school structure, no manual effort
@@ -96,7 +96,7 @@ Workflows, Reporting, Duplicate detection/merge, CSV import/export, PWA offline 
 4.4 Child Safety inline: collapsible card with inline editing for WWCC/SMT/SMC
 4.5 Guardians display: read-only list with View (same profile component) + Add (modal); registered + contact-only parents
 4.6 Address: managed on HouseholdPage (HouseholdAddress); profile links to household, no inline address card
-4.7 Form field mapping scope: PersonForm covers Personal + Demographics + Household + Journey + Admin (admin-only); contact channels, child safety, consents, medical are profile-view-only; full contact_channels CRUD deferred
+4.7 Form field mapping scope: PersonForm covers Personal + Demographics + Household + Journey + Admin (admin-only); child safety, consents, medical are profile-view-only; full contact_channels CRUD deferred
 4.8 Supabase privacy safeguard → `people_public` view exposes last_initial only → [core/database/decision.md §A.2.2](../core/database/decision.md)
 4.9 Person create/edit flow: ≥1 journey track required; household selection/creation (pick existing or create inline); Zod validation (names, email, DOB range); operator-aware admin fields (server-side RLS is authority; client gating is UX only); RLS allows own-profile updates; admin-only fields conditionally shown by operator role; mutations log journey/demographic changes to people_audit
 4.10 Search UX: global search bar + per-page filtering; debounced server-backed via searchPeople() hook; offset pagination

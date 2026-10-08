@@ -70,7 +70,6 @@ const DEFAULT_MAPPINGS_BASE: Omit<MappingRule, 'id'>[] = [
   { appField: 'middle_name', elvantoField: 'middle_name', direction: 'both', priority: 100 },
   { appField: 'email', elvantoField: 'email', direction: 'both', priority: 100 },
   { appField: 'mobile', elvantoField: 'mobile', direction: 'both', priority: 90 },
-  { appField: 'contact_channels.primary_home.value', elvantoField: 'phone', direction: 'both', priority: 90 },
   { appField: 'demographic', elvantoField: 'category_id', direction: 'pull', priority: 80, transform: 'category_to_demographic' },
   { appField: 'gender', elvantoField: 'gender', direction: 'both', priority: 80, transform: 'capitalize_enum' },
   { appField: 'date_of_birth', elvantoField: 'birthday', direction: 'both', priority: 80 },

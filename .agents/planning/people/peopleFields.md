@@ -20,13 +20,13 @@ Single status source — no `people.status`, `people_category`, `locations[]`.
 | **Kids** | | | | | |
 | 　Playtime (Tues) | | | | | |
 
-J. Doe = regular on Sundays 10am + guest on Youth (Fri) → `people.journey` = `{sundays_10am: "regular", youth_fri: "guest"}`; 
+J. Doe = regular on Sundays 10am + guest on Youth (Fri) → `people.journey` = `{"<track-uuid-1>": "<stage-uuid-regular>", "<track-uuid-2>": "<stage-uuid-guest>"}`; 
 Category example: **Campus** (e.g. *New Light – Southern Highlands*) → subcategory **Youth** → track **Youth (Fri)**; a track always lives under a category/subcategory.
 
 ### Tables (field structure)
-- `journey_tracks (id, category_id nullable, name, sort_order)` — rows
+- `journey_tracks (id, category_id nullable, name, sort_order, elvanto_location_id nullable, follow_elvanto boolean, deleted_at nullable)` — rows
 - `journey_track_categories (id, parent_id nullable, name, sort_order)` — headings only
-- `people.journey` — JSONB `{journey_track_id → journey_stage_slug}`, 1 entry/track, GIN-indexed (#43); `CHECK (journey <> '{}')` — never zero tracks: last unchecked → forced `archived` (#45); track delete → required migration target (#44)
+- `people.journey` — JSONB `{journey_track_id → journey_stage_id}` (UUIDs), 1 entry/track, GIN-indexed (#43); `CHECK (journey <> '{}')` — never zero tracks: last unchecked → forced `archived` (#45); track delete → required migration target (#44)
 
 ### Sorting & grouping
 Ordering/nesting = live drag-and-drop in **Journey Grid Settings** (#39/#41). This file = structure (tables, columns, stages, defaults), not live ordering. Behaviour → `decision.md` #38–45.

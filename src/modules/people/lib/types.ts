@@ -11,7 +11,6 @@ export type Person = Tables<'people'>
 export type PersonRelationship = Tables<'people_relationships'>
 export type Household = Tables<'households'>
 export type Address = Tables<'addresses'>
-export type ContactChannel = Tables<'contact_channels'>
 export type Tag = Tables<'tags'>
 export type PeopleTag = Tables<'people_tags'>
 export type SavedList = Tables<'saved_lists'>

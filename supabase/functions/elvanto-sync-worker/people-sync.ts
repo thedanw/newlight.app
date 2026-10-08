@@ -13,9 +13,10 @@ const SEARCH_PAGE_SIZE = 1000;
 const MAX_PAGES = 200;
 const UPSERT_CHUNK_SIZE = 200;
 // Fallback journey when no track mappings produced updates (DB CHECK journey <> '{}')
+// Resolved to a stage UUID at runtime via loadStageMap; slug is the semantic constant.
 const DEFAULT_JOURNEY = {
   default: 'contact'
-};
+}
 // ============================================
 // Elvanto API helpers
 // ============================================
@@ -105,7 +106,26 @@ async function loadFieldMappings(supabase) {
   }
   return Array.isArray(data?.value) ? data.value : [];
 }
-async function loadJourneyTrackMap(supabase) {
+/**
+ * Load a slug→id map for all journey stages so sync can resolve stage values
+ * at runtime instead of assuming deterministic UUIDs.
+ */
+async function loadStageMap(supabase) {
+  const map = new Map()
+  try {
+    const { data, error } = await supabase.from('journey_stages').select('id, slug').is('deleted_at', null)
+    if (error) {
+      console.error('[PeopleSync] Failed to load journey stages:', error)
+      return map
+    }
+    for (const row of data ?? []) {
+      if (row?.id && row?.slug) map.set(row.slug, row.id)
+    }
+  } catch (err) {
+    console.error('[PeopleSync] Error loading journey stages:', err)
+  }
+  return map
+}
   const byLocation = {};
   let sundayService = null;
   try {
@@ -188,7 +208,7 @@ function evaluateConditionNode(node, record) {
 }
 /**
  * Apply all field mappings to an Elvanto record to produce an app record
- */ async function applyMappings(supabase, entity, elvantoRecord, direction, mappings, locationPairings, categoryDemographicMappings, statusStageOverrides, journeyTransformGroups, permissionMap = {}) {
+ */ async function applyMappings(supabase, entity, elvantoRecord, direction, mappings, locationPairings, categoryDemographicMappings, statusStageOverrides, journeyTransformGroups, permissionMap = {}, journeyTrackMap = {}) {
   const appRecord = {};
   const journeyUpdates = {};
   const errors = [];
@@ -225,10 +245,9 @@ function evaluateConditionNode(node, record) {
           continue;
         }
         if (mapping.elvantoField === 'category_id' || mapping.elvantoField.includes('category')) {
-          // Category-based journey track (Sunday Services) - legacy single-track
-          const trackId = await resolveJourneyTrackId(supabase, 'sunday-services');
+          const trackId = journeyTrackMap?.sundayService
           if (trackId) {
-            journeyUpdates[trackId] = transformedValue;
+            journeyUpdates[trackId] = transformedValue
           }
         }
       } else {
@@ -257,6 +276,19 @@ function evaluateConditionNode(node, record) {
   // Apply status stage overrides to ALL journey tracks (universal overrides) - legacy fallback
   if (direction === 'pull' && Object.keys(statusStageOverrides).length > 0 && (!journeyTransformGroups || journeyTransformGroups.length === 0)) {
     applyStatusStageOverrides(journeyUpdates, elvantoRecord, statusStageOverrides);
+  }
+  // Resolve any slug-valued journey entries to stage UUIDs (migration 20260908200000
+  // moved journey_stages PK slug→uuid, so every journey value must be a stage id).
+  if (Object.keys(journeyUpdates).length > 0) {
+    const stageMap = await loadStageMap(supabase)
+    for (const [trackId, stageValue] of Object.entries(journeyUpdates)) {
+      if (stageValue && typeof stageValue === 'string' && stageMap.has(stageValue)) {
+        journeyUpdates[trackId] = stageMap.get(stageValue)!
+      } else if (stageValue && typeof stageValue === 'string' && !stageMap.has(stageValue)) {
+        // Unknown slug — skip rather than write an orphan UUID
+        delete journeyUpdates[trackId]
+      }
+    }
   }
   return {
     appRecord,
@@ -359,15 +391,7 @@ function evaluateConditionNode(node, record) {
   return 'contact' // Conservative default
   ;
 }
-/**
- * Resolve journey track ID by name/type
- */ async function resolveJourneyTrackId(_supabase, trackType) {
-  // In a real implementation, this would query journey_tracks table
-  // For now, return a placeholder that the actual sync logic will resolve
-  return `journey-track-${trackType}`;
-}
-/**
- * Set nested value in object using dot notation
+
  */ function setNestedValue(obj, path, value) {
   if (!path) return;
   const keys = path.split('.');
@@ -535,6 +559,7 @@ export async function syncPeople(supabase, apiKey, options = {}) {
     const categoryDemographicMappings = await loadCategoryDemographicTrackStageMappings(supabase);
     const statusStageOverrides = await loadStatusStageOverrides(supabase);
     const journeyTransformGroups = await loadJourneyTransformGroups(supabase);
+    const journeyTrackMap = await loadJourneyTrackMap(supabase);
     
     // Determine sync mode: incremental (using people/search) or full scan (people/getAll)
     const fullScan = options.fullScan === true;
@@ -589,14 +614,24 @@ export async function syncPeople(supabase, apiKey, options = {}) {
     for (const person of people){
       try {
         // Apply field mappings
-        const { appRecord, journeyUpdates, errors } = await applyMappings(supabase, entity, person, 'pull', mappings, locationPairings, categoryDemographicMappings, statusStageOverrides, journeyTransformGroups, permissionMap);
+        const { appRecord, journeyUpdates, errors } = await applyMappings(supabase, entity, person, 'pull', mappings, locationPairings, categoryDemographicMappings, statusStageOverrides, journeyTransformGroups, permissionMap, journeyTrackMap);
         if (errors.length) {
           result.errors.push(...errors.map((e)=>`Person ${person.id}: ${e}`));
           result.itemsFailed++;
           continue;
         }
+        // Resolve the DEFAULT_JOURNEY fallback slug to a stage UUID (migration 20260908200000
+        // moved journey_stages PK slug→uuid; every journey value must be a stage id).
+        let resolvedJourneyUpdates = journeyUpdates
+        if (Object.keys(journeyUpdates).length === 0) {
+          const stageMap = await loadStageMap(supabase)
+          const contactId = stageMap.get('contact')
+          if (contactId) {
+            resolvedJourneyUpdates = { default: contactId }
+          }
+        }
         // Prepare upsert data
-        const upsertData = preparePersonUpsert(person, appRecord, journeyUpdates);
+        const upsertData = preparePersonUpsert(person, appRecord, resolvedJourneyUpdates);
         upsertRows.push(upsertData);
         // Track latest date_modified for watermark
         if (person.date_modified && (!lastDateModified || person.date_modified > lastDateModified)) {

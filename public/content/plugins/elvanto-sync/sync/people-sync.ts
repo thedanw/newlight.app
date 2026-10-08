@@ -176,6 +176,7 @@ export async function syncPeople(
     // Load field mappings and location pairings from config
     const mappings = await loadFieldMappings(supabase)
     const locationPairings = await loadLocationPairings(supabase)
+    const journeyTrackMap = await loadJourneyTrackMap(supabase)
     
     // Determine date filter for incremental sync
     let dateFilter: string | null = null
@@ -216,7 +217,8 @@ export async function syncPeople(
             person,
             'pull',
             mappings,
-            locationPairings
+            locationPairings,
+            journeyTrackMap
           )
           
           if (errors.length) {
@@ -306,6 +308,29 @@ async function loadLocationPairings(supabase: TypedSupabaseClient): Promise<any[
     .maybeSingle()
   
   return (data?.value as any[]) ?? []
+}
+
+async function loadJourneyTrackMap(supabase: TypedSupabaseClient): Promise<{ sundayService?: string }> {
+  const byLocation: Record<string, string> = {}
+  let sundayService: string | undefined
+  try {
+    const { data } = await (supabase as any)
+      .from('journey_tracks')
+      .select('id, name, elvanto_location_id')
+      .is('deleted_at', null)
+    for (const track of (data ?? []) as any[]) {
+      if (track.elvanto_location_id) {
+        byLocation[track.elvanto_location_id] = track.id
+      }
+      const name = String(track.name || '').toLowerCase()
+      if (!sundayService && name.includes('sunday')) {
+        sundayService = track.id
+      }
+    }
+  } catch (err) {
+    console.error('[PeopleSync] Error loading journey tracks:', err)
+  }
+  return { sundayService }
 }
 
 function preparePersonUpsert(

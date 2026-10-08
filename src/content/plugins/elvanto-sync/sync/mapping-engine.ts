@@ -126,7 +126,8 @@ export async function applyMappings(
   elvantoRecord: Record<string, any>,
   direction: 'pull' | 'push',
   mappings: FieldMappingRule[],
-  locationPairings: LocationTrackPairing[]
+  locationPairings: LocationTrackPairing[],
+  journeyTrackMap: { sundayService?: string } = {}
 ): Promise<MappingResult> {
   const appRecord: Record<string, any> = {}
   const journeyUpdates: Record<string, string> = {}
@@ -170,8 +171,7 @@ export async function applyMappings(
           continue
         }
         if (mapping.elvantoField === 'category_id' || mapping.elvantoField.includes('category')) {
-          // Category-based journey track (Sunday Services)
-          const trackId = await resolveJourneyTrackId(supabase, 'sunday-services')
+          const trackId = journeyTrackMap?.sundayService
           if (trackId) {
             journeyUpdates[trackId] = transformedValue
           }
@@ -237,28 +237,13 @@ function computeLocationStage(elvantoRecord: Record<string, any>): string {
   // Status overrides (same as category mapping)
   if (elvantoRecord.contact === 1 || elvantoRecord.suspended === 1) {
     return 'a1b2c3d4-0000-4000-8000-000000000005'
-  }
+}
   if (elvantoRecord.archived === 1 || elvantoRecord.deceased === 1) {
     return 'a1b2c3d4-0000-4000-8000-000000000006'
   }
   return 'a1b2c3d4-0000-4000-8000-000000000001' // Conservative default (contact)
 }
 
-/**
- * Resolve journey track ID by name/type
- */
-async function resolveJourneyTrackId(
-  _supabase: TypedSupabaseClient,
-  trackType: 'sunday-services' | 'campus'
-): Promise<string | null> {
-  // In a real implementation, this would query journey_tracks table
-  // For now, return a placeholder that the actual sync logic will resolve
-  return `journey-track-${trackType}`
-}
-
-/**
- * Set nested value in object using dot notation
- */
 function setNestedValue(obj: Record<string, any>, path: string, value: any): void {
   if (!path) return
   

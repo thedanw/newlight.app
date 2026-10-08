@@ -360,3 +360,8 @@ export function newCategory(name: string, sortOrder: number, parentId: string | 
 export function newStage(slug: string, label: string, sortOrder: number): JourneyStage {
   return { id: crypto.randomUUID(), slug, label, color: null, sort_order: sortOrder, is_terminal: false }
 }
+
+export function resolveStageId(stages: JourneyStage[], slug: string): string | null {
+  const stage = stages.find((s) => s.slug === slug)
+  return stage?.id ?? null
+}

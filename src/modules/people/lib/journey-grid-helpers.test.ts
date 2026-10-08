@@ -11,6 +11,7 @@ import {
   newStage,
   gridTrackId,
   gridCategoryId,
+  resolveStageId,
 } from './journey-grid-helpers'
 import type { GridRow } from './journey-grid-helpers'
 import type { JourneyStage, JourneyTrack, JourneyTrackCategory } from './types'
@@ -291,6 +292,23 @@ describe('journey-grid-helpers', () => {
     it('namespaces ids', () => {
       expect(gridTrackId('abc')).toBe('track:abc')
       expect(gridCategoryId('xyz')).toBe('category:xyz')
+    })
+  })
+
+  describe('resolveStageId', () => {
+    it('returns the matching stage id for a known slug', () => {
+      const stages = [stage('contact', 'Contact', 0), stage('guest', 'Guest', 1)]
+      expect(resolveStageId(stages, 'contact')).toBe('stage-contact')
+      expect(resolveStageId(stages, 'guest')).toBe('stage-guest')
+    })
+
+    it('returns null for an unknown slug', () => {
+      const stages = [stage('contact', 'Contact', 0)]
+      expect(resolveStageId(stages, 'unknown')).toBeNull()
+    })
+
+    it('returns null for an empty stage list', () => {
+      expect(resolveStageId([], 'contact')).toBeNull()
     })
   })
 })

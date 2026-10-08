@@ -65,11 +65,11 @@ A.5 `module_config` (module pk, enabled, config jsonb) → runtime toggle; disab
 A.6 `brand-assets` Storage bucket: public read; super_admin write (lab: anon + authenticated) → pre-auth logo/favicon
 A.7 PG enums for fixed domains (22) → integrity; admin-customizable lists = table rows, not enums
 ### B People & identity
-B.1 Household-centric model: `households` (elvanto_family_id int unique) + `addresses`; `contact_channels` designed but not migrated → family CRM; `people.mobile` is the implemented phone field
+B.1 Household-centric model: `households` (elvanto_family_id int unique) + `addresses`; `people.mobile` is the implemented phone field
 B.2 `people.auth_user_id uuid unique` → auth.users join key; no row → fallback user_metadata/email (login #2)
 B.3 Roles: `people.access_permission` 5-level enum (public→super_admin); `user_roles` = seed reference table → consistent role model
 B.4 Journey grid: `people.journey` JSONB `{track_id → stage_id}`; CHECK (`journey <> '{}'`); GIN index → one stage/track by construction, no PK
-    B.4.1 `journey_stages`: `id uuid PK` + unique editable `slug` (20260908200000) → slug edits never orphan `people.journey` values (now stage UUIDs)
+    B.4.1 `journey_stages`: `id uuid PK` + unique editable `slug` (20260908200000) → slug edits never orphan `people.journey` values (now stage UUIDs). **Sync resolves slugs to UUIDs at runtime via `loadStageMap()` — no deterministic UUIDs; JourneySettingsManager creates stages with random UUIDs.**
     B.4.2 Invariants: ≥1 track at create; unchecking last track forces `archived`; track delete needs migration target
 B.5 Child-safety (WWCC/SMT/SMC), consents, medical columns on `people` → AUS legal compliance
 B.6 `people_audit` (field_changed, old/new jsonb, change_reason enum incl. `migration`|`sync`) → full audit; manual vs auto filterable
@@ -93,7 +93,7 @@ C.9 `plugins` (id text pk, enabled) → plugin enable/disable state (lab + authe
 ### D Lifecycle & migration strategy
 D.1 Versioned aggregate migrations in `supabase/migrations/`; module-local migrations + aggregation script (core #46) planned, not yet used
 D.2 Idempotent hot-fix migrations (`drop policy if exists`, `IF NOT EXISTS`) → production-safe re-runs (20260906xx–0700 prod GRANT/RLS repairs)
-D.3 Seeds deferred (Batch 7 not started): 6 journey_stages (deterministic UUIDs pinned for contact/guest/linked/regular/archived/deleted_privacy_data), 5 user_roles, module_config people=enabled
+D.3 Seeds deferred — **Decision: No seed INSERTs**. JourneySettingsManager is the definitive mechanism for stages/tracks (creates with `crypto.randomUUID()`). Sync resolves slugs to IDs at runtime via `loadStageMap()`. The 6 canonical slugs (`contact|guest|linked|regular|archived|deleted_privacy_data`) remain semantic constants.
 D.4 Canonical `schema.dbml` — edit schema then generate migration; never edit migrations ad hoc. DBML currently lags (42 vs 49: missing saved_lists, forms×3, elvanto×4, plugins)
 
 ### E Deferred / future implementation (kept — not removed)
@@ -107,7 +107,7 @@ E.7 Admin invite UI (create auth user + link auth_user_id)
 E.8 Phone OTP + `before_user_created` hook + people.mobile → auth phone sync
 E.9 OAuth Google/Entra + MFA (TOTP/WebAuthn opt-in later)
 E.10 Multi-tenancy future-proofing
-E.11 `contact_channels` table CRUD (designed; `people.mobile` implemented)
+E.11 `contact_channels` table CRUD — **Decision: removed type references (YAGNI)**. `people.mobile` is the implemented phone field. Re-add when contact-channel CRUD is built.
 
 ## Findings (divergence plan → implementation)
 - Prod DB set up manually → original GRANTs never executed (reads returned 403); repaired by idempotent GRANT/RLS migrations (20260906000001→20260907000001)
@@ -119,7 +119,6 @@ E.11 `contact_channels` table CRUD (designed; `people.mobile` implemented)
 
 ## Decision Gap Log
 1. Full RLS coverage on mirror/service/song/calendar/forms tables → open (feeds E.6)
-2. Seed migration for journey_stages/user_roles/module_config → open
-3. contact_channels migration → open
-4. Brand-assets write policy tightening → open (lab anon-write)
-5. Deterministic UUIDs for custom journey_stages (only 6 seeded slugs pinned) → open
+2. Seed migration for journey_stages/user_roles/module_config → **resolved: no seeds**
+3. Brand-assets write policy tightening → open (lab anon-write)
+4. Deterministic UUIDs for custom journey_stages (only 6 seeded slugs pinned) → **resolved: no deterministic UUIDs; JourneySettingsManager creates random UUIDs; sync resolves by slug**

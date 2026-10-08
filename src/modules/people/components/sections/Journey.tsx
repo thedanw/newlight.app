@@ -82,9 +82,24 @@ export const JourneySection = forwardRef<JourneySectionHandle, JourneySectionPro
     )
 
     const [isEditing, setIsEditing] = useState(defaultEdit)
-    const [journey, setJourney] = useState<Record<string, string>>(() => ({
-      ...((person as Person).journey ?? {}),
-    }))
+    const [journey, setJourney] = useState<Record<string, string>>(() => {
+      const rawJourney = (person as Person).journey ?? {}
+      const trackByName = new Map(tracks.map((t) => [t.name.toLowerCase(), t.id]))
+      const cleaned: Record<string, string> = {}
+      for (const [key, value] of Object.entries(rawJourney)) {
+        // If key is already a known track UUID, keep it
+        if (tracks.some((t) => t.id === key)) {
+          cleaned[key] = value
+        }
+        // If key is the legacy slug placeholder, try to resolve by name
+        else if (key === 'journey-track-sunday-services') {
+          const sundayId = trackByName.get('sundays 10am') ?? trackByName.get('sunday')
+          if (sundayId) cleaned[sundayId] = value
+        }
+        // For any other unknown key, drop it (will be re-selected by user)
+      }
+      return cleaned
+    })
 
     const hasUnsavedChanges = JSON.stringify(journey) !== JSON.stringify((person as Person).journey ?? {})
 

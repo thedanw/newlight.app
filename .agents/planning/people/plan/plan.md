@@ -4,7 +4,7 @@ Goal: Give the People settings page ParkUI tabs (Journey | Demographics) with fu
 
 Approach: Replace the `demographic` PG enum with a seeded `demographics` lookup table (slug FK + `profile_type` for behaviour rules + icon columns) in one migration; build CRUD/delete-with-migration TDD-first; restructure settings into Tabs with a new `DemographicsSettingsManager`; convert every hardcoded Adult/Youth/Child consumer to dynamic lists keyed by `profile_type`; add icon picker/upload; extend Map Journeys transform groups with a "set demographic" output and delete the old built-in name matcher.
 
-Branch: `main` @ `fe5818e` (existing branch; work and commits go directly to `main` → `origin` — no feature branch)
+Branch: `main` @ `b047abd` (existing branch; work and commits go directly to `main` → `origin` — no feature branch)
 Scope: In: `supabase/migrations/`, `src/modules/people/**`, `src/core/{lib,auth,email}` demographic consumers, `src/content/plugins/elvanto-sync/` + `supabase/functions/elvanto-sync-worker/`, planning docs. Out: new storage bucket (reuse `brand-assets`), pg_cron auto-progression (not yet built — future work keys on `profile_type`), contact_channels migration, per-flag granular visibility (profile_type instead), per-demographic color column (existing blue/orange/green keyed by `profile_type`).
 
 > Deviation from skill default: plan lives in `.agents/planning/people/plan/` (user-specified) instead of `docs/plans/`. Companion research: `findings.md` (read it; this plan refs it instead of inlining detail).
@@ -24,11 +24,9 @@ Current: Batch 1, Subphase 1.1
 | 1 | | | | |
 
 ## Batch Protocol (shared — applies to every batch)
-- **Tools**: maintain an atomic todo list, max 1 in-progress; spawn subagents where a subphase says Yes (independent >5 min, parallel file ops, research)
-- **Task Completion Sync**: at each Batch Start mark completed checkboxes in this file; re-read `findings.md`
+- **Tools**: atomic todo list, max 1 in-progress; subagents per subphase flags — spawn for independent >5 min / parallel file ops / research; never for sequential deps, <2 min edits, shared mutable state
 - **Observation Masking**: summarize tool output here; details → `findings.md#section`; never re-paste verbose output
 - **KV-Cache Ordering**: stable (this plan, findings) → reusable (patterns) → unique (current task)
-- **Context Partitioning**: spawn for independent >5 min / parallel file ops / research; not for sequential deps, <2 min edits, shared mutable state
 - **Context Check**: if estimated context > 70%, compact before next batch — never exceed 80%
 - **TDD**: failing test first in every implementation subphase; migrations verified via `findings.md#verification-sql`
 - **3-Strike Error Protocol**: fix → alternative → STOP/revert/ask; every error → Error Log table
@@ -49,11 +47,11 @@ Current: Batch 1, Subphase 1.1
 - Prev: None — fresh plan; `findings.md` pre-populated from 2026-10-08 audit
 - Key: findings.md#locked-decisions, findings.md#git-state
 
-### Subphase 1.1: Git verification
-Context: `main` clean @ `fe5818e` (findings#git-state); work directly on existing `main`/`origin` — no feature branch.
+### Subphase 1.1: Git verification ✅ 2026-10-08
+Context: `main` @ `b047abd` (fe5818e + 2 prior fix commits: MapJourneysTab stages, JourneySection slug keys — complementary, no conflict); work directly on existing `main`/`origin` — no feature branch. Only dirty file at start = plan.md optimise edit (committed as docs).
 Todo:
-- [ ] Verify `git status --short` empty and HEAD = `fe5818e` on `main`
-- [ ] Confirm remote `origin` = https://github.com/thedanw/newlight.app (`git remote -v`)
+- [x] Verify `git status --short` empty and HEAD = `b047abd` on `main` (was expected `fe5818e` — HEAD advanced before execution; reconciled)
+- [x] Confirm remote `origin` = https://github.com/thedanw/newlight.app (`git remote -v`)
 Subagent: No
 Deliverable: clean `main` verified against `origin`
 

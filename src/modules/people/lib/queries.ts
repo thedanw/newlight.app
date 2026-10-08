@@ -1,5 +1,6 @@
 import { supabase } from '@/core/lib/supabase'
 import type { Json } from '@/core/lib/database.types'
+import { slugify } from './slug'
 import type { Demographic, HouseholdDetails, JourneyGrid, JourneyStage, JourneyTrack, JourneyTrackCategory, PeopleListOptions, Person, PersonPublic, PersonRelationship, PersonWithJourney, Tag } from './types'
 
 const DEFAULT_PAGE_SIZE = 50
@@ -233,6 +234,47 @@ export async function getDemographics(): Promise<Demographic[]> {
   const { data, error } = await supabase.from('demographics').select('*').is('deleted_at', null).order('sort_order')
   if (error) throw error
   return data ?? []
+}
+
+export type DemographicInput = Pick<Demographic, 'name'> & Partial<Pick<Demographic, 'profile_type' | 'icon_type' | 'icon_name'>>
+
+/** Creates a demographic, deriving the slug from the name. The slug is immutable after create (locked decision 5). */
+export async function createDemographic(input: DemographicInput): Promise<Demographic> {
+  const name = input.name.trim()
+  if (!name) throw new Error('A demographic name is required.')
+  const slug = slugify(name)
+  const { data: existing, error: probeError } = await supabase.from('demographics').select('id').eq('slug', slug).is('deleted_at', null).maybeSingle()
+  if (probeError) throw probeError
+  if (existing) throw new Error(`The demographic "${name}" already exists.`)
+  const row: Demographic = {
+    id: crypto.randomUUID(),
+    name,
+    slug,
+    profile_type: input.profile_type ?? 'adult',
+    icon_type: input.icon_type ?? 'lucide',
+    icon_name: input.icon_name ?? null,
+    sort_order: 0,
+    deleted_at: null,
+  }
+  const { data, error } = await supabase.from('demographics').upsert(row).select('*').single()
+  if (error) throw error
+  return data
+}
+
+/**
+ * Saves an editable demographic. The slug is deliberately omitted so it can never be rewritten —
+ * saved lists, audit jsonb and sync config hold slug references (locked decision 5).
+ */
+export async function saveDemographic(demographic: Demographic): Promise<Demographic> {
+  const { slug: _slug, id, name, profile_type, icon_type, icon_name, sort_order, deleted_at } = demographic
+  if (!name.trim()) throw new Error('A demographic name is required.')
+  const { data, error } = await supabase
+    .from('demographics')
+    .upsert({ id, name: name.trim(), profile_type, icon_type, icon_name, sort_order, deleted_at })
+    .select('*')
+    .single()
+  if (error) throw error
+  return data
 }
 
 export async function getJourneyCategories(): Promise<JourneyTrackCategory[]> {

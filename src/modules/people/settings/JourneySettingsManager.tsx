@@ -17,6 +17,7 @@ import {
 import { buildRows } from '../lib/journey-grid-helpers'
 import type { JourneyStage, JourneyTrack, JourneyTrackCategory } from '../lib/types'
 import { SortableTree } from '@/core/dragndrop/components/SortableTree'
+import { slugify } from '../lib/slug'
 import { tracksAndCategoriesToTree, treeToJourneyData } from '../lib/journey-tree-helpers'
 import { SortableStageColumns } from './SortableStageColumns'
 
@@ -32,15 +33,6 @@ const STAGE_COL_GAP = 4
 const headingCellStyle: CSSProperties = {
   fontFamily: 'var(--heading-font-family, inherit)',
   fontWeight: 'var(--heading-font-weight, 700)',
-}
-
-/** Auto-generate a slug from a human-readable label (e.g. "Not Started" → "not-started") */
-function slugify(label: string): string {
-  return label
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
 }
 
 export function JourneySettingsManager() {

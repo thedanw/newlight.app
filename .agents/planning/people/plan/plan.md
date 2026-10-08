@@ -16,7 +16,7 @@ Scope: In: `supabase/migrations/`, `src/modules/people/**`, `src/core/{lib,auth,
 4. What have I learned? — `findings.md`
 5. What have I tried? — Completed checkboxes + Error Log
 
-Current: Batch 2 done (2.4 triage open) -> Batch 3, Subphase 3.1 done -> 3.2
+Current: Batch 3, Subphase 3.3 next (3.1 read/resolver + 3.2 create/save done, committed 67b4bbe + tree; delete-with-migration next)
 
 ## Error Log
 | # | Batch | Error | Fix Attempted | Resolution |
@@ -87,9 +87,9 @@ Todo:
 ## Batch 2: Database schema & types
 
 **Start: Sync**
-- [ ] Mark completed tasks in `plan.md` (update checkboxes/status)
-- [ ] Read `findings.md` for key discoveries
-- [ ] **Context Check**: If estimated context > 70%, run compaction before proceeding
+- [x] Mark completed tasks in `plan.md` (update checkboxes/status)
+- [x] Read `findings.md` for key discoveries
+- [x] **Context Check**: context < 70%, proceeding
 
 **Context**
 - Goal: ParkUI tabs + custom demographics + icons; Map Journeys tab owns Elvanto→demographic conversion
@@ -122,10 +122,10 @@ Todo:
 Subagent: executed inline (no subagent tool in this env)
 Deliverable: validation test green
 
-### Subphase 2.4: Fallout triage
+### Subphase 2.4: Fallout triage ✅ 2026-10-08
 Todo:
-- [ ] `pnpm typecheck` + `pnpm test`; classify failures: expected (hardcoded option lists, Demographics.test — cleared in Batches 4/5) vs unexpected
-- [ ] Record expected-failure list in findings.md; unexpected → Error Log
+- [x] `pnpm typecheck` + `pnpm test`; classify failures: expected (hardcoded option lists, Demographics.test — cleared in Batches 4/5) vs unexpected — `vitest run src/modules/people` = 18 files / 143 tests, all pass (incl. working-tree Demographics Select change); typecheck baseline unchanged (75 pre-existing, none in touched files)
+- [x] Record expected-failure list in findings.md; unexpected → Error Log — none at test level; typecheck pre-existing baseline only (findings#baseline)
 Subagent: No
 Deliverable: triage list; typecheck clean except known list
 
@@ -137,10 +137,9 @@ Deliverable: triage list; typecheck clean except known list
 
 ## Batch 3: Data layer (TDD — queries, hooks, helpers)
 
-- [x] Mark completed tasks in `plan.md` (update checkboxes/status) -- Batch 2 (2.1-2.3 verified) + 3.1
+- [x] Mark completed tasks in `plan.md` (update checkboxes/status)
 - [x] Read `findings.md` for key discoveries (schema-target, verification-sql, code-impacted)
-- [ ] Read `findings.md` for key discoveries
-- [ ] **Context Check**: If estimated context > 70%, run compaction before proceeding
+- [x] **Context Check**: context < 70%, proceeding
 
 **Context**
 - Goal: ParkUI tabs + custom demographics + icons; Map Journeys tab owns Elvanto→demographic conversion
@@ -157,12 +156,12 @@ Todo:
 Subagent: No (one domain, serial)
 Deliverable: tested read path + resolver
 
-### Subphase 3.2 (TODO) -- 2026-10-08 create/save (TDD)
+### Subphase 3.2 DONE 2026-10-08 create/save (TDD)
 Context: slug generated once from name and never edited (findings#locked-decisions 5); extract `slugify` from `JourneySettingsManager.tsx:38-44` into shared `lib/slug.ts` (DRY) and re-import there.
 Todo:
-- [ ] FAILING tests: create requires name; slug = slugify(name); duplicate active slug → clear error ("already exists"); save edits name/profile_type/icon but never slug; profile_type defaults `'adult'`
-- [ ] Implement `createDemographic(input)` + `saveDemographic(demographic)` in `lib/queries.ts`; extract `slugify` to `lib/slug.ts`, update JourneySettingsManager import (existing tests stay green)
-- [ ] Tests pass
+- [x] FAILING tests: create requires name; slug = slugify(name); duplicate active slug → clear error ("already exists"); save edits name/profile_type/icon but never slug; profile_type defaults `'adult'`
+- [x] Implement `createDemographic(input)` + `saveDemographic(demographic)` in `lib/queries.ts`; extract `slugify` to `lib/slug.ts`, update JourneySettingsManager import (existing tests stay green)
+- [x] Tests pass
 Subagent: No (same file as 3.1)
 Deliverable: tested create/save + shared slugify
 

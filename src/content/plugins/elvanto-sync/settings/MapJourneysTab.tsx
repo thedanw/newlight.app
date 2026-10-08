@@ -37,12 +37,13 @@ interface ConditionRow {
   field: 'category' | 'demographic' | 'location' | 'status_contact' | 'status_archived'
   operator: 'equals' | 'not_equals' | 'contains'
   value: string
+  logic?: 'AND' | 'OR' | 'XOR'
 }
 
 interface TransformRow {
   id: string
   trackId: string
-  stageId: string
+  stageId: string // UUID of journey_stage
 }
 
 interface TransformGroup {
@@ -51,15 +52,6 @@ interface TransformGroup {
   conditions: ConditionRow[]
   transforms: TransformRow[]
 }
-
-const STAGE_OPTIONS: JourneyStage[] = [
-  { id: 'contact', label: 'Contact' },
-  { id: 'guest', label: 'Guest' },
-  { id: 'linked', label: 'Linked' },
-  { id: 'regular', label: 'Regular' },
-  { id: 'archived', label: 'Archived' },
-  { id: 'deleted_privacy_data', label: 'Deleted (Privacy Data)' },
-]
 
 const CONDITION_FIELD_OPTIONS = [
   { value: 'category', label: 'Category' },
@@ -87,6 +79,7 @@ const nextId = () => `local_${Date.now()}_${++idCounter}`
 export function MapJourneysTab() {
   const { settings, toast, supabase } = usePluginAPIContext()
   const [journeyTracks, setJourneyTracks] = useState<JourneyTrack[]>([])
+  const [journeyStages, setJourneyStages] = useState<JourneyStage[]>([])
   const [elvantoCategories, setElvantoCategories] = useState<ElvantoCategory[]>([])
   const [elvantoDemographics, setElvantoDemographics] = useState<ElvantoDemographic[]>([])
   const [elvantoLocations, setElvantoLocations] = useState<ElvantoLocation[]>([])
@@ -104,6 +97,15 @@ export function MapJourneysTab() {
   const loadData = async () => {
     setLoading(true)
     try {
+      // Load journey stages (UUIDs) from Supabase
+      const { data: stages } = await supabase
+        .from('journey_stages')
+        .select('id, label')
+        .is('deleted_at', null)
+      if (stages) {
+        setJourneyStages(stages.map(s => ({ id: s.id, label: s.label })))
+      }
+
       // Try new transform groups format first
       const groups = await settings.getConfig<TransformGroup[]>('journey_transform_groups')
       if (groups && groups.length > 0) {
@@ -710,7 +712,7 @@ export function MapJourneysTab() {
 
                                   <Select.Root
                                     collection={createListCollection({ 
-                                      items: STAGE_OPTIONS.map(s => ({ value: s.id, label: s.label }))
+                                      items: journeyStages.map(s => ({ value: s.id, label: s.label }))
                                     })}
                                     value={[transform.stageId]}
                                     onValueChange={(details) => updateTransform(group.id, transform.id, { stageId: details.value[0] || '' })}
@@ -723,7 +725,7 @@ export function MapJourneysTab() {
                                       </Select.Trigger>
                                       <Select.Positioner>
                                         <Select.Content>
-                                          {STAGE_OPTIONS.map(s => (
+                                          {journeyStages.map(s => (
                                             <Select.Item key={s.id} item={{ value: s.id, label: s.label }}>
                                               <Select.ItemText>{s.label}</Select.ItemText>
                                             </Select.Item>

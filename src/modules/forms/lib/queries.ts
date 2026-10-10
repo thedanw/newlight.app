@@ -133,6 +133,58 @@ export async function deleteForm(id: string): Promise<void> {
   if (error) throw error
 }
 
+export async function duplicateForm(id: string): Promise<FormWithFields> {
+  const form = await getFormById(id)
+  if (!form) throw new Error('Form not found.')
+
+  const { data: userResult, error: userError } = await supabase.auth.getUser()
+  if (userError) throw userError
+  if (!userResult.user) throw new Error('You must be signed in to duplicate a form.')
+
+  const now = new Date().toISOString()
+  const newFormId = crypto.randomUUID()
+  const { data: newForm, error: formError } = await supabase
+    .from('forms')
+    .insert({
+      id: newFormId,
+      name: `${form.name} (Copy)`,
+      description: form.description,
+      owner_id: userResult.user.id,
+      is_public: form.is_public,
+      submit_action: form.submit_action,
+      submit_target: form.submit_target,
+      settings: form.settings,
+      created_at: now,
+      updated_at: now,
+    })
+    .select('*')
+    .single()
+  if (formError) throw formError
+
+  // Duplicate fields
+  if (form.fields && form.fields.length > 0) {
+    const rows = form.fields.map((field, index) => ({
+      id: crypto.randomUUID(),
+      form_id: newFormId,
+      field_type: field.field_type,
+      label: field.label,
+      placeholder: field.placeholder,
+      options: field.options,
+      required: field.required,
+      maps_to_field: field.maps_to_field,
+      sort_order: index,
+      min_value: field.min_value,
+      max_value: field.max_value,
+      column_span: field.column_span,
+      parent_id: field.parent_id,
+    }))
+    const { error: fieldsError } = await supabase.from('form_fields').insert(rows)
+    if (fieldsError) throw fieldsError
+  }
+
+  return { ...newForm, fields: form.fields ?? [] }
+}
+
 export async function getFormSubmissions(formId: string): Promise<FormSubmissionWithPerson[]> {
   const { data, error } = await supabase
     .from('form_submissions')

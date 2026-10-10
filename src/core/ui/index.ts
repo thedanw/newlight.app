@@ -42,6 +42,7 @@ export { Kbd, type KbdProps } from "./kbd";
 export { Link, type LinkProps } from "./link";
 export { Loader, type LoaderProps } from "./loader";
 export * as Menu from "./menu";
+export { MainList } from "./main-list";
 export { NavProvider, useNavContext } from "./nav-context";
 export { NavTile, type NavTileProps } from "./nav-tile";
 export * as NumberInput from "./number-input";

@@ -2,7 +2,7 @@ import { Heading, Text, Input, Button, Card, Alert } from '@/core/ui'
 import { usePluginAPIContext } from '@/core/plugins/PluginAPI'
 import { useState, useEffect } from 'react'
 import { Stack } from 'styled-system/jsx'
-import { encrypt, decrypt, encryptWithKey, generateEncryptionKey, arrayBufferToBase64 } from '../utils/encryption'
+import { encrypt, decrypt, encryptWithKey, generateEncryptionKey } from '../utils/encryption'
 import { testElvantoConnection } from '../sync/trigger-sync'
 
 /**

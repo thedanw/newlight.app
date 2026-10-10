@@ -15,7 +15,6 @@ import type { JourneyStage } from './types'
 const mockFrom = supabase.from as unknown as ReturnType<typeof vi.fn>
 
 const contactStage: JourneyStage = { id: 'stage-contact', slug: 'contact', label: 'Contact', color: null, sort_order: 1, is_terminal: false }
-const guestStage: JourneyStage = { id: 'stage-guest', slug: 'guest', label: 'Guest', color: null, sort_order: 2, is_terminal: false }
 const customStage: JourneyStage = { id: 'stage-custom', slug: 'my-custom-stage', label: 'Custom', color: null, sort_order: 3, is_terminal: false }
 const archivedStage: JourneyStage = { id: 'stage-archived', slug: 'archived', label: 'Archived', color: null, sort_order: 5, is_terminal: true }
 

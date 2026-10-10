@@ -17,6 +17,10 @@ export type SearchInputProps<T> = {
   ariaLabel?: string
   /** Debounce delay in milliseconds. Defaults to 300. */
   debounceMs?: number
+  /** Controlled value */
+  value?: string
+  /** Called when value changes */
+  onChange?: (value: string) => void
 }
 
 export function SearchInput<T>({
@@ -26,9 +30,15 @@ export function SearchInput<T>({
   placeholder = 'Search',
   ariaLabel = 'Search',
   debounceMs = 300,
+  value: controlledValue,
+  onChange,
 }: SearchInputProps<T>) {
-  const [value, setValue] = useState('')
+  const [uncontrolledValue, setUncontrolledValue] = useState('')
   const [error, setError] = useState<string | null>(null)
+  
+  const isControlled = controlledValue !== undefined
+  const value = isControlled ? controlledValue : uncontrolledValue
+  const setValue = isControlled ? (onChange ?? (() => {})) : setUncontrolledValue
 
   useEffect(() => {
     const term = value.trim()

@@ -1,7 +1,7 @@
 import { Heading, Text, Card, Alert, Button, Select } from '@/core/ui'
 import { usePluginAPIContext } from '@/core/plugins/PluginAPI'
 import { useState, useEffect, useMemo } from 'react'
-import { Box, HStack, Stack } from 'styled-system/jsx'
+import { HStack, Stack } from 'styled-system/jsx'
 import { createListCollection } from '@ark-ui/react'
 import { ChevronsUpDownIcon, CheckIcon } from 'lucide-react'
 

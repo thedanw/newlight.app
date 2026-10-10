@@ -1,5 +1,5 @@
 import { forwardRef } from 'react'
-import { Box, Grid, VStack } from 'styled-system/jsx'
+import { Box, Grid, Stack } from 'styled-system/jsx'
 import { css } from 'styled-system/css'
 import { DroppableZone } from '@/core/dragndrop'
 import type { FormFieldDraft } from '../lib/queries'
@@ -47,14 +47,14 @@ export const ColumnContainer = forwardRef<HTMLDivElement, ColumnContainerProps>(
         className={className}
         data-dragging-over={isDraggingOver ? 'true' : 'false'}
       >
-        <VStack align="stretch" gap="2">
+        <Stack direction="column" align="stretch" gap="2">
           <DroppableZone
             zoneId={`column-${container.id}-root`}
             accepts={['field']}
             className={emptyColumnCss}
           />
           <Grid className={columnGridCss}>{children}</Grid>
-        </VStack>
+        </Stack>
       </Box>
     )
   }

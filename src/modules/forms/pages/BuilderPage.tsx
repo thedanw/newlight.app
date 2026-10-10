@@ -61,16 +61,8 @@ export default function FormBuilderPage() {
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
 
-  const fieldTypeCollection = useMemo(() => createListCollection({
-    items: FIELD_TYPES.map((type) => ({ label: type, value: type }))
-  }), [])
-
   const submitActionCollection = useMemo(() => createListCollection({
     items: SUBMIT_ACTIONS.map((action) => ({ label: action, value: action }))
-  }), [])
-
-  const mappableObjectFieldsCollection = useMemo(() => createListCollection({
-    items: [{ label: 'None', value: '' }, ...MAPPABLE_PERSON_FIELDS.map((name) => ({ label: name, value: name }))]
   }), [])
 
   const tagCollection = useMemo(() => createListCollection({
@@ -140,23 +132,6 @@ export default function FormBuilderPage() {
     }
   }
 
-  useRegisterPageActions({
-    cancel: () => navigate('/people/forms'),
-    apply: save,
-    isSaving: saving,
-    isDirty: true,
-    applyLabel: 'Save form',
-  })
-
-  if (!loaded) return (
-    <Page.Main>
-      <Page.Header style={{ '--module-number': 1 } as CSSProperties}>
-        <Page.Heading level={1} icon={Users} title="New form" />
-      </Page.Header>
-      <Page.Body><PageSkeleton /></Page.Body>
-    </Page.Main>
-  )
-
   const setField = (fieldId: string, patch: Partial<FormFieldDraft>) => {
     setDraft((current) => ({
       ...current,
@@ -203,6 +178,23 @@ export default function FormBuilderPage() {
     items: dragItems,
     onReorder: (reorderedItems) => reorderFields(reorderedItems.map((item) => String(item.id))),
   })
+
+  useRegisterPageActions({
+    cancel: () => navigate('/people/forms'),
+    apply: save,
+    isSaving: saving,
+    isDirty: true,
+    applyLabel: 'Save form',
+  })
+
+  if (!loaded) return (
+    <Page.Main>
+      <Page.Header style={{ '--module-number': 1 } as CSSProperties}>
+        <Page.Heading level={1} icon={Users} title="New form" />
+      </Page.Header>
+      <Page.Body><PageSkeleton /></Page.Body>
+    </Page.Main>
+  )
 
   return (
     <Page.Main>

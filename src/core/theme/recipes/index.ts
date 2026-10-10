@@ -22,6 +22,7 @@ import { scrollArea } from "./scroll-area";
 import { pagination } from "./pagination";
 import { collapsible } from "./collapsible";
 import { table } from "./table";
+import { mainList } from "./main-list";
 import { skeleton } from "./skeleton";
 import { progress } from "./progress";
 import { alert } from "./alert";
@@ -97,6 +98,7 @@ export const recipes = {
   progress,
   skeleton,
   table,
+  mainList,
   collapsible,
   pagination,
   scrollArea,

@@ -15,7 +15,6 @@ registerSidebarModule({
 })
 
 const FormsDashboardPage = lazy(() => import('./dashboard'))
-const FormsListPage = lazy(() => import('./pages/ListPage'))
 const FormBuilderPage = lazy(() => import('./pages/BuilderPage'))
 const FormSubmissionsPage = lazy(() => import('./pages/SubmissionsPage'))
 

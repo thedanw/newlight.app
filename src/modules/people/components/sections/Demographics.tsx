@@ -1,6 +1,7 @@
 import { useState, useMemo, forwardRef, useImperativeHandle } from 'react'
 import type { Person, PersonPublic } from '../../lib/types'
-import { Button, Field, Input } from '@/core/ui'
+import { Button, Field, Input, Select } from '@/core/ui'
+import { createListCollection } from '@ark-ui/react'
 import { Stack } from 'styled-system/jsx'
 import { Grid } from 'styled-system/jsx'
 import { ProfileSection } from './ProfileSection'
@@ -9,11 +10,18 @@ import { updatePerson, writePeopleAudit } from '../../lib/queries'
 interface DemographicsField {
   key: keyof Person
   label: string
-  type?: 'text' | 'number'
+  type?: 'text' | 'number' | 'select'
+  options?: Array<{ label: string; value: Person['demographic'] }>
 }
 
+const demographicOptions = [
+  { label: 'Adult', value: 'adult' as const },
+  { label: 'Youth', value: 'youth' as const },
+  { label: 'Child', value: 'child' as const },
+]
+
 const demographicsFields: DemographicsField[] = [
-  { key: 'demographic', label: 'Demographic' },
+  { key: 'demographic', label: 'Demographic', type: 'select', options: demographicOptions },
   { key: 'school_name', label: 'School' },
   { key: 'kindy_start_year', label: 'Kindy start year', type: 'number' },
   { key: 'school_email_permission', label: 'School email permission' },
@@ -23,7 +31,7 @@ export type DemographicsSectionHandle = {
   save: () => Promise<void>
 }
 
-export const DemographicsSection = forwardRef<DemographicsSectionHandle, { person: Person | PersonPublic; canEdit?: boolean; defaultEdit?: boolean }>(({ person, canEdit = true, defaultEdit = false }, ref) => {
+export const DemographicsSection = forwardRef<DemographicsSectionHandle, { person: Person | PersonPublic; canEdit?: boolean; defaultEdit?: boolean; onDemographicChange?: (demographic: Person['demographic']) => void }>(({ person, canEdit = true, defaultEdit = false, onDemographicChange }, ref) => {
   const schoolYear = useMemo(() => {
     const kindyStartYear = (person as Record<string, unknown>).kindy_start_year as number | null | undefined
     if (!kindyStartYear) return null
@@ -43,6 +51,13 @@ export const DemographicsSection = forwardRef<DemographicsSectionHandle, { perso
 
   const [isEditing, setIsEditing] = useState(defaultEdit)
   const [values, setValues] = useState<Record<string, string>>(() => defaultEdit ? initialValues : {})
+
+  const handleValueChange = (key: string, newValue: string) => {
+    setValues((prev) => ({ ...prev, [key]: newValue }))
+    if (key === 'demographic' && onDemographicChange) {
+      onDemographicChange(newValue as Person['demographic'])
+    }
+  }
 
   const handleSave = async () => {
     const updates: Record<string, unknown> = {}
@@ -76,11 +91,35 @@ export const DemographicsSection = forwardRef<DemographicsSectionHandle, { perso
           {demographicsFields.map((field) => (
             <Field.Root key={field.key}>
               <Field.Label>{field.label}</Field.Label>
-              <Input
-                type={field.type === 'number' ? 'number' : 'text'}
-                value={values[String(field.key)] || ''}
-                onChange={(e) => setValues({ ...values, [String(field.key)]: e.target.value })}
-              />
+              {field.type === 'select' && field.options ? (
+                <Select.Root
+                  collection={createListCollection({ items: field.options })}
+                  value={values[String(field.key)] ? [values[String(field.key)]] : []}
+                  onValueChange={(details) => handleValueChange(String(field.key), details.value[0] || '')}
+                >
+                  <Select.Control>
+                    <Select.Trigger>
+                      <Select.ValueText placeholder={`Select ${field.label.toLowerCase()}`} />
+                      <Select.Indicator />
+                    </Select.Trigger>
+                    <Select.Positioner>
+                      <Select.Content>
+                        {field.options.map((option) => (
+                          <Select.Item key={option.value} item={{ value: option.value, label: option.label }}>
+                            <Select.ItemText>{option.label}</Select.ItemText>
+                          </Select.Item>
+                        ))}
+                      </Select.Content>
+                    </Select.Positioner>
+                  </Select.Control>
+                </Select.Root>
+              ) : (
+                <Input
+                  type={field.type === 'number' ? 'number' : 'text'}
+                  value={values[String(field.key)] || ''}
+                  onChange={(e) => handleValueChange(String(field.key), e.target.value)}
+                />
+              )}
             </Field.Root>
           ))}
         </Grid>

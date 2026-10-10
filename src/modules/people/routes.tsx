@@ -18,9 +18,7 @@ registerSidebarModule({
 import './settings'
 
 const PeopleDashboardPage = lazy(() => import('./pages/Dashboard/Page'))
-const CreatePersonPage = lazy(() => import('./pages/CreatePerson/Page'))
 const EditPersonPage = lazy(() => import('./pages/EditPerson/Page'))
-const PersonProfilePage = lazy(() => import('./pages/PersonProfile/Page'))
 const HouseholdPage = lazy(() => import('./pages/Household/Page'))
 const JourneyGridPage = lazy(() => import('./pages/JourneyGrid/Page'))
 const TagsPage = lazy(() => import('./pages/Tags/Page'))
@@ -41,9 +39,9 @@ export const routes: RouteObject[] = [
     element: <ModuleLayout />,
     children: [
       { index: true, element: <PeopleDashboardPage /> },
-      { path: 'new', element: <CreatePersonPage /> },
+      { path: 'new', element: <EditPersonPage /> },
       { path: ':id', element: <EditPersonPage /> },
-      { path: ':id/view', element: <PersonProfilePage /> },
+      { path: ':id/view', element: <Navigate to="../" replace /> },
       { path: 'journey', element: <JourneyGridPage /> },
       { path: 'tags', element: <TagsPage /> },
       { path: 'email', element: <EmailPage /> },

@@ -16,6 +16,8 @@ export type {
   FormSubmission,
   FormSubmissionWithPerson,
   FormWithFields,
+  Person,
+  Tag,
 } from '@/modules/people/lib/types'
 
 export type { FormConditionOperator, FormConditionEffect } from '@/modules/people/lib/types'

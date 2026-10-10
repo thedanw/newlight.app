@@ -33,7 +33,7 @@ describe('DemographicsSection', () => {
     render(<DemographicsSection person={mockPerson} />)
     const editButton = screen.getByRole('button', { name: /edit/i })
     await userEvent.click(editButton)
-    expect(screen.getByLabelText(/Demographic/i)).toBeInTheDocument()
+    expect(screen.getByRole('combobox', { name: /Demographic/i })).toBeInTheDocument()
     expect(screen.getByLabelText('School')).toHaveValue('Test School')
   })
 })

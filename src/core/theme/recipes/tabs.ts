@@ -1,6 +1,6 @@
 import { tabsAnatomy } from '@ark-ui/react/anatomy'
 import { defineSlotRecipe } from '@pandacss/dev'
-import { PAD, GAP } from '../spacing-contract'
+import { GAP } from '../spacing-contract'
 
 export const tabs = defineSlotRecipe({
   slots: tabsAnatomy.keys(),

@@ -62,3 +62,85 @@ newlight.app church administrators and staff who build forms to collect member i
 
 ## Decision Gap Log
 (none — all gaps resolved)
+
+---
+
+# Decision: Forms Module Dashboard Enhancement
+
+## What & Why
+Enhance the Forms module dashboard (ListPage) with a searchable, interactive form list using the MainList component system. Replace the current table-based list with enhanced functionality including search, row actions (View, Edit, Duplicate, Delete), row selection for bulk operations, and animated transitions.
+
+## Who
+Church administrators and staff managing forms in newlight.app.
+
+## Constraints
+- Must use MainList component system from @/core/ui
+- Must follow existing Forms module patterns (manifest, routes, queries)
+- React 19, Panda CSS, Park UI, TypeScript strict
+- Search uses Park UI SearchInput component
+- Delete/Duplicate use Park UI Dialog confirmation
+
+## Non-Goals
+- Form builder changes
+- Submission viewing changes
+- Public form URL handling changes
+- Backend API changes
+
+## Assumptions
+- Existing getForms(), deleteForm(), getFormSubmissionCounts() queries work
+- Forms have id, name, description, is_public fields
+- Module permissions (admin/team_leaders) control access
+
+## Decision Log: decision → Rationale (hierarchical; parent = decision, sub = dependent)
+
+1. **Integrate MainList into Forms ListPage (replace Table)**
+   - Rationale: MainList provides search, row actions, selection, bulk ops out of the box
+2. **Add search to Forms dashboard header using SearchInput (Park UI)**
+   - Rationale: Consistent with People dashboard pattern; instant onChange + manual button
+3. **Row click → navigate to view mode (/forms/:id/view)**
+   - Rationale: Per-list assignable action; view is primary read action
+4. **Row toolbar View button → same as row click (navigate to view)**
+   - Rationale: Redundancy for discoverability; consistent outcome
+5. **Row toolbar Edit button → navigate to /forms/:id/edit**
+   - Rationale: Full builder UX needs dedicated route
+6. **Row toolbar Duplicate → create copy → navigate to edit of new copy**
+   - Rationale: Immediate continuation of workflow
+7. **Row toolbar Delete → Park UI Dialog confirmation with form name → delete → refresh list**
+   - Rationale: Destructive action requires explicit confirmation
+8. **Row toolbar Select → closes toolbar, expands Select column, selects row**
+   - Rationale: Seamless transition from single-row actions to bulk mode
+9. **Row toolbar X → collapses toolbar, restores Manage button**
+   - Rationale: Symmetric open/close; returns to default state
+10. **Manage button (Pencil icon) in MainList.Row.Button slot → opens row toolbar**
+    - Rationale: Progressive disclosure; keeps row compact until needed
+11. **MassManage toolbar: Delete only (for now)**
+    - Rationale: MVP scope; other bulk actions can be added later
+12. **MassManage Delete → Park UI Dialog confirmation with count → delete selected → refresh**
+    - Rationale: Bulk destructive action requires explicit confirmation with scope clarity
+13. **MassManage includes Select All (all matching search) + Select Visible (current page)**
+    - Rationale: Power users need both; distinguishes filtered set vs viewport
+14. **MassManage X button → deselects all, collapses Select column, hides MassManage**
+    - Rationale: Clear escape hatch; consistent with row toolbar close pattern
+15. **Selection clears on navigation away from ListPage**
+    - Rationale: Simple mental model; no stale state surprises
+16. **Row toolbar animation: CSS transitions (max-height 0 → auto)**
+    - Rationale: Zero deps; performant; sufficient for height animation
+17. **Select column animation: CSS transitions (max-width 0 → auto, all rows together)**
+    - Rationale: Visual consistency; selection column appears/disappears as unit
+18. **MainList.Toolbar.PrimaryActions: New Form button (Plus icon)**
+    - Rationale: Standard primary action for list views
+19. **MainList.Toolbar.SecondaryActions: Filter/Lists button (SlidersHorizontal icon)**
+    - Rationale: Consistent with People dashboard pattern
+20. **MainList.Footer: pagination inside MainList.Root**
+    - Rationale: Self-contained; ListPage doesn't manage pagination separately
+21. **MainList.RowHeader: explicit headers [Name, Visibility, Submissions]**
+    - Rationale: Matches current table columns; predictable, type-safe
+22. **MainList.Row.Content: slot pattern with primary (name), secondary (description), meta (badge)**
+    - Rationale: Structured content enables consistent alignment
+23. **Row expandable with overlay backdrop: click outside closes toolbar**
+    - Rationale: Accessible escape; prevents stuck open toolbars
+24. **Use existing Form type from lib/types (id, name, description, is_public, etc.)**
+    - Rationale: Reuse existing types; no schema changes needed
+
+## Decision Gap Log
+(none — all gaps resolved)

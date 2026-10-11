@@ -1,4 +1,5 @@
 # Ignore the boss skill junction
+coverage/
 .agents/skills/boss
 .agents/planning/.referenceFiles/churchcrm
 

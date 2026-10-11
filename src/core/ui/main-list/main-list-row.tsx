@@ -100,6 +100,7 @@ export function Row<T>({
         className={mainListSlotClassNames.row()}
         data-selected={selected}
         data-select-mode={selectMode}
+        data-toolbar-open={toolbarOpen}
         onClick={handleRowClick}
         {...props}
       >

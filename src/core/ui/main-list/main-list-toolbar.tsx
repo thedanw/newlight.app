@@ -134,6 +134,7 @@ export const MassManage = forwardRef<HTMLDivElement, MassManageProps>(
               variant="plain"
               size="sm"
               onClick={onClose}
+              aria-label="Clear selection"
             >
               <Icon size="sm"><SlidersHorizontal /></Icon>
             </Button>

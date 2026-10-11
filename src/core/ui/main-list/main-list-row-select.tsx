@@ -25,6 +25,8 @@ export const RowSelect = forwardRef<HTMLDivElement, RowSelectProps>(
           onCheckedChange={(details) => onChange?.(details.checked as boolean)}
           aria-label="Select row"
         >
+          {/* Native input keeps the control keyboard-accessible and clickable. */}
+          <Checkbox.HiddenInput />
           <Checkbox.Control asChild>
             <Icon size="sm"><Check /></Icon>
           </Checkbox.Control>

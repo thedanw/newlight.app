@@ -33,6 +33,13 @@ export const mainList = defineSlotRecipe({
       _hover: {
         bg: 'gray.surface.bg.hover',
       },
+      // D2: the managed row sits above the row-toolbar overlay (overlay is
+      // zIndex 50) when its toolbar is open. Driven by `data-toolbar-open`
+      // so the recipe stays the single styling source (findings #8/#9).
+      '&[data-toolbar-open="true"]': {
+        position: 'relative',
+        zIndex: '60',
+      },
     },
     rowSelect: {
       display: 'flex',

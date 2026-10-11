@@ -3,7 +3,7 @@ import { useCallback, useMemo } from 'react'
 import { type ComponentProps } from 'react'
 import { Edit2, ChevronLeft, ChevronRight } from 'lucide-react'
 import { Icon } from '../icon'
-import { Root as Pagination, PrevTrigger, NextTrigger, Item, Items } from '../pagination'
+import { Root as Pagination, PrevTrigger, NextTrigger, Items } from '../pagination'
 import {
   Root,
   Rows,
@@ -238,25 +238,21 @@ export function FooterComponent({
   onPageChange,
   ...props
 }: MainListFooterProps & ComponentProps<'div'>) {
-  const totalPages = Math.ceil(total / pageSize)
-  const hasNextPage = currentPage < totalPages
-
   return (
     <Footer {...props}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '2', fontSize: 'sm', color: 'fg.muted' }}>
         Showing {(currentPage - 1) * pageSize + 1} to {Math.min(currentPage * pageSize, total)} of {total}
       </div>
       <Pagination
-        key={currentPage}
-        count={hasNextPage ? currentPage * pageSize : total}
+        count={total}
         pageSize={pageSize}
-        defaultPage={currentPage}
+        page={currentPage}
         onPageChange={(details) => onPageChange(details.page)}
       >
         <PrevTrigger>
           <Icon size="sm"><ChevronLeft /></Icon>
         </PrevTrigger>
-        <Items render={(item) => <Item type="page" value={item.value} />} />
+        <Items render={(page) => <button type="button">{page.value}</button>} />
         <NextTrigger>
           <Icon size="sm"><ChevronRight /></Icon>
         </NextTrigger>

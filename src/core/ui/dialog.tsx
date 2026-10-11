@@ -28,9 +28,21 @@ export const Footer = withContext(ark.div, 'footer')
 const StyledButton = styled(ark.button)
 
 export const ActionTrigger = forwardRef<HTMLButtonElement, ComponentProps<typeof StyledButton>>(
-  function ActionTrigger(props, ref) {
+  function ActionTrigger({ onClick, ...props }, ref) {
     const dialog = useDialogContext()
-    return <StyledButton {...props} ref={ref} onClick={() => dialog.setOpen(false)} />
+    // Run the consumer's action first, then close. (`{...props}` used to be
+    // spread before a hardcoded `onClick`, which silently dropped every
+    // consumer handler — confirm buttons only dismissed the dialog.)
+    return (
+      <StyledButton
+        {...props}
+        ref={ref}
+        onClick={(event) => {
+          onClick?.(event)
+          dialog.setOpen(false)
+        }}
+      />
+    )
   },
 )
 

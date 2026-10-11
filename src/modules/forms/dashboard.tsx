@@ -49,7 +49,7 @@ export default function FormsDashboardPage() {
         return next
       })
       load()
-    } catch (reason) {
+    } catch {
       // Error handling could be added here
     }
   }
@@ -58,7 +58,7 @@ export default function FormsDashboardPage() {
     try {
       const newForm = await duplicateForm(id)
       navigate(`/forms/${newForm.id}/edit`)
-    } catch (reason) {
+    } catch {
       // Error handling could be added here
     }
   }
@@ -90,7 +90,7 @@ export default function FormsDashboardPage() {
       setSelectedKeys(new Set())
       setMassDeleteDialogOpen(false)
       load()
-    } catch (reason) {
+    } catch {
       // Error handling could be added here
     }
   }
@@ -187,11 +187,6 @@ export default function FormsDashboardPage() {
             { key: 'visibility', label: 'Visibility', width: '120px' },
             { key: 'submissions', label: 'Submissions', width: '120px' },
           ]}
-          search={{
-            value: searchTerm,
-            onChange: handleSearch,
-            placeholder: 'Search forms...',
-          }}
           pagination={{
             page,
             pageSize,

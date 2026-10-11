@@ -9,15 +9,12 @@ export interface MainListRootProps<T> extends ComponentProps<'div'> {
   getKey: (item: T) => string
   /** Render function for each row */
   renderRow: (item: T, index: number) => ReactNode
+  /** Optional per-row toolbar renderer (row action buttons); managed open/close lives in Row */
+  renderRowToolbar?: (item: T, index: number) => ReactNode
+  /** Optional row click handler (navigate to detail) */
+  onRowClick?: (item: T, index: number) => void
   /** Optional header configuration */
   headers?: MainListHeaderConfig[]
-  /** Search configuration */
-  search?: {
-    value: string
-    onChange: (value: string) => void
-    placeholder?: string
-    onSearch?: (term: string) => void
-  }
   /** Pagination configuration */
   pagination?: {
     page: number

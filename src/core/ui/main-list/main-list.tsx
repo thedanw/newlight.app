@@ -1,10 +1,9 @@
 'use client'
-import { useState, useCallback, useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { type ComponentProps } from 'react'
 import { Edit2, ChevronLeft, ChevronRight } from 'lucide-react'
 import { Icon } from '../icon'
 import { Root as Pagination, PrevTrigger, NextTrigger, Item, Items } from '../pagination'
-import { SearchInput } from '../search-input'
 import {
   Root,
   Rows,
@@ -25,26 +24,31 @@ import type {
 
 export type RootProps = ComponentProps<typeof Root>
 
+/** Stable empty selection set (avoids re-creating a new Set each render). */
+const EMPTY_SELECTION: ReadonlySet<string> = new Set<string>()
+
 export function RootComponent<T>({
   items,
   getKey,
   renderRow,
+  renderRowToolbar,
+  onRowClick,
   headers = [],
-  search,
   pagination,
   toolbar,
   selection,
   massManage,
   ...props
 }: MainListRootProps<T> & ComponentProps<'div'>) {
-  const [selectMode, setSelectMode] = useState(false)
-  const [selectedKeys, setSelectedKeys] = useState<Set<string>>(selection?.selectedKeys ?? new Set())
+  // D3: Root is the controlled owner of selection. There is no internal
+  // `selectedKeys` state — the consumer's `selection.selectedKeys` is the
+  // single source of truth (fixes split-brain, findings #3).
+  const selectedKeys = selection?.selectedKeys ?? EMPTY_SELECTION
+  const selectMode = selectedKeys.size > 0
 
   // Sync selection from props
   const handleSelectionChange = useCallback((keys: Set<string>) => {
-    setSelectedKeys(keys)
     selection?.onSelectionChange?.(keys)
-    setSelectMode(keys.size > 0)
   }, [selection])
 
   // Select all visible (current page)
@@ -52,14 +56,17 @@ export function RootComponent<T>({
     const visibleKeys = items.map(getKey)
     const newKeys = new Set([...selectedKeys, ...visibleKeys])
     handleSelectionChange(newKeys)
-  }, [items, getKey, selectedKeys, handleSelectionChange])
+    selection?.onSelectVisible?.(visibleKeys)
+  }, [items, getKey, selectedKeys, handleSelectionChange, selection])
 
-  // Select all filtered (would need search results - for now same as visible)
+  // Select all filtered (all matching search/filter, decision #28). Falls back
+  // to the current page when the consumer doesn't supply `allFilteredKeys`.
   const handleSelectAll = useCallback(() => {
-    const allKeys = items.map(getKey)
+    const allKeys = selection?.allFilteredKeys ?? items.map(getKey)
     const newKeys = new Set([...selectedKeys, ...allKeys])
     handleSelectionChange(newKeys)
-  }, [items, getKey, selectedKeys, handleSelectionChange])
+    selection?.onSelectAll?.(allKeys)
+  }, [items, getKey, selectedKeys, handleSelectionChange, selection])
 
   // Deselect all
   const handleDeselectAll = useCallback(() => {
@@ -92,9 +99,7 @@ export function RootComponent<T>({
           index={index}
           selected={isSelected}
           selectMode={selectMode}
-          onClick={() => {
-            // Row click handled by renderRow
-          }}
+          onClick={onRowClick ? () => onRowClick(item, index) : undefined}
           select={
             <RowSelect
               visible={selectMode}
@@ -111,20 +116,15 @@ export function RootComponent<T>({
             <RowButton
               icon={<Icon size="sm"><Edit2 /></Icon>}
               label="Manage"
-              onClick={() => {}} // Handled by Row component
             />
           }
-          toolbar={
-            <RowToolbar open={false} onClose={() => {}}>
-              {/* Toolbar content rendered by renderRow */}
-            </RowToolbar>
-          }
+          toolbar={renderRowToolbar?.(item, index)}
         >
           {renderRow(item, index)}
         </Row>
       )
     })
-  }, [items, getKey, selectedKeys, selectMode, handleSelectionChange, renderRow])
+  }, [items, getKey, selectedKeys, selectMode, handleSelectionChange, renderRow, renderRowToolbar, onRowClick])
 
   // Mass manage component
   const massManageComponent = useMemo(() => {
@@ -177,19 +177,6 @@ export function RootComponent<T>({
       {...props}
     >
       {toolbarComponent}
-      {search && (
-        <div style={{ padding: '0 4' }}>
-          <SearchInput
-            search={async (term) => {
-              search.onSearch?.(term)
-              return [] as any
-            }}
-            onResults={() => {}}
-            onSearching={() => {}}
-            placeholder={search.placeholder}
-          />
-        </div>
-      )}
       {headers.length > 0 && (
         <RowHeader headers={headers} selectMode={selectMode} />
       )}

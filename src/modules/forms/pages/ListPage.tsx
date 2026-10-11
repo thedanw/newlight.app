@@ -45,7 +45,7 @@ export default function FormsListPage() {
         return next
       })
       load()
-    } catch (reason) {
+    } catch {
       // Error handling could be added here
     }
   }
@@ -54,7 +54,7 @@ export default function FormsListPage() {
     try {
       const newForm = await duplicateForm(id)
       navigate(`/forms/${newForm.id}/edit`)
-    } catch (reason) {
+    } catch {
       // Error handling could be added here
     }
   }
@@ -86,7 +86,7 @@ export default function FormsListPage() {
       setSelectedKeys(new Set())
       setMassDeleteDialogOpen(false)
       load()
-    } catch (reason) {
+    } catch {
       // Error handling could be added here
     }
   }
@@ -183,11 +183,6 @@ export default function FormsListPage() {
             { key: 'visibility', label: 'Visibility', width: '120px' },
             { key: 'submissions', label: 'Submissions', width: '120px' },
           ]}
-          search={{
-            value: searchTerm,
-            onChange: handleSearch,
-            placeholder: 'Search forms...',
-          }}
           pagination={{
             page,
             pageSize,

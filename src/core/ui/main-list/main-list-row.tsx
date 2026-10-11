@@ -1,9 +1,8 @@
 'use client'
-import { type ComponentProps, useState, useRef, useEffect } from 'react'
+import { type ComponentProps, useState, useRef, useEffect, useId } from 'react'
 import { mainListSlotClassNames, mainListOverlay } from './main-list-context'
 import { RowToolbar } from './main-list-row-toolbar'
 import { RowContent } from './main-list-row-content'
-import { RowSelect } from './main-list-row-select'
 
 export type RowProps<T> = ComponentProps<typeof Row<T>>
 
@@ -32,6 +31,8 @@ export function Row<T>({
   const [toolbarOpen, setToolbarOpen] = useState(false)
   const [overlayVisible, setOverlayVisible] = useState(false)
   const rowRef = useRef<HTMLDivElement>(null)
+  const toolbarRef = useRef<HTMLDivElement>(null)
+  const toolbarId = useId()
 
   // Close toolbar when clicking outside
   useEffect(() => {
@@ -44,9 +45,27 @@ export function Row<T>({
       }
     }
 
+    // Escape-to-close + focus move into the toolbar (a11y).
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.stopPropagation()
+        setToolbarOpen(false)
+        setOverlayVisible(false)
+      }
+    }
+
     setOverlayVisible(true)
     document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
+    document.addEventListener('keydown', handleKeyDown)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [toolbarOpen])
+
+  // Move focus into the toolbar when it opens so keyboard users land there.
+  useEffect(() => {
+    if (toolbarOpen) toolbarRef.current?.focus()
   }, [toolbarOpen])
 
   const handleRowClick = () => {
@@ -71,13 +90,14 @@ export function Row<T>({
         <div
           className={mainListOverlay}
           onClick={handleToolbarClose}
-          aria-hidden="true"
+          role="presentation"
         />
       )}
       <div
         ref={rowRef}
         className={mainListSlotClassNames.row()}
         data-selected={selected}
+        data-select-mode={selectMode}
         onClick={handleRowClick}
         {...props}
       >
@@ -85,14 +105,14 @@ export function Row<T>({
         {children ?? (
           <RowContent />
         )}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '2', paddingRight: '4' }}>
+        <div className={mainListSlotClassNames.rowButton()}>
           {!toolbarOpen && button && (
             <div onClick={handleManageClick}>
               {button}
             </div>
           )}
           {toolbarOpen && toolbar && (
-            <RowToolbar open={true} onClose={handleToolbarClose}>
+            <RowToolbar ref={toolbarRef} open={true} onClose={handleToolbarClose} id={toolbarId} tabIndex={-1}>
               {toolbar}
             </RowToolbar>
           )}

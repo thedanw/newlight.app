@@ -1,0 +1,74 @@
+/* Orange color palette - loaded dynamically */
+:root {
+  /* Essential color palette tokens only */
+  --colors-orange-1: #fefcfb;
+  --colors-orange-2: #fff7ed;
+  --colors-orange-3: #ffefd6;
+  --colors-orange-4: #ffdfb5;
+  --colors-orange-5: #ffd19a;
+  --colors-orange-6: #ffc182;
+  --colors-orange-7: #f5ae73;
+  --colors-orange-8: #ec9455;
+  --colors-orange-9: #ff7300;
+  --colors-orange-10: #ef5f00;
+  --colors-orange-11: #cc4e00;
+  --colors-orange-12: #582d1d;
+  /* Alpha scale a1–a12 */
+  --colors-orange-a1: #c0400004;
+  --colors-orange-a2: #ff8e0012;
+  --colors-orange-a3: #ff9c0029;
+  --colors-orange-a4: #ff91014a;
+  --colors-orange-a5: #ff8b0065;
+  --colors-orange-a6: #ff81007d;
+  --colors-orange-a7: #ed6c008c;
+  --colors-orange-a8: #e35f00aa;
+  --colors-orange-a9: #f65e00ea;
+  --colors-orange-a10: #ef5f00;
+  --colors-orange-a11: #cc4e00;
+  --colors-orange-a12: #431200e2;
+  /* Semantic slots */
+  --colors-orange-solid-bg: var(--colors-orange-9);
+  --colors-orange-solid-bg-hover: var(--colors-orange-10);
+  --colors-orange-solid-fg: white;
+  --colors-orange-subtle-bg: var(--colors-orange-a3);
+  --colors-orange-subtle-bg-hover: var(--colors-orange-a4);
+  --colors-orange-subtle-bg-active: var(--colors-orange-a5);
+  --colors-orange-subtle-fg: var(--colors-orange-a11);
+  --colors-orange-surface-bg: var(--colors-orange-a2);
+  --colors-orange-surface-bg-hover: var(--colors-orange-a3);
+  --colors-orange-surface-bg-active: var(--colors-orange-a3);
+  --colors-orange-surface-border: var(--colors-orange-a6);
+  --colors-orange-surface-border-hover: var(--colors-orange-a7);
+  --colors-orange-surface-fg: var(--colors-orange-a11);
+  --colors-orange-outline-bg-hover: var(--colors-orange-a7);
+  --colors-orange-outline-bg-active: var(--colors-orange-a8);
+  --colors-orange-outline-border: var(--colors-orange-a7);
+  --colors-orange-outline-fg: var(--colors-orange-a11);
+  --colors-orange-plain-bg-hover: var(--colors-orange-a7);
+  --colors-orange-plain-bg-active: var(--colors-orange-a8);
+  --colors-orange-plain-fg: var(--colors-orange-a11);
+  
+  /* Panda CSS semantic token mappings */
+  .colorPalette {
+    --solid-bg: var(--colors-orange-solid-bg);
+    --solid-bg-hover: var(--colors-orange-solid-bg-hover);
+    --solid-fg: var(--colors-orange-solid-fg);
+    --subtle-bg: var(--colors-orange-subtle-bg);
+    --subtle-bg-hover: var(--colors-orange-subtle-bg-hover);
+    --subtle-bg-active: var(--colors-orange-subtle-bg-active);
+    --subtle-fg: var(--colors-orange-subtle-fg);
+    --surface-bg: var(--colors-orange-surface-bg);
+    --surface-bg-hover: var(--colors-orange-surface-bg-hover);
+    --surface-bg-active: var(--colors-orange-surface-bg-active);
+    --surface-border: var(--colors-orange-surface-border);
+    --surface-border-hover: var(--colors-orange-surface-border-hover);
+    --surface-fg: var(--colors-orange-surface-fg);
+    --outline-bg-hover: var(--colors-orange-outline-bg-hover);
+    --outline-bg-active: var(--colors-orange-outline-bg-active);
+    --outline-border: var(--colors-orange-outline-border);
+    --outline-fg: var(--colors-orange-outline-fg);
+    --plain-bg-hover: var(--colors-orange-plain-bg-hover);
+    --plain-bg-active: var(--colors-orange-plain-bg-active);
+    --plain-fg: var(--colors-orange-plain-fg);
+  }
+}

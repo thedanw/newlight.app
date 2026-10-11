@@ -1,0 +1,50 @@
+/* Neutral color palette - loaded dynamically */
+:root {
+  /* Essential color palette tokens only */
+  --colors-neutral-1: #fcfcfc;
+  --colors-neutral-2: #f9f9f9;
+  --colors-neutral-3: #f0f0f0;
+  --colors-neutral-4: #e8e8e8;
+  --colors-neutral-5: #e0e0e0;
+  --colors-neutral-6: #d9d9d9;
+  --colors-neutral-7: #cecece;
+  --colors-neutral-8: #bbbbbb;
+  --colors-neutral-9: #8d8d8d;
+  --colors-neutral-10: #838383;
+  --colors-neutral-11: #646464;
+  --colors-neutral-12: #202020;
+  /* Alpha scale a1–a12 */
+  --colors-neutral-a1: #00000003;
+  --colors-neutral-a2: #00000006;
+  --colors-neutral-a3: #0000000f;
+  --colors-neutral-a4: #00000017;
+  --colors-neutral-a5: #0000001f;
+  --colors-neutral-a6: #00000026;
+  --colors-neutral-a7: #00000031;
+  --colors-neutral-a8: #00000044;
+  --colors-neutral-a9: #00000072;
+  --colors-neutral-a10: #0000007c;
+  --colors-neutral-a11: #0000009b;
+  --colors-neutral-a12: #000000df;
+  /* Semantic slots */
+  --colors-neutral-solid-bg: var(--colors-neutral-9);
+  --colors-neutral-solid-bg-hover: var(--colors-neutral-10);
+  --colors-neutral-solid-fg: white;
+  --colors-neutral-subtle-bg: var(--colors-neutral-a3);
+  --colors-neutral-subtle-bg-hover: var(--colors-neutral-a4);
+  --colors-neutral-subtle-bg-active: var(--colors-neutral-a5);
+  --colors-neutral-subtle-fg: var(--colors-neutral-a11);
+  --colors-neutral-surface-bg: var(--colors-neutral-a2);
+  --colors-neutral-surface-bg-hover: var(--colors-neutral-a3);
+  --colors-neutral-surface-bg-active: var(--colors-neutral-a3);
+  --colors-neutral-surface-border: var(--colors-neutral-a6);
+  --colors-neutral-surface-border-hover: var(--colors-neutral-a7);
+  --colors-neutral-surface-fg: var(--colors-neutral-a11);
+  --colors-neutral-outline-bg-hover: var(--colors-neutral-a7);
+  --colors-neutral-outline-bg-active: var(--colors-neutral-a8);
+  --colors-neutral-outline-border: var(--colors-neutral-a7);
+  --colors-neutral-outline-fg: var(--colors-neutral-a11);
+  --colors-neutral-plain-bg-hover: var(--colors-neutral-a7);
+  --colors-neutral-plain-bg-active: var(--colors-neutral-a8);
+  --colors-neutral-plain-fg: var(--colors-neutral-a11);
+}

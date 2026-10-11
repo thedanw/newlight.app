@@ -1,0 +1,50 @@
+/* Red color palette - loaded dynamically */
+:root {
+  /* Essential color palette tokens only */
+  --colors-red-1: #fffcfc;
+  --colors-red-2: #fff7f7;
+  --colors-red-3: #feebec;
+  --colors-red-4: #ffdbdc;
+  --colors-red-5: #ffcdce;
+  --colors-red-6: #fdbdbe;
+  --colors-red-7: #f4a9aa;
+  --colors-red-8: #eb8e90;
+  --colors-red-9: #e5484d;
+  --colors-red-10: #dc3e42;
+  --colors-red-11: #ce2c31;
+  --colors-red-12: #641723;
+  /* Alpha scale a1–a12 */
+  --colors-red-a1: #ff000003;
+  --colors-red-a2: #ff000008;
+  --colors-red-a3: #f3000d14;
+  --colors-red-a4: #ff000824;
+  --colors-red-a5: #ff000632;
+  --colors-red-a6: #f8000442;
+  --colors-red-a7: #df000356;
+  --colors-red-a8: #d2000571;
+  --colors-red-a9: #db0007b7;
+  --colors-red-a10: #d10005c1;
+  --colors-red-a11: #c40006d3;
+  --colors-red-a12: #55000de8;
+  /* Semantic slots */
+  --colors-red-solid-bg: var(--colors-red-9);
+  --colors-red-solid-bg-hover: var(--colors-red-10);
+  --colors-red-solid-fg: white;
+  --colors-red-subtle-bg: var(--colors-red-a3);
+  --colors-red-subtle-bg-hover: var(--colors-red-a4);
+  --colors-red-subtle-bg-active: var(--colors-red-a5);
+  --colors-red-subtle-fg: var(--colors-red-a11);
+  --colors-red-surface-bg: var(--colors-red-a2);
+  --colors-red-surface-bg-hover: var(--colors-red-a3);
+  --colors-red-surface-bg-active: var(--colors-red-a3);
+  --colors-red-surface-border: var(--colors-red-a6);
+  --colors-red-surface-border-hover: var(--colors-red-a7);
+  --colors-red-surface-fg: var(--colors-red-a11);
+  --colors-red-outline-bg-hover: var(--colors-red-a7);
+  --colors-red-outline-bg-active: var(--colors-red-a8);
+  --colors-red-outline-border: var(--colors-red-a7);
+  --colors-red-outline-fg: var(--colors-red-a11);
+  --colors-red-plain-bg-hover: var(--colors-red-a7);
+  --colors-red-plain-bg-active: var(--colors-red-a8);
+  --colors-red-plain-fg: var(--colors-red-a11);
+}

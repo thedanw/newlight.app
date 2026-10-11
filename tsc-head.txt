@@ -1,0 +1,135 @@
+﻿src/content/plugins/elvanto-sync/settings/components/MappingRow.tsx(4,10): error TS2300: Duplicate identifier 'CheckIcon'.
+src/content/plugins/elvanto-sync/settings/components/MappingRow.tsx(7,10): error TS2300: Duplicate identifier 'CheckIcon'.
+src/content/plugins/elvanto-sync/settings/ConnectionTab.tsx(50,54): error TS2554: Expected 1 arguments, but got 2.
+src/content/plugins/elvanto-sync/settings/ElvantoSyncSettingsPage.tsx(2,10): error TS6133: 'Page' is declared but its value is never read.
+src/content/plugins/elvanto-sync/settings/ElvantoSyncSettingsPage.tsx(4,10): error TS6133: 'Settings' is declared but its value is never read.
+src/content/plugins/elvanto-sync/settings/ElvantoSyncSettingsPage.tsx(4,50): error TS6133: 'MapPin' is declared but its value is never read.
+src/content/plugins/elvanto-sync/settings/ElvantoSyncSettingsPage.tsx(4,64): error TS6133: 'GitBranch' is declared but its value is never read.
+src/content/plugins/elvanto-sync/settings/ElvantoSyncSettingsPage.tsx(4,75): error TS6133: 'Shield' is declared but its value is never read.
+src/content/plugins/elvanto-sync/settings/FieldMappingTab.tsx(8,26): error TS6133: 'getSupabaseAnonKey' is declared but its value is never read.
+src/content/plugins/elvanto-sync/settings/MapJourneysTab.tsx(3,54): error TS6133: 'Badge' is declared but its value is never read.
+src/content/plugins/elvanto-sync/settings/MapJourneysTab.tsx(3,67): error TS6133: 'Table' is declared but its value is never read.
+src/content/plugins/elvanto-sync/settings/MapJourneysTab.tsx(6,10): error TS6133: 'ChevronsUpDownIcon' is declared but its value is never read.
+src/content/plugins/elvanto-sync/settings/MapJourneysTab.tsx(6,30): error TS6133: 'CheckIcon' is declared but its value is never read.
+src/content/plugins/elvanto-sync/settings/MapJourneysTab.tsx(305,20): error TS2304: Cannot find name 'STAGE_OPTIONS'.
+src/content/plugins/elvanto-sync/settings/MapJourneysTab.tsx(518,23): error TS2322: Type '"ghost"' is not assignable to type 'ConditionalValue<"outline" | "plain" | "solid" | "surface" | "subtle"> | undefined'.
+src/content/plugins/elvanto-sync/settings/MapJourneysTab.tsx(564,59): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(props: JsxHTMLProps<SelectTriggerProps & RefAttributes<HTMLButtonElement> & UnstyledProps & AsProps, JsxStyleProps>, context?: any): string | ... 8 more ... | undefined', gave the following error.
+    Type '{ children: Element[]; size: string; }' is not assignable to type 'IntrinsicAttributes & { form?: string | undefined; slot?: string | undefined; style?: CSSProperties | undefined; title?: string | undefined; ... 289 more ...; htmlContent?: string | undefined; } & SystemStyleObject & WithCss'.
+      Property 'size' does not exist on type 'IntrinsicAttributes & { form?: string | undefined; slot?: string | undefined; style?: CSSProperties | undefined; title?: string | undefined; ... 289 more ...; htmlContent?: string | undefined; } & SystemStyleObject & WithCss'.
+  Overload 2 of 2, '(props: JsxHTMLProps<SelectTriggerProps & RefAttributes<HTMLButtonElement> & UnstyledProps & AsProps, JsxStyleProps>): string | ... 8 more ... | undefined', gave the following error.
+    Type '{ children: Element[]; size: string; }' is not assignable to type 'IntrinsicAttributes & { form?: string | undefined; slot?: string | undefined; style?: CSSProperties | undefined; title?: string | undefined; ... 289 more ...; htmlContent?: string | undefined; } & SystemStyleObject & WithCss'.
+      Property 'size' does not exist on type 'IntrinsicAttributes & { form?: string | undefined; slot?: string | undefined; style?: CSSProperties | undefined; title?: string | undefined; ... 289 more ...; htmlContent?: string | undefined; } & SystemStyleObject & WithCss'.
+src/content/plugins/elvanto-sync/settings/MapJourneysTab.tsx(592,57): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(props: JsxHTMLProps<SelectTriggerProps & RefAttributes<HTMLButtonElement> & UnstyledProps & AsProps, JsxStyleProps>, context?: any): string | ... 8 more ... | undefined', gave the following error.
+    Type '{ children: Element[]; size: string; minWidth: "140px"; }' is not assignable to type 'IntrinsicAttributes & { form?: string | undefined; slot?: string | undefined; style?: CSSProperties | undefined; title?: string | undefined; ... 289 more ...; htmlContent?: string | undefined; } & SystemStyleObject & WithCss'.
+      Property 'size' does not exist on type 'IntrinsicAttributes & { form?: string | undefined; slot?: string | undefined; style?: CSSProperties | undefined; title?: string | undefined; ... 289 more ...; htmlContent?: string | undefined; } & SystemStyleObject & WithCss'.
+  Overload 2 of 2, '(props: JsxHTMLProps<SelectTriggerProps & RefAttributes<HTMLButtonElement> & UnstyledProps & AsProps, JsxStyleProps>): string | ... 8 more ... | undefined', gave the following error.
+    Type '{ children: Element[]; size: string; minWidth: "140px"; }' is not assignable to type 'IntrinsicAttributes & { form?: string | undefined; slot?: string | undefined; style?: CSSProperties | undefined; title?: string | undefined; ... 289 more ...; htmlContent?: string | undefined; } & SystemStyleObject & WithCss'.
+      Property 'size' does not exist on type 'IntrinsicAttributes & { form?: string | undefined; slot?: string | undefined; style?: CSSProperties | undefined; title?: string | undefined; ... 289 more ...; htmlContent?: string | undefined; } & SystemStyleObject & WithCss'.
+src/content/plugins/elvanto-sync/settings/MapJourneysTab.tsx(615,57): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(props: JsxHTMLProps<SelectTriggerProps & RefAttributes<HTMLButtonElement> & UnstyledProps & AsProps, JsxStyleProps>, context?: any): string | ... 8 more ... | undefined', gave the following error.
+    Type '{ children: Element[]; size: string; minWidth: "140px"; }' is not assignable to type 'IntrinsicAttributes & { form?: string | undefined; slot?: string | undefined; style?: CSSProperties | undefined; title?: string | undefined; ... 289 more ...; htmlContent?: string | undefined; } & SystemStyleObject & WithCss'.
+      Property 'size' does not exist on type 'IntrinsicAttributes & { form?: string | undefined; slot?: string | undefined; style?: CSSProperties | undefined; title?: string | undefined; ... 289 more ...; htmlContent?: string | undefined; } & SystemStyleObject & WithCss'.
+  Overload 2 of 2, '(props: JsxHTMLProps<SelectTriggerProps & RefAttributes<HTMLButtonElement> & UnstyledProps & AsProps, JsxStyleProps>): string | ... 8 more ... | undefined', gave the following error.
+    Type '{ children: Element[]; size: string; minWidth: "140px"; }' is not assignable to type 'IntrinsicAttributes & { form?: string | undefined; slot?: string | undefined; style?: CSSProperties | undefined; title?: string | undefined; ... 289 more ...; htmlContent?: string | undefined; } & SystemStyleObject & WithCss'.
+      Property 'size' does not exist on type 'IntrinsicAttributes & { form?: string | undefined; slot?: string | undefined; style?: CSSProperties | undefined; title?: string | undefined; ... 289 more ...; htmlContent?: string | undefined; } & SystemStyleObject & WithCss'.
+src/content/plugins/elvanto-sync/settings/MapJourneysTab.tsx(639,57): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(props: JsxHTMLProps<SelectTriggerProps & RefAttributes<HTMLButtonElement> & UnstyledProps & AsProps, JsxStyleProps>, context?: any): string | ... 8 more ... | undefined', gave the following error.
+    Type '{ children: Element[]; size: string; minWidth: "140px"; }' is not assignable to type 'IntrinsicAttributes & { form?: string | undefined; slot?: string | undefined; style?: CSSProperties | undefined; title?: string | undefined; ... 289 more ...; htmlContent?: string | undefined; } & SystemStyleObject & WithCss'.
+      Property 'size' does not exist on type 'IntrinsicAttributes & { form?: string | undefined; slot?: string | undefined; style?: CSSProperties | undefined; title?: string | undefined; ... 289 more ...; htmlContent?: string | undefined; } & SystemStyleObject & WithCss'.
+  Overload 2 of 2, '(props: JsxHTMLProps<SelectTriggerProps & RefAttributes<HTMLButtonElement> & UnstyledProps & AsProps, JsxStyleProps>): string | ... 8 more ... | undefined', gave the following error.
+    Type '{ children: Element[]; size: string; minWidth: "140px"; }' is not assignable to type 'IntrinsicAttributes & { form?: string | undefined; slot?: string | undefined; style?: CSSProperties | undefined; title?: string | undefined; ... 289 more ...; htmlContent?: string | undefined; } & SystemStyleObject & WithCss'.
+      Property 'size' does not exist on type 'IntrinsicAttributes & { form?: string | undefined; slot?: string | undefined; style?: CSSProperties | undefined; title?: string | undefined; ... 289 more ...; htmlContent?: string | undefined; } & SystemStyleObject & WithCss'.
+src/content/plugins/elvanto-sync/settings/MapJourneysTab.tsx(656,39): error TS2322: Type '"ghost"' is not assignable to type 'ConditionalValue<"outline" | "plain" | "solid" | "surface" | "subtle"> | undefined'.
+src/content/plugins/elvanto-sync/settings/MapJourneysTab.tsx(697,55): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(props: JsxHTMLProps<SelectTriggerProps & RefAttributes<HTMLButtonElement> & UnstyledProps & AsProps, JsxStyleProps>, context?: any): string | ... 8 more ... | undefined', gave the following error.
+    Type '{ children: Element[]; size: string; minWidth: "160px"; }' is not assignable to type 'IntrinsicAttributes & { form?: string | undefined; slot?: string | undefined; style?: CSSProperties | undefined; title?: string | undefined; ... 289 more ...; htmlContent?: string | undefined; } & SystemStyleObject & WithCss'.
+      Property 'size' does not exist on type 'IntrinsicAttributes & { form?: string | undefined; slot?: string | undefined; style?: CSSProperties | undefined; title?: string | undefined; ... 289 more ...; htmlContent?: string | undefined; } & SystemStyleObject & WithCss'.
+  Overload 2 of 2, '(props: JsxHTMLProps<SelectTriggerProps & RefAttributes<HTMLButtonElement> & UnstyledProps & AsProps, JsxStyleProps>): string | ... 8 more ... | undefined', gave the following error.
+    Type '{ children: Element[]; size: string; minWidth: "160px"; }' is not assignable to type 'IntrinsicAttributes & { form?: string | undefined; slot?: string | undefined; style?: CSSProperties | undefined; title?: string | undefined; ... 289 more ...; htmlContent?: string | undefined; } & SystemStyleObject & WithCss'.
+      Property 'size' does not exist on type 'IntrinsicAttributes & { form?: string | undefined; slot?: string | undefined; style?: CSSProperties | undefined; title?: string | undefined; ... 289 more ...; htmlContent?: string | undefined; } & SystemStyleObject & WithCss'.
+src/content/plugins/elvanto-sync/settings/MapJourneysTab.tsx(722,55): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(props: JsxHTMLProps<SelectTriggerProps & RefAttributes<HTMLButtonElement> & UnstyledProps & AsProps, JsxStyleProps>, context?: any): string | ... 8 more ... | undefined', gave the following error.
+    Type '{ children: Element[]; size: string; minWidth: "140px"; }' is not assignable to type 'IntrinsicAttributes & { form?: string | undefined; slot?: string | undefined; style?: CSSProperties | undefined; title?: string | undefined; ... 289 more ...; htmlContent?: string | undefined; } & SystemStyleObject & WithCss'.
+      Property 'size' does not exist on type 'IntrinsicAttributes & { form?: string | undefined; slot?: string | undefined; style?: CSSProperties | undefined; title?: string | undefined; ... 289 more ...; htmlContent?: string | undefined; } & SystemStyleObject & WithCss'.
+  Overload 2 of 2, '(props: JsxHTMLProps<SelectTriggerProps & RefAttributes<HTMLButtonElement> & UnstyledProps & AsProps, JsxStyleProps>): string | ... 8 more ... | undefined', gave the following error.
+    Type '{ children: Element[]; size: string; minWidth: "140px"; }' is not assignable to type 'IntrinsicAttributes & { form?: string | undefined; slot?: string | undefined; style?: CSSProperties | undefined; title?: string | undefined; ... 289 more ...; htmlContent?: string | undefined; } & SystemStyleObject & WithCss'.
+      Property 'size' does not exist on type 'IntrinsicAttributes & { form?: string | undefined; slot?: string | undefined; style?: CSSProperties | undefined; title?: string | undefined; ... 289 more ...; htmlContent?: string | undefined; } & SystemStyleObject & WithCss'.
+src/content/plugins/elvanto-sync/settings/MapJourneysTab.tsx(739,37): error TS2322: Type '"ghost"' is not assignable to type 'ConditionalValue<"outline" | "plain" | "solid" | "surface" | "subtle"> | undefined'.
+src/content/plugins/elvanto-sync/sync/journey-sync.ts(165,34): error TS2552: Cannot find name 'loadStageMap'. Did you mean 'stageMap'?
+src/content/plugins/elvanto-sync/sync/journey-sync.ts(304,7): error TS6133: 'STAGE_UUIDS' is declared but its value is never read.
+src/content/plugins/elvanto-sync/sync/trigger-sync.ts(35,1): error TS6133: 'createClient' is declared but its value is never read.
+src/content/plugins/elvanto-sync/utils/field-discovery.ts(1,52): error TS6196: 'ElvantoLocation' is declared but never used.
+src/content/plugins/elvanto-sync/widgets/ElvantoSyncStatusWidget.tsx(52,34): error TS2353: Object literal may only specify known properties, and 'trigger' does not exist in type 'SupabaseClient<any, "public", "public", any, any>'.
+src/core/email/__tests__/renderer.test.ts(12,29): error TS2345: Argument of type '{}' is not assignable to parameter of type 'StudioProject'.
+  Type '{}' is missing the following properties from type 'StudioProject': pages, assets, settings
+src/core/email/__tests__/types.test.ts(81,22): error TS2353: Object literal may only specify known properties, and 'cells' does not exist in type 'StudioProject'.
+src/core/email/components/AudiencePicker.tsx(124,16): error TS2741: Property 'collection' is missing in type '{ children: Element[]; multiple: true; value: string[]; onValueChange: (details: ValueChangeDetails<unknown>) => void; }' but required in type 'Omit<SelectRootProps<unknown>, "p" | "slot" | "style" | "title" | "clipPath" | "filter" | "marker" | "mask" | "page" | `&[data-part=${string}]` | `&[data-attr=${string}]` | `&[data-placement=${string}]` | `&[data-theme=${string}]` | `&[data-size=${string}]` | ... 1140 more ... | keyof SelectVariant>'.
+src/core/email/components/AudiencePicker.tsx(218,16): error TS2741: Property 'collection' is missing in type '{ children: Element[]; multiple: true; value: string[]; onValueChange: (details: ValueChangeDetails<unknown>) => void; }' but required in type 'Omit<SelectRootProps<unknown>, "p" | "slot" | "style" | "title" | "clipPath" | "filter" | "marker" | "mask" | "page" | `&[data-part=${string}]` | `&[data-attr=${string}]` | `&[data-placement=${string}]` | `&[data-theme=${string}]` | `&[data-size=${string}]` | ... 1140 more ... | keyof SelectVariant>'.
+src/core/email/components/EmailComposer.tsx(16,1): error TS6133: 'HStack' is declared but its value is never read.
+src/core/email/components/EmailComposer.tsx(23,1): error TS6133: 'getEmailSettings' is declared but its value is never read.
+src/core/email/lib/audience.ts(5,48): error TS2339: Property 'demographic' does not exist on type '{ profile_type: "adult" | "youth" | "child"; gender: "male" | "female"; marital_status: "single" | "engaged" | "married" | "partner" | "widowed" | "divorced" | "separated"; access_permission: "public" | ... 3 more ... | "super_admin"; ... 17 more ...; email_audience_type: "saved_list" | ... 1 more ... | "preset"; }'.
+src/core/email/lib/queries.ts(15,10): error TS2352: Conversion of type '{ id: string; name: string; subject: string | null; html_content: string | null; editor_json: Json; status: "draft" | "published" | "archived"; from_email: string | null; from_name: string | null; created_by: string | null; created_at: string; updated_at: string; }[]' to type 'EmailTemplate[]' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ id: string; name: string; subject: string | null; html_content: string | null; editor_json: Json; status: "draft" | "published" | "archived"; from_email: string | null; from_name: string | null; created_by: string | null; created_at: string; updated_at: string; }' is not comparable to type 'EmailTemplate'.
+    Types of property 'editor_json' are incompatible.
+      Type 'Json' is not comparable to type 'StudioProject'.
+        Type 'Json[]' is missing the following properties from type 'StudioProject': pages, assets, settings
+src/core/plugins/HookRegistry.ts(159,29): error TS2345: Argument of type 'UniqueIdentifier' is not assignable to parameter of type 'string'.
+  Type 'number' is not assignable to type 'string'.
+src/core/theme/components/card-stack.ts(1,23): error TS2307: Cannot find module '../jsx/stack.mjs' or its corresponding type declarations.
+src/core/theme/components/card-stack.ts(2,21): error TS2307: Cannot find module '../css/index.mjs' or its corresponding type declarations.
+src/core/theme/components/card-stack.ts(4,27): error TS7006: Parameter 'props' implicitly has an 'any' type.
+src/core/theme/components/card-stack.ts(9,27): error TS7006: Parameter 'styles' implicitly has an 'any' type.
+src/core/theme/recipes/accordion.ts(3,10): error TS6133: 'PAD' is declared but its value is never read.
+src/core/theme/recipes/column-stack.ts(280,5): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(config: RecipeConfig<{ spacing: { none: { gap: "0"; }; xs: { gap: "1"; }; sm: { gap: "2"; }; md: { gap: "4"; }; lg: { gap: "6"; }; xl: { gap: "8"; }; }; align: { start: { alignItems: "flex-start"; }; center: { alignItems: "center"; }; end: { alignItems: "flex-end"; }; stretch: { ...; }; baseline: { ...; }; }; ... 4 more ...; stack: { ...; }; }>): RecipeConfig<...>', gave the following error.
+    Type '{ layout: string; stack: string; css: { '@media (max-width: 640px)': { flexDirection: string; '& > *': { width: string; flex: string; }; }; '@media (max-width: 768px)'?: undefined; '@media (max-width: 1024px)'?: undefined; }; } | { ...; } | { ...; }' is not assignable to type '{ spacing?: OneOrMore<"sm" | "md" | "lg" | "xl" | "none" | "xs"> | undefined; align?: OneOrMore<"center" | "end" | "start" | "stretch" | "baseline"> | undefined; ... 5 more ...; css: SystemStyleObject; }'.
+      Type '{ layout: string; stack: string; css: { '@media (max-width: 640px)': { flexDirection: string; '& > *': { width: string; flex: string; }; }; '@media (max-width: 768px)'?: undefined; '@media (max-width: 1024px)'?: undefined; }; }' is not assignable to type '{ spacing?: OneOrMore<"sm" | "md" | "lg" | "xl" | "none" | "xs"> | undefined; align?: OneOrMore<"center" | "end" | "start" | "stretch" | "baseline"> | undefined; ... 5 more ...; css: SystemStyleObject; }'.
+        Types of property 'layout' are incompatible.
+          Type 'string' is not assignable to type 'OneOrMore<"2" | "3" | "4" | "stack" | "2-1" | "1-4-1" | "1-3-1" | "1-2" | "1-3" | "3-1" | "2-3" | "3-2"> | undefined'.
+  Overload 2 of 2, '(config: RecipeConfig<{ spacing: { none: { gap: "0"; }; xs: { gap: "1"; }; sm: { gap: "2"; }; md: { gap: "4"; }; lg: { gap: "6"; }; xl: { gap: "8"; }; }; align: { start: { alignItems: "flex-start"; }; center: { alignItems: "center"; }; end: { alignItems: "flex-end"; }; stretch: { ...; }; baseline: { ...; }; }; ... 4 more ...; stack: { ...; }; }>): RecipeConfig<...>', gave the following error.
+    Type '{ layout: string; stack: string; css: { '@media (max-width: 640px)': { flexDirection: string; '& > *': { width: string; flex: string; }; }; '@media (max-width: 768px)'?: undefined; '@media (max-width: 1024px)'?: undefined; }; } | { ...; } | { ...; }' is not assignable to type '{ spacing?: OneOrMore<"sm" | "md" | "lg" | "xl" | "none" | "xs"> | undefined; align?: OneOrMore<"center" | "end" | "start" | "stretch" | "baseline"> | undefined; ... 5 more ...; css: SystemStyleObject; }'.
+      Type '{ layout: string; stack: string; css: { '@media (max-width: 640px)': { flexDirection: string; '& > *': { width: string; flex: string; }; }; '@media (max-width: 768px)'?: undefined; '@media (max-width: 1024px)'?: undefined; }; }' is not assignable to type '{ spacing?: OneOrMore<"sm" | "md" | "lg" | "xl" | "none" | "xs"> | undefined; align?: OneOrMore<"center" | "end" | "start" | "stretch" | "baseline"> | undefined; ... 5 more ...; css: SystemStyleObject; }'.
+        Types of property 'layout' are incompatible.
+          Type 'string' is not assignable to type 'OneOrMore<"2" | "3" | "4" | "stack" | "2-1" | "1-4-1" | "1-3-1" | "1-2" | "1-3" | "3-1" | "2-3" | "3-2"> | undefined'.
+src/core/ui/waffle-sidebar.tsx(3,25): error TS2307: Cannot find module '@use-gesture/react' or its corresponding type declarations.
+src/core/ui/waffle-sidebar.tsx(171,8): error TS7031: Binding element 'down' implicitly has an 'any' type.
+src/core/ui/waffle-sidebar.tsx(171,23): error TS7031: Binding element 'ox' implicitly has an 'any' type.
+src/core/ui/waffle-sidebar.tsx(171,39): error TS7031: Binding element 'mx' implicitly has an 'any' type.
+src/core/ui/waffle-sidebar.tsx(171,44): error TS7031: Binding element 'first' implicitly has an 'any' type.
+src/core/ui/waffle-sidebar.tsx(171,51): error TS7031: Binding element 'last' implicitly has an 'any' type.
+src/modules/forms/pages/BuilderPage.tsx(20,35): error TS6133: 'MAPPABLE_PERSON_FIELDS' is declared but its value is never read.
+src/modules/people/pages/EditPerson/Page.tsx(25,23): error TS2305: Module '"../../lib/types"' has no exported member 'PersonInput'.
+src/modules/people/pages/EditPerson/Page.tsx(25,36): error TS2305: Module '"../../lib/types"' has no exported member 'EmailRecipient'.
+src/modules/people/pages/EditPerson/Page.tsx(61,5): error TS2322: Type 'null' is not assignable to type 'string'.
+src/modules/people/pages/EditPerson/Page.tsx(62,5): error TS2322: Type 'null' is not assignable to type 'string'.
+src/modules/people/pages/EditPerson/Page.tsx(108,45): error TS2345: Argument of type 'PersonRow | PersonPublic | null' is not assignable to parameter of type 'Pick<PersonRow, "id" | "auth_user_id"> | null'.
+  Property 'auth_user_id' is missing in type 'PersonPublic' but required in type 'Pick<PersonRow, "id" | "auth_user_id">'.
+src/modules/people/pages/EditPerson/Page.tsx(119,28): error TS6133: 'setCreatePersonData' is declared but its value is never read.
+src/modules/people/pages/EditPerson/Page.tsx(246,9): error TS6133: 'showContact' is declared but its value is never read.
+src/modules/people/pages/EditPerson/Page.tsx(256,33): error TS2339: Property 'lastname_initial' does not exist on type 'PersonRow'.
+src/modules/people/settings/__tests__/JourneySettingsManager.test.tsx(2,18): error TS6133: 'act' is declared but its value is never read.
+src/modules/people/settings/__tests__/JourneySettingsManager.test.tsx(65,11): error TS6133: 'categoryMap' is declared but its value is never read.
+src/modules/people/settings/__tests__/JourneySettingsManager.test.tsx(65,48): error TS7006: Parameter 'c' implicitly has an 'any' type.
+src/modules/people/settings/__tests__/JourneySettingsManager.test.tsx(66,11): error TS6133: 'trackMap' is declared but its value is never read.
+src/modules/people/settings/__tests__/JourneySettingsManager.test.tsx(66,41): error TS7006: Parameter 't' implicitly has an 'any' type.
+src/modules/people/settings/__tests__/JourneySettingsManager.test.tsx(68,27): error TS7006: Parameter 'cat' implicitly has an 'any' type.
+src/modules/people/settings/__tests__/JourneySettingsManager.test.tsx(73,17): error TS7006: Parameter 't' implicitly has an 'any' type.
+src/modules/people/settings/__tests__/JourneySettingsManager.test.tsx(74,14): error TS7006: Parameter 't' implicitly has an 'any' type.
+src/modules/people/settings/__tests__/JourneySettingsManager.test.tsx(81,17): error TS7006: Parameter 't' implicitly has an 'any' type.
+src/modules/people/settings/__tests__/JourneySettingsManager.test.tsx(82,14): error TS7006: Parameter 't' implicitly has an 'any' type.
+src/modules/people/settings/__tests__/JourneySettingsManager.test.tsx(98,39): error TS7006: Parameter 'c' implicitly has an 'any' type.
+src/modules/people/settings/__tests__/JourneySettingsManager.test.tsx(104,37): error TS7006: Parameter 't' implicitly has an 'any' type.
+src/modules/people/settings/__tests__/JourneySettingsManager.test.tsx(118,21): error TS6133: 'tracks' is declared but its value is never read.
+src/modules/people/settings/__tests__/JourneySettingsManager.test.tsx(118,29): error TS6133: 'categories' is declared but its value is never read.
+src/modules/people/settings/__tests__/JourneySettingsManager.test.tsx(133,1): error TS6192: All imports in import declaration are unused.
+src/modules/people/settings/__tests__/JourneySettingsManager.test.tsx(162,7): error TS6133: 'treeHandlers' is declared but its value is never read.
+src/modules/people/settings/__tests__/JourneySettingsManager.test.tsx(163,7): error TS6133: 'stageHandlers' is declared but its value is never read.
+src/modules/people/settings/JourneySettingsManager.tsx(568,71): error TS2352: Conversion of type 'GridRow | undefined' to type 'JourneyTrackCategoryRow' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type 'GridRow' is missing the following properties from type 'JourneyTrackCategoryRow': parent_id, name, sort_order
+src/modules/people/settings/JourneySettingsManager.tsx(600,68): error TS2352: Conversion of type 'GridRow | undefined' to type 'JourneyTrackRow' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type 'GridRow' is missing the following properties from type 'JourneyTrackRow': category_id, name, sort_order, elvanto_location_id, and 2 more.
+src/modules/people/settings/PeopleSettingsPage.tsx(2,1): error TS6133: 'CSSProperties' is declared but its value is never read.
+src/modules/people/settings/PeopleSettingsPage.tsx(4,1): error TS6133: 'Users' is declared but its value is never read.
+src/modules/people/settings/PeopleSettingsPage.tsx(5,25): error TS6133: 'Page' is declared but its value is never read.

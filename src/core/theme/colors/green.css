@@ -1,0 +1,50 @@
+/* Green color palette - loaded dynamically */
+:root {
+  /* Essential color palette tokens only */
+  --colors-green-1: #fbfefc;
+  --colors-green-2: #f4fbf6;
+  --colors-green-3: #e6f6eb;
+  --colors-green-4: #d6f1df;
+  --colors-green-5: #c4e8d1;
+  --colors-green-6: #adddc0;
+  --colors-green-7: #8eceaa;
+  --colors-green-8: #5bb98b;
+  --colors-green-9: #30a46c;
+  --colors-green-10: #2b9a66;
+  --colors-green-11: #218358;
+  --colors-green-12: #193b2d;
+  /* Alpha scale a1–a12 */
+  --colors-green-a1: #00c04004;
+  --colors-green-a2: #00a32f0b;
+  --colors-green-a3: #00a43319;
+  --colors-green-a4: #00a83829;
+  --colors-green-a5: #019c393b;
+  --colors-green-a6: #00963c52;
+  --colors-green-a7: #00914071;
+  --colors-green-a8: #00924ba4;
+  --colors-green-a9: #008f4acf;
+  --colors-green-a10: #008647d4;
+  --colors-green-a11: #00713fde;
+  --colors-green-a12: #002616e6;
+  /* Semantic slots */
+  --colors-green-solid-bg: var(--colors-green-9);
+  --colors-green-solid-bg-hover: var(--colors-green-10);
+  --colors-green-solid-fg: white;
+  --colors-green-subtle-bg: var(--colors-green-a3);
+  --colors-green-subtle-bg-hover: var(--colors-green-a4);
+  --colors-green-subtle-bg-active: var(--colors-green-a5);
+  --colors-green-subtle-fg: var(--colors-green-a11);
+  --colors-green-surface-bg: var(--colors-green-a2);
+  --colors-green-surface-bg-hover: var(--colors-green-a3);
+  --colors-green-surface-bg-active: var(--colors-green-a3);
+  --colors-green-surface-border: var(--colors-green-a6);
+  --colors-green-surface-border-hover: var(--colors-green-a7);
+  --colors-green-surface-fg: var(--colors-green-a11);
+  --colors-green-outline-bg-hover: var(--colors-green-a7);
+  --colors-green-outline-bg-active: var(--colors-green-a8);
+  --colors-green-outline-border: var(--colors-green-a7);
+  --colors-green-outline-fg: var(--colors-green-a11);
+  --colors-green-plain-bg-hover: var(--colors-green-a7);
+  --colors-green-plain-bg-active: var(--colors-green-a8);
+  --colors-green-plain-fg: var(--colors-green-a11);
+}

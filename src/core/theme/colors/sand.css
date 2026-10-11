@@ -1,0 +1,50 @@
+/* Sand color palette - loaded dynamically */
+:root {
+  /* Essential color palette tokens only */
+  --colors-sand-1: #fdfdfc;
+  --colors-sand-2: #f9f9f8;
+  --colors-sand-3: #f1f0ef;
+  --colors-sand-4: #e9e8e6;
+  --colors-sand-5: #e2e1de;
+  --colors-sand-6: #dad9d6;
+  --colors-sand-7: #cfceca;
+  --colors-sand-8: #bcbbb5;
+  --colors-sand-9: #8d8d86;
+  --colors-sand-10: #82827c;
+  --colors-sand-11: #63635e;
+  --colors-sand-12: #21201c;
+  /* Alpha scale a1–a12 */
+  --colors-sand-a1: #55550003;
+  --colors-sand-a2: #25250007;
+  --colors-sand-a3: #20100010;
+  --colors-sand-a4: #1f150019;
+  --colors-sand-a5: #1f180021;
+  --colors-sand-a6: #19130029;
+  --colors-sand-a7: #19140035;
+  --colors-sand-a8: #1915014a;
+  --colors-sand-a9: #0f0f0079;
+  --colors-sand-a10: #0c0c0083;
+  --colors-sand-a11: #080800a1;
+  --colors-sand-a12: #060500e3;
+  /* Semantic slots */
+  --colors-sand-solid-bg: var(--colors-sand-9);
+  --colors-sand-solid-bg-hover: var(--colors-sand-10);
+  --colors-sand-solid-fg: white;
+  --colors-sand-subtle-bg: var(--colors-sand-a3);
+  --colors-sand-subtle-bg-hover: var(--colors-sand-a4);
+  --colors-sand-subtle-bg-active: var(--colors-sand-a5);
+  --colors-sand-subtle-fg: var(--colors-sand-a11);
+  --colors-sand-surface-bg: var(--colors-sand-a2);
+  --colors-sand-surface-bg-hover: var(--colors-sand-a3);
+  --colors-sand-surface-bg-active: var(--colors-sand-a3);
+  --colors-sand-surface-border: var(--colors-sand-a6);
+  --colors-sand-surface-border-hover: var(--colors-sand-a7);
+  --colors-sand-surface-fg: var(--colors-sand-a11);
+  --colors-sand-outline-bg-hover: var(--colors-sand-a7);
+  --colors-sand-outline-bg-active: var(--colors-sand-a8);
+  --colors-sand-outline-border: var(--colors-sand-a7);
+  --colors-sand-outline-fg: var(--colors-sand-a11);
+  --colors-sand-plain-bg-hover: var(--colors-sand-a7);
+  --colors-sand-plain-bg-active: var(--colors-sand-a8);
+  --colors-sand-plain-fg: var(--colors-sand-a11);
+}

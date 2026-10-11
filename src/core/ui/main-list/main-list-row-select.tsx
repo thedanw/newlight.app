@@ -9,16 +9,15 @@ export interface RowSelectProps {
   visible: boolean
   checked: boolean
   onChange?: (checked: boolean) => void
-  duration?: number
 }
 
 export const RowSelect = forwardRef<HTMLDivElement, RowSelectProps>(
-  function RowSelect({ visible = false, checked = false, onChange, duration = 200, ...props }, ref) {
+  function RowSelect({ visible = false, checked = false, onChange, ...props }, ref) {
+    // D1: width is driven by the recipe `visible` variant — no inline CSS var.
     return (
       <div
         ref={ref}
         className={mainListSlotClassNames.rowSelect({ visible })}
-        style={{ '--main-list-select-width': visible ? '48px' : '0px' } as React.CSSProperties}
         {...props}
       >
         <Checkbox.Root

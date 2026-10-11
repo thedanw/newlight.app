@@ -11,14 +11,16 @@ export interface RowHeaderProps {
 
 export const RowHeader = forwardRef<HTMLDivElement, RowHeaderProps>(
   function RowHeader({ headers = [], selectMode = false, ...props }, ref) {
+    // fontWeight/color/bg/padding come from the recipe base — no inline style.
     return (
       <div
         ref={ref}
-        className={mainListSlotClassNames.rowHeader({ selectMode, interactive: false })}
-        style={{ fontWeight: 'semibold', color: 'fg.muted', bg: 'bg.subtle' } as React.CSSProperties}
+        className={mainListSlotClassNames.rowHeader()}
+        data-select-mode={selectMode}
         {...props}
       >
-        <div style={{ width: 'var(--main-list-select-width, 0px)', maxWidth: 'var(--main-list-select-width, 0px)', overflow: 'hidden' }} />
+        {/* Reserve space for the row select column so headers align with rows. */}
+        <div style={{ width: 'var(--main-list-select-width, 0px)', maxWidth: 'var(--main-list-select-width, 0px)', overflow: 'hidden', flexShrink: 0 }} />
         {headers.map((header: MainListHeaderConfig) => (
           <div
             key={header.key}
@@ -38,7 +40,8 @@ export const RowHeader = forwardRef<HTMLDivElement, RowHeaderProps>(
             </Text>
           </div>
         ))}
-        <div style={{ width: '10', textAlign: 'center' }} />
+        {/* Reserve space for the row action button column. */}
+        <div style={{ width: '10', textAlign: 'center', flexShrink: 0 }} />
       </div>
     )
   },

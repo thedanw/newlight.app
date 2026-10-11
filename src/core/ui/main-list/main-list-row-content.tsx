@@ -19,7 +19,7 @@ export const RowContent = forwardRef<HTMLDivElement, RowContentProps>(
       <div ref={ref} className={mainListSlotClassNames.rowContent()} {...props}>
         {primary && <Text fontWeight="medium" truncate>{primary}</Text>}
         {secondary && <Text color="fg.muted" fontSize="sm" truncate>{secondary}</Text>}
-        {meta && <div style={{ marginTop: '2' }}>{meta}</div>}
+        {meta && <div>{meta}</div>}
       </div>
     )
   },

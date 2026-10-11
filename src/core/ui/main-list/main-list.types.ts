@@ -1,5 +1,5 @@
 'use client'
-import type { ComponentProps, ReactNode } from 'react'
+import type { ComponentProps, MouseEvent, ReactNode } from 'react'
 
 /** MainList.Root props */
 export interface MainListRootProps<T> extends ComponentProps<'div'> {
@@ -34,6 +34,8 @@ export interface MainListRootProps<T> extends ComponentProps<'div'> {
   selection?: {
     selectedKeys: Set<string>
     onSelectionChange: (keys: Set<string>) => void
+    /** Keys for ALL items matching the current search/filter (not just the visible page) — enables true "Select All" (decision #28) */
+    allFilteredKeys?: string[]
     onSelectAll?: (allKeys: string[]) => void
     onSelectVisible?: (visibleKeys: string[]) => void
   }
@@ -94,15 +96,19 @@ export interface MainListRowSelectProps extends Omit<ComponentProps<'div'>, 'onC
 }
 
 /** MainList.Row.Button props */
-export interface MainListRowButtonProps extends ComponentProps<'button'> {
+export interface MainListRowButtonProps extends Omit<ComponentProps<'button'>, 'onClick'> {
   /** Button icon */
   icon?: ReactNode
   /** Button label (for accessibility) */
   label?: string
   /** Click handler */
-  onClick?: () => void
+  onClick?: (e: MouseEvent<HTMLButtonElement>) => void
   /** Whether button is disabled */
   disabled?: boolean
+  /** Visual variant */
+  variant?: 'plain' | 'outline'
+  /** Size */
+  size?: 'sm' | 'md' | 'lg'
 }
 
 /** MainList.Row.Toolbar props */

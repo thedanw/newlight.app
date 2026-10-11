@@ -41,6 +41,7 @@ export const mainList = defineSlotRecipe({
       width: 'var(--main-list-select-width, 0px)',
       maxWidth: 'var(--main-list-select-width, 0px)',
       overflow: 'hidden',
+      flexShrink: '0',
       transition: 'width 0.2s ease, max-width 0.2s ease',
     },
     rowContent: {
@@ -61,6 +62,7 @@ export const mainList = defineSlotRecipe({
       maxHeight: '0',
       overflow: 'hidden',
       transition: 'max-height 0.2s ease',
+      // D2: animation is driven by the data-open attribute set on the element.
       '&[data-open="true"]': {
         maxHeight: '500px',
       },
@@ -95,6 +97,7 @@ export const mainList = defineSlotRecipe({
       maxHeight: '0',
       overflow: 'hidden',
       transition: 'max-height 0.2s ease',
+      // D2: animation is driven by the data-visible attribute set on the element.
       '&[data-visible="true"]': {
         maxHeight: '500px',
       },
@@ -102,6 +105,8 @@ export const mainList = defineSlotRecipe({
   },
   defaultVariants: {
     size: 'md',
+    // D1: select-column width is a variant (not inline CSS var).
+    visible: false,
   },
   variants: {
     size: {
@@ -122,6 +127,18 @@ export const mainList = defineSlotRecipe({
         rowHeader: { padding: '4 5', gap: '5' },
         footer: { padding: '4 5' },
         massManage: { padding: '4 5' },
+      },
+    },
+    visible: {
+      true: {
+        rowSelect: {
+          '--main-list-select-width': '48px',
+        },
+      },
+      false: {
+        rowSelect: {
+          '--main-list-select-width': '0px',
+        },
       },
     },
   },

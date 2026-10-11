@@ -24,7 +24,7 @@ export const RowButton = forwardRef<HTMLButtonElement, RowButtonProps>(
         onClick={onClick}
         disabled={disabled}
         aria-label={label}
-        className={mainListSlotClassNames.rowButton({ variant, size })}
+        className={mainListSlotClassNames.rowButton()}
         {...props}
       >
         <Icon size="sm">{icon ?? <Edit2 />}</Icon>

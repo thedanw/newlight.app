@@ -1,12 +1,19 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import type { CSSProperties } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Badge, Button, Page, Text, SearchInput, MainList, Dialog, Icon } from '@/core/ui'
-import { Plus, SlidersHorizontal, Eye, Edit2, Copy, Trash2, Check, X } from 'lucide-react'
+import { Plus, SlidersHorizontal, Eye, Edit2, Copy, Trash2 } from 'lucide-react'
 import { deleteForm, getForms, duplicateForm } from './lib/queries'
 import { PageSkeleton } from '../people/components/PageSkeleton'
 import type { Form } from './lib/types'
 import { Manifest } from './manifest'
+
+/** A pending mass-delete confirmation — settles MainList's `onDeleteSelected` promise. */
+type MassDeletePending = {
+  keys: string[]
+  resolve: () => void
+  reject: (reason?: Error) => void
+}
 
 /**
  * Forms dashboard — shows the form list with search, actions, and pagination.
@@ -19,7 +26,9 @@ export default function FormsDashboardPage() {
   const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set())
   const [deleteDialogOpen, setDeleteDialogOpen] = useState<{ formId: string; formName: string } | null>(null)
   const [duplicateDialogOpen, setDuplicateDialogOpen] = useState<{ formId: string; formName: string } | null>(null)
-  const [massDeleteDialogOpen, setMassDeleteDialogOpen] = useState(false)
+  const [massDeleteDialog, setMassDeleteDialog] = useState<MassDeletePending | null>(null)
+  const massDeletePendingRef = useRef<MassDeletePending | null>(null)
+  const [deleting, setDeleting] = useState(false)
   const [page, setPage] = useState(1)
   const pageSize = 25
 
@@ -63,36 +72,52 @@ export default function FormsDashboardPage() {
     }
   }
 
-  const handleSearch = (term: string) => {
+  const handleSearch = useCallback((term: string) => {
     setSearchTerm(term)
     setPage(1)
+  }, [])
+
+  /**
+   * MassManage delete flow: MainList awaits this promise before clearing the
+   * selection, so the confirm dialog settles it. Confirm deletes the reported
+   * keys and resolves (MainList then clears the selection); cancel rejects so
+   * the selection is kept (see `handleDeleteSelected` in main-list.tsx).
+   */
+  const handleMassDelete = useCallback((keys: string[]): Promise<void> =>
+    new Promise<void>((resolve, reject) => {
+      const pending: MassDeletePending = { keys, resolve, reject }
+      massDeletePendingRef.current = pending
+      setMassDeleteDialog(pending)
+    }), [])
+
+  /** Take ownership of the pending confirmation (first claimer wins — guards
+   *  against ActionTrigger's onClick and the resulting onOpenChange both firing). */
+  const claimMassDelete = (): MassDeletePending | null => {
+    const pending = massDeletePendingRef.current
+    massDeletePendingRef.current = null
+    setMassDeleteDialog(null)
+    return pending
   }
 
-  const handleSelectionChange = (keys: Set<string>) => {
-    setSelectedKeys(keys)
-  }
-
-  const handleSelectAll = () => {
-    const allKeys = filteredForms.map(f => f.id)
-    setSelectedKeys(new Set(allKeys))
-  }
-
-  const handleSelectVisible = () => {
-    const visibleKeys = paginatedForms.map(f => f.id)
-    setSelectedKeys(prev => new Set([...prev, ...visibleKeys]))
-  }
-
-  const handleMassDelete = async () => {
+  const confirmMassDelete = async () => {
+    const pending = claimMassDelete()
+    if (!pending) return
+    setDeleting(true)
     try {
-      for (const id of selectedKeys) {
+      for (const id of pending.keys) {
         await deleteForm(id)
       }
-      setSelectedKeys(new Set())
-      setMassDeleteDialogOpen(false)
       load()
+      pending.resolve()
     } catch {
-      // Error handling could be added here
+      pending.reject(new Error('Unable to delete the selected forms.'))
+    } finally {
+      setDeleting(false)
     }
+  }
+
+  const cancelMassDelete = () => {
+    claimMassDelete()?.reject(new Error('Mass delete cancelled.'))
   }
 
   const openDeleteDialog = (formId: string, formName: string) => {
@@ -103,42 +128,34 @@ export default function FormsDashboardPage() {
     setDuplicateDialogOpen({ formId, formName })
   }
 
+  /** Row content only — Row supplies select, trigger button and toolbar. */
   const renderRow = (form: Form) => (
+    <MainList.RowContent
+      primary={form.name}
+      secondary={form.description}
+      meta={<Badge colorPalette={form.is_public ? 'green' : 'gray'}>{form.is_public ? 'Public' : 'Private'}</Badge>}
+    />
+  )
+
+  /** Row actions rendered inside the managed row toolbar (Row owns open/close). */
+  const renderRowToolbar = (form: Form) => (
     <>
-      <MainList.RowContent
-        primary={form.name}
-        secondary={form.description}
-        meta={<Badge colorPalette={form.is_public ? 'green' : 'gray'}>{form.is_public ? 'Public' : 'Private'}</Badge>}
-      />
-      <MainList.RowToolbar open={false} onClose={() => {}}>
-        <Button variant="plain" size="sm" onClick={() => navigate(`/forms/${form.id}/view`)}>
-          <Icon size="sm"><Eye /></Icon>
-          View
-        </Button>
-        <Button variant="plain" size="sm" onClick={() => navigate(`/forms/${form.id}/edit`)}>
-          <Icon size="sm"><Edit2 /></Icon>
-          Edit
-        </Button>
-        <Button variant="plain" size="sm" onClick={() => openDuplicateDialog(form.id, form.name)}>
-          <Icon size="sm"><Copy /></Icon>
-          Duplicate
-        </Button>
-        <Button variant="plain" size="sm" colorPalette="red" onClick={() => openDeleteDialog(form.id, form.name)}>
-          <Icon size="sm"><Trash2 /></Icon>
-          Delete
-        </Button>
-        <Button variant="plain" size="sm" onClick={() => {
-          const newKeys = new Set(selectedKeys)
-          newKeys.add(form.id)
-          setSelectedKeys(newKeys)
-        }}>
-          <Icon size="sm"><Check /></Icon>
-          Select
-        </Button>
-        <Button variant="plain" size="sm" onClick={() => {}}>
-          <Icon size="sm"><X /></Icon>
-        </Button>
-      </MainList.RowToolbar>
+      <Button variant="plain" size="sm" onClick={() => navigate(`/forms/${form.id}`)}>
+        <Icon size="sm"><Eye /></Icon>
+        View
+      </Button>
+      <Button variant="plain" size="sm" onClick={() => navigate(`/forms/${form.id}/edit`)}>
+        <Icon size="sm"><Edit2 /></Icon>
+        Edit
+      </Button>
+      <Button variant="plain" size="sm" onClick={() => openDuplicateDialog(form.id, form.name)}>
+        <Icon size="sm"><Copy /></Icon>
+        Duplicate
+      </Button>
+      <Button variant="plain" size="sm" colorPalette="red" onClick={() => openDeleteDialog(form.id, form.name)}>
+        <Icon size="sm"><Trash2 /></Icon>
+        Delete
+      </Button>
     </>
   )
 
@@ -164,14 +181,14 @@ export default function FormsDashboardPage() {
       <Page.Header style={{ '--module-number': Manifest.number } as CSSProperties}>
         <Page.Heading level={1} icon={Manifest.icon} title={Manifest.name} />
         <Page.HeaderBottom>
-          <SearchInput
-            search={async (term) => {
-              handleSearch(term)
-              return [] as any
-            }}
+          {/* Search lives in the header, not MainList (D5); filtering is
+              instant via onChange (#23), so the debounced callback is inert. */}
+          <SearchInput<Form[]>
+            search={async () => []}
             onResults={() => {}}
             onSearching={() => {}}
             placeholder="Search forms..."
+            ariaLabel="Search forms"
             value={searchTerm}
             onChange={handleSearch}
           />
@@ -182,6 +199,8 @@ export default function FormsDashboardPage() {
           items={paginatedForms}
           getKey={(form) => form.id}
           renderRow={renderRow}
+          renderRowToolbar={renderRowToolbar}
+          onRowClick={(form) => navigate(`/forms/${form.id}`)}
           headers={[
             { key: 'name', label: 'Name', width: '1fr' },
             { key: 'visibility', label: 'Visibility', width: '120px' },
@@ -213,9 +232,10 @@ export default function FormsDashboardPage() {
           }}
           selection={{
             selectedKeys,
-            onSelectionChange: handleSelectionChange,
-            onSelectAll: handleSelectAll,
-            onSelectVisible: handleSelectVisible,
+            // MainList computes select-all/select-visible and notifies via this.
+            onSelectionChange: setSelectedKeys,
+            // Every key matching the current search (all pages) — decision #28.
+            allFilteredKeys: filteredForms.map((form) => form.id),
           }}
           massManage={{
             visible: selectedKeys.size > 0,
@@ -224,6 +244,7 @@ export default function FormsDashboardPage() {
             },
             onDeleteSelected: handleMassDelete,
             selectedCount: selectedKeys.size,
+            deleting,
           }}
         />
       </Page.Body>
@@ -271,19 +292,19 @@ export default function FormsDashboardPage() {
       )}
 
       {/* Mass Delete Confirmation Dialog */}
-      {massDeleteDialogOpen && selectedKeys.size > 0 && (
-        <Dialog.Root open={true} onOpenChange={open => !open && setMassDeleteDialogOpen(false)}>
+      {massDeleteDialog && (
+        <Dialog.Root open={true} onOpenChange={open => !open && cancelMassDelete()}>
           <Dialog.Backdrop />
           <Dialog.Positioner>
             <Dialog.Content>
               <Dialog.Title>Delete Selected Forms</Dialog.Title>
               <Dialog.Description>
-                Are you sure you want to delete {selectedKeys.size} form(s)? This action cannot be undone.
+                Are you sure you want to delete {massDeleteDialog.keys.length} form(s)? This action cannot be undone.
               </Dialog.Description>
               <Dialog.Footer>
-                <Button variant="outline" onClick={() => setMassDeleteDialogOpen(false)}>Cancel</Button>
-                <Dialog.ActionTrigger colorPalette="red" onClick={handleMassDelete}>
-                  Delete {selectedKeys.size}
+                <Button variant="outline" onClick={cancelMassDelete}>Cancel</Button>
+                <Dialog.ActionTrigger colorPalette="red" onClick={() => void confirmMassDelete()}>
+                  Delete {massDeleteDialog.keys.length}
                 </Dialog.ActionTrigger>
               </Dialog.Footer>
             </Dialog.Content>

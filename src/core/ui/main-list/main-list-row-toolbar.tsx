@@ -5,12 +5,11 @@ import { X } from 'lucide-react'
 import { Icon } from '../icon'
 import { IconButton } from '../icon-button'
 import { mainListSlotClassNames } from './main-list-context'
+import type { MainListRowToolbarProps } from './main-list.types'
 
-export interface RowToolbarProps {
-  open?: boolean
-  children?: React.ReactNode
-  onClose?: () => void
-}
+/** Single source of truth shared with the MainList types module (fixes the
+ *  drift where the local interface rejected div props like `id`/`tabIndex`). */
+export type RowToolbarProps = MainListRowToolbarProps
 
 export const RowToolbar = forwardRef<HTMLDivElement, RowToolbarProps>(
   function RowToolbar({ open = false, children, onClose, ...props }, ref) {

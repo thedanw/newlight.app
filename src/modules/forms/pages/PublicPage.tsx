@@ -9,7 +9,8 @@ import { PageSkeleton } from '../../people/components/PageSkeleton'
 import type { FormWithFields } from '../lib/types'
 
 export default function FormPublicPage() {
-  const { formId } = useParams()
+  // Route param is `:id` (see routes.tsx); aliased to the local name used below.
+  const { id: formId } = useParams()
   const [form, setForm] = useState<FormWithFields | null>(null)
   const [answers, setAnswers] = useState<Record<string, unknown>>({})
   const [submitted, setSubmitted] = useState(false)

@@ -73,11 +73,17 @@ export function RootComponent<T>({
     handleSelectionChange(new Set())
   }, [handleSelectionChange])
 
-  // Delete selected
+  // Delete selected. A rejection from the consumer means the flow was
+  // cancelled (e.g. the confirm dialog was dismissed) or failed — keep the
+  // current selection rather than surfacing an unhandled rejection.
   const handleDeleteSelected = useCallback(async () => {
     if (massManage?.onDeleteSelected && selectedKeys.size > 0) {
-      await massManage.onDeleteSelected(Array.from(selectedKeys))
-      handleSelectionChange(new Set())
+      try {
+        await massManage.onDeleteSelected(Array.from(selectedKeys))
+        handleSelectionChange(new Set())
+      } catch {
+        // Intentionally ignored: selection is preserved on cancel/failure.
+      }
     }
   }, [massManage, selectedKeys, handleSelectionChange])
 
@@ -131,7 +137,11 @@ export function RootComponent<T>({
     if (!massManage) return null
     const visibleKeys = items.map(getKey)
     const allVisibleSelected = visibleKeys.length > 0 && visibleKeys.every(k => selectedKeys.has(k))
-    const allFilteredSelected = items.length > 0 && items.every(item => selectedKeys.has(getKey(item)))
+    // "Select All" must be evaluated against every key matching the search
+    // (decision #28), not just the current page — fall back to the page when
+    // the consumer doesn't supply `allFilteredKeys`.
+    const filteredKeys = selection?.allFilteredKeys ?? visibleKeys
+    const allFilteredSelected = filteredKeys.length > 0 && filteredKeys.every(k => selectedKeys.has(k))
 
     return (
       <MassManage
@@ -148,6 +158,7 @@ export function RootComponent<T>({
     )
   }, [
     massManage,
+    selection?.allFilteredKeys,
     items,
     getKey,
     selectedKeys,

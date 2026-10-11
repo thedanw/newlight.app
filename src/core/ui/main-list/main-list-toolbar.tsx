@@ -89,7 +89,8 @@ export const MassManage = forwardRef<HTMLDivElement, MassManageProps>(
     return (
       <div
         ref={ref}
-        className={mainListSlotClassNames.massManage({ visible: selectedCount > 0 })}
+        className={mainListSlotClassNames.massManage()}
+        data-visible={selectedCount > 0}
         {...props}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '3', flexWrap: 'wrap', width: 'full' }}>

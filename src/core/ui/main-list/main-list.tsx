@@ -10,7 +10,6 @@ import {
   Rows,
   Footer,
   mainListCssVars,
-  mainListOverlay
 } from './main-list-context'
 import { RowSelect } from './main-list-row-select'
 import { RowButton } from './main-list-row-button'

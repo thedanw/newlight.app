@@ -1,5 +1,6 @@
 'use client'
 import { forwardRef } from 'react'
+import { css } from 'styled-system/css'
 import { X } from 'lucide-react'
 import { Icon } from '../icon'
 import { IconButton } from '../icon-button'
@@ -22,7 +23,7 @@ export const RowToolbar = forwardRef<HTMLDivElement, RowToolbarProps>(
         data-open={open}
         {...props}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '2', width: 'full' }}>
+        <div className={css({ display: 'flex', alignItems: 'center', gap: '2', width: 'full' })}>
           {children}
           {onClose && (
             <IconButton

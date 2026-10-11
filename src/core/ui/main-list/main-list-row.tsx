@@ -1,10 +1,17 @@
 'use client'
-import { type ComponentProps, useState, useRef, useEffect, useId } from 'react'
+import { type ComponentProps, useState, useRef, useEffect, useId, isValidElement, cloneElement, type ReactElement } from 'react'
 import { mainListSlotClassNames, mainListOverlay } from './main-list-context'
 import { RowToolbar } from './main-list-row-toolbar'
 import { RowContent } from './main-list-row-content'
 
 export type RowProps<T> = ComponentProps<typeof Row<T>>
+
+/** Props injected into a passed-in row button to make it the accessible trigger. */
+type RowTriggerProps = {
+  onClick?: (e: React.MouseEvent) => void
+  'aria-expanded'?: boolean
+  'aria-controls'?: string
+}
 
 export function Row<T>({
   item,
@@ -74,11 +81,6 @@ export function Row<T>({
     }
   }
 
-  const handleManageClick = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    setToolbarOpen(true)
-  }
-
   const handleToolbarClose = () => {
     setToolbarOpen(false)
     setOverlayVisible(false)
@@ -107,9 +109,16 @@ export function Row<T>({
         )}
         <div className={mainListSlotClassNames.rowButton()}>
           {!toolbarOpen && button && (
-            <div onClick={handleManageClick}>
-              {button}
-            </div>
+            isValidElement(button)
+              ? cloneElement(button as ReactElement<RowTriggerProps>, {
+                  onClick: (e: React.MouseEvent) => {
+                    e.stopPropagation()
+                    setToolbarOpen(true)
+                  },
+                  'aria-expanded': false,
+                  'aria-controls': toolbarId,
+                })
+              : button
           )}
           {toolbarOpen && toolbar && (
             <RowToolbar ref={toolbarRef} open={true} onClose={handleToolbarClose} id={toolbarId} tabIndex={-1}>

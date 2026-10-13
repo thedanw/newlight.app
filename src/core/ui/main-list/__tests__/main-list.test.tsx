@@ -44,6 +44,7 @@ function ControlledList(props: {
         onSelectAll: props.onSelectAll,
         onSelectVisible: props.onSelectVisible,
       }}
+      renderRowToolbar={(item: Item) => <button type="button">Edit {item.name}</button>}
       toolbar={{}}
       massManage={{
         visible: selectedKeys.size > 0,
@@ -186,6 +187,24 @@ describe('MainList row toolbar (managed)', () => {
     expect(toolbar).toHaveFocus()
   })
 
+  it('closes the toolbar and selects the row, revealing selection controls', async () => {
+    render(<ControlledList />)
+
+    fireEvent.click(screen.getAllByRole('button', { name: 'Manage' })[0])
+    fireEvent.click(screen.getByRole('button', { name: 'Select' }))
+
+    await waitFor(() => {
+      expect(document.querySelector('[data-open="true"]')).toBeNull()
+      expect(document.querySelector('[role="presentation"]')).toBeNull()
+      expect(document.querySelector('[data-toolbar-open="true"]')).toBeNull()
+      expect(checkboxes()[0]).toBeChecked()
+      expect(document.querySelector('[data-visible="true"]')).not.toBeNull()
+          expect(document.querySelector('[data-select-mode="true"] > div > div')).toHaveClass(
+            mainListSlotClassNames.rowSelect(),
+      )
+    })
+  })
+
   it('closes on Escape and restores the trigger', () => {
     renderWithToolbar()
     fireEvent.click(trigger())
@@ -292,30 +311,25 @@ describe('MainList row slots + select variant', () => {
   })
 
   it('renders RowSelect with the hidden width variant outside select mode', () => {
-    const { container } = render(
-      <MainList.Root
-        items={PAGE_ONE}
-        getKey={(item: Item) => item.id}
-        renderRow={(item: Item) => <MainList.RowContent primary={item.name} />}
-      />,
-    )
+      const { container } = render(
+        <MainList.Root
+          items={PAGE_ONE}
+          getKey={(item: Item) => item.id}
+          renderRow={(item: Item) => <MainList.RowContent primary={item.name} />}
+        />,
+      )
 
-    const row = container.querySelector('[data-select-mode="false"]')
-    expect(row?.firstElementChild).toHaveClass(mainListSlotClassNames.rowSelect({ visible: false }))
-    // The variant must actually differentiate (no-op variant classes are finding #9).
-    expect(mainListSlotClassNames.rowSelect({ visible: false })).not.toBe(
-      mainListSlotClassNames.rowSelect({ visible: true }),
-    )
-  })
-
-  it('switches RowSelect to the visible width variant in select mode', async () => {
-    render(<ControlledList />)
-    checkboxes()[0].click()
-
-    await waitFor(() => {
-      const row = document.querySelector('[data-select-mode="true"]')
-      expect(row?.firstElementChild).toHaveClass(mainListSlotClassNames.rowSelect({ visible: true }))
+      const row = container.querySelector('[data-select-mode="false"]')
+      expect(row?.firstElementChild?.firstElementChild).toHaveClass(mainListSlotClassNames.rowSelect())
     })
-  })
-})
 
+    it('switches RowSelect to the visible width variant in select mode', async () => {
+      render(<ControlledList />)
+      checkboxes()[0].click()
+
+      await waitFor(() => {
+        const row = document.querySelector('[data-select-mode="true"]')
+        expect(row?.firstElementChild?.firstElementChild).toHaveClass(mainListSlotClassNames.rowSelect())
+      })
+    })
+})

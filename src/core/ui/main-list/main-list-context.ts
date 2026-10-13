@@ -4,7 +4,7 @@ import { mainList } from 'styled-system/recipes'
 
 const { withProvider, withContext } = createStyleContext(mainList)
 
-/** Slot className getters for direct usage in sub-components */
+/** Slot className getters for direct usage in sub-components and tests */
 const mainListSlotClassNames = {
   root: (props?: Parameters<typeof mainList>[0]) => mainList(props).root,
   toolbar: (props?: Parameters<typeof mainList>[0]) => mainList(props).toolbar,
@@ -25,11 +25,6 @@ export { mainListSlotClassNames }
 export const Root = withProvider('div', 'root')
 export const Rows = withContext('div', 'rows')
 export const Footer = withContext('div', 'footer')
-export const Toolbar = withContext('div', 'toolbar')
-export const MassManage = withContext('div', 'massManage')
-export const Row = withContext('div', 'row')
-export const RowSelect = withContext('div', 'rowSelect')
-export const RowButton = withContext('div', 'rowButton')
 
 export { mainList } from 'styled-system/recipes'
 export { mainListCssVars, mainListOverlay } from './main-list.css'

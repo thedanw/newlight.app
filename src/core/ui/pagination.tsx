@@ -6,11 +6,11 @@ import { createStyleContext } from 'styled-system/jsx'
 import { pagination } from 'styled-system/recipes'
 import { IconButton } from './icon-button'
 
-const { withRootProvider, withContext } = createStyleContext(pagination)
+const { withProvider, withContext } = createStyleContext(pagination)
 
 export type RootProps = ComponentProps<typeof Root>
-export const Root = withRootProvider(ArkPagination.Root)
-export const RootProvider = withRootProvider(ArkPagination.RootProvider)
+export const Root = withProvider(ArkPagination.Root, 'root')
+export const RootProvider = withProvider(ArkPagination.RootProvider, 'root')
 export const Item = withContext(ArkPagination.Item, 'item')
 export const Ellipsis = withContext(ArkPagination.Ellipsis, 'ellipsis')
 export const PrevTrigger = withContext(ArkPagination.PrevTrigger, 'prevTrigger')

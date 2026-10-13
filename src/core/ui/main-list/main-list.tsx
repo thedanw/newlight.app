@@ -45,6 +45,7 @@ export function RootComponent<T>({
   // single source of truth (fixes split-brain, findings #3).
   const selectedKeys = selection?.selectedKeys ?? EMPTY_SELECTION
   const selectMode = selectedKeys.size > 0
+  const selectionEnabled = selection !== undefined
 
   // Sync selection from props
   const handleSelectionChange = useCallback((keys: Set<string>) => {
@@ -106,18 +107,22 @@ export function RootComponent<T>({
           selected={isSelected}
           selectMode={selectMode}
           onClick={onRowClick ? () => onRowClick(item, index) : undefined}
+          onSelect={selectionEnabled ? () => {
+            const newKeys = new Set(selectedKeys)
+            newKeys.add(key)
+            handleSelectionChange(newKeys)
+          } : undefined}
           select={
-            <RowSelect
-              visible={selectMode}
-              checked={isSelected}
-              onChange={(checked: boolean) => {
-                const newKeys = new Set(selectedKeys)
-                if (checked) newKeys.add(key)
-                else newKeys.delete(key)
-                handleSelectionChange(newKeys)
-              }}
-            />
-          }
+                      <RowSelect
+                        checked={isSelected}
+                        onChange={(checked: boolean) => {
+                          const newKeys = new Set(selectedKeys)
+                          if (checked) newKeys.add(key)
+                          else newKeys.delete(key)
+                          handleSelectionChange(newKeys)
+                        }}
+                      />
+                    }
           button={
             <RowButton
               icon={<Icon size="sm"><Edit2 /></Icon>}
@@ -130,7 +135,7 @@ export function RootComponent<T>({
         </Row>
       )
     })
-  }, [items, getKey, selectedKeys, selectMode, handleSelectionChange, renderRow, renderRowToolbar, onRowClick])
+  }, [items, getKey, selectedKeys, selectMode, selectionEnabled, handleSelectionChange, renderRow, renderRowToolbar, onRowClick])
 
   // Mass manage component
   const massManageComponent = useMemo(() => {

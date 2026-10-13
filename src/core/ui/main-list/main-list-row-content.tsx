@@ -13,13 +13,13 @@ export interface RowContentProps {
 export const RowContent = forwardRef<HTMLDivElement, RowContentProps>(
   function RowContent({ primary, secondary, meta, children, ...props }, ref) {
     if (children) {
-      return <div ref={ref} className={mainListSlotClassNames.rowContent()} {...props}>{children}</div>
+          return <div ref={ref} className={mainListSlotClassNames.rowContent()} {...props}>{children}</div>
     }
     return (
-      <div ref={ref} className={mainListSlotClassNames.rowContent()} {...props}>
+          <div ref={ref} className={mainListSlotClassNames.rowContent()} {...props}>
         {primary && <Text fontWeight="medium" truncate>{primary}</Text>}
         {secondary && <Text color="fg.muted" fontSize="sm" truncate>{secondary}</Text>}
-        {meta && <div>{meta}</div>}
+        {meta && <div style={{ marginTop: '2' }}>{meta}</div>}
       </div>
     )
   },

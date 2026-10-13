@@ -5,7 +5,7 @@ import { Icon } from '../icon'
 import { Button } from '../button'
 import { mainListSlotClassNames } from './main-list-context'
 
-export interface ToolbarProps {
+export interface ToolbarProps extends ComponentProps<'div'> {
   primaryActions?: React.ReactNode
   secondaryActions?: React.ReactNode
   massManage?: React.ReactNode
@@ -14,7 +14,7 @@ export interface ToolbarProps {
 export const Toolbar = forwardRef<HTMLDivElement, ToolbarProps>(
   function Toolbar({ primaryActions, secondaryActions, massManage, ...props }, ref) {
     return (
-        <div ref={ref} className={mainListSlotClassNames.toolbar()} {...props}>
+      <div ref={ref} className={mainListSlotClassNames.toolbar()} {...props}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '2' }}>
           {primaryActions}
         </div>
@@ -29,7 +29,7 @@ export const Toolbar = forwardRef<HTMLDivElement, ToolbarProps>(
 Toolbar.displayName = 'MainList.Toolbar'
 
 /** PrimaryActions slot */
-export interface PrimaryActionsProps {
+export interface PrimaryActionsProps extends ComponentProps<'div'> {
   children?: React.ReactNode
 }
 
@@ -45,7 +45,7 @@ export const PrimaryActions = forwardRef<HTMLDivElement, PrimaryActionsProps>(
 PrimaryActions.displayName = 'MainList.Toolbar.PrimaryActions'
 
 /** SecondaryActions slot */
-export interface SecondaryActionsProps {
+export interface SecondaryActionsProps extends ComponentProps<'div'> {
   children?: React.ReactNode
 }
 
@@ -61,7 +61,7 @@ export const SecondaryActions = forwardRef<HTMLDivElement, SecondaryActionsProps
 SecondaryActions.displayName = 'MainList.Toolbar.SecondaryActions'
 
 /** MassManage component */
-export interface MassManageProps {
+export interface MassManageProps extends ComponentProps<'div'> {
   selectedCount: number
   allVisibleSelected: boolean
   allFilteredSelected: boolean

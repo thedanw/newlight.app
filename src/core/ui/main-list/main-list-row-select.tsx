@@ -1,23 +1,20 @@
 'use client'
 import { forwardRef } from 'react'
-import { Check } from 'lucide-react'
-import { Icon } from '../icon'
-import { Checkbox } from '../checkbox'
+import { Checkbox } from '@/core/ui'
 import { mainListSlotClassNames } from './main-list-context'
 
 export interface RowSelectProps {
-  visible: boolean
   checked: boolean
   onChange?: (checked: boolean) => void
 }
 
 export const RowSelect = forwardRef<HTMLDivElement, RowSelectProps>(
-  function RowSelect({ visible = false, checked = false, onChange, ...props }, ref) {
-    // D1: width is driven by the recipe `visible` variant — no inline CSS var.
+  function RowSelect({ checked = false, onChange, ...props }, ref) {
+    // D1: width is driven by --main-list-select-width CSS var on parent row (data-select-mode)
     return (
       <div
         ref={ref}
-        className={mainListSlotClassNames.rowSelect({ visible })}
+        className={mainListSlotClassNames.rowSelect()}
         {...props}
       >
         <Checkbox.Root
@@ -27,10 +24,10 @@ export const RowSelect = forwardRef<HTMLDivElement, RowSelectProps>(
         >
           {/* Native input keeps the control keyboard-accessible and clickable. */}
           <Checkbox.HiddenInput />
-          <Checkbox.Control asChild>
-            <Icon size="sm"><Check /></Icon>
-          </Checkbox.Control>
-        </Checkbox.Root>
+          <Checkbox.Control>
+                    <Checkbox.Indicator />
+                  </Checkbox.Control>
+                </Checkbox.Root>
       </div>
     )
   },

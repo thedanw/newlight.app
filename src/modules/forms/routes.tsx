@@ -17,7 +17,6 @@ registerSidebarModule({
 const FormsDashboardPage = lazy(() => import('./dashboard'))
 const FormBuilderPage = lazy(() => import('./pages/BuilderPage'))
 const FormSubmissionsPage = lazy(() => import('./pages/SubmissionsPage'))
-const FormPublicPage = lazy(() => import('./pages/PublicPage'))
 
 function ModuleLayout() {
   return (
@@ -39,10 +38,6 @@ export const routes: RouteObject[] = [
       { path: 'new', element: <FormBuilderPage /> },
       { path: ':id/edit', element: <FormBuilderPage /> },
       { path: ':id/submissions', element: <FormSubmissionsPage /> },
-      // Public fill page — also the list row-click / "View" destination (D8).
-      // Static (`new`) and deeper (`:id/edit`) segments outrank the bare `:id`,
-      // so this route cannot shadow them.
-      { path: ':id', element: <FormPublicPage /> },
       // Legacy list route — redirects to dashboard (which is the list).
       { path: 'list', element: <Navigate to="/forms" replace /> },
     ],

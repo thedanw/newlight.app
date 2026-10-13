@@ -1,4 +1,5 @@
 import { defineSlotRecipe } from '@pandacss/dev'
+import { PAD, GAP } from '../spacing-contract'
 
 export const mainList = defineSlotRecipe({
   className: 'main-list',
@@ -8,7 +9,7 @@ export const mainList = defineSlotRecipe({
       display: 'flex',
       flexDirection: 'column',
       width: 'full',
-      gap: '4',
+      gap: 1,
     },
     toolbar: {
       display: 'flex',
@@ -20,12 +21,12 @@ export const mainList = defineSlotRecipe({
     rows: {
       display: 'flex',
       flexDirection: 'column',
-      gap: '2',
+      gap: 1,
     },
     row: {
       display: 'flex',
       alignItems: 'center',
-      gap: '4',
+      gap: GAP,
       padding: '3 4',
       borderBottomWidth: '1px',
       borderColor: 'border',
@@ -40,7 +41,15 @@ export const mainList = defineSlotRecipe({
         position: 'relative',
         zIndex: '60',
       },
-    },
+          // Select column width controlled by data-select-mode on the row
+          // (avoids slot-targeting variant codegen issue).
+          '&[data-select-mode="true"]': {
+            '--main-list-select-width': '48px',
+          },
+          '&[data-select-mode="false"]': {
+            '--main-list-select-width': '0px',
+          },
+        },
     rowSelect: {
       display: 'flex',
       alignItems: 'center',
@@ -55,7 +64,7 @@ export const mainList = defineSlotRecipe({
       flex: '1',
       minWidth: '0',
       display: 'flex',
-      flexDirection: 'column',
+      flexDirection: 'row',
       gap: '1',
     },
     rowButton: {
@@ -111,42 +120,28 @@ export const mainList = defineSlotRecipe({
     },
   },
   defaultVariants: {
-    size: 'md',
-    // D1: select-column width is a variant (not inline CSS var).
-    visible: false,
-  },
-  variants: {
-    size: {
-      sm: {
-        row: { padding: '2 3', gap: '3' },
-        rowHeader: { padding: '2 3', gap: '3' },
-        footer: { padding: '2 3' },
-        massManage: { padding: '2 3' },
-      },
-      md: {
-        row: { padding: '3 4', gap: '4' },
-        rowHeader: { padding: '3 4', gap: '4' },
-        footer: { padding: '3 4' },
-        massManage: { padding: '3 4' },
-      },
-      lg: {
-        row: { padding: '4 5', gap: '5' },
-        rowHeader: { padding: '4 5', gap: '5' },
-        footer: { padding: '4 5' },
-        massManage: { padding: '4 5' },
-      },
+      size: 'md',
     },
-    visible: {
-      true: {
-        rowSelect: {
-          '--main-list-select-width': '48px',
+    variants: {
+      size: {
+        sm: {
+          row: { padding: '2 3', gap: '3' },
+          rowHeader: { padding: '2 3', gap: '3' },
+          footer: { padding: '2 3' },
+          massManage: { padding: '2 3' },
         },
-      },
-      false: {
-        rowSelect: {
-          '--main-list-select-width': '0px',
+        md: {
+          row: { padding: '3 4', gap: '4' },
+          rowHeader: { padding: '3 4', gap: '4' },
+          footer: { padding: '3 4' },
+          massManage: { padding: '3 4' },
+        },
+        lg: {
+          row: { padding: '4 5', gap: '5' },
+          rowHeader: { padding: '4 5', gap: '5' },
+          footer: { padding: '4 5' },
+          massManage: { padding: '4 5' },
         },
       },
     },
-  },
 })

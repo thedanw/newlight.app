@@ -49,8 +49,8 @@ Module developers building dashboards and list views (Forms, People, future modu
     - Rationale: Predictable, type-safe, supports column width control
 11. **MainList.Row: expandable content with overlay backdrop**
     - Rationale: Click outside closes toolbar; expandable row pushes content down
-12. **MainList.Row.Select: max-width 0 → auto animated, all rows animate together**
-    - Rationale: Visual consistency; selection column appears/disappears as unit
+12. **MainList.Row.Select: width controlled by `--main-list-select-width` CSS variable on parent row via `data-select-mode`**
+    - Rationale: Single source of truth for select column visibility; avoids orphan variant classes; all rows animate together via shared parent attribute
 13. **MainList.Row.Select tied to MassManage: selection enables bulk actions**
     - Rationale: Standard selection → bulk action pattern
 14. **MainList.Row.Button: customizable icon/action slot (right-aligned in row)**
@@ -87,6 +87,26 @@ Module developers building dashboards and list views (Forms, People, future modu
     - Rationale: Self-contained; modules don't manage pagination separately
 30. **MainList.Row.Content: slot pattern (primary, secondary, meta)**
     - Rationale: Structured content enables consistent alignment, responsive behavior
+
+## Learnings (post-implementation)
+
+- **L1: `visible` variant on `rowSelect` was dead code** — The actual show/hide is driven by `--main-list-select-width` CSS variable on the parent `row` element via `data-select-mode` attribute. The `visible` variant generated orphan classes (`main-list__rowSelect--visible_true/false`) with no matching CSS rules. Removed the variant and the `visible` prop from `RowSelectProps`.
+
+- **L2: `duration` prop on `RowToolbar`/`RowSelect` was never consumed** — Recipe hardcodes 0.2s transition. Removed the prop.
+
+- **L3: `mainListCssVars` was redundant** — The `--main-list-select-width` variable is set on the row element via `data-select-mode` selectors in the recipe. The root-level CSS var declaration was conflicting and removed.
+
+- **L4: `withContext` wrappers for `Toolbar`, `MassManage`, `Row`, `RowSelect`, `RowButton` were dead code** — Only `Root`, `Rows`, `Footer` context components are used by `RootComponent`. Removed the dead exports; consolidated to single styling entry point per slot via `mainListSlotClassNames` helper.
+
+- **L5: `search` prop in `MainListRootProps` was never implemented** — Search lives in `Page.HeaderBottom` per D5. Removed from types.
+
+- **L6: `massManage.visible` was derived from `selectedCount > 0`** — Not a separate prop. Removed from types.
+
+- **L7: `max-height: 500px` animation hack works but is a hack** — Could be replaced with `Collapsible` or framer-motion in future, but current implementation is functional and performant.
+
+- **L8: Types must derive from implementation** — Hand-maintained `MainListRootProps` drifted from `RootComponent` (missing `renderRowToolbar`, `onRowClick`, `allFilteredKeys`; declared unimplemented `search`). Now derived from actual usage.
+
+- **L9: `Row` must be `forwardRef` with explicit trigger props** — The `cloneElement` trigger injection pattern was fragile. Now `Row` properly uses `forwardRef` with typed `RowProps<T>` interface.
 
 ## Decision Gap Log
 (none — all gaps resolved)

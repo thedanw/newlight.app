@@ -257,13 +257,13 @@ export default function FormsDashboardPage() {
             <Dialog.Content>
               <Dialog.Title>Delete Form</Dialog.Title>
               <Dialog.Description>
-                Are you sure you want to delete "{deleteDialogOpen.formName}"? This action cannot be undone.
+                Are you sure you want to delete <strong>{deleteDialogOpen.formName}</strong>? This action cannot be undone.
               </Dialog.Description>
               <Dialog.Footer>
-                <Button variant="outline" onClick={() => setDeleteDialogOpen(null)}>Cancel</Button>
-                <Dialog.ActionTrigger colorPalette="red" onClick={() => { handleDelete(deleteDialogOpen.formId); setDeleteDialogOpen(null) }}>
+                <Button variant="plain" onClick={() => setDeleteDialogOpen(null)}>Cancel</Button>
+                <Button colorPalette="red" onClick={() => { handleDelete(deleteDialogOpen.formId); setDeleteDialogOpen(null); }}>
                   Delete
-                </Dialog.ActionTrigger>
+                </Button>
               </Dialog.Footer>
             </Dialog.Content>
           </Dialog.Positioner>
@@ -278,13 +278,13 @@ export default function FormsDashboardPage() {
             <Dialog.Content>
               <Dialog.Title>Duplicate Form</Dialog.Title>
               <Dialog.Description>
-                Create a copy of "{duplicateDialogOpen.formName}"? The duplicate will open in the editor.
+                Create a copy of <strong>{duplicateDialogOpen.formName}</strong>?
               </Dialog.Description>
               <Dialog.Footer>
-                <Button variant="outline" onClick={() => setDuplicateDialogOpen(null)}>Cancel</Button>
-                <Dialog.ActionTrigger onClick={() => { handleDuplicate(duplicateDialogOpen.formId); setDuplicateDialogOpen(null) }}>
+                <Button variant="plain" onClick={() => setDuplicateDialogOpen(null)}>Cancel</Button>
+                <Button onClick={() => { handleDuplicate(duplicateDialogOpen.formId); setDuplicateDialogOpen(null); }}>
                   Duplicate
-                </Dialog.ActionTrigger>
+                </Button>
               </Dialog.Footer>
             </Dialog.Content>
           </Dialog.Positioner>
@@ -297,15 +297,15 @@ export default function FormsDashboardPage() {
           <Dialog.Backdrop />
           <Dialog.Positioner>
             <Dialog.Content>
-              <Dialog.Title>Delete Selected Forms</Dialog.Title>
+                    <Dialog.Title>Delete Selected Forms</Dialog.Title>
               <Dialog.Description>
-                Are you sure you want to delete {massDeleteDialog.keys.length} form(s)? This action cannot be undone.
+                Are you sure you want to delete {massDeleteDialog.keys.length} selected form{massDeleteDialog.keys.length === 1 ? '' : 's'}? This action cannot be undone.
               </Dialog.Description>
               <Dialog.Footer>
-                <Button variant="outline" onClick={cancelMassDelete}>Cancel</Button>
-                <Dialog.ActionTrigger colorPalette="red" onClick={() => void confirmMassDelete()}>
-                  Delete {massDeleteDialog.keys.length}
-                </Dialog.ActionTrigger>
+                <Button variant="plain" onClick={cancelMassDelete}>Cancel</Button>
+                <Button colorPalette="red" loading={deleting} onClick={confirmMassDelete}>
+                        Delete {massDeleteDialog.keys.length}
+                </Button>
               </Dialog.Footer>
             </Dialog.Content>
           </Dialog.Positioner>

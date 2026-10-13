@@ -1,5 +1,5 @@
 'use client'
-import type { ComponentProps, MouseEvent, ReactNode } from 'react'
+import type { ComponentProps, ReactNode } from 'react'
 
 /** MainList.Root props */
 export interface MainListRootProps<T> extends ComponentProps<'div'> {
@@ -9,9 +9,9 @@ export interface MainListRootProps<T> extends ComponentProps<'div'> {
   getKey: (item: T) => string
   /** Render function for each row */
   renderRow: (item: T, index: number) => ReactNode
-  /** Optional per-row toolbar renderer (row action buttons); managed open/close lives in Row */
+  /** Optional per-row toolbar renderer */
   renderRowToolbar?: (item: T, index: number) => ReactNode
-  /** Optional row click handler (navigate to detail) */
+  /** Optional row click handler (e.g., navigate to detail) */
   onRowClick?: (item: T, index: number) => void
   /** Optional header configuration */
   headers?: MainListHeaderConfig[]
@@ -29,19 +29,28 @@ export interface MainListRootProps<T> extends ComponentProps<'div'> {
   }
   /** Selection configuration */
   selection?: {
+    /** Currently selected keys (controlled) */
     selectedKeys: Set<string>
+    /** Called when selection changes */
     onSelectionChange: (keys: Set<string>) => void
-    /** Keys for ALL items matching the current search/filter (not just the visible page) — enables true "Select All" (decision #28) */
+    /** All keys matching current search/filter (for "Select All") */
     allFilteredKeys?: string[]
+    /** Called when "Select All" is triggered */
     onSelectAll?: (allKeys: string[]) => void
+    /** Called when "Select Visible" is triggered */
     onSelectVisible?: (visibleKeys: string[]) => void
   }
   /** Mass manage configuration */
   massManage?: {
+    /** Whether mass manage bar is visible */
     visible: boolean
+    /** Called to close mass manage */
     onClose: () => void
+    /** Called to delete selected items */
     onDeleteSelected: (keys: string[]) => Promise<void>
+    /** Number of selected items */
     selectedCount: number
+    /** Whether delete is in progress */
     deleting?: boolean
   }
 }
@@ -82,30 +91,22 @@ export interface MainListRowProps<T> extends ComponentProps<'div'> {
 
 /** MainList.Row.Select props */
 export interface MainListRowSelectProps extends Omit<ComponentProps<'div'>, 'onChange'> {
-  /** Whether select column is visible */
-  visible: boolean
   /** Whether this row is selected */
   checked: boolean
   /** Checkbox change handler */
   onChange?: (checked: boolean) => void
-  /** Animation duration in ms */
-  duration?: number
 }
 
 /** MainList.Row.Button props */
-export interface MainListRowButtonProps extends Omit<ComponentProps<'button'>, 'onClick'> {
+export interface MainListRowButtonProps extends ComponentProps<'button'> {
   /** Button icon */
   icon?: ReactNode
   /** Button label (for accessibility) */
   label?: string
   /** Click handler */
-  onClick?: (e: MouseEvent<HTMLButtonElement>) => void
+  onClick?: () => void
   /** Whether button is disabled */
   disabled?: boolean
-  /** Visual variant */
-  variant?: 'plain' | 'outline'
-  /** Size */
-  size?: 'sm' | 'md' | 'lg'
 }
 
 /** MainList.Row.Toolbar props */

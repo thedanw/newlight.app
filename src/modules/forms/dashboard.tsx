@@ -1,10 +1,11 @@
 import { useEffect, useState, useCallback, useRef } from 'react'
 import type { CSSProperties } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Badge, Button, Page, Text, SearchInput, MainList, Dialog, Icon } from '@/core/ui'
+import { Badge, Button, Page, Text, SearchInput, MainList, Dialog, Icon, Collapsible, CloseButton } from '@/core/ui'
 import { Plus, SlidersHorizontal, Eye, Edit2, Copy, Trash2 } from 'lucide-react'
-import { deleteForm, getForms, duplicateForm } from './lib/queries'
+import { deleteForm, getForms, duplicateForm, getFormSubmissionCounts, searchForms } from './lib/queries'
 import { PageSkeleton } from '../people/components/PageSkeleton'
+import { HStack, Stack } from 'styled-system/jsx'
 import type { Form } from './lib/types'
 import { Manifest } from './manifest'
 
@@ -23,6 +24,8 @@ export default function FormsDashboardPage() {
   const [forms, setForms] = useState<Form[] | null>(null)
   const [error, setError] = useState<Error | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
+  const [searchResults, setSearchResults] = useState<Form[] | null>(null)
+  const [searching, setSearching] = useState(false)
   const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set())
   const [deleteDialogOpen, setDeleteDialogOpen] = useState<{ formId: string; formName: string } | null>(null)
   const [duplicateDialogOpen, setDuplicateDialogOpen] = useState<{ formId: string; formName: string } | null>(null)
@@ -31,9 +34,17 @@ export default function FormsDashboardPage() {
   const [deleting, setDeleting] = useState(false)
   const [page, setPage] = useState(1)
   const pageSize = 25
+  const [submissionCounts, setSubmissionCounts] = useState<Record<string, number>>({})
+  const [filtersOpen, setFiltersOpen] = useState(false)
 
-  const load = useCallback(() => {
-    getForms().then(setForms).catch((reason: unknown) => setError(reason instanceof Error ? reason : new Error(String(reason))))
+  const load = useCallback(async () => {
+    try {
+      const [formsData, counts] = await Promise.all([getForms(), getFormSubmissionCounts()])
+      setForms(formsData)
+      setSubmissionCounts(counts)
+    } catch (reason) {
+      setError(reason instanceof Error ? reason : new Error(String(reason)))
+    }
   }, [])
 
   useEffect(() => {
@@ -41,10 +52,7 @@ export default function FormsDashboardPage() {
   }, [load])
 
   // Filter forms based on search term
-  const filteredForms = forms?.filter(form =>
-    form.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (form.description?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false)
-  ) ?? []
+  const filteredForms = searchTerm ? (searchResults ?? []) : (forms ?? [])
 
   // Pagination
   const paginatedForms = filteredForms.slice((page - 1) * pageSize, page * pageSize)
@@ -72,9 +80,11 @@ export default function FormsDashboardPage() {
     }
   }
 
-  const handleSearch = useCallback((term: string) => {
+  const handleSearch = useCallback(async (term: string) => {
     setSearchTerm(term)
     setPage(1)
+    const results = await searchForms(term)
+    setSearchResults(results)
   }, [])
 
   /**
@@ -128,33 +138,43 @@ export default function FormsDashboardPage() {
     setDuplicateDialogOpen({ formId, formName })
   }
 
-  /** Row content only — Row supplies select, trigger button and toolbar. */
+  /** Row content aligned with three-column header layout (name, visibility, submissions). */
   const renderRow = (form: Form) => (
-    <MainList.RowContent
-      primary={form.name}
-      secondary={form.description}
-      meta={<Badge colorPalette={form.is_public ? 'green' : 'gray'}>{form.is_public ? 'Public' : 'Private'}</Badge>}
-    />
-  )
+      <MainList.RowContent>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4', width: '100%' }}>
+          {/* Col1: Name - flex-grow: 1 */}
+          <div style={{ flex: '1 1 0%', minWidth: 0 }}>
+            <Text fontWeight="medium" truncate>{form.name}</Text>
+          </div>
+          {/* Col2: Visibility - 120px */}
+          <div style={{ width: '120px', minWidth: '120px', maxWidth: '120px', textAlign: 'center' }}>
+            <Badge colorPalette={form.is_public ? 'green' : 'gray'}>{form.is_public ? 'Public' : 'Private'}</Badge>
+          </div>
+          {/* Col3: Submissions - 120px */}
+          <div style={{ width: '120px', minWidth: '120px', maxWidth: '120px', textAlign: 'center', color: 'fg.muted', fontSize: 'sm' }}>
+              {submissionCounts[form.id] ?? 0}
+          </div>
+        </div>
+      </MainList.RowContent>
+    )
 
   /** Row actions rendered inside the managed row toolbar (Row owns open/close). */
   const renderRowToolbar = (form: Form) => (
     <>
-      <Button variant="plain" size="sm" onClick={() => navigate(`/forms/${form.id}`)}>
-        <Icon size="sm"><Eye /></Icon>
+      <Button variant="plain" size="sm" size="fluidSm" onClick={() => navigate(`/forms/${form.id}`)}>
+        <Icon><Eye /></Icon>
         View
       </Button>
-      <Button variant="plain" size="sm" onClick={() => navigate(`/forms/${form.id}/edit`)}>
-        <Icon size="sm"><Edit2 /></Icon>
+      <Button variant="plain" size="sm" size="fluidSm" onClick={() => navigate(`/forms/${form.id}/edit`)}>
+        <Icon><Edit2 /></Icon>
         Edit
       </Button>
-      <Button variant="plain" size="sm" onClick={() => openDuplicateDialog(form.id, form.name)}>
-        <Icon size="sm"><Copy /></Icon>
-        Duplicate
+      <Button variant="plain" size="sm" size="fluidSm" onClick={() => openDuplicateDialog(form.id, form.name)}>
+        <Icon><Copy /></Icon>
+        Copy
       </Button>
-      <Button variant="plain" size="sm" colorPalette="red" onClick={() => openDeleteDialog(form.id, form.name)}>
-        <Icon size="sm"><Trash2 /></Icon>
-        Delete
+      <Button variant="plain" size="sm" size="fluidSm" colorPalette="red" onClick={() => openDeleteDialog(form.id, form.name)}>
+        <Icon><Trash2 /></Icon>
       </Button>
     </>
   )
@@ -168,9 +188,9 @@ export default function FormsDashboardPage() {
     </Page.Main>
   )
   if (!forms) return (
-    <Page.Main>
+    <Page.Main><Page.HeaderTop />
       <Page.Header style={{ '--module-number': Manifest.number } as CSSProperties}>
-        <Page.Heading level={1} icon={Manifest.icon} title={Manifest.name} />
+        <Page.Heading level={0} icon={Manifest.icon} title={Manifest.name} />
       </Page.Header>
       <Page.Body><PageSkeleton /></Page.Body>
     </Page.Main>
@@ -178,29 +198,54 @@ export default function FormsDashboardPage() {
 
   return (
     <Page.Main>
+      <Page.HeaderTop />
       <Page.Header style={{ '--module-number': Manifest.number } as CSSProperties}>
-        <Page.Heading level={1} icon={Manifest.icon} title={Manifest.name} />
-        <Page.HeaderBottom>
-          {/* Search lives in the header, not MainList (D5); filtering is
-              instant via onChange (#23), so the debounced callback is inert. */}
+        <Page.Heading level={0} icon={Manifest.icon} title={Manifest.name} />
+      </Page.Header>
+      <Page.HeaderBottom style={{ '--module-number': Manifest.number } as CSSProperties}>
+        <Stack gap="3">
+          <Text textStyle="sm">
+            Find forms by name or description.
+          </Text>
           <SearchInput<Form[]>
-            search={async () => []}
-            onResults={() => {}}
-            onSearching={() => {}}
-            placeholder="Search forms..."
+            search={searchForms}
+            onResults={setSearchResults}
+            onSearching={setSearching}
+            placeholder="Search forms"
             ariaLabel="Search forms"
             value={searchTerm}
             onChange={handleSearch}
           />
-        </Page.HeaderBottom>
-      </Page.Header>
+          {searching && <Text color="fg.muted">Searching...</Text>}
+          <HStack gap="2">
+            <Button variant="surface" onClick={() => navigate('/forms/new')}>
+              <Plus />
+              New Form
+            </Button>
+            <Button variant="surface" onClick={() => setFiltersOpen((v) => !v)}>
+              <SlidersHorizontal />
+              Filter
+            </Button>
+          </HStack>
+          <Collapsible.Root open={filtersOpen} onOpenChange={(details) => setFiltersOpen(details.open)}>
+            <Collapsible.Content>
+              <Stack gap="3" css={{ overflow: 'hidden', animation: 'slideDown 0.2s ease-out' }}>
+                <HStack justifyContent="flex-end">
+                  <CloseButton onClick={() => setFiltersOpen(false)} />
+                </HStack>
+                {/* Filter controls go here */}
+              </Stack>
+            </Collapsible.Content>
+          </Collapsible.Root>
+        </Stack>
+      </Page.HeaderBottom>
       <Page.Body>
         <MainList.Root
           items={paginatedForms}
           getKey={(form) => form.id}
           renderRow={renderRow}
           renderRowToolbar={renderRowToolbar}
-          onRowClick={(form) => navigate(`/forms/${form.id}`)}
+          onRowClick={(form: Form) => navigate(`/forms/${form.id}`)}
           headers={[
             { key: 'name', label: 'Name', width: '1fr' },
             { key: 'visibility', label: 'Visibility', width: '120px' },
@@ -215,19 +260,18 @@ export default function FormsDashboardPage() {
           toolbar={{
             primaryActions: (
               <MainList.PrimaryActions>
-                <Button onClick={() => navigate('/forms/new')}>
-                  <Icon size="sm"><Plus /></Icon>
-                  New Form
-                </Button>
+                <MainList.MassManageButton
+                  isOpen={selectedKeys.size > 0}
+                  onClick={() => {
+                    // Trigger mass manage by selecting all visible items
+                    const visibleKeys = paginatedForms.map((f) => f.id)
+                    setSelectedKeys((prev) => new Set([...prev, ...visibleKeys]))
+                  }}
+                />
               </MainList.PrimaryActions>
             ),
             secondaryActions: (
-              <MainList.SecondaryActions>
-                <Button variant="outline">
-                  <Icon size="sm"><SlidersHorizontal /></Icon>
-                  Filter/Lists
-                </Button>
-              </MainList.SecondaryActions>
+              <MainList.SecondaryActions />
             ),
           }}
           selection={{

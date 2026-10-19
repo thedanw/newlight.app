@@ -1,6 +1,7 @@
 'use client'
 import { forwardRef } from 'react'
 import { Checkbox } from '@/core/ui'
+import { Stack } from 'styled-system/jsx'
 import { mainListSlotClassNames } from './main-list-context'
 
 export interface RowSelectProps {
@@ -12,7 +13,7 @@ export const RowSelect = forwardRef<HTMLDivElement, RowSelectProps>(
   function RowSelect({ checked = false, onChange, ...props }, ref) {
     // D1: width is driven by --main-list-select-width CSS var on parent row (data-select-mode)
     return (
-      <div
+      <Stack
         ref={ref}
         className={mainListSlotClassNames.rowSelect()}
         {...props}
@@ -28,7 +29,7 @@ export const RowSelect = forwardRef<HTMLDivElement, RowSelectProps>(
                     <Checkbox.Indicator />
                   </Checkbox.Control>
                 </Checkbox.Root>
-      </div>
+      </Stack>
     )
   },
 )

@@ -20,6 +20,15 @@ interface MappingRule {
 interface FieldMappingTableProps {
   disabled?: boolean
   dynamicFieldOptions?: Array<{ value: string; label: string }>
+  mappings: MappingRule[]
+  onUpdateMapping: (index: number, updates: Partial<MappingRule>) => void
+  onAddMapping: () => void
+  onDeleteMapping: (index: number) => void
+  onDuplicateMapping: (index: number) => void
+  onSaveMappings: () => Promise<void>
+  onCancelMappings: () => void
+  isSaving: boolean
+  isDirty: boolean
 }
 
 const APP_FIELDS = [
@@ -149,36 +158,21 @@ export function FieldMappingTable({ disabled = false, dynamicFieldOptions = [] }
     }
   }
 
-  const saveMappings = async () => {
-    setSaving(true)
-    try {
-      const reordered = mappings.map((rule, index) => ({ ...rule, priority: (mappings.length - index) * 10 }))
-      const ok = await settings.setConfig('field_mappings', reordered).then(() => true).catch(() => false)
-      if (ok) toast.success('Field mappings saved')
-      else toast.error('Failed to save field mappings')
-    } catch (err) {
-      console.error('[FieldMappingTable] Failed to save mappings:', err)
-      toast.error('Failed to save field mappings')
-    } finally {
-      setSaving(false)
-    }
-  }
 
   const addMapping = () => {
-    setMappings([...mappings, { id: crypto.randomUUID(), appField: '', elvantoField: '', direction: 'pull', priority: 0 }])
+    onAddMapping()
   }
 
   const updateMapping = (index: number, updates: Partial<MappingRule>) => {
-    setMappings(mappings.map((rule, i) => i === index ? { ...rule, ...updates } : rule))
+    onUpdateMapping(index, updates)
   }
 
   const deleteMapping = (index: number) => {
-    setMappings(mappings.filter((_, i) => i !== index))
+    onDeleteMapping(index)
   }
 
   const duplicateMapping = (index: number) => {
-    const duplicated = { ...mappings[index], id: crypto.randomUUID(), priority: mappings[index].priority - 1 }
-    setMappings([...mappings.slice(0, index + 1), duplicated, ...mappings.slice(index + 1)])
+    onDuplicateMapping(index)
   }
 
   if (loading) {
@@ -243,7 +237,6 @@ export function FieldMappingTable({ disabled = false, dynamicFieldOptions = [] }
         <Card.Footer>
           <HStack justify="end">
             <Button variant="outline" onClick={addMapping}>+ Add Mapping</Button>
-            <Button onClick={saveMappings} loading={saving} disabled={saving}>Save All</Button>
           </HStack>
         </Card.Footer>
       </Card.Root>

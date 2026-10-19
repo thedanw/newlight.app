@@ -3,7 +3,7 @@ import { render, screen, fireEvent, waitFor, cleanup, within } from '@testing-li
 import { MemoryRouter, useLocation } from 'react-router-dom'
 import { Page } from '@/core/ui'
 import FormsDashboardPage from '../dashboard'
-import { getForms, deleteForm, duplicateForm } from '../lib/queries'
+import { getForms, deleteForm, duplicateForm, getFormSubmissionCounts } from '../lib/queries'
 import type { Form, FormWithFields } from '../lib/types'
 
 // vitest globals are disabled, so Testing Library cannot self-register cleanup.
@@ -15,11 +15,13 @@ vi.mock('../lib/queries', () => ({
   getForms: vi.fn(),
   deleteForm: vi.fn(),
   duplicateForm: vi.fn(),
+  getFormSubmissionCounts: vi.fn(),
 }))
 
 const mockGetForms = vi.mocked(getForms)
 const mockDeleteForm = vi.mocked(deleteForm)
 const mockDuplicateForm = vi.mocked(duplicateForm)
+const mockGetFormSubmissionCounts = vi.mocked(getFormSubmissionCounts)
 
 const forms = [
   { id: 'f1', name: 'Community Survey', description: 'Quarterly feedback', is_public: true },
@@ -50,7 +52,8 @@ describe('FormsDashboardPage', () => {
     mockGetForms.mockResolvedValue(forms)
     mockDeleteForm.mockResolvedValue(undefined)
     mockDuplicateForm.mockResolvedValue({ id: 'f1-copy' } as unknown as FormWithFields)
-  })
+      mockGetFormSubmissionCounts.mockResolvedValue({ f1: 5, f2: 3 })
+    })
 
   it('renders the forms list', async () => {
     renderDashboard()

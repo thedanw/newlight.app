@@ -48,6 +48,19 @@ export async function getForms(): Promise<Form[]> {
   return data ?? []
 }
 
+export async function searchForms(searchTerm: string): Promise<Form[]> {
+  const normalizedTerm = searchTerm.trim()
+  if (!normalizedTerm) return []
+  const pattern = `%${normalizedTerm}%`
+  const { data, error } = await supabase
+    .from('forms')
+    .select('*')
+    .or(`name.ilike.${pattern},description.ilike.${pattern}`)
+    .order('name')
+  if (error) throw error
+  return data ?? []
+}
+
 export async function getFormById(id: string): Promise<FormWithFields | null> {
   const { data: form, error: formError } = await supabase.from('forms').select('*').eq('id', id).maybeSingle()
   if (formError) throw formError

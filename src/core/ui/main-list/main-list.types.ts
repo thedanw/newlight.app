@@ -9,12 +9,15 @@ export interface MainListRootProps<T> extends ComponentProps<'div'> {
   getKey: (item: T) => string
   /** Render function for each row */
   renderRow: (item: T, index: number) => ReactNode
-  /** Optional per-row toolbar renderer */
-  renderRowToolbar?: (item: T, index: number) => ReactNode
-  /** Optional row click handler (e.g., navigate to detail) */
-  onRowClick?: (item: T, index: number) => void
   /** Optional header configuration */
   headers?: MainListHeaderConfig[]
+  /** Search configuration */
+  search?: {
+    value: string
+    onChange: (value: string) => void
+    placeholder?: string
+    onSearch?: (term: string) => void
+  }
   /** Pagination configuration */
   pagination?: {
     page: number
@@ -29,28 +32,17 @@ export interface MainListRootProps<T> extends ComponentProps<'div'> {
   }
   /** Selection configuration */
   selection?: {
-    /** Currently selected keys (controlled) */
     selectedKeys: Set<string>
-    /** Called when selection changes */
     onSelectionChange: (keys: Set<string>) => void
-    /** All keys matching current search/filter (for "Select All") */
-    allFilteredKeys?: string[]
-    /** Called when "Select All" is triggered */
     onSelectAll?: (allKeys: string[]) => void
-    /** Called when "Select Visible" is triggered */
     onSelectVisible?: (visibleKeys: string[]) => void
   }
   /** Mass manage configuration */
   massManage?: {
-    /** Whether mass manage bar is visible */
     visible: boolean
-    /** Called to close mass manage */
     onClose: () => void
-    /** Called to delete selected items */
     onDeleteSelected: (keys: string[]) => Promise<void>
-    /** Number of selected items */
     selectedCount: number
-    /** Whether delete is in progress */
     deleting?: boolean
   }
 }
@@ -91,10 +83,14 @@ export interface MainListRowProps<T> extends ComponentProps<'div'> {
 
 /** MainList.Row.Select props */
 export interface MainListRowSelectProps extends Omit<ComponentProps<'div'>, 'onChange'> {
+  /** Whether select column is visible */
+  visible: boolean
   /** Whether this row is selected */
   checked: boolean
   /** Checkbox change handler */
   onChange?: (checked: boolean) => void
+  /** Animation duration in ms */
+  duration?: number
 }
 
 /** MainList.Row.Button props */

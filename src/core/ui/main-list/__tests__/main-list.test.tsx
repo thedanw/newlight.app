@@ -47,7 +47,7 @@ function ControlledList(props: {
       renderRowToolbar={(item: Item) => <button type="button">Edit {item.name}</button>}
       toolbar={{}}
       massManage={{
-        visible: selectedKeys.size > 0,
+              isOpen: selectedKeys.size > 0,
         onClose: () => setSelectedKeys(new Set()),
         onDeleteSelected: props.onDeleteSelected ?? (async () => undefined),
         selectedCount: selectedKeys.size,
@@ -116,13 +116,13 @@ describe('MainList selection (controlled)', () => {
 })
 
 describe('MainList mass manage', () => {
-  it('drives visibility through data-visible (recipe animation hook)', async () => {
+  it('drives visibility through data-open (recipe animation hook)', async () => {
     const { container } = render(<ControlledList />)
-    const massManage = container.querySelector('[data-visible]')
+    const massManage = container.querySelector('[data-open]')
 
-    expect(massManage).toHaveAttribute('data-visible', 'false')
+    expect(massManage).toHaveAttribute('data-open', 'false')
     checkboxes()[0].click()
-    await waitFor(() => expect(massManage).toHaveAttribute('data-visible', 'true'))
+    await waitFor(() => expect(massManage).toHaveAttribute('data-open', 'true'))
   })
 
   it('deletes the selected keys, then clears the selection', async () => {
@@ -194,15 +194,16 @@ describe('MainList row toolbar (managed)', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Select' }))
 
     await waitFor(() => {
-      expect(document.querySelector('[data-open="true"]')).toBeNull()
-      expect(document.querySelector('[role="presentation"]')).toBeNull()
-      expect(document.querySelector('[data-toolbar-open="true"]')).toBeNull()
-      expect(checkboxes()[0]).toBeChecked()
-      expect(document.querySelector('[data-visible="true"]')).not.toBeNull()
-          expect(document.querySelector('[data-select-mode="true"] > div > div')).toHaveClass(
-            mainListSlotClassNames.rowSelect(),
-      )
-    })
+        // Row toolbar should be closed
+        expect(document.querySelector('[data-toolbar-open="true"]')).toBeNull()
+        expect(document.querySelector('[role="presentation"]')).toBeNull()
+        // Mass manage toolbar should be open
+        expect(document.querySelector('[data-open="true"]')).not.toBeNull()
+        expect(checkboxes()[0]).toBeChecked()
+        expect(document.querySelector('[data-select-mode="true"] > div > div')).toHaveClass(
+          mainListSlotClassNames.rowSelect(),
+        )
+      })
   })
 
   it('closes on Escape and restores the trigger', () => {

@@ -1,6 +1,7 @@
 'use client'
 import { forwardRef } from 'react'
 import { Text } from '../text'
+import { Stack } from 'styled-system/jsx'
 import { mainListSlotClassNames } from './main-list-context'
 
 export interface RowContentProps {
@@ -13,14 +14,14 @@ export interface RowContentProps {
 export const RowContent = forwardRef<HTMLDivElement, RowContentProps>(
   function RowContent({ primary, secondary, meta, children, ...props }, ref) {
     if (children) {
-          return <div ref={ref} className={mainListSlotClassNames.rowContent()} {...props}>{children}</div>
+          return <Stack ref={ref} className={mainListSlotClassNames.rowContent()} {...props}>{children}</Stack>
     }
     return (
-          <div ref={ref} className={mainListSlotClassNames.rowContent()} {...props}>
+          <Stack ref={ref} className={mainListSlotClassNames.rowContent()} {...props}>
         {primary && <Text fontWeight="medium" truncate>{primary}</Text>}
         {secondary && <Text color="fg.muted" fontSize="sm" truncate>{secondary}</Text>}
-        {meta && <div style={{ marginTop: '2' }}>{meta}</div>}
-      </div>
+        {meta && <Stack className="main-list__row-content-meta" mt="2">{meta}</Stack>}
+      </Stack>
     )
   },
 )

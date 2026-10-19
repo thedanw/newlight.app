@@ -1,39 +1,40 @@
 'use client'
 import { forwardRef } from 'react'
 import { X } from 'lucide-react'
-import { Icon } from '../icon'
-import { IconButton } from '../icon-button'
+import { IconButton, Icon } from '@/core/ui'
+import { Stack, HStack } from 'styled-system/jsx'
 import { mainListSlotClassNames } from './main-list-context'
 
-export interface RowToolbarProps extends ComponentProps<'div'> {
+export interface RowToolbarProps {
   open?: boolean
   children?: React.ReactNode
+  duration?: number
   onClose?: () => void
 }
 
 export const RowToolbar = forwardRef<HTMLDivElement, RowToolbarProps>(
   function RowToolbar({ open = false, children, onClose, ...props }, ref) {
     return (
-      <div
+      <Stack
         ref={ref}
-            className={mainListSlotClassNames.rowToolbar()}
-            data-open={open}
+        className={mainListSlotClassNames.rowToolbar()}
+        data-open={open}
         {...props}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '2', width: 'full' }}>
+        <HStack className="main-list__row-toolbar-group">
           {children}
           {onClose && (
             <IconButton
               variant="plain"
-              size="sm"
+              size="fluidSm"
               onClick={onClose}
               aria-label="Close toolbar"
             >
-              <Icon size="sm"><X /></Icon>
+              <Icon><X /></Icon>
             </IconButton>
           )}
-        </div>
-      </div>
+        </HStack>
+      </Stack>
     )
   },
 )

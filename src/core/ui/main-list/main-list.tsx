@@ -10,13 +10,14 @@ import {
   Footer,
   mainListCssVars,
 } from './main-list-context'
+import { Stack } from 'styled-system/jsx'
 import { RowSelect } from './main-list-row-select'
 import { RowButton } from './main-list-row-button'
 import { Row } from './main-list-row'
 import { RowContent } from './main-list-row-content'
 import { RowToolbar } from './main-list-row-toolbar'
 import { RowHeader } from './main-list-row-header'
-import { Toolbar, MassManage, PrimaryActions, SecondaryActions } from './main-list-toolbar'
+import { Toolbar, MassManage, MassManageButton, PrimaryActions, SecondaryActions } from './main-list-toolbar'
 import type {
   MainListRootProps,
   MainListFooterProps,
@@ -180,8 +181,8 @@ export function RootComponent<T>({
     return (
       <Toolbar
         primaryActions={toolbar.primaryActions}
-        secondaryActions={toolbar.secondaryActions}
         massManage={massManageComponent}
+        secondaryActions={toolbar.secondaryActions}
       />
     )
   }, [toolbar, massManageComponent])
@@ -245,9 +246,9 @@ export function FooterComponent({
 }: MainListFooterProps & ComponentProps<'div'>) {
   return (
     <Footer {...props}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '2', fontSize: 'sm', color: 'fg.muted' }}>
+      <Stack className="main-list__footer-text" fontSize="sm" color="fg.muted">
         Showing {(currentPage - 1) * pageSize + 1} to {Math.min(currentPage * pageSize, total)} of {total}
-      </div>
+      </Stack>
       <Pagination
         count={total}
         pageSize={pageSize}
@@ -294,4 +295,5 @@ export const MainList = {
   PrimaryActions,
   SecondaryActions,
   MassManage,
+  MassManageButton,
 } as const

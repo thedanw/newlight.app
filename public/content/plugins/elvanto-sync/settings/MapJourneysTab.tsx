@@ -89,6 +89,7 @@ export function MapJourneysTab() {
   const [saving, setSaving] = useState(false)
   const initialGroupsRef = useRef<TransformGroup[]>([])
   const [isDirty, setIsDirty] = useState(false)
+  const [savedMappings, setSavedMappings] = useState<TransformGroup[]>([])
 
   useEffect(() => {
     loadData()
@@ -111,6 +112,7 @@ export function MapJourneysTab() {
       if (groups && groups.length > 0) {
         setTransformGroups(groups)
         initialGroupsRef.current = JSON.parse(JSON.stringify(groups))
+        setSavedMappings(groups)
       } else {
         // Migrate old flat mappings to new format
         const oldMappings = await settings.getConfig<any[]>('journey_grid_mappings')
@@ -131,6 +133,7 @@ export function MapJourneysTab() {
         }))
         setTransformGroups(migrated)
         initialGroupsRef.current = JSON.parse(JSON.stringify(migrated))
+        setSavedMappings(migrated)
       }
       setIsDirty(false)
 
@@ -213,6 +216,8 @@ export function MapJourneysTab() {
     try {
       await settings.setConfig('journey_transform_groups', transformGroups)
       toast.success('Journey transform groups saved')
+      setSavedMappings(JSON.parse(JSON.stringify(transformGroups)))
+      setIsDirty(false)
     } catch (err) {
       console.error('[MapJourneysTab] Failed to save:', err)
       toast.error('Failed to save mappings')

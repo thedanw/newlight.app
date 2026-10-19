@@ -1,11 +1,13 @@
 'use client'
 import { forwardRef } from 'react'
-import { SlidersHorizontal } from 'lucide-react'
+import { X, Trash2, ListChecks } from 'lucide-react'
 import { Icon } from '../icon'
 import { Button } from '../button'
+import { Stack, HStack } from 'styled-system/jsx'
+import { css } from 'styled-system/css'
 import { mainListSlotClassNames } from './main-list-context'
 
-export interface ToolbarProps extends ComponentProps<'div'> {
+export interface ToolbarProps {
   primaryActions?: React.ReactNode
   secondaryActions?: React.ReactNode
   massManage?: React.ReactNode
@@ -14,54 +16,54 @@ export interface ToolbarProps extends ComponentProps<'div'> {
 export const Toolbar = forwardRef<HTMLDivElement, ToolbarProps>(
   function Toolbar({ primaryActions, secondaryActions, massManage, ...props }, ref) {
     return (
-      <div ref={ref} className={mainListSlotClassNames.toolbar()} {...props}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '2' }}>
+      <HStack ref={ref} className={mainListSlotClassNames.toolbar()} {...props}>
+        <HStack className={mainListSlotClassNames.primaryActions()}>
           {primaryActions}
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '2', marginLeft: 'auto' }}>
+        </HStack>
+        <HStack className={mainListSlotClassNames.secondaryActions()} style={{ marginLeft: 'auto' }}>
           {secondaryActions}
-        </div>
+        </HStack>
         {massManage}
-      </div>
+      </HStack>
     )
   },
 )
 Toolbar.displayName = 'MainList.Toolbar'
 
 /** PrimaryActions slot */
-export interface PrimaryActionsProps extends ComponentProps<'div'> {
+export interface PrimaryActionsProps {
   children?: React.ReactNode
 }
 
 export const PrimaryActions = forwardRef<HTMLDivElement, PrimaryActionsProps>(
   function PrimaryActions({ children, ...props }, ref) {
     return (
-      <div ref={ref} style={{ display: 'flex', alignItems: 'center', gap: '2' }} {...props}>
+      <HStack ref={ref} className={mainListSlotClassNames.primaryActions()} {...props}>
         {children}
-      </div>
+      </HStack>
     )
   },
 )
 PrimaryActions.displayName = 'MainList.Toolbar.PrimaryActions'
 
 /** SecondaryActions slot */
-export interface SecondaryActionsProps extends ComponentProps<'div'> {
+export interface SecondaryActionsProps {
   children?: React.ReactNode
 }
 
 export const SecondaryActions = forwardRef<HTMLDivElement, SecondaryActionsProps>(
   function SecondaryActions({ children, ...props }, ref) {
     return (
-      <div ref={ref} style={{ display: 'flex', alignItems: 'center', gap: '2' }} {...props}>
+      <HStack ref={ref} className={mainListSlotClassNames.secondaryActions()} {...props}>
         {children}
-      </div>
+      </HStack>
     )
   },
 )
 SecondaryActions.displayName = 'MainList.Toolbar.SecondaryActions'
 
 /** MassManage component */
-export interface MassManageProps extends ComponentProps<'div'> {
+export interface MassManageProps {
   selectedCount: number
   allVisibleSelected: boolean
   allFilteredSelected: boolean
@@ -87,28 +89,23 @@ export const MassManage = forwardRef<HTMLDivElement, MassManageProps>(
     ...props
   }, ref) {
     return (
-      <div
+      <Stack
         ref={ref}
         className={mainListSlotClassNames.massManage()}
         data-visible={selectedCount > 0}
+        style={{
+          overflow: 'hidden',
+          transition: 'height 0.2s ease, padding-top 0.2s ease, padding-bottom 0.2s ease',
+          height: selectedCount > 0 ? 'auto' : 0,
+        }}
+        paddingTop={selectedCount > 0 ? 2 : 0}
+        paddingBottom={selectedCount > 0 ? 2 : 0}
         {...props}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '3', flexWrap: 'wrap', width: 'full' }}>
-          <span style={{ fontSize: 'sm', color: 'fg.default' }}>
-            {selectedCount} selected
-          </span>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '2', flex: '1', justifyContent: 'flex-end' }}>
+          <HStack style={{ flex: 1, justifyContent: 'flex-start' }}>
             <Button
               variant="plain"
-              size="sm"
-              onClick={onSelectVisible}
-              disabled={allVisibleSelected}
-            >
-              Select Visible
-            </Button>
-            <Button
-              variant="plain"
-              size="sm"
+              size="fluidMd"
               onClick={onSelectAll}
               disabled={allFilteredSelected}
             >
@@ -116,39 +113,83 @@ export const MassManage = forwardRef<HTMLDivElement, MassManageProps>(
             </Button>
             <Button
               variant="plain"
-              size="sm"
+              size="fluidMd"
+              onClick={onSelectVisible}
+              disabled={allVisibleSelected}
+            >
+              Select Visible
+            </Button>
+            <Button
+              variant="plain"
+              size="fluidMd"
               onClick={onDeselectAll}
             >
               Deselect All
             </Button>
             <Button
               variant="solid"
-              size="sm"
               colorPalette="red"
+              size="fluidMd"
               onClick={onDeleteSelected}
               disabled={deleting || selectedCount === 0}
             >
-              Delete ({selectedCount})
+              <Icon><Trash2 /></Icon>
+              ({selectedCount})
             </Button>
             <Button
               variant="plain"
-              size="sm"
+              size="fluidMd"
               onClick={onClose}
               aria-label="Clear selection"
             >
-              <Icon size="sm"><SlidersHorizontal /></Icon>
+              <Icon><X /></Icon>
             </Button>
-          </div>
-        </div>
-      </div>
+          <span className={css({ fontSize: 'xs', color: 'fg.default', px: '2' })}>
+            {selectedCount} selected
+          </span>
+          </HStack>
+      </Stack>
     )
   },
 )
 MassManage.displayName = 'MainList.Toolbar.MassManage'
+
+/** MassManage trigger button */
+export interface MassManageButtonProps {
+  onClick: () => void
+  isOpen?: boolean
+}
+
+export const MassManageButton = forwardRef<HTMLButtonElement, MassManageButtonProps>(
+  function MassManageButton({ onClick, isOpen = false, ...props }, ref) {
+    return (
+      <Button
+        ref={ref}
+        variant="outline"
+        size="fluidSm"
+        onClick={onClick}
+        data-open={isOpen}
+        style={{
+          overflow: 'hidden',
+          transition: 'height 0.2s ease, padding-top 0.2s ease, padding-bottom 0.2s ease',
+          height: isOpen ? 0 : 'auto',
+        }}
+        paddingTop={isOpen ? 0 : 2}
+        paddingBottom={isOpen ? 0 : 2}
+        {...props}
+      >
+        <Icon size="sm"><ListChecks /></Icon>
+        Mass Manage
+      </Button>
+    )
+  },
+)
+MassManageButton.displayName = 'MainList.Toolbar.MassManageButton'
 
 /** Toolbar slot exports */
 Object.assign(Toolbar, {
   PrimaryActions,
   SecondaryActions,
   MassManage,
+  MassManageButton,
 })

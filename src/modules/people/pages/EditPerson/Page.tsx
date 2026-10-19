@@ -100,11 +100,10 @@ export default function EditPersonPage() {
   const { user } = useAuth()
   const isPublic = !user
 
-  // In create mode, we don't fetch a person - we use local state
-  // For public users, use usePublicPerson; for authenticated, use usePerson
-  const { data: person, loading, error } = isPublic && !isCreateMode
-    ? usePublicPerson(id)
-    : usePerson(id)
+  // Always call usePerson unconditionally at the top level
+  // For create mode, use empty person; for public users, fetch by id; for authenticated, fetch by id
+  const { data: person, loading, error } = usePerson(isCreateMode ? '' : (isPublic ? id ?? '' : id ?? ''))
+
   const permissions = useProfilePermissions(isCreateMode ? null : (isPublic ? null : person))
   const opQuery = useCurrentOperatorPermission()
 

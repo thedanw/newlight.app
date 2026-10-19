@@ -3,13 +3,13 @@ import { PAD, GAP } from '../spacing-contract'
 
 export const mainList = defineSlotRecipe({
   className: 'main-list',
-  slots: ['root', 'toolbar', 'rows', 'row', 'rowSelect', 'rowContent', 'rowButton', 'rowToolbar', 'rowHeader', 'footer', 'massManage'],
+  slots: ['root', 'toolbar', 'rows', 'row', 'rowSelect', 'rowContent', 'rowButton', 'rowToolbar', 'rowHeader', 'footer', 'massManage', 'primaryActions', 'secondaryActions'],
   base: {
     root: {
       display: 'flex',
       flexDirection: 'column',
       width: 'full',
-      gap: 1,
+      gap: '0',
     },
     toolbar: {
       display: 'flex',
@@ -21,16 +21,17 @@ export const mainList = defineSlotRecipe({
     rows: {
       display: 'flex',
       flexDirection: 'column',
-      gap: 1,
+      gap: '0',
     },
     row: {
       display: 'flex',
+      flexDirection: {base:'column', sm:'row'},
       alignItems: 'center',
-      gap: GAP,
-      padding: '3 4',
+      gap: '0',
+      padding: '0',
       borderBottomWidth: '1px',
       borderColor: 'border',
-      transition: 'background-color 0.2s ease',
+      transition: 'all0.4s ease',
       _hover: {
         bg: 'gray.surface.bg.hover',
       },
@@ -40,6 +41,7 @@ export const mainList = defineSlotRecipe({
       '&[data-toolbar-open="true"]': {
         position: 'relative',
         zIndex: '60',
+        bg: 'gray.surface.bg',
       },
           // Select column width controlled by data-select-mode on the row
           // (avoids slot-targeting variant codegen issue).
@@ -48,6 +50,9 @@ export const mainList = defineSlotRecipe({
           },
           '&[data-select-mode="false"]': {
             '--main-list-select-width': '0px',
+          },
+          '&[data-select-open="true"]': {
+            '--main-list-select-width': '48px',
           },
         },
     rowSelect: {
@@ -58,7 +63,7 @@ export const mainList = defineSlotRecipe({
       maxWidth: 'var(--main-list-select-width, 0px)',
       overflow: 'hidden',
       flexShrink: '0',
-      transition: 'width 0.2s ease, max-width 0.2s ease',
+      transition: 'width 0.4s ease, max-width 0.4s ease',
     },
     rowContent: {
       flex: '1',
@@ -72,12 +77,14 @@ export const mainList = defineSlotRecipe({
     },
     rowToolbar: {
       display: 'flex',
-      alignItems: 'center',
+      alignItems: 'flex-end',
       gap: '2',
       width: 'full',
       maxHeight: '0',
       overflow: 'hidden',
-      transition: 'max-height 0.2s ease',
+      transition: 'all 0.4s ease',
+      boxShadow: 'inset',
+        background: 'gray.bg.subtle',
       // D2: animation is driven by the data-open attribute set on the element.
       '&[data-open="true"]': {
         maxHeight: '500px',
@@ -86,8 +93,9 @@ export const mainList = defineSlotRecipe({
     rowHeader: {
       display: 'flex',
       alignItems: 'center',
-      gap: '4',
-      padding: '3 4',
+      gap: 2,
+      paddingTop: 2,
+      paddingBottom: 2,
       fontWeight: 'semibold',
       color: 'fg.muted',
       bg: 'bg.subtle',
@@ -98,25 +106,34 @@ export const mainList = defineSlotRecipe({
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
-      padding: '3 4',
-      borderTopWidth: '1px',
+      padding: '3',
       borderColor: 'border',
     },
     massManage: {
       display: 'flex',
-      alignItems: 'center',
-      gap: '4',
-      padding: '3 4',
+      alignItems: 'flex-start',
+      gap: '2',
       bg: 'bg.subtle',
-      borderBottomWidth: '1px',
       borderColor: 'border',
       maxHeight: '0',
       overflow: 'hidden',
-      transition: 'max-height 0.2s ease',
+      transition: 'all 0.2s ease',
       // D2: animation is driven by the data-visible attribute set on the element.
       '&[data-visible="true"]': {
         maxHeight: '500px',
+      borderWidth: '1px',
+      padding: 2,
       },
+    },
+    primaryActions: {
+      display: 'flex',
+      alignItems: 'flex-start',
+      gap: '2',
+    },
+    secondaryActions: {
+      display: 'flex',
+      alignItems: 'flex-end',
+      gap: '2',
     },
   },
   defaultVariants: {
@@ -125,22 +142,27 @@ export const mainList = defineSlotRecipe({
     variants: {
       size: {
         sm: {
-          row: { padding: '2 3', gap: '3' },
-          rowHeader: { padding: '2 3', gap: '3' },
-          footer: { padding: '2 3' },
-          massManage: { padding: '2 3' },
+          row: { padding: '0', gap: '2' },
+          rowHeader: { 
+      paddingTop: 2,
+      paddingBottom: 2, gap: '2' },
+          footer: { padding: '0' },
         },
         md: {
-          row: { padding: '3 4', gap: '4' },
-          rowHeader: { padding: '3 4', gap: '4' },
-          footer: { padding: '3 4' },
-          massManage: { padding: '3 4' },
+          row: { padding: '0', gap: '3' },
+          rowHeader: { 
+      paddingTop: 2,
+      paddingBottom: 2, gap: '3' },
+          footer: { padding: '0' },
         },
         lg: {
-          row: { padding: '4 5', gap: '5' },
-          rowHeader: { padding: '4 5', gap: '5' },
-          footer: { padding: '4 5' },
-          massManage: { padding: '4 5' },
+          row: { padding: '0', gap: '3' },
+          rowHeader: { 
+      paddingTop: 2,
+      paddinBottom: 2, gap: '3' },
+          footer: { 
+      paddingTop: 2,
+      paddingBottom: 2 },
         },
       },
     },

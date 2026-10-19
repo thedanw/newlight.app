@@ -43,7 +43,6 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
   const { loading, loadingText, children, spinner, spinnerPlacement, ...rest } = buttonProps
   return (
     <BaseButton
-      type="button"
       ref={ref}
       {...rest}
       data-loading={loading ? '' : undefined}

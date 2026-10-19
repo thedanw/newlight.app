@@ -16,6 +16,7 @@ export const mainListOverlay = css({
   position: 'fixed',
   inset: '0',
   zIndex: '50',
-  bg: 'black/20',
-  backdropFilter: 'blur(2px)',
+  bg: 'bg.canvas',
+  opacity: '0.95',
+  backdropFilter: 'blur(1px)',
 })

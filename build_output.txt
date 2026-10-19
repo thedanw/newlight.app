@@ -1,0 +1,98 @@
+﻿
+> newlight-app@0.0.0 build D:\daniel\Documents\vibecoding\newlight.app
+> node scripts/generate-theme-colors.mjs && node scripts/copy-plugins.mjs && node scripts/copy-theme.mjs && node scripts/lint-pages.mjs && node scripts/lint-tokens.mjs && vite build
+
+✓ public/core/theme/colors/amber.css  (accent, 43 vars × light/dark)
+✓ public/core/theme/colors/blue.css  (accent, 43 vars × light/dark)
+✓ public/core/theme/colors/bronze.css  (accent, 43 vars × light/dark)
+✓ public/core/theme/colors/brown.css  (accent, 43 vars × light/dark)
+✓ public/core/theme/colors/crimson.css  (accent, 43 vars × light/dark)
+✓ public/core/theme/colors/cyan.css  (accent, 43 vars × light/dark)
+✓ public/core/theme/colors/gold.css  (accent, 43 vars × light/dark)
+✓ public/core/theme/colors/grass.css  (accent, 43 vars × light/dark)
+✓ public/core/theme/colors/green.css  (accent, 43 vars × light/dark)
+✓ public/core/theme/colors/indigo.css  (accent, 43 vars × light/dark)
+✓ public/core/theme/colors/iris.css  (accent, 43 vars × light/dark)
+✓ public/core/theme/colors/jade.css  (accent, 43 vars × light/dark)
+✓ public/core/theme/colors/lime.css  (accent, 43 vars × light/dark)
+✓ public/core/theme/colors/mint.css  (accent, 43 vars × light/dark)
+✓ public/core/theme/colors/neutral.css  (accent+gray, 88 vars × light/dark)
+✓ public/core/theme/colors/orange.css  (accent, 43 vars × light/dark)
+✓ public/core/theme/colors/pink.css  (accent, 43 vars × light/dark)
+✓ public/core/theme/colors/plum.css  (accent, 43 vars × light/dark)
+✓ public/core/theme/colors/purple.css  (accent, 43 vars × light/dark)
+✓ public/core/theme/colors/red.css  (accent, 43 vars × light/dark)
+✓ public/core/theme/colors/ruby.css  (accent, 43 vars × light/dark)
+✓ public/core/theme/colors/sky.css  (accent, 43 vars × light/dark)
+✓ public/core/theme/colors/teal.css  (accent, 43 vars × light/dark)
+✓ public/core/theme/colors/tomato.css  (accent, 43 vars × light/dark)
+✓ public/core/theme/colors/violet.css  (accent, 43 vars × light/dark)
+✓ public/core/theme/colors/yellow.css  (accent, 43 vars × light/dark)
+✓ public/core/theme/colors/mauve.css  (gray, 44 vars × light/dark)
+✓ public/core/theme/colors/olive.css  (gray, 44 vars × light/dark)
+✓ public/core/theme/colors/sage.css  (gray, 44 vars × light/dark)
+✓ public/core/theme/colors/sand.css  (gray, 44 vars × light/dark)
+✓ public/core/theme/colors/slate.css  (gray, 44 vars × light/dark)
+Copying plugins to public/content/plugins...
+Copied: D:\daniel\Documents\vibecoding\newlight.app\src\content\plugins\elvanto-sync\api\client.ts -> D:\daniel\Documents\vibecoding\newlight.app\public\content\plugins\elvanto-sync\api\client.ts
+Copied: D:\daniel\Documents\vibecoding\newlight.app\src\content\plugins\elvanto-sync\api\endpoints.ts -> D:\daniel\Documents\vibecoding\newlight.app\public\content\plugins\elvanto-sync\api\endpoints.ts
+Copied: D:\daniel\Documents\vibecoding\newlight.app\src\content\plugins\elvanto-sync\db\migrations\001_create_elvanto_settings.sql -> D:\daniel\Documents\vibecoding\newlight.app\public\content\plugins\elvanto-sync\db\migrations\001_create_elvanto_settings.sql
+Copied: D:\daniel\Documents\vibecoding\newlight.app\src\content\plugins\elvanto-sync\db\migrations\002_create_elvanto_sync_config.sql -> D:\daniel\Documents\vibecoding\newlight.app\public\content\plugins\elvanto-sync\db\migrations\002_create_elvanto_sync_config.sql
+Copied: D:\daniel\Documents\vibecoding\newlight.app\src\content\plugins\elvanto-sync\db\migrations\003_create_elvanto_sync_history.sql -> D:\daniel\Documents\vibecoding\newlight.app\public\content\plugins\elvanto-sync\db\migrations\003_create_elvanto_sync_history.sql
+Copied: D:\daniel\Documents\vibecoding\newlight.app\src\content\plugins\elvanto-sync\db\migrations\004_create_elvanto_sync_dead_letter.sql -> D:\daniel\Documents\vibecoding\newlight.app\public\content\plugins\elvanto-sync\db\migrations\004_create_elvanto_sync_dead_letter.sql
+Copied: D:\daniel\Documents\vibecoding\newlight.app\src\content\plugins\elvanto-sync\db\types.ts -> D:\daniel\Documents\vibecoding\newlight.app\public\content\plugins\elvanto-sync\db\types.ts
+Copied: D:\daniel\Documents\vibecoding\newlight.app\src\content\plugins\elvanto-sync\index.ts -> D:\daniel\Documents\vibecoding\newlight.app\public\content\plugins\elvanto-sync\index.ts
+Copied: D:\daniel\Documents\vibecoding\newlight.app\src\content\plugins\elvanto-sync\manifest.json -> D:\daniel\Documents\vibecoding\newlight.app\public\content\plugins\elvanto-sync\manifest.json
+Copied: D:\daniel\Documents\vibecoding\newlight.app\src\content\plugins\elvanto-sync\settings\ActivityTab.tsx -> D:\daniel\Documents\vibecoding\newlight.app\public\content\plugins\elvanto-sync\settings\ActivityTab.tsx
+Copied: D:\daniel\Documents\vibecoding\newlight.app\src\content\plugins\elvanto-sync\settings\CategoryTrackStageTab.tsx -> D:\daniel\Documents\vibecoding\newlight.app\public\content\plugins\elvanto-sync\settings\CategoryTrackStageTab.tsx
+Copied: D:\daniel\Documents\vibecoding\newlight.app\src\content\plugins\elvanto-sync\settings\components\CategoryTrackStageMapping.tsx -> D:\daniel\Documents\vibecoding\newlight.app\public\content\plugins\elvanto-sync\settings\components\CategoryTrackStageMapping.tsx
+Copied: D:\daniel\Documents\vibecoding\newlight.app\src\content\plugins\elvanto-sync\settings\components\DeadLetterTable.tsx -> D:\daniel\Documents\vibecoding\newlight.app\public\content\plugins\elvanto-sync\settings\components\DeadLetterTable.tsx
+Copied: D:\daniel\Documents\vibecoding\newlight.app\src\content\plugins\elvanto-sync\settings\components\DirectionSelect.tsx -> D:\daniel\Documents\vibecoding\newlight.app\public\content\plugins\elvanto-sync\settings\components\DirectionSelect.tsx
+Copied: D:\daniel\Documents\vibecoding\newlight.app\src\content\plugins\elvanto-sync\settings\components\FieldMappingTable.tsx -> D:\daniel\Documents\vibecoding\newlight.app\public\content\plugins\elvanto-sync\settings\components\FieldMappingTable.tsx
+Copied: D:\daniel\Documents\vibecoding\newlight.app\src\content\plugins\elvanto-sync\settings\components\LocationTrackPairing.tsx -> D:\daniel\Documents\vibecoding\newlight.app\public\content\plugins\elvanto-sync\settings\components\LocationTrackPairing.tsx
+Copied: D:\daniel\Documents\vibecoding\newlight.app\src\content\plugins\elvanto-sync\settings\components\MappingRow.tsx -> D:\daniel\Documents\vibecoding\newlight.app\public\content\plugins\elvanto-sync\settings\components\MappingRow.tsx
+Copied: D:\daniel\Documents\vibecoding\newlight.app\src\content\plugins\elvanto-sync\settings\components\SemanticStatusBadge.tsx -> D:\daniel\Documents\vibecoding\newlight.app\public\content\plugins\elvanto-sync\settings\components\SemanticStatusBadge.tsx
+Copied: D:\daniel\Documents\vibecoding\newlight.app\src\content\plugins\elvanto-sync\settings\components\StatusStageOverrides.tsx -> D:\daniel\Documents\vibecoding\newlight.app\public\content\plugins\elvanto-sync\settings\components\StatusStageOverrides.tsx
+Copied: D:\daniel\Documents\vibecoding\newlight.app\src\content\plugins\elvanto-sync\settings\components\sync-batch.test.ts -> D:\daniel\Documents\vibecoding\newlight.app\public\content\plugins\elvanto-sync\settings\components\sync-batch.test.ts
+Copied: D:\daniel\Documents\vibecoding\newlight.app\src\content\plugins\elvanto-sync\settings\components\sync-batch.ts -> D:\daniel\Documents\vibecoding\newlight.app\public\content\plugins\elvanto-sync\settings\components\sync-batch.ts
+Copied: D:\daniel\Documents\vibecoding\newlight.app\src\content\plugins\elvanto-sync\settings\components\SyncHistoryTable.tsx -> D:\daniel\Documents\vibecoding\newlight.app\public\content\plugins\elvanto-sync\settings\components\SyncHistoryTable.tsx
+Copied: D:\daniel\Documents\vibecoding\newlight.app\src\content\plugins\elvanto-sync\settings\ConnectionTab.tsx -> D:\daniel\Documents\vibecoding\newlight.app\public\content\plugins\elvanto-sync\settings\ConnectionTab.tsx
+Copied: D:\daniel\Documents\vibecoding\newlight.app\src\content\plugins\elvanto-sync\settings\ElvantoSyncSettingsPage.tsx -> D:\daniel\Documents\vibecoding\newlight.app\public\content\plugins\elvanto-sync\settings\ElvantoSyncSettingsPage.tsx
+Copied: D:\daniel\Documents\vibecoding\newlight.app\src\content\plugins\elvanto-sync\settings\FieldMappingTab.tsx -> D:\daniel\Documents\vibecoding\newlight.app\public\content\plugins\elvanto-sync\settings\FieldMappingTab.tsx
+Copied: D:\daniel\Documents\vibecoding\newlight.app\src\content\plugins\elvanto-sync\settings\LocationTrackTab.tsx -> D:\daniel\Documents\vibecoding\newlight.app\public\content\plugins\elvanto-sync\settings\LocationTrackTab.tsx
+Copied: D:\daniel\Documents\vibecoding\newlight.app\src\content\plugins\elvanto-sync\settings\MapJourneysTab.tsx -> D:\daniel\Documents\vibecoding\newlight.app\public\content\plugins\elvanto-sync\settings\MapJourneysTab.tsx
+Copied: D:\daniel\Documents\vibecoding\newlight.app\src\content\plugins\elvanto-sync\settings\ScheduleTab.tsx -> D:\daniel\Documents\vibecoding\newlight.app\public\content\plugins\elvanto-sync\settings\ScheduleTab.tsx
+Copied: D:\daniel\Documents\vibecoding\newlight.app\src\content\plugins\elvanto-sync\settings\StatusStageOverridesTab.tsx -> D:\daniel\Documents\vibecoding\newlight.app\public\content\plugins\elvanto-sync\settings\StatusStageOverridesTab.tsx
+Copied: D:\daniel\Documents\vibecoding\newlight.app\src\content\plugins\elvanto-sync\sync\edge-function.ts -> D:\daniel\Documents\vibecoding\newlight.app\public\content\plugins\elvanto-sync\sync\edge-function.ts
+Copied: D:\daniel\Documents\vibecoding\newlight.app\src\content\plugins\elvanto-sync\sync\elvanto-api.ts -> D:\daniel\Documents\vibecoding\newlight.app\public\content\plugins\elvanto-sync\sync\elvanto-api.ts
+Copied: D:\daniel\Documents\vibecoding\newlight.app\src\content\plugins\elvanto-sync\sync\household-sync.ts -> D:\daniel\Documents\vibecoding\newlight.app\public\content\plugins\elvanto-sync\sync\household-sync.ts
+Copied: D:\daniel\Documents\vibecoding\newlight.app\src\content\plugins\elvanto-sync\sync\journey-sync.ts -> D:\daniel\Documents\vibecoding\newlight.app\public\content\plugins\elvanto-sync\sync\journey-sync.ts
+Copied: D:\daniel\Documents\vibecoding\newlight.app\src\content\plugins\elvanto-sync\sync\mapping-engine.ts -> D:\daniel\Documents\vibecoding\newlight.app\public\content\plugins\elvanto-sync\sync\mapping-engine.ts
+Copied: D:\daniel\Documents\vibecoding\newlight.app\src\content\plugins\elvanto-sync\sync\people-sync.ts -> D:\daniel\Documents\vibecoding\newlight.app\public\content\plugins\elvanto-sync\sync\people-sync.ts
+Copied: D:\daniel\Documents\vibecoding\newlight.app\src\content\plugins\elvanto-sync\sync\transforms.test.ts -> D:\daniel\Documents\vibecoding\newlight.app\public\content\plugins\elvanto-sync\sync\transforms.test.ts
+Copied: D:\daniel\Documents\vibecoding\newlight.app\src\content\plugins\elvanto-sync\sync\transforms.ts -> D:\daniel\Documents\vibecoding\newlight.app\public\content\plugins\elvanto-sync\sync\transforms.ts
+Copied: D:\daniel\Documents\vibecoding\newlight.app\src\content\plugins\elvanto-sync\sync\trigger-sync.ts -> D:\daniel\Documents\vibecoding\newlight.app\public\content\plugins\elvanto-sync\sync\trigger-sync.ts
+Copied: D:\daniel\Documents\vibecoding\newlight.app\src\content\plugins\elvanto-sync\sync\watermark.ts -> D:\daniel\Documents\vibecoding\newlight.app\public\content\plugins\elvanto-sync\sync\watermark.ts
+Copied: D:\daniel\Documents\vibecoding\newlight.app\src\content\plugins\elvanto-sync\utils\cron.ts -> D:\daniel\Documents\vibecoding\newlight.app\public\content\plugins\elvanto-sync\utils\cron.ts
+Copied: D:\daniel\Documents\vibecoding\newlight.app\src\content\plugins\elvanto-sync\utils\encryption.ts -> D:\daniel\Documents\vibecoding\newlight.app\public\content\plugins\elvanto-sync\utils\encryption.ts
+Copied: D:\daniel\Documents\vibecoding\newlight.app\src\content\plugins\elvanto-sync\utils\field-discovery.ts -> D:\daniel\Documents\vibecoding\newlight.app\public\content\plugins\elvanto-sync\utils\field-discovery.ts
+Copied: D:\daniel\Documents\vibecoding\newlight.app\src\content\plugins\elvanto-sync\widgets\ElvantoSyncStatusWidget.tsx -> D:\daniel\Documents\vibecoding\newlight.app\public\content\plugins\elvanto-sync\widgets\ElvantoSyncStatusWidget.tsx
+Wrote plugin index: D:\daniel\Documents\vibecoding\newlight.app\public\content\plugins\plugin-index.json (1 plugins)
+Done!
+Copying theme files to public/core/theme...
+Copied: D:\daniel\Documents\vibecoding\newlight.app\src\core\theme\radius.css -> D:\daniel\Documents\vibecoding\newlight.app\public\core\theme\radius.css
+Copied: D:\daniel\Documents\vibecoding\newlight.app\src\core\theme\font.css -> D:\daniel\Documents\vibecoding\newlight.app\public\core\theme\font.css
+Copied: D:\daniel\Documents\vibecoding\newlight.app\src\core\theme\sidebar.css -> D:\daniel\Documents\vibecoding\newlight.app\public\core\theme\sidebar.css
+Copied: D:\daniel\Documents\vibecoding\newlight.app\src\core\theme\typography.css -> D:\daniel\Documents\vibecoding\newlight.app\public\core\theme\typography.css
+Done!
+node.exe : ✖ page scaffold: 1 violation(s)
+At C:\Users\theda\AppData\Roaming\npm\pnpm.ps1:24 char:5
++     & "node$exe"  "$basedir/node_modules/pnpm/bin/pnpm.cjs" $args
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (✖ page scaffold: 1 violation(s):String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+  src/modules/forms/pages/ListPage.tsx: renders Page.* slots but is NOT wrapped in <Page.Main> — every page must be 
+<Page.Main><Page.Header/><Page.Body/></Page.Main>
+ ELIFECYCLE  Command failed with exit code 1.

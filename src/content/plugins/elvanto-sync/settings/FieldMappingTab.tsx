@@ -1,7 +1,8 @@
 import { Stack, HStack } from 'styled-system/jsx'
 import { Heading, Text, Button, Alert, Card } from '@/core/ui'
 import { usePluginAPIContext } from '@/core/plugins/PluginAPI'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
+import { useRegisterPageActions } from '@/core/ui'
 import { FieldMappingTable } from './components/FieldMappingTable'
 import { discoverElvantoFields, getElvantoFieldOptions } from '../utils/field-discovery'
 import { decrypt } from '../utils/encryption'
@@ -12,10 +13,15 @@ import { getSupabaseUrl, getSupabaseAnonKey } from '@/core/lib/runtime-config'
  */
 export function FieldMappingTab() {
   const { settings, toast, supabase } = usePluginAPIContext()
+  const [isDirty, setIsDirty] = useState(false)
   const [hasConnection, setHasConnection] = useState(false)
   const [checkingConnection, setCheckingConnection] = useState(true)
   const [discovering, setDiscovering] = useState(false)
   const [discoveredCatalog, setDiscoveredCatalog] = useState<any>(null)
+  const [mappings, setMappings] = useState<any[]>([])
+  const [savedMappings, setSavedMappings] = useState<any[]>([])
+  const [saving, setSaving] = useState(false)
+  const setDirty = useCallback(() => setIsDirty(true), [])
 
   useEffect(() => {
     checkConnection()
@@ -75,11 +81,77 @@ export function FieldMappingTab() {
     }
   }
 
+  // Load actual field mappings, not just the catalog
+  const loadFieldMappings = async () => {
+    try {
+      const mappings = await settings.getConfig<any[]>('elvanto-sync_field_mappings')
+      if (mappings) {
+        setMappings(mappings)
+        setSavedMappings(mappings)
+      } else {
+        setMappings([])
+        setSavedMappings([])
+      }
+    } catch (err) {
+      console.error('[FieldMappingTab] Failed to load field mappings:', err)
+      setMappings([])
+      setSavedMappings([])
+    }
+  }
+
   useEffect(() => {
     if (hasConnection) {
       loadDiscoveredCatalog()
+      loadFieldMappings()
     }
   }, [hasConnection])
+
+  const handleSaveMappings = async () => {
+    try {
+      await settings.setConfig('elvanto-sync_field_mappings', mappings)
+      toast.success('Field mappings saved')
+      setSavedMappings(JSON.parse(JSON.stringify(mappings)))
+      setIsDirty(false)
+    } catch (err) {
+      console.error('[FieldMappingTab] Failed to save mappings:', err)
+      toast.error('Failed to save mappings')
+    }
+  }
+
+  const handleCancelMappings = () => {
+    setMappings(JSON.parse(JSON.stringify(savedMappings)))
+    setIsDirty(false)
+  }
+
+  // Update the mapping modification functions to mark as dirty
+  const updateMappingWithDirty = (index: number, updates: Partial<MappingRule>) => {
+    setMappings(mappings.map((rule, i) => i === index ? { ...rule, ...updates } : rule))
+    setDirty()
+  }
+
+  const addMappingWithDirty = () => {
+    setMappings([...mappings, { id: crypto.randomUUID(), appField: '', elvantoField: '', direction: 'pull', priority: 0 }])
+    setDirty()
+  }
+
+  const deleteMappingWithDirty = (index: number) => {
+    setMappings(mappings.filter((_, i) => i !== index))
+    setDirty()
+  }
+
+  const duplicateMappingWithDirty = (index: number) => {
+    const duplicated = { ...mappings[index], id: crypto.randomUUID(), priority: mappings[index].priority - 1 }
+    setMappings([...mappings.slice(0, index + 1), duplicated, ...mappings.slice(index + 1)])
+    setDirty()
+  }
+
+  useRegisterPageActions({
+    cancel: handleCancelMappings,
+    apply: handleSaveMappings,
+    isSaving: saving,
+    isDirty: isDirty,
+    applyLabel: 'Save All',
+  })
 
   if (checkingConnection) {
     return (
@@ -152,6 +224,15 @@ export function FieldMappingTab() {
       <FieldMappingTable 
         disabled={false}
         dynamicFieldOptions={dynamicFieldOptions}
+        mappings={mappings}
+        onUpdateMapping={updateMappingWithDirty}
+        onAddMapping={addMappingWithDirty}
+        onDeleteMapping={deleteMappingWithDirty}
+        onDuplicateMapping={duplicateMappingWithDirty}
+        onSaveMappings={handleSaveMappings}
+        onCancelMappings={handleCancelMappings}
+        isSaving={saving}
+        isDirty={isDirty}
       />
     </Stack>
   )

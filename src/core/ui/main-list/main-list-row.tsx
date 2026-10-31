@@ -5,6 +5,7 @@ import { RowToolbar } from './main-list-row-toolbar'
 import { RowContent } from './main-list-row-content'
 import { Stack, HStack } from 'styled-system/jsx'
 import type { RowSelectProps } from './main-list-row-select'
+import type { MainListHeaderConfig } from './main-list.types'
 export type RowProps<T> = ComponentProps<typeof Row<T>>
 
 /** Props injected into a passed-in row button to make it the accessible trigger. */
@@ -24,6 +25,7 @@ export function Row<T>({
   select,
   button,
   toolbar,
+  headers,
   onSelect,
   ...props
 }: {
@@ -36,6 +38,7 @@ export function Row<T>({
   select?: React.ReactNode
   button?: React.ReactNode
   toolbar?: React.ReactNode
+  headers?: MainListHeaderConfig[]
   onSelect?: () => void
 } & ComponentProps<'div'>) {
   const [toolbarOpen, setToolbarOpen] = useState(false)
@@ -108,45 +111,48 @@ export function Row<T>({
         onClick={handleRowClick}
         {...props}
       >
-          <HStack style={{ width: '100%', justifyContent: 'flex-start' }} onClick={(e) => e.stopPropagation()}>
-            {isValidElement(select) && toolbarOpen
-              ? cloneElement(select as ReactElement<RowSelectProps>, {
-                  checked: false,
-                  onChange: (checked: boolean) => {
-                    if (checked) {
-                      setToolbarOpen(false)
-                      setOverlayVisible(false)
-                      onSelect?.()
-                    }
-                  },
-                })
-              : select}
-          {children ?? (
-            <RowContent />
-          )}        
-          <Stack className={mainListSlotClassNames.rowButton()}>
-          {!toolbarOpen && button && (
-            isValidElement(button)
-              ? cloneElement(button as ReactElement<RowTriggerProps>, {
-                  onClick: (e: React.MouseEvent) => {
-                    e.stopPropagation()
-                    setToolbarOpen(true)
-                  },
-                  'aria-expanded': false,
-                  'aria-controls': toolbarId,
-                })
-              : button
-          )}
-        </Stack>
-          </HStack>
-          {toolbarOpen && toolbar && (
-            <RowToolbar ref={toolbarRef} open={true} onClose={handleToolbarClose} id={toolbarId} tabIndex={-1}>
-              {toolbar}
-            </RowToolbar>
-          )}
-      </div>
-    </>
-  )
+            <HStack
+              style={{ width: '100%', justifyContent: 'flex-start' }}
+              onClick={toolbarOpen ? (e) => e.stopPropagation() : undefined}
+            >
+              {isValidElement(select) && toolbarOpen
+                ? cloneElement(select as ReactElement<RowSelectProps>, {
+                    checked: false,
+                    onChange: (checked: boolean) => {
+                      if (checked) {
+                        setToolbarOpen(false)
+                        setOverlayVisible(false)
+                        onSelect?.()
+                      }
+                    },
+                  })
+                : select}
+            {children ?? (
+              <RowContent headers={headers} />
+            )}        
+            <Stack className={mainListSlotClassNames.rowButton()}>
+            {!toolbarOpen && button && (
+              isValidElement(button)
+                ? cloneElement(button as ReactElement<RowTriggerProps>, {
+                    onClick: (e: React.MouseEvent) => {
+                      e.stopPropagation()
+                      setToolbarOpen(true)
+                    },
+                    'aria-expanded': false,
+                    'aria-controls': toolbarId,
+                  })
+                : button
+            )}
+          </Stack>
+            </HStack>
+            {toolbar && (
+              <RowToolbar ref={toolbarRef} open={toolbarOpen} onClose={handleToolbarClose} id={toolbarId} tabIndex={-1}>
+                {toolbar}
+              </RowToolbar>
+            )}
+        </div>
+      </>
+    )
 }
 
 Row.displayName = 'MainList.Row'

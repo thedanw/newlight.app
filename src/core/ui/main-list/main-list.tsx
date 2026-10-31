@@ -130,13 +130,13 @@ export function RootComponent<T>({
               label="Manage"
             />
           }
-          toolbar={renderRowToolbar?.(item, index)}
+          toolbar={renderRowToolbar?.(item, index, headers)}
         >
-          {renderRow(item, index)}
+          {renderRow(item, index, headers)}
         </Row>
       )
     })
-  }, [items, getKey, selectedKeys, selectMode, selectionEnabled, handleSelectionChange, renderRow, renderRowToolbar, onRowClick])
+  }, [items, getKey, selectedKeys, selectMode, selectionEnabled, handleSelectionChange, renderRow, renderRowToolbar, onRowClick, headers])
 
   // Mass manage component
   const massManageComponent = useMemo(() => {

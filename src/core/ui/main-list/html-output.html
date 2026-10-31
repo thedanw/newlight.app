@@ -1,0 +1,884 @@
+<div class="main-list__root main-list__root--size_md --main-list-select-width_0px --main-list-row-height_12">
+    <div class="main-list__toolbar main-list__toolbar--size_md">
+        <div class="d_flex ai_center gap_8px flex-d_row main-list__primaryActions main-list__primaryActions--size_md">
+            <button
+                data-open="false"
+                class="button button--variant_outline button--size_fluidSm pt_2 pb_2"
+                style="overflow: hidden; transition: height 0.2s, padding-top 0.2s, padding-bottom 0.2s; height: auto"
+            >
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="lucide lucide-list-checks icon icon--size_sm"
+                    aria-hidden="true"
+                >
+                    <path d="M13 5h8"></path>
+                    <path d="M13 12h8"></path>
+                    <path d="M13 19h8"></path>
+                    <path d="m3 17 2 2 4-4"></path>
+                    <path d="m3 7 2 2 4-4"></path>
+                </svg>
+                Mass Manage
+            </button>
+        </div>
+        <div
+            class="main-list__secondaryActions d_flex ai_center gap_8px flex-d_row main-list__secondaryActions--size_md"
+            style="margin-left: auto"
+        >
+            <div
+                class="d_flex ai_center gap_8px flex-d_row main-list__secondaryActions main-list__secondaryActions--size_md"
+            ></div>
+        </div>
+        <div
+            class="main-list__massManage d_flex flex-d_column gap_8px pt_0 pb_0 main-list__massManage--size_md"
+            data-visible="false"
+            style="overflow: hidden; transition: height 0.2s, padding-top 0.2s, padding-bottom 0.2s; height: 0px"
+        >
+            <div class="d_flex ai_center gap_8px flex-d_row" style="flex: 1 1 0%; justify-content: flex-start">
+                <button class="button button--variant_plain button--size_fluidMd">Select All</button>
+                <button class="button button--variant_plain button--size_fluidMd">Select Visible</button>
+                <button class="button button--variant_plain button--size_fluidMd">Deselect All</button>
+                <button disabled="" class="button button--variant_solid button--size_fluidMd color-palette_red">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="lucide lucide-trash lucide-trash-2 icon icon--size_md"
+                        aria-hidden="true"
+                    >
+                        <path d="M10 11v6"></path>
+                        <path d="M14 11v6"></path>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path>
+                        <path d="M3 6h18"></path>
+                        <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    </svg>
+                </button>
+                <button aria-label="Clear selection" class="button button--variant_plain button--size_fluidMd">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="lucide lucide-x icon icon--size_md"
+                        aria-hidden="true"
+                    >
+                        <path d="M18 6 6 18"></path>
+                        <path d="m6 6 12 12"></path>
+                    </svg>
+                </button>
+                <span class="fs_xs c_fg.default px_2">0 selected</span>
+            </div>
+        </div>
+    </div>
+    <div
+        class="main-list__rowHeader d_flex ai_center gap_8px flex-d_row main-list__rowHeader--size_md fs_xs"
+        style="color: var(--colors-fg-subtle; background-color: var(--colors-bg-subtle);"
+    >
+        <div
+            class="main-list__rowSelect"
+            style="
+                width: var(--main-list-select-width, 0px);
+                max-width: var(--main-list-select-width, 0px);
+                overflow: hidden;
+            "
+        ></div>
+        <div style="text-align: left; flex: 1 1 0%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">
+            <p class="text c_fg.muted">Name</p>
+        </div>
+        <div
+            style="
+                text-align: left;
+                min-width: 120px;
+                max-width: 120px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            "
+        >
+            <p class="text c_fg.muted">Visibility</p>
+        </div>
+        <div
+            style="
+                text-align: left;
+                min-width: 120px;
+                max-width: 120px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            "
+        >
+            <p class="text c_fg.muted">Submissions</p>
+        </div>
+        <div style="text-align: center"></div>
+    </div>
+    <div class="main-list__rows main-list__rows--size_md">
+        <div
+            class="main-list__row main-list__row--size_md"
+            data-selected="false"
+            data-select-mode="false"
+            data-toolbar-open="false"
+            data-select-open="false"
+        >
+            <div class="d_flex ai_center gap_8px flex-d_row" style="width: 100%; justify-content: flex-start">
+                <div class="d_flex flex-d_column gap_8px main-list__rowSelect main-list__rowSelect--size_md">
+                    <label
+                        data-scope="checkbox"
+                        data-part="root"
+                        data-state="unchecked"
+                        dir="ltr"
+                        id="checkbox:_r_6_"
+                        for="checkbox:_r_6_:input"
+                        aria-label="Select row"
+                        class="checkbox__root checkbox__root--variant_solid checkbox__root--size_md"
+                    >
+                        <input
+                            id="checkbox:_r_6_:input"
+                            aria-labelledby="checkbox:_r_6_:label"
+                            aria-invalid="false"
+                            type="checkbox"
+                            value="on"
+                            style="
+                                border: 0px;
+                                clip: rect(0px, 0px, 0px, 0px);
+                                height: 1px;
+                                margin: -1px;
+                                overflow: hidden;
+                                padding: 0px;
+                                position: absolute;
+                                width: 1px;
+                                white-space: nowrap;
+                                overflow-wrap: normal;
+                            "
+                        />
+                        <div
+                            data-scope="checkbox"
+                            data-part="control"
+                            data-state="unchecked"
+                            dir="ltr"
+                            id="checkbox:_r_6_:control"
+                            aria-hidden="true"
+                            class="checkbox__control checkbox__control--variant_solid checkbox__control--size_md"
+                        >
+                            <svg
+                                viewBox="0 0 24 24"
+                                data-scope="checkbox"
+                                data-part="indicator"
+                                data-state="unchecked"
+                                dir="ltr"
+                                hidden=""
+                                class="fill_none stk_currentColor stk-w_3px stk-lc_round stk-lj_round"
+                            >
+                                <title>Checkmark</title>
+                            </svg>
+                        </div>
+                    </label>
+                </div>
+                <div class="d_flex flex-d_column gap_8px main-list__rowContent main-list__rowContent--size_md">
+                    <div style="display: flex; align-items: center; width: 100%">
+                        <div>
+                            <p class="text fw_medium trunc_true">test</p>
+                        </div>
+                        <div style="width: 120px; min-width: 120px; max-width: 120px">
+                            <div class="badge badge--variant_subtle badge--size_md color-palette_gray">Private</div>
+                        </div>
+                        <div style="width: 120px; min-width: 120px; max-width: 120px">0</div>
+                    </div>
+                </div>
+                <div
+                    class="d_flex ai_center gap_8px flex-d_row main-list__rowHeader main-list__rowHeader--size_md fs_xs"
+                    style="color: var(--colors-fg-subtle; background-color: var(--colors-bg-subtle);"
+                >
+                    <div
+                        style="
+                            width: var(--main-list-select-width, 0px);
+                            max-width: var(--main-list-select-width, 0px);
+                            overflow: hidden;
+                        "
+                    ></div>
+                    <div style="text-align: center"></div>
+                </div>
+                <div class="d_flex flex-d_column gap_8px main-list__rowButton main-list__rowButton--size_md">
+                    <button
+                        aria-label="Manage"
+                        class="button button--variant_plain button--size_md px_0 py_0 main-list__rowButton main-list__rowButton--size_md"
+                        aria-expanded="false"
+                        aria-controls="_r_5_"
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            class="lucide lucide-pen lucide-edit-2 icon icon--size_sm"
+                            aria-hidden="true"
+                        >
+                            <path
+                                d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"
+                            ></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div
+                class="d_flex flex-d_column gap_8px main-list__rowToolbar main-list__rowToolbar--size_md"
+                data-open="false"
+                id="_r_5_"
+                tabindex="-1"
+            >
+                <div class="d_flex ai_center gap_8px flex-d_row main-list__row-toolbar-group">
+                    <button class="button button--variant_plain button--size_fluidSm">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            class="lucide lucide-eye icon icon--size_md"
+                            aria-hidden="true"
+                        >
+                            <path
+                                d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"
+                            ></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                        View
+                    </button>
+                    <button class="button button--variant_plain button--size_fluidSm">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            class="lucide lucide-pencil icon icon--size_md"
+                            aria-hidden="true"
+                        >
+                            <path
+                                d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"
+                            ></path>
+                            <path d="m15 5 4 4"></path>
+                        </svg>
+                        Edit
+                    </button>
+                    <button class="button button--variant_plain button--size_fluidSm">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            class="lucide lucide-copy icon icon--size_md"
+                            aria-hidden="true"
+                        >
+                            <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
+                            <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
+                        </svg>
+                        Duplicate
+                    </button>
+                    <button class="button button--variant_plain button--size_fluidSm color-palette_red">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            class="lucide lucide-trash lucide-trash-2 icon icon--size_md"
+                            aria-hidden="true"
+                        >
+                            <path d="M10 11v6"></path>
+                            <path d="M14 11v6"></path>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path>
+                            <path d="M3 6h18"></path>
+                            <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        </svg>
+                        Delete
+                    </button>
+                    <button
+                        aria-label="Close toolbar"
+                        class="button button--variant_plain button--size_fluidSm px_0 py_0"
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            class="lucide lucide-x icon icon--size_md"
+                            aria-hidden="true"
+                        >
+                            <path d="M18 6 6 18"></path>
+                            <path d="m6 6 12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div
+            class="main-list__row main-list__row--size_md"
+            data-selected="false"
+            data-select-mode="false"
+            data-toolbar-open="false"
+            data-select-open="false"
+        >
+            <div class="d_flex ai_center gap_8px flex-d_row" style="width: 100%; justify-content: flex-start">
+                <div class="d_flex flex-d_column gap_8px main-list__rowSelect main-list__rowSelect--size_md">
+                    <label
+                        data-scope="checkbox"
+                        data-part="root"
+                        data-state="unchecked"
+                        dir="ltr"
+                        id="checkbox:_r_8_"
+                        for="checkbox:_r_8_:input"
+                        aria-label="Select row"
+                        class="checkbox__root checkbox__root--variant_solid checkbox__root--size_md"
+                    >
+                        <input
+                            id="checkbox:_r_8_:input"
+                            aria-labelledby="checkbox:_r_8_:label"
+                            aria-invalid="false"
+                            type="checkbox"
+                            value="on"
+                            style="
+                                border: 0px;
+                                clip: rect(0px, 0px, 0px, 0px);
+                                height: 1px;
+                                margin: -1px;
+                                overflow: hidden;
+                                padding: 0px;
+                                position: absolute;
+                                width: 1px;
+                                white-space: nowrap;
+                                overflow-wrap: normal;
+                            "
+                        />
+                        <div
+                            data-scope="checkbox"
+                            data-part="control"
+                            data-state="unchecked"
+                            dir="ltr"
+                            id="checkbox:_r_8_:control"
+                            aria-hidden="true"
+                            class="checkbox__control checkbox__control--variant_solid checkbox__control--size_md"
+                        >
+                            <svg
+                                viewBox="0 0 24 24"
+                                data-scope="checkbox"
+                                data-part="indicator"
+                                data-state="unchecked"
+                                dir="ltr"
+                                hidden=""
+                                class="fill_none stk_currentColor stk-w_3px stk-lc_round stk-lj_round"
+                            >
+                                <title>Checkmark</title>
+                            </svg>
+                        </div>
+                    </label>
+                </div>
+                <div class="d_flex flex-d_column gap_8px main-list__rowContent main-list__rowContent--size_md">
+                    <div style="display: flex; align-items: center; width: 100%">
+                        <div>
+                            <p class="text fw_medium trunc_true">test</p>
+                        </div>
+                        <div style="width: 120px; min-width: 120px; max-width: 120px">
+                            <div class="badge badge--variant_subtle badge--size_md color-palette_green">Public</div>
+                        </div>
+                        <div style="width: 120px; min-width: 120px; max-width: 120px">0</div>
+                    </div>
+                </div>
+                <div
+                    class="d_flex ai_center gap_8px flex-d_row main-list__rowHeader main-list__rowHeader--size_md fs_xs"
+                    style="color: var(--colors-fg-subtle; background-color: var(--colors-bg-subtle);"
+                >
+                    <div
+                        style="
+                            width: var(--main-list-select-width, 0px);
+                            max-width: var(--main-list-select-width, 0px);
+                            overflow: hidden;
+                        "
+                    ></div>
+                    <div style="text-align: center"></div>
+                </div>
+                <div class="d_flex flex-d_column gap_8px main-list__rowButton main-list__rowButton--size_md">
+                    <button
+                        aria-label="Manage"
+                        class="button button--variant_plain button--size_md px_0 py_0 main-list__rowButton main-list__rowButton--size_md"
+                        aria-expanded="false"
+                        aria-controls="_r_7_"
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            class="lucide lucide-pen lucide-edit-2 icon icon--size_sm"
+                            aria-hidden="true"
+                        >
+                            <path
+                                d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"
+                            ></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div
+                class="d_flex flex-d_column gap_8px main-list__rowToolbar main-list__rowToolbar--size_md"
+                data-open="false"
+                id="_r_7_"
+                tabindex="-1"
+            >
+                <div class="d_flex ai_center gap_8px flex-d_row main-list__row-toolbar-group">
+                    <button class="button button--variant_plain button--size_fluidSm">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            class="lucide lucide-eye icon icon--size_md"
+                            aria-hidden="true"
+                        >
+                            <path
+                                d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"
+                            ></path>
+                            <circle cx="12" cy="12" r="3"></circle></svg
+                        >View
+                    </button>
+                    <button class="button button--variant_plain button--size_fluidSm">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            class="lucide lucide-pencil icon icon--size_md"
+                            aria-hidden="true"
+                        >
+                            <path
+                                d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"
+                            ></path>
+                            <path d="m15 5 4 4"></path></svg
+                        >Edit
+                    </button>
+                    <button class="button button--variant_plain button--size_fluidSm">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            class="lucide lucide-copy icon icon--size_md"
+                            aria-hidden="true"
+                        >
+                            <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
+                            <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg
+                        >Duplicate
+                    </button>
+                    <button class="button button--variant_plain button--size_fluidSm color-palette_red">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            class="lucide lucide-trash lucide-trash-2 icon icon--size_md"
+                            aria-hidden="true"
+                        >
+                            <path d="M10 11v6"></path>
+                            <path d="M14 11v6"></path>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path>
+                            <path d="M3 6h18"></path>
+                            <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg
+                        >Delete
+                    </button>
+                    <button
+                        aria-label="Close toolbar"
+                        class="button button--variant_plain button--size_fluidSm px_0 py_0"
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            class="lucide lucide-x icon icon--size_md"
+                            aria-hidden="true"
+                        >
+                            <path d="M18 6 6 18"></path>
+                            <path d="m6 6 12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div
+            class="main-list__row main-list__row--size_md"
+            data-selected="false"
+            data-select-mode="false"
+            data-toolbar-open="false"
+            data-select-open="false"
+        >
+            <div class="d_flex ai_center gap_8px flex-d_row" style="width: 100%; justify-content: flex-start">
+                <div class="d_flex flex-d_column gap_8px main-list__rowSelect main-list__rowSelect--size_md">
+                    <label
+                        data-scope="checkbox"
+                        data-part="root"
+                        data-state="unchecked"
+                        dir="ltr"
+                        id="checkbox:_r_a_"
+                        for="checkbox:_r_a_:input"
+                        aria-label="Select row"
+                        class="checkbox__root checkbox__root--variant_solid checkbox__root--size_md"
+                    >
+                        <input
+                            id="checkbox:_r_a_:input"
+                            aria-labelledby="checkbox:_r_a_:label"
+                            aria-invalid="false"
+                            type="checkbox"
+                            value="on"
+                            style="
+                                border: 0px;
+                                clip: rect(0px, 0px, 0px, 0px);
+                                height: 1px;
+                                margin: -1px;
+                                overflow: hidden;
+                                padding: 0px;
+                                position: absolute;
+                                width: 1px;
+                                white-space: nowrap;
+                                overflow-wrap: normal;
+                            "
+                        />
+                        <div
+                            data-scope="checkbox"
+                            data-part="control"
+                            data-state="unchecked"
+                            dir="ltr"
+                            id="checkbox:_r_a_:control"
+                            aria-hidden="true"
+                            class="checkbox__control checkbox__control--variant_solid checkbox__control--size_md"
+                        >
+                            <svg
+                                viewBox="0 0 24 24"
+                                data-scope="checkbox"
+                                data-part="indicator"
+                                data-state="unchecked"
+                                dir="ltr"
+                                hidden=""
+                                class="fill_none stk_currentColor stk-w_3px stk-lc_round stk-lj_round"
+                            >
+                                <title>Checkmark</title>
+                            </svg>
+                        </div>
+                    </label>
+                </div>
+                <div class="d_flex flex-d_column gap_8px main-list__rowContent main-list__rowContent--size_md">
+                    <div style="display: flex; align-items: center; width: 100%">
+                        <div>
+                            <p class="text fw_medium trunc_true">Test</p>
+                        </div>
+                        <div style="width: 120px; min-width: 120px; max-width: 120px">
+                            <div class="badge badge--variant_subtle badge--size_md color-palette_gray">Private</div>
+                        </div>
+                        <div style="width: 120px; min-width: 120px; max-width: 120px">0</div>
+                    </div>
+                </div>
+                <div
+                    class="d_flex ai_center gap_8px flex-d_row main-list__rowHeader main-list__rowHeader--size_md fs_xs"
+                    style="color: var(--colors-fg-subtle; background-color: var(--colors-bg-subtle);"
+                >
+                    <div
+                        style="
+                            width: var(--main-list-select-width, 0px);
+                            max-width: var(--main-list-select-width, 0px);
+                            overflow: hidden;
+                        "
+                    ></div>
+                    <div style="text-align: center"></div>
+                </div>
+                <div class="d_flex flex-d_column gap_8px main-list__rowButton main-list__rowButton--size_md">
+                    <button
+                        aria-label="Manage"
+                        class="button button--variant_plain button--size_md px_0 py_0 main-list__rowButton main-list__rowButton--size_md"
+                        aria-expanded="false"
+                        aria-controls="_r_9_"
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            class="lucide lucide-pen lucide-edit-2 icon icon--size_sm"
+                            aria-hidden="true"
+                        >
+                            <path
+                                d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"
+                            ></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div
+                class="d_flex flex-d_column gap_8px main-list__rowToolbar main-list__rowToolbar--size_md"
+                data-open="false"
+                id="_r_9_"
+                tabindex="-1"
+            >
+                <div class="d_flex ai_center gap_8px flex-d_row main-list__row-toolbar-group">
+                    <button class="button button--variant_plain button--size_fluidSm">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            class="lucide lucide-eye icon icon--size_md"
+                            aria-hidden="true"
+                        >
+                            <path
+                                d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"
+                            ></path>
+                            <circle cx="12" cy="12" r="3"></circle></svg
+                        >View
+                    </button>
+                    <button class="button button--variant_plain button--size_fluidSm">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            class="lucide lucide-pencil icon icon--size_md"
+                            aria-hidden="true"
+                        >
+                            <path
+                                d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"
+                            ></path>
+                            <path d="m15 5 4 4"></path></svg
+                        >Edit
+                    </button>
+                    <button class="button button--variant_plain button--size_fluidSm">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            class="lucide lucide-copy icon icon--size_md"
+                            aria-hidden="true"
+                        >
+                            <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
+                            <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg
+                        >Duplicate
+                    </button>
+                    <button class="button button--variant_plain button--size_fluidSm color-palette_red">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            class="lucide lucide-trash lucide-trash-2 icon icon--size_md"
+                            aria-hidden="true"
+                        >
+                            <path d="M10 11v6"></path>
+                            <path d="M14 11v6"></path>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path>
+                            <path d="M3 6h18"></path>
+                            <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg
+                        >Delete
+                    </button>
+                    <button
+                        aria-label="Close toolbar"
+                        class="button button--variant_plain button--size_fluidSm px_0 py_0"
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            class="lucide lucide-x icon icon--size_md"
+                            aria-hidden="true"
+                        >
+                            <path d="M18 6 6 18"></path>
+                            <path d="m6 6 12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="main-list__footer main-list__footer--size_md">
+        <div class="d_flex flex-d_column gap_8px fs_sm c_fg.muted main-list__footer-text">Showing 1 to 3 of 3</div>
+        <nav
+            id="pagination:_r_b_"
+            data-scope="pagination"
+            data-part="root"
+            dir="ltr"
+            aria-label="pagination"
+            class="page_1 pagination__root"
+        >
+            <button
+                id="pagination:_r_b_:prev"
+                data-scope="pagination"
+                data-part="prev-trigger"
+                dir="ltr"
+                data-disabled=""
+                aria-label="previous page"
+                disabled=""
+                type="button"
+                class="pagination__prevTrigger"
+            >
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="lucide lucide-chevron-left icon icon--size_sm"
+                    aria-hidden="true"
+                >
+                    <path d="m15 18-6-6 6-6"></path>
+                </svg>
+            </button>
+            <button
+                type="button"
+                id="pagination:_r_b_:item:1"
+                data-scope="pagination"
+                data-part="item"
+                dir="ltr"
+                data-index="1"
+                data-selected=""
+                aria-current="page"
+                aria-label="page 1"
+                class="pagination__item"
+            >
+                1
+            </button>
+            <button
+                id="pagination:_r_b_:next"
+                data-scope="pagination"
+                data-part="next-trigger"
+                dir="ltr"
+                data-disabled=""
+                aria-label="next page"
+                disabled=""
+                type="button"
+                class="pagination__nextTrigger"
+            >
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="lucide lucide-chevron-right icon icon--size_sm"
+                    aria-hidden="true"
+                >
+                    <path d="m9 18 6-6-6-6"></path>
+                </svg>
+            </button>
+        </nav>
+    </div>
+</div>

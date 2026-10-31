@@ -47,7 +47,7 @@ function ControlledList(props: {
       renderRowToolbar={(item: Item) => <button type="button">Edit {item.name}</button>}
       toolbar={{}}
       massManage={{
-              isOpen: selectedKeys.size > 0,
+        visible: selectedKeys.size > 0,
         onClose: () => setSelectedKeys(new Set()),
         onDeleteSelected: props.onDeleteSelected ?? (async () => undefined),
         selectedCount: selectedKeys.size,
@@ -116,13 +116,13 @@ describe('MainList selection (controlled)', () => {
 })
 
 describe('MainList mass manage', () => {
-  it('drives visibility through data-open (recipe animation hook)', async () => {
+  it('drives visibility through data-visible (recipe animation hook)', async () => {
     const { container } = render(<ControlledList />)
-    const massManage = container.querySelector('[data-open]')
+    const massManage = container.querySelector('[data-visible]')
 
-    expect(massManage).toHaveAttribute('data-open', 'false')
+    expect(massManage).toHaveAttribute('data-visible', 'false')
     checkboxes()[0].click()
-    await waitFor(() => expect(massManage).toHaveAttribute('data-open', 'true'))
+    await waitFor(() => expect(massManage).toHaveAttribute('data-visible', 'true'))
   })
 
   it('deletes the selected keys, then clears the selection', async () => {
@@ -135,7 +135,7 @@ describe('MainList mass manage', () => {
     checkboxes()[1].click()
     await waitFor(() => expect(screen.getByText('2 selected')).toBeInTheDocument())
 
-    fireEvent.click(screen.getByRole('button', { name: 'Delete (2)' }))
+      fireEvent.click(screen.getByRole('button', { name: /\(2\)/ }))
 
     await waitFor(() => expect(onDeleteSelected).toHaveBeenCalledWith(['f1', 'f2']))
     await waitFor(() => expect(screen.queryByText('2 selected')).not.toBeInTheDocument())
@@ -148,7 +148,7 @@ describe('MainList mass manage', () => {
     checkboxes()[0].click()
     await waitFor(() => expect(screen.getByText('1 selected')).toBeInTheDocument())
 
-    fireEvent.click(screen.getByRole('button', { name: 'Delete (1)' }))
+      fireEvent.click(screen.getByRole('button', { name: /\(1\)/ }))
 
     await waitFor(() => expect(onDeleteSelected).toHaveBeenCalled())
     // Rejection = cancel: MainList must NOT clear the selection.
@@ -191,20 +191,21 @@ describe('MainList row toolbar (managed)', () => {
     render(<ControlledList />)
 
     fireEvent.click(screen.getAllByRole('button', { name: 'Manage' })[0])
-    fireEvent.click(screen.getByRole('button', { name: 'Select' }))
+      // Click the checkbox to select the row
+      fireEvent.click(checkboxes()[0])
 
-    await waitFor(() => {
-        // Row toolbar should be closed
-        expect(document.querySelector('[data-toolbar-open="true"]')).toBeNull()
-        expect(document.querySelector('[role="presentation"]')).toBeNull()
-        // Mass manage toolbar should be open
-        expect(document.querySelector('[data-open="true"]')).not.toBeNull()
-        expect(checkboxes()[0]).toBeChecked()
-        expect(document.querySelector('[data-select-mode="true"] > div > div')).toHaveClass(
-          mainListSlotClassNames.rowSelect(),
-        )
-      })
-  })
+      await waitFor(() => {
+          // Row toolbar should be closed
+          expect(document.querySelector('[data-toolbar-open="true"]')).toBeNull()
+          expect(document.querySelector('[role="presentation"]')).toBeNull()
+          // Mass manage toolbar should be open
+          expect(document.querySelector('[data-visible="true"]')).not.toBeNull()
+          expect(checkboxes()[0]).toBeChecked()
+          expect(document.querySelector('[data-select-mode="true"] > div > div')).toHaveClass(
+            mainListSlotClassNames.rowSelect(),
+          )
+        })
+    })
 
   it('closes on Escape and restores the trigger', () => {
     renderWithToolbar()

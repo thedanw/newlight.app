@@ -2,7 +2,8 @@ import { useEffect, useState, useCallback, useRef } from 'react'
 import type { CSSProperties } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Badge, Button, Page, Text, SearchInput, MainList, Dialog, Icon, Collapsible, CloseButton } from '@/core/ui'
-import { Plus, SlidersHorizontal, Eye, Edit2, Copy, Trash2 } from 'lucide-react'
+import type { MainListHeaderConfig } from '@/core/ui/main-list'
+import { Plus, SlidersHorizontal, Eye, Pencil, Copy, Trash2, Save } from 'lucide-react'
 import { deleteForm, getForms, duplicateForm, getFormSubmissionCounts, searchForms } from './lib/queries'
 import { PageSkeleton } from '../people/components/PageSkeleton'
 import { HStack, Stack } from 'styled-system/jsx'
@@ -36,6 +37,9 @@ export default function FormsDashboardPage() {
   const pageSize = 25
   const [submissionCounts, setSubmissionCounts] = useState<Record<string, number>>({})
   const [filtersOpen, setFiltersOpen] = useState(false)
+  // Editable row state: formId -> { nameEditable, visibilityValue }
+  const [editableRows, setEditableRows] = useState<Record<string, { nameEditable: boolean; visibility: string }>>({})
+
 
   const load = useCallback(async () => {
     try {
@@ -139,42 +143,103 @@ export default function FormsDashboardPage() {
   }
 
   /** Row content aligned with three-column header layout (name, visibility, submissions). */
-  const renderRow = (form: Form) => (
-      <MainList.RowContent>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '4', width: '100%' }}>
-          {/* Col1: Name - flex-grow: 1 */}
-          <div style={{ flex: '1 1 0%', minWidth: 0 }}>
-            <Text fontWeight="medium" truncate>{form.name}</Text>
-          </div>
-          {/* Col2: Visibility - 120px */}
-          <div style={{ width: '120px', minWidth: '120px', maxWidth: '120px', textAlign: 'center' }}>
-            <Badge colorPalette={form.is_public ? 'green' : 'gray'}>{form.is_public ? 'Public' : 'Private'}</Badge>
-          </div>
-          {/* Col3: Submissions - 120px */}
-          <div style={{ width: '120px', minWidth: '120px', maxWidth: '120px', textAlign: 'center', color: 'fg.muted', fontSize: 'sm' }}>
+  const renderRow = (form: Form, index: number, headers?: MainListHeaderConfig[]) => {
+    const isEditable = editableRows[form.id]?.nameEditable ?? false
+    const currentVisibility = editableRows[form.id]?.visibility ?? (form.is_public ? 'public' : 'private')
+    
+    // Build column styles from headers config for consistent alignment
+    const colStyles = headers?.reduce((acc, h) => {
+      acc[h.key] = {
+        width: h.width,
+        minWidth: h.width,
+        maxWidth: h.width,
+        textAlign: h.align,
+      }
+      return acc
+    }, {} as Record<string, { width?: string; minWidth?: string; maxWidth?: string; textAlign?: string }>) || {}
+    
+    return (
+      <>
+        <MainList.RowContent>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4', width: '100%' }}>
+            {/* Col1: Name - editable or display */}
+            <div style={{ ...colStyles.name }}>
+              {isEditable ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4' }}>
+                  <Text fontWeight="medium" truncate>:</Text>
+                  <input
+                    type="text"
+                    value={form.name}
+                    onChange={(e) => {
+                      // Update form name in state - would need to handle this
+                      setEditableRows(prev => ({
+                        ...prev,
+                        [form.id]: { ...prev[form.id], nameEditable: true }
+                      }))
+                    }}
+                    style={{ flex: '1', minWidth: 0 }}
+                  />
+                </div>
+              ) : (
+                <Text fontWeight="medium" truncate>{form.name}</Text>
+              )}
+            </div>
+            {/* Col2: Visibility - 120px */}
+            <div style={{...colStyles.visibility }}>
+              {isEditable ? (
+                <select
+                  value={currentVisibility}
+                  onChange={(e) => {
+                    setEditableRows(prev => ({
+                      ...prev,
+                      [form.id]: { ...prev[form.id], visibility: e.target.value }
+                    }))
+                  }}
+                  style={{ width: '100%' }}
+                >
+                  <option value="public">Public</option>
+                  <option value="private">Private</option>
+                </select>
+              ) : (
+                <Badge colorPalette={form.is_public ? 'green' : 'gray'}>
+                  {form.is_public ? 'Public' : 'Private'}
+                </Badge>
+              )}
+            </div>
+            {/* Col3: Submissions */}
+            <div style={{ color: 'fg.muted', fontSize: 'sm', ...colStyles.submissions }}>
               {submissionCounts[form.id] ?? 0}
+            </div>
           </div>
-        </div>
-      </MainList.RowContent>
+        </MainList.RowContent>
+        <MainList.RowHeader>
+            {headers?.map(h => (
+              <span key={h.key} style={{ width: h.width, minWidth: h.width, maxWidth: h.width, textAlign: h.align, flexShrink: 0 }}>
+                {h.label}
+              </span>
+            ))}
+        </MainList.RowHeader>
+      </>
     )
-
+  }
   /** Row actions rendered inside the managed row toolbar (Row owns open/close). */
   const renderRowToolbar = (form: Form) => (
     <>
-      <Button variant="plain" size="sm" size="fluidSm" onClick={() => navigate(`/forms/${form.id}`)}>
+      <Button variant="plain" size="fluidSm" onClick={() => navigate(`/forms/${form.id}`)}>
         <Icon><Eye /></Icon>
         View
       </Button>
-      <Button variant="plain" size="sm" size="fluidSm" onClick={() => navigate(`/forms/${form.id}/edit`)}>
-        <Icon><Edit2 /></Icon>
+      <Button variant="plain" size="fluidSm" onClick={() => navigate(`/forms/${form.id}/edit`)}>
+        <Icon><Pencil /></Icon>
         Edit
       </Button>
-      <Button variant="plain" size="sm" size="fluidSm" onClick={() => openDuplicateDialog(form.id, form.name)}>
+      <Button variant="plain" size="fluidSm" onClick={() => openDuplicateDialog(form.id, form.name)}>
         <Icon><Copy /></Icon>
-        Copy
+        Duplicate
       </Button>
-      <Button variant="plain" size="sm" size="fluidSm" colorPalette="red" onClick={() => openDeleteDialog(form.id, form.name)}>
+      <Button variant="plain" size="fluidSm" colorPalette="red" onClick={() => openDeleteDialog(form.id, form.name)}>
         <Icon><Trash2 /></Icon>
+        Delete
       </Button>
     </>
   )

@@ -25,13 +25,11 @@ export const mainList = defineSlotRecipe({
     },
     row: {
       display: 'flex',
-      flexDirection: {base:'column', sm:'row'},
+      flexDirection: {base:'column', md:'row'},
       alignItems: 'center',
       gap: '0',
       padding: '0',
-      borderBottomWidth: '1px',
-      borderColor: 'border',
-      transition: 'all0.4s ease',
+      transition: 'all 0.4s ease',
       _hover: {
         bg: 'gray.surface.bg.hover',
       },
@@ -63,7 +61,7 @@ export const mainList = defineSlotRecipe({
       maxWidth: 'var(--main-list-select-width, 0px)',
       overflow: 'hidden',
       flexShrink: '0',
-      transition: 'width 0.4s ease, max-width 0.4s ease',
+      transition: 'all 0.4s ease',
     },
     rowContent: {
       flex: '1',
@@ -80,14 +78,15 @@ export const mainList = defineSlotRecipe({
       alignItems: 'flex-end',
       gap: '2',
       width: 'full',
-      maxHeight: '0',
+      maxHeight: {base: '0', md: '200px'},
+      maxWidth: {base: 'full', md: '0'},
       overflow: 'hidden',
       transition: 'all 0.4s ease',
       boxShadow: 'inset',
-        background: 'gray.bg.subtle',
-      // D2: animation is driven by the data-open attribute set on the element.
+      background: 'gray.surface.bg.active',
       '&[data-open="true"]': {
-        maxHeight: '500px',
+        maxHeight: '200px',
+        maxWidth: 'full',
       },
     },
     rowHeader: {
@@ -117,7 +116,7 @@ export const mainList = defineSlotRecipe({
       borderColor: 'border',
       maxHeight: '0',
       overflow: 'hidden',
-      transition: 'all 0.2s ease',
+      transition: 'all 0.4s ease',
       // D2: animation is driven by the data-visible attribute set on the element.
       '&[data-visible="true"]': {
         maxHeight: '500px',
@@ -142,27 +141,28 @@ export const mainList = defineSlotRecipe({
     variants: {
       size: {
         sm: {
-          row: { padding: '0', gap: '2' },
+          row: { padding: '0', gap: '2', paddingTop: 1, paddingBottom: 1 },
           rowHeader: { 
-      paddingTop: 2,
-      paddingBottom: 2, gap: '2' },
+          paddingTop: 2,
+          paddingBottom: 2, gap: '2' },
           footer: { padding: '0' },
         },
         md: {
-          row: { padding: '0', gap: '3' },
+          row: { padding: '0', gap: '0' },
+          rowContent: { paddingTop: 2, paddingBottom: 2 },
           rowHeader: { 
-      paddingTop: 2,
-      paddingBottom: 2, gap: '3' },
+          paddingTop: 2,
+          paddingBottom: 2, gap: '3' },
           footer: { padding: '0' },
         },
         lg: {
-          row: { padding: '0', gap: '3' },
+          row: { padding: '0', gap: '3', paddingTop: '3', paddingBottom: '3' },
           rowHeader: { 
-      paddingTop: 2,
-      paddinBottom: 2, gap: '3' },
+          paddingTop: 2,
+          paddingBottom: 2, gap: '3' },
           footer: { 
-      paddingTop: 2,
-      paddingBottom: 2 },
+          paddingTop: 2,
+          paddingBottom: 2 },
         },
       },
     },

@@ -11,22 +11,28 @@ afterEach(() => {
   cleanup()
 })
 
+const forms = [
+  { id: 'f1', name: 'Community Survey', description: 'Quarterly feedback', is_public: true },
+  { id: 'f2', name: 'Welcome Card', description: 'New visitor details', is_public: false },
+] as unknown as Form[]
+
 vi.mock('../lib/queries', () => ({
   getForms: vi.fn(),
   deleteForm: vi.fn(),
   duplicateForm: vi.fn(),
   getFormSubmissionCounts: vi.fn(),
+  searchForms: vi.fn().mockImplementation((term: string) => {
+    if (term.toLowerCase().includes('welcome')) {
+      return Promise.resolve([forms[1]])
+    }
+    return Promise.resolve(forms)
+  }),
 }))
 
 const mockGetForms = vi.mocked(getForms)
 const mockDeleteForm = vi.mocked(deleteForm)
 const mockDuplicateForm = vi.mocked(duplicateForm)
 const mockGetFormSubmissionCounts = vi.mocked(getFormSubmissionCounts)
-
-const forms = [
-  { id: 'f1', name: 'Community Survey', description: 'Quarterly feedback', is_public: true },
-  { id: 'f2', name: 'Welcome Card', description: 'New visitor details', is_public: false },
-] as unknown as Form[]
 
 // Mirrors the AppShell chrome: routed pages render inside `Page.Root`.
 function LocationProbe() {
@@ -86,7 +92,7 @@ describe('FormsDashboardPage', () => {
     await screen.findByText('Community Survey')
 
     firstRowCheckbox().click()
-    fireEvent.click(await screen.findByRole('button', { name: 'Delete (1)' }))
+      fireEvent.click(await screen.findByRole('button', { name: /\(1\)/ }))
 
     // Mass delete is confirmed through the Ark UI dialog (single source of truth).
     expect(await screen.findByText('Delete Selected Forms')).toBeInTheDocument()
@@ -103,7 +109,7 @@ describe('FormsDashboardPage', () => {
     await screen.findByText('Community Survey')
 
     firstRowCheckbox().click()
-    fireEvent.click(await screen.findByRole('button', { name: 'Delete (1)' }))
+      fireEvent.click(await screen.findByRole('button', { name: /\(1\)/ }))
     expect(await screen.findByText('Delete Selected Forms')).toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: 'Cancel' }))

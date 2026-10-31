@@ -7,8 +7,8 @@ export interface MainListRootProps<T> extends ComponentProps<'div'> {
   items: T[]
   /** Unique key extractor for items */
   getKey: (item: T) => string
-  /** Render function for each row */
-  renderRow: (item: T, index: number) => ReactNode
+  /** Render function for each row - receives headers config for column alignment */
+  renderRow: (item: T, index: number, headers?: MainListHeaderConfig[]) => ReactNode
   /** Optional header configuration */
   headers?: MainListHeaderConfig[]
   /** Search configuration */
@@ -79,6 +79,8 @@ export interface MainListRowProps<T> extends ComponentProps<'div'> {
   button?: ReactNode
   /** Row toolbar component */
   toolbar?: ReactNode
+  /** Column configuration for consistent alignment across modules */
+  headers?: MainListHeaderConfig[]
 }
 
 /** MainList.Row.Select props */

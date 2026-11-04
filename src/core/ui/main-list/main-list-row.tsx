@@ -146,7 +146,7 @@ export function Row<T>({
           </Stack>
             </HStack>
             {toolbar && (
-              <RowToolbar ref={toolbarRef} open={toolbarOpen} onClose={handleToolbarClose} id={toolbarId} tabIndex={-1}>
+              <RowToolbar ref={toolbarRef} open={toolbarOpen} onClose={handleToolbarClose} id={toolbarId} tabIndex={-1 as any} {...({} as any)}>
                 {toolbar}
               </RowToolbar>
             )}

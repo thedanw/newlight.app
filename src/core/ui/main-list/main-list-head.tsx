@@ -11,7 +11,7 @@ export interface RowHeaderProps {
     selectMode?: boolean;
 }
 
-export const MainListHead = forwardRef<HTMLDivElement, RowHeaderProps>(function MainListHead(
+export const RowHeader = forwardRef<HTMLDivElement, RowHeaderProps>(function RowHeader(
     {headers = [], selectMode, ...props},
     ref
 ) {
@@ -19,7 +19,7 @@ export const MainListHead = forwardRef<HTMLDivElement, RowHeaderProps>(function 
         <HStack
             ref={ref}
             className={`${mainListSlotClassNames.rowHeader()} ${css({fontSize: "xs"})}`}
-            style={{color: "var(--colors-fg-subtle", backgroundColor: "var(--colors-bg-subtle)"} as React.CSSProperties}
+            style={{color: "var(--colors-fg-subtle)", backgroundColor: "var(--colors-bg-subtle)"} as React.CSSProperties}
             {...props}>
             <div
                 className={mainListSlotClassNames.rowSelect()}
@@ -37,7 +37,7 @@ export const MainListHead = forwardRef<HTMLDivElement, RowHeaderProps>(function 
                         style={{
                             padding: "3",
                             textAlign: header.align ?? "left",
-                            flex: isFlexWidth ? "1 1 0%" : `width: ${header.width}`,
+                            flex: isFlexWidth ? "1 1 0%" : `0 0 ${header.width}`,
                             minWidth: isFlexWidth ? undefined : header.width,
                             maxWidth: isFlexWidth ? undefined : header.width,
                             overflow: "hidden",
@@ -52,4 +52,4 @@ export const MainListHead = forwardRef<HTMLDivElement, RowHeaderProps>(function 
         </HStack>
     );
 });
-MainListHead.displayName = "MainList.Head";
+RowHeader.displayName = "MainList.RowHeader";

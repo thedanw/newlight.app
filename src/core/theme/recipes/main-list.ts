@@ -1,5 +1,4 @@
 import { defineSlotRecipe } from '@pandacss/dev'
-import { PAD, GAP } from '../spacing-contract'
 
 export const mainList = defineSlotRecipe({
   className: 'main-list',

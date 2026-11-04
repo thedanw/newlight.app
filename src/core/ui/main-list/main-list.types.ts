@@ -9,6 +9,10 @@ export interface MainListRootProps<T> extends ComponentProps<'div'> {
   getKey: (item: T) => string
   /** Render function for each row - receives headers config for column alignment */
   renderRow: (item: T, index: number, headers?: MainListHeaderConfig[]) => ReactNode
+  /** Optional row click handler */
+  onRowClick?: (item: T, index?: number) => void
+  /** Render function for each row's toolbar actions */
+  renderRowToolbar?: (item: T, index?: number, headers?: MainListHeaderConfig[]) => ReactNode
   /** Optional header configuration */
   headers?: MainListHeaderConfig[]
   /** Search configuration */
@@ -36,13 +40,14 @@ export interface MainListRootProps<T> extends ComponentProps<'div'> {
     onSelectionChange: (keys: Set<string>) => void
     onSelectAll?: (allKeys: string[]) => void
     onSelectVisible?: (visibleKeys: string[]) => void
+    allFilteredKeys?: string[]
   }
   /** Mass manage configuration */
   massManage?: {
-    visible: boolean
+    visible?: boolean
     onClose: () => void
     onDeleteSelected: (keys: string[]) => Promise<void>
-    selectedCount: number
+    selectedCount?: number
     deleting?: boolean
   }
 }

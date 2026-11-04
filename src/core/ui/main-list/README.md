@@ -70,7 +70,7 @@ MainList.Root
     <MainList.MassManage className='main-list__massManage'>
     </MainList.MassManage>
   </MainList.Toolbar>
-<MainList.Head className='main-list__head'>
+<MainList.Header className='main-list__header'>
       <Div className='main-list__rowSelect' 
         style={{ width: 'var(--main-list-select-width, 0px)', maxWidth: 'var(--main-list-select-width, 0px)', overflow: 'hidden' }}  ></div>
       <Div
@@ -81,7 +81,7 @@ MainList.Root
         </Text>
       </Div>
       <Div style={{ width: '10', textAlign: 'center' }} className='main-list__rowToolbar' />
-    </MainList.Head>
+    </MainList.Header>
   {/* Row content is rendered within MainList.Row components */}
   <MainList.Row className={mainListSlotClassNames.row()}>
     <MainList.RowContent className={mainListSlotClassNames.rowContent()}>
@@ -105,77 +105,19 @@ MainList.Root
     <div className={mainListSlotClassNames.footerText()}>
       Showing 1 to 3 of 3
     </div>
-    <nav
-      id="pagination:_r_b_"
-      data-scope="pagination"
-      data-part="root"
-      dir="ltr"
-      aria-label="pagination"
-      class={mainListSlotClassNames.paginationRoot()}
+    <nav class={mainListSlotClassNames.paginationRoot()}
     >
       <button
-        id="pagination:_r_b_:prev"
-        data-scope="pagination"
-        data-part="prev-trigger"
-        dir="ltr"
-        data-disabled=""
-        aria-label="previous page"
-        disabled=""
-        type="button"
         class={mainListSlotClassNames.prevTrigger()}
-      >
-        <svg xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          class={mainListSlotClassNames.prevIcon()} >
-          <path d="m15 18-6-6 6-6"></path>
-        </svg>
-      </button>
+      ></button>
       <button
-        type="button"
-        id="pagination:_r_b_:item:1"
-        data-scope="pagination"
-        data-part="item"
-        dir="ltr"
-        data-index="1"
-        data-selected=""
-        aria-current="page"
-        aria-label="page 1"
-        class={mainListSlotClassNames.item()}
+       class={mainListSlotClassNames.item()}
       >
         1
       </button>
       <button
-        id="pagination:_r_b_:next"
-        data-scope="pagination"
-        data-part="next-trigger"
-        dir="ltr"
-        data-disabled=""
-        aria-label="next page"
-        disabled=""
-        type="button"
         class={mainListSlotClassNames.nextTrigger()}
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          class={mainListSlotClassNames.nextIcon()}
-        >
-          <path d="m9 18 6-6-6-6"></path>
-        </svg>
       </button>
     </nav>
   </MainList.Footer>

@@ -1,337 +1,347 @@
-import { useState } from 'react'
-import { describe, it, expect, vi, afterEach } from 'vitest'
-import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/react'
-import { MainList } from '..'
-import { mainListOverlay, mainListSlotClassNames } from '../main-list-context'
-
-// vitest globals are disabled, so Testing Library cannot self-register cleanup.
-afterEach(() => {
-  cleanup()
-})
-
-type Item = { id: string; name: string; description?: string }
+import {mainListOverlay, mainListSlotClassNames} from "../main-list-context";
+import {describe, it, expect, vi, afterEach} from "vitest";
+import {useState} from "react";
+import {render, screen, fireEvent, waitFor, cleanup} from "@testing-library/react";
+import {MainList} from "..";
+type Item = {id: string; name: string; description?: string};
 
 const PAGE_ONE: Item[] = [
-  { id: 'f1', name: 'Alpha' },
-  { id: 'f2', name: 'Beta' },
-]
+    {id: "f1", name: "Alpha"},
+    {id: "f2", name: "Beta"},
+];
 /** All keys matching the current "search" — spans more than the visible page (decision #28). */
-const ALL_FILTERED_KEYS = ['f1', 'f2', 'f3']
+const ALL_FILTERED_KEYS = ["f1", "f2", "f3"];
 
-const checkboxes = () =>
-  Array.from(document.querySelectorAll<HTMLInputElement>('input[type="checkbox"]'))
+const checkboxes = () => Array.from(document.querySelectorAll<HTMLInputElement>('input[type="checkbox"]'));
 
 /** Controlled harness: the consumer owns the selection set, MainList owns the logic. */
 function ControlledList(props: {
-  onSelectionChange?: (keys: Set<string>) => void
-  onSelectAll?: (keys: string[]) => void
-  onSelectVisible?: (keys: string[]) => void
-  onDeleteSelected?: (keys: string[]) => Promise<void>
+    onSelectionChange?: (keys: Set<string>) => void;
+    onSelectAll?: (keys: string[]) => void;
+    onSelectVisible?: (keys: string[]) => void;
+    onDeleteSelected?: (keys: string[]) => Promise<void>;
 }) {
-  const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set())
-  return (
-    <MainList.Root
-      items={PAGE_ONE}
-      getKey={(item: Item) => item.id}
-      renderRow={(item: Item) => <MainList.RowContent primary={item.name} />}
-      selection={{
-        selectedKeys,
-        onSelectionChange: (keys) => {
-          setSelectedKeys(keys)
-          props.onSelectionChange?.(keys)
-        },
-        allFilteredKeys: ALL_FILTERED_KEYS,
-        onSelectAll: props.onSelectAll,
-        onSelectVisible: props.onSelectVisible,
-      }}
-      renderRowToolbar={(item: Item) => <button type="button">Edit {item.name}</button>}
-      toolbar={{}}
-      massManage={{
-        visible: selectedKeys.size > 0,
-        onClose: () => setSelectedKeys(new Set()),
-        onDeleteSelected: props.onDeleteSelected ?? (async () => undefined),
-        selectedCount: selectedKeys.size,
-      }}
-    />
-  )
+    const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set());
+    return (
+        <MainList.Root
+            items={PAGE_ONE}
+            getKey={(item: Item) => item.id}
+            renderRow={(item: Item) => <MainList.RowContent primary={item.name} />}
+            selection={{
+                selectedKeys,
+                onSelectionChange: (keys) => {
+                    setSelectedKeys(keys);
+                    props.onSelectionChange?.(keys);
+                },
+                allFilteredKeys: ALL_FILTERED_KEYS,
+                onSelectAll: props.onSelectAll,
+                onSelectVisible: props.onSelectVisible,
+            }}
+            renderRowToolbar={(item: Item) => <button type="button">Edit {item.name}</button>}
+            toolbar={{}}
+            massManage={{
+                visible: selectedKeys.size > 0,
+                onClose: () => setSelectedKeys(new Set()),
+                onDeleteSelected: props.onDeleteSelected ?? (async () => undefined),
+                selectedCount: selectedKeys.size,
+            }}
+        />
+    );
 }
 
-describe('MainList selection (controlled)', () => {
-  it('toggles row selection via the row checkbox', async () => {
-    const onSelectionChange = vi.fn()
-    render(<ControlledList onSelectionChange={onSelectionChange} />)
+describe("MainList selection (controlled)", () => {
+    afterEach(() => {
+        cleanup();
+    });
 
-    checkboxes()[0].click()
+    it("toggles row selection via the row checkbox", async () => {
+        const onSelectionChange = vi.fn();
+        render(<ControlledList onSelectionChange={onSelectionChange} />);
 
-    await waitFor(() => expect(onSelectionChange).toHaveBeenCalledWith(new Set(['f1'])))
-    // Hooks locked by findings #2: row + root reflect select mode / selection.
-    expect(document.querySelector('[data-selected="true"]')).not.toBeNull()
-    expect(document.querySelector('[data-select-mode="true"]')).not.toBeNull()
-  })
+        checkboxes()[0].click();
 
-  it('Select Visible selects only the current page and notifies', async () => {
-    const onSelectionChange = vi.fn()
-    const onSelectVisible = vi.fn()
-    render(<ControlledList onSelectionChange={onSelectionChange} onSelectVisible={onSelectVisible} />)
+        await waitFor(() => expect(onSelectionChange).toHaveBeenCalledWith(new Set(["f1"])));
+        // Hooks locked by findings #2: row + root reflect select mode / selection.
+        expect(document.querySelector('[data-selected="true"]')).not.toBeNull();
+        expect(document.querySelector('[data-select-mode="true"]')).not.toBeNull();
+    });
 
-    checkboxes()[0].click()
-    await waitFor(() => expect(screen.getByText('1 selected')).toBeInTheDocument())
+    it("Select Visible selects only the current page and notifies", async () => {
+        const onSelectionChange = vi.fn();
+        const onSelectVisible = vi.fn();
+        render(<ControlledList onSelectionChange={onSelectionChange} onSelectVisible={onSelectVisible} />);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Select Visible' }))
+        checkboxes()[0].click();
+        await waitFor(() => expect(screen.getByText("1 selected")).toBeInTheDocument());
 
-    await waitFor(() => expect(onSelectVisible).toHaveBeenCalledWith(['f1', 'f2']))
-    // Union of the previous selection and the visible page.
-    expect(onSelectionChange).toHaveBeenLastCalledWith(new Set(['f1', 'f2']))
-    // Page fully selected, but filtered set is not → Select All stays available.
-    expect(screen.getByRole('button', { name: 'Select Visible' })).toBeDisabled()
-    expect(screen.getByRole('button', { name: 'Select All' })).toBeEnabled()
-  })
+        fireEvent.click(screen.getAllByRole("button", {name: "Select Visible"})[0]);
 
-  it('Select All selects every filtered key, not just the visible page', async () => {
-    const onSelectionChange = vi.fn()
-    const onSelectAll = vi.fn()
-    render(<ControlledList onSelectionChange={onSelectionChange} onSelectAll={onSelectAll} />)
+        await waitFor(() => expect(onSelectVisible).toHaveBeenCalledWith(["f1", "f2"]));
+        // Union of the previous selection and the visible page.
+        expect(onSelectionChange).toHaveBeenLastCalledWith(new Set(["f1", "f2"]));
+        // Page fully selected, but filtered set is not → Select All stays available.
+        expect(screen.getAllByRole("button", {name: "Select Visible"})[0]).toBeDisabled();
+        expect(screen.getAllByRole("button", {name: "Select All"})[0]).toBeEnabled();
+    });
 
-    checkboxes()[0].click()
-    await waitFor(() => expect(screen.getByText('1 selected')).toBeInTheDocument())
+    it("Select All selects every filtered key, not just the visible page", async () => {
+        const onSelectionChange = vi.fn();
+        const onSelectAll = vi.fn();
+        render(<ControlledList onSelectionChange={onSelectionChange} onSelectAll={onSelectAll} />);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Select All' }))
+        checkboxes()[0].click();
+        await waitFor(() => expect(screen.getByText("1 selected")).toBeInTheDocument());
 
-    await waitFor(() => expect(onSelectAll).toHaveBeenCalledWith(ALL_FILTERED_KEYS))
-    expect(onSelectionChange).toHaveBeenLastCalledWith(new Set(ALL_FILTERED_KEYS))
-    // Everything filtered is selected → the action disables itself.
-    expect(screen.getByRole('button', { name: 'Select All' })).toBeDisabled()
-  })
+        fireEvent.click(screen.getByRole("button", {name: "Select All"}));
 
-  it('Deselect All clears the selection and hides mass manage', async () => {
-    render(<ControlledList />)
+        await waitFor(() => expect(onSelectAll).toHaveBeenCalledWith(ALL_FILTERED_KEYS));
+        expect(onSelectionChange).toHaveBeenLastCalledWith(new Set(ALL_FILTERED_KEYS));
+        // Everything filtered is selected → the action disables itself.
+        expect(screen.getAllByRole("button", {name: "Select All"})[0]).toBeDisabled();
+    });
 
-    checkboxes()[0].click()
-    await waitFor(() => expect(screen.getByText('1 selected')).toBeInTheDocument())
+    it("Deselect All clears the selection and hides mass manage", async () => {
+        render(<ControlledList />);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Deselect All' }))
+        checkboxes()[0].click();
+        await waitFor(() => expect(screen.getByText("1 selected")).toBeInTheDocument());
 
-    await waitFor(() => expect(screen.queryByText('1 selected')).not.toBeInTheDocument())
-  })
-})
+        fireEvent.click(screen.getByRole("button", {name: "Deselect All"}));
 
-describe('MainList mass manage', () => {
-  it('drives visibility through data-visible (recipe animation hook)', async () => {
-    const { container } = render(<ControlledList />)
-    const massManage = container.querySelector('[data-visible]')
+        await waitFor(() => expect(screen.queryByText("1 selected")).not.toBeInTheDocument());
+    });
+});
 
-    expect(massManage).toHaveAttribute('data-visible', 'false')
-    checkboxes()[0].click()
-    await waitFor(() => expect(massManage).toHaveAttribute('data-visible', 'true'))
-  })
+describe("MainList mass manage", () => {
+    afterEach(() => {
+        cleanup();
+    });
+    it("drives visibility through data-visible (recipe animation hook)", async () => {
+        const {container} = render(<ControlledList />);
+        const massManage = container.querySelector("[data-visible]");
 
-  it('deletes the selected keys, then clears the selection', async () => {
-    const onDeleteSelected = vi.fn().mockResolvedValue(undefined)
-    render(<ControlledList onDeleteSelected={onDeleteSelected} />)
+        expect(massManage).toHaveAttribute("data-visible", "false");
+        checkboxes()[0].click();
+        await waitFor(() => expect(massManage).toHaveAttribute("data-visible", "true"));
+    });
 
-    // Selection sets are absolute — wait for the re-render between toggles.
-    checkboxes()[0].click()
-    await waitFor(() => expect(screen.getByText('1 selected')).toBeInTheDocument())
-    checkboxes()[1].click()
-    await waitFor(() => expect(screen.getByText('2 selected')).toBeInTheDocument())
+    it("deletes the selected keys, then clears the selection", async () => {
+        const onDeleteSelected = vi.fn().mockResolvedValue(undefined);
+        render(<ControlledList onDeleteSelected={onDeleteSelected} />);
 
-      fireEvent.click(screen.getByRole('button', { name: /\(2\)/ }))
+        // Selection sets are absolute — wait for the re-render between toggles.
+        checkboxes()[0].click();
+        await waitFor(() => expect(screen.getByText("1 selected")).toBeInTheDocument());
+        checkboxes()[1].click();
+        await waitFor(() => expect(screen.getByText("2 selected")).toBeInTheDocument());
 
-    await waitFor(() => expect(onDeleteSelected).toHaveBeenCalledWith(['f1', 'f2']))
-    await waitFor(() => expect(screen.queryByText('2 selected')).not.toBeInTheDocument())
-  })
+        fireEvent.click(screen.getByRole("button", {name: /\(2\)/}));
 
-  it('keeps the selection when the delete flow rejects (cancel)', async () => {
-    const onDeleteSelected = vi.fn().mockRejectedValue(new Error('cancelled'))
-    render(<ControlledList onDeleteSelected={onDeleteSelected} />)
+        await waitFor(() => expect(onDeleteSelected).toHaveBeenCalledWith(["f1", "f2"]));
+        await waitFor(() => expect(screen.queryByText("2 selected")).not.toBeInTheDocument());
+    });
 
-    checkboxes()[0].click()
-    await waitFor(() => expect(screen.getByText('1 selected')).toBeInTheDocument())
+    it("keeps the selection when the delete flow rejects (cancel)", async () => {
+        const onDeleteSelected = vi.fn().mockRejectedValue(new Error("cancelled"));
+        render(<ControlledList onDeleteSelected={onDeleteSelected} />);
 
-      fireEvent.click(screen.getByRole('button', { name: /\(1\)/ }))
+        checkboxes()[0].click();
+        await waitFor(() => expect(screen.getByText("1 selected")).toBeInTheDocument());
 
-    await waitFor(() => expect(onDeleteSelected).toHaveBeenCalled())
-    // Rejection = cancel: MainList must NOT clear the selection.
-    expect(screen.getByText('1 selected')).toBeInTheDocument()
-    expect(document.querySelector('[data-selected="true"]')).not.toBeNull()
-  })
-})
+        fireEvent.click(screen.getByRole("button", {name: /\(1\)/}));
 
-describe('MainList row toolbar (managed)', () => {
-  function renderWithToolbar() {
-    const onRowClick = vi.fn()
-    render(
-      <MainList.Root
-        items={PAGE_ONE}
-        getKey={(item: Item) => item.id}
-        renderRow={(item: Item) => <MainList.RowContent primary={item.name} />}
-        renderRowToolbar={(item: Item) => <button type="button">Edit {item.name}</button>}
-        onRowClick={onRowClick}
-      />,
-    )
-    return { onRowClick }
-  }
+        await waitFor(() => expect(onDeleteSelected).toHaveBeenCalled());
+        // Rejection = cancel: MainList must NOT clear the selection.
+        expect(screen.getByText("1 selected")).toBeInTheDocument();
+        expect(document.querySelector('[data-selected="true"]')).not.toBeNull();
+    });
+});
 
-  const trigger = () => screen.getAllByRole('button', { name: 'Manage' })[0] as HTMLButtonElement
+describe("MainList row toolbar (managed)", () => {
+    afterEach(() => {
+        cleanup();
+    });
+    function renderWithToolbar() {
+        const onRowClick = vi.fn();
+        render(
+            <MainList.Root
+                items={PAGE_ONE}
+                getKey={(item: Item) => item.id}
+                renderRow={(item: Item) => <MainList.RowContent primary={item.name} />}
+                renderRowToolbar={(item: Item) => <button type="button">Edit {item.name}</button>}
+                onRowClick={onRowClick}
+            />
+        );
+        return {onRowClick};
+    }
 
-  it('opens via the managed trigger with aria-expanded and data-open', () => {
-    renderWithToolbar()
-    expect(trigger()).toHaveAttribute('aria-expanded', 'false')
+    const trigger = () => screen.getAllByRole("button", {name: "Manage"})[0] as HTMLButtonElement;
 
-    fireEvent.click(trigger())
+    it("opens via the managed trigger with aria-expanded and data-open", () => {
+        renderWithToolbar();
+        expect(trigger()).toHaveAttribute("aria-expanded", "false");
 
-    const toolbar = document.querySelector('[data-open="true"]')
-    expect(toolbar).not.toBeNull()
-    expect(screen.getByRole('button', { name: 'Edit Alpha' })).toBeInTheDocument()
-    // Focus moves into the toolbar for keyboard users.
-    expect(toolbar).toHaveFocus()
-  })
+        fireEvent.click(trigger());
 
-  it('closes the toolbar and selects the row, revealing selection controls', async () => {
-    render(<ControlledList />)
+        const toolbar = document.querySelector('[data-open="true"]');
+        expect(toolbar).not.toBeNull();
+        expect(screen.getByRole("button", {name: "Edit Alpha"})).toBeInTheDocument();
+        // Focus moves into the toolbar for keyboard users.
+        expect(toolbar).toHaveFocus();
+    });
 
-    fireEvent.click(screen.getAllByRole('button', { name: 'Manage' })[0])
-      // Click the checkbox to select the row
-      fireEvent.click(checkboxes()[0])
+    it("closes the toolbar and selects the row, revealing selection controls", async () => {
+        render(<ControlledList />);
 
-      await waitFor(() => {
-          // Row toolbar should be closed
-          expect(document.querySelector('[data-toolbar-open="true"]')).toBeNull()
-          expect(document.querySelector('[role="presentation"]')).toBeNull()
-          // Mass manage toolbar should be open
-          expect(document.querySelector('[data-visible="true"]')).not.toBeNull()
-          expect(checkboxes()[0]).toBeChecked()
-          expect(document.querySelector('[data-select-mode="true"] > div > div')).toHaveClass(
-            mainListSlotClassNames.rowSelect(),
-          )
-        })
-    })
+        fireEvent.click(screen.getAllByRole("button", {name: "Manage"})[0]);
+        // Click the checkbox to select the row
+        fireEvent.click(checkboxes()[0]);
 
-  it('closes on Escape and restores the trigger', () => {
-    renderWithToolbar()
-    fireEvent.click(trigger())
+        await waitFor(() => {
+            // Row toolbar should be closed
+            expect(document.querySelector('[data-toolbar-open="true"]')).toBeNull();
+            expect(document.querySelector('[role="presentation"]')).toBeNull();
+            // Mass manage toolbar should be open
+            expect(document.querySelector('[data-visible="true"]')).not.toBeNull();
+            expect(checkboxes()[0]).toBeChecked();
+            expect(document.querySelector('[data-select-mode="true"] > div > div')).toHaveClass(
+                mainListSlotClassNames.rowSelect()
+            );
+        });
+    });
 
-    fireEvent.keyDown(document, { key: 'Escape' })
+    it("closes on Escape and restores the trigger", () => {
+        renderWithToolbar();
+        fireEvent.click(trigger());
 
-    expect(document.querySelector('[data-open="true"]')).toBeNull()
-    expect(trigger()).toHaveAttribute('aria-expanded', 'false')
-  })
+        fireEvent.keyDown(document, {key: "Escape"});
 
-  it('raises the open row above the toolbar overlay', () => {
-    renderWithToolbar()
-    fireEvent.click(trigger())
+        expect(document.querySelector('[data-open="true"]')).toBeNull();
+        expect(trigger()).toHaveAttribute("aria-expanded", "false");
+    });
 
-    // Stacking contract: the open row sets the `data-toolbar-open` hook and
-    // the row recipe maps that hook to position/zIndex above the fixed
-    // overlay (zIndex 50) — the toolbar stays interactive while the backdrop
-    // dims everything else. (happy-dom has no stylesheet engine, so the
-    // recipe output is asserted directly, as with the rowSelect tests below.)
-    const openRow = document.querySelector('[data-toolbar-open="true"]')
-    expect(openRow).not.toBeNull()
-    const rowClass = mainListSlotClassNames.row()
-    expect((openRow as Element).className).toContain(rowClass.split(' ')[0])
+    it("raises the open row above the toolbar overlay", () => {
+        renderWithToolbar();
+        fireEvent.click(trigger());
 
-    // The overlay class itself pins the backdrop at zIndex 50.
-    const overlay = document.querySelector('[role="presentation"]')
-    expect(overlay).not.toBeNull()
-    expect((overlay as Element).className).toContain(mainListOverlay.split(' ')[0])
+        // Stacking contract: the open row sets the `data-toolbar-open` hook and
+        // the row recipe maps that hook to position/zIndex above the fixed
+        // overlay (zIndex 50) — the toolbar stays interactive while the backdrop
+        // dims everything else. (happy-dom has no stylesheet engine, so the
+        // recipe output is asserted directly, as with the rowSelect tests below.)
+        const openRow = document.querySelector('[data-toolbar-open="true"]');
+        expect(openRow).not.toBeNull();
+        const rowClass = mainListSlotClassNames.row();
+        expect((openRow as Element).className).toContain(rowClass.split(" ")[0]);
 
-    fireEvent.keyDown(document, { key: 'Escape' })
-    expect(document.querySelector('[data-toolbar-open="true"]')).toBeNull()
-  })
+        // The overlay class itself pins the backdrop at zIndex 50.
+        const overlay = document.querySelector('[role="presentation"]');
+        expect(overlay).not.toBeNull();
+        expect((overlay as Element).className).toContain(mainListOverlay.split(" ")[0]);
 
-  it('closes when the overlay is clicked', () => {
-    renderWithToolbar()
-    fireEvent.click(trigger())
+        fireEvent.keyDown(document, {key: "Escape"});
+        expect(document.querySelector('[data-toolbar-open="true"]')).toBeNull();
+    });
 
-    const overlay = document.querySelector('[role="presentation"]')
-    expect(overlay).not.toBeNull()
-    fireEvent.click(overlay as Element)
+    it("closes when the overlay is clicked", () => {
+        renderWithToolbar();
+        fireEvent.click(trigger());
 
-    expect(document.querySelector('[data-open="true"]')).toBeNull()
-  })
+        const overlay = document.querySelector('[role="presentation"]');
+        expect(overlay).not.toBeNull();
+        fireEvent.click(overlay as Element);
 
-  it('suppresses row navigation while the toolbar is open', () => {
-    const { onRowClick } = renderWithToolbar()
-    fireEvent.click(trigger())
-    fireEvent.click(screen.getByText('Alpha'))
-    expect(onRowClick).not.toHaveBeenCalled()
+        expect(document.querySelector('[data-open="true"]')).toBeNull();
+    });
 
-    fireEvent.keyDown(document, { key: 'Escape' })
-    fireEvent.click(screen.getByText('Alpha'))
-    expect(onRowClick).toHaveBeenCalledTimes(1)
-  })
-})
+    it("suppresses row navigation while the toolbar is open", () => {
+        const {onRowClick} = renderWithToolbar();
+        fireEvent.click(trigger());
+        const alphaRows = screen.getAllByText("Alpha");
+        fireEvent.click(alphaRows[0]);
+        expect(onRowClick).not.toHaveBeenCalled();
 
-describe('MainList footer pagination', () => {
-  it('renders the visible range and forwards page changes', async () => {
-    const onPageChange = vi.fn()
-    render(
-      <MainList.Root
-        items={PAGE_ONE}
-        getKey={(item: Item) => item.id}
-        renderRow={(item: Item) => <MainList.RowContent primary={item.name} />}
-        pagination={{ page: 1, pageSize: 25, total: 60, onPageChange }}
-      />,
-    )
+        fireEvent.keyDown(document, {key: "Escape"});
+        fireEvent.click(screen.getAllByText("Alpha", {exact: true})[0]);
+        expect(onRowClick).toHaveBeenCalledTimes(1);
+    });
+});
 
-    expect(screen.getByText('Showing 1 to 25 of 60')).toBeInTheDocument()
-    // count derives from total, so every page is reachable (findings #12).
-    screen.getByRole('button', { name: 'page 2' }).click()
-    // Ark/zag dispatches onPageChange asynchronously.
-    await waitFor(() => expect(onPageChange).toHaveBeenCalledWith(2))
-  })
+describe("MainList footer pagination", () => {
+    afterEach(() => {
+        cleanup();
+    });
+    it("renders the visible range and forwards page changes", async () => {
+        const onPageChange = vi.fn();
+        render(
+            <MainList.Root
+                items={PAGE_ONE}
+                getKey={(item: Item) => item.id}
+                renderRow={(item: Item) => <MainList.RowContent primary={item.name} />}
+                pagination={{page: 1, pageSize: 25, total: 60, onPageChange}}
+            />
+        );
 
-  it('renders the last-page range', () => {
-    render(
-      <MainList.Root
-        items={PAGE_ONE}
-        getKey={(item: Item) => item.id}
-        renderRow={(item: Item) => <MainList.RowContent primary={item.name} />}
-        pagination={{ page: 3, pageSize: 25, total: 60, onPageChange: vi.fn() }}
-      />,
-    )
-    expect(screen.getByText('Showing 51 to 60 of 60')).toBeInTheDocument()
-  })
-})
+        expect(screen.getByText("Showing 1 to 25 of 60")).toBeInTheDocument();
+        // count derives from total, so every page is reachable (findings #12).
+        screen.getByRole("button", {name: "page 2"}).click();
+        // Ark/zag dispatches onPageChange asynchronously.
+        await waitFor(() => expect(onPageChange).toHaveBeenCalledWith(2));
+    });
 
-describe('MainList row slots + select variant', () => {
-  it('renders primary/secondary/meta slots', () => {
-    render(
-      <MainList.Root
-        items={[{ id: 'f1', name: 'Alpha', description: 'The alpha form' }]}
-        getKey={(item: Item) => item.id}
-        renderRow={(item: Item) => (
-          <MainList.RowContent primary={item.name} secondary={item.description} meta={<span>Public</span>} />
-        )}
-      />,
-    )
+    it("renders the last-page range", () => {
+        render(
+            <MainList.Root
+                items={PAGE_ONE}
+                getKey={(item: Item) => item.id}
+                renderRow={(item: Item) => <MainList.RowContent primary={item.name} />}
+                pagination={{page: 3, pageSize: 25, total: 60, onPageChange: vi.fn()}}
+            />
+        );
+        expect(screen.getByText("Showing 51 to 60 of 60")).toBeInTheDocument();
+    });
+});
 
-    expect(screen.getByText('Alpha')).toBeInTheDocument()
-    expect(screen.getByText('The alpha form')).toBeInTheDocument()
-    expect(screen.getByText('Public')).toBeInTheDocument()
-  })
+describe("MainList row slots + select variant", () => {
+    afterEach(() => {
+        cleanup();
+    });
+    it("renders primary/secondary/meta slots", () => {
+        render(
+            <MainList.Root
+                items={[{id: "f1", name: "Alpha", description: "The alpha form"}]}
+                getKey={(item: Item) => item.id}
+                renderRow={(item: Item) => (
+                    <MainList.RowContent primary={item.name} secondary={item.description} meta={<span>Public</span>} />
+                )}
+            />
+        );
 
-  it('renders RowSelect with the hidden width variant outside select mode', () => {
-      const { container } = render(
-        <MainList.Root
-          items={PAGE_ONE}
-          getKey={(item: Item) => item.id}
-          renderRow={(item: Item) => <MainList.RowContent primary={item.name} />}
-        />,
-      )
+        expect(screen.getAllByText("Alpha")[0]).toBeInTheDocument();
+        expect(screen.getAllByText("The alpha form")[0]).toBeInTheDocument();
+        expect(screen.getAllByText("Public")[0]).toBeInTheDocument();
+    });
 
-      const row = container.querySelector('[data-select-mode="false"]')
-      expect(row?.firstElementChild?.firstElementChild).toHaveClass(mainListSlotClassNames.rowSelect())
-    })
+    it("renders RowSelect with the hidden width variant outside select mode", () => {
+        const {container} = render(
+            <MainList.Root
+                items={PAGE_ONE}
+                getKey={(item: Item) => item.id}
+                renderRow={(item: Item) => <MainList.RowContent primary={item.name} />}
+            />
+        );
 
-    it('switches RowSelect to the visible width variant in select mode', async () => {
-      render(<ControlledList />)
-      checkboxes()[0].click()
+        const row = container.querySelector('[data-select-mode="false"]');
+        expect(row?.firstElementChild?.firstElementChild).toHaveClass(mainListSlotClassNames.rowSelect());
+    });
 
-      await waitFor(() => {
-        const row = document.querySelector('[data-select-mode="true"]')
-        expect(row?.firstElementChild?.firstElementChild).toHaveClass(mainListSlotClassNames.rowSelect())
-      })
-    })
-})
+    it("switches RowSelect to the visible width variant in select mode", async () => {
+        render(<ControlledList />);
+        checkboxes()[0].click();
+
+        await waitFor(() => {
+            const row = document.querySelector('[data-select-mode="true"]');
+            expect(row?.firstElementChild?.firstElementChild).toHaveClass(mainListSlotClassNames.rowSelect());
+        });
+    });
+});

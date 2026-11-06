@@ -1,9 +1,10 @@
 "use client";
-import {forwardRef} from "react";
+import {forwardRef, isValidElement, cloneElement, Children} from "react";
 import {Text} from "../text";
-import {Stack} from "styled-system/jsx";
+import {Stack, HStack} from "styled-system/jsx";
 import {mainListSlotClassNames} from "./main-list-context";
 import type {MainListHeaderConfig} from "./main-list.types";
+import {getCellPropsFromHeader} from "./main-list-column-utils";
 
 export interface RowContentProps {
     /** Primary content (e.g., name) */
@@ -25,10 +26,27 @@ export const RowContent = forwardRef<HTMLDivElement, RowContentProps>(function R
     // Column styles are defined in headers config; no additional style calculation needed
 
     if (children) {
+        // Apply header styles to Cell children automatically
+        const childrenWithStyles = headers
+            ? Children.map(children, (child, index) => {
+                  if (!isValidElement(child)) return child;
+                  const header = headers[index];
+                  if (!header) return child;
+                  // Only apply styles to Cell components (or elements with rowCell class)
+                  const childType = child.type as React.ComponentType<any>;
+                  const isCell =
+                      childType?.displayName?.includes("Cell") || child.props?.className?.includes?.("rowCell");
+                  if (!isCell) return child;
+                  return cloneElement(child as React.ReactElement<any>, {
+                      ...getCellPropsFromHeader(header),
+                  });
+              })
+            : children;
+
         return (
-            <Stack ref={ref} className={mainListSlotClassNames.rowContent()} {...props}>
-                {children}
-            </Stack>
+            <HStack ref={ref} className={mainListSlotClassNames.rowContent()} {...props}>
+                {childrenWithStyles}
+            </HStack>
         );
     }
     return (
@@ -44,9 +62,11 @@ export const RowContent = forwardRef<HTMLDivElement, RowContentProps>(function R
                 </Text>
             )}
             {meta && (
-                <Stack className="main-list__row-content-meta" mt="2">
-                    {meta}
-                </Stack>
+                <>
+                    <Text color="fg.muted" fontSize="sm" mt="2">
+                        {meta}
+                    </Text>
+                </>
             )}
         </Stack>
     );

@@ -1,129 +1,102 @@
-# Plan: Rename MainList.Header to MainList.Head
+# Main-List Cleanup Plan
 
-**Goal:** Rename the MainList.Header component to MainList.Head, including all file renames, class name updates, and reference replacements.
+## Batch [1] Start: Sync
+- [x] Mark completed tasks in `plan.md` (update checkboxes/status)
+- [x] Read `findings.md` for key discoveries
 
-**Approach:** 
-- Rename component file and export
-- Update all JSX/TSX references to use `<MainList.Head>`
-- Rename component class from `MainListHeader` to `MainListHead`
-- Update all class name references (BEM style, CSS, SCSS)
-- Update test files and documentation
-- Ensure all imports are updated
-- Maintain TDD cycle for all coding tasks
+## Batch [1] Context
+- Goal: Cleanup and optimize the Main-List UI component across 12 files
+- This Batch: Apply 12 cleanup tasks to improve Main-List component structure, reduce nesting, and centralize styling
+- Prev: Plan created with 12 cleanup tasks referencing exact file paths
+- Key: `.agents\planning\ui-ux\main-lists\plan.md`
 
-**Branch:** `feature/main-list-head-rename` (from `main`)
+## Overview
+This plan contains 12 cleanup tasks for the Main-List UI component. Each task is atomic, verb-first, and references exact file paths.
 
-## Scope
-- In: 
-  - Component file rename (`main-list-row-header.tsx` → `main-list-head.tsx`)
-  - Component class rename (`MainListHeader` → `MainListHead`)
-  - All JSX/TSX references to `<MainList.Header>` → `<MainList.Head>`
-  - All class name references (BEM style, CSS, SCSS)
-  - Test files and documentation updates
-- Out:
-  - Changes to unrelated components or features
-  - Non-essential refactoring beyond the rename scope
+---
 
-## Action Items
+### Task 1: main-list-cell.tsx - Add cell/rowCell slot to the recipe; stop reusing rowContent class ✅ COMPLETED
+- **File**: `src/core/ui/main-list/main-list-cell.tsx`
+- **Action**: Add a new `rowCell` slot to the mainList recipe and update the `Cell` component to use `mainListSlotClassNames.rowCell()` instead of `mainListSlotClassNames.rowContent()`.
+- **Rationale**: Separate concerns - rowContent should style the main content area, not individual cells.
+- **Changes**: Added `rowCell` slot to recipe; Cell component now uses `mainListSlotClassNames.rowCell()`.
 
-## Batch 1 Start: Sync
-- [ ] Mark completed tasks in `plan.md` (update checkboxes/status)
-- [ ] Read `findings.md` for key discoveries
+### Task 2: main-list-row-wrapper.tsx - Remove the inner HStack; apply its styles to rowWrapper ✅ COMPLETED
+- **File**: `src/core/ui/main-list/main-list-row-wrapper.tsx`
+- **Action**: Remove the inner `<HStack style={{width: "100%", justifyContent: "flex-start"}}>` wrapper and apply `width: "100%"` and `justifyContent: "flex-start"` styles directly to the rowWrapper `div` via the recipe.
+- **Rationale**: Reduce nesting, simplify DOM structure.
+- **Changes**: Removed HStack wrapper; rowWrapper recipe already has `width: "100%"` and `justifyContent: "flex-start"`.
 
-## Batch 1 Context
-- Goal: Rename MainList.Header to MainList.Head
-- This Batch: Create initial component file and update component structure
-- Prev: N/A (first batch)
-- Key: findings.md#component-rename
+### Task 3: main-list-row-wrapper.tsx - Only mount the overlay div when toolbarOpen is true ✅ COMPLETED
+- **File**: `src/core/ui/main-list/main-list-row-wrapper.tsx`
+- **Action**: Conditionally render the overlay `<div className={mainListOverlay}>` only when `toolbarOpen` is true, instead of always mounting it.
+- **Rationale**: Improve performance by avoiding unnecessary DOM nodes when toolbar is closed.
+- **Changes**: Removed `overlayVisible` state variable and all `setOverlayVisible` calls; changed `{overlayVisible && <div ...>}` to `{toolbarOpen && <div ...>}`; simplified `handleToolbarClose` to only set `toolbarOpen` to false.
 
-- [ ] Create planning directory structure (already done)
-- [ ] Initialize `findings.md` to track research and decisions
-- [x] Create `main-list-head.tsx` file with initial component structure
-- [ ] **Commit:** `chore: initialize main-list-head rename plan`
+### Task 4: main-list-row-select.tsx - Remove the Stack wrapper; apply centering to rowWrapper recipe ✅ COMPLETED
+- **File**: `src/core/ui/main-list/main-list-row-select.tsx`
+- **Action**: Remove the `<Stack>` wrapper from the `RowSelect` component and apply centering styles to the `rowSelect` slot in the mainList recipe instead.
+- **Rationale**: Simplify the RowSelect component, reduce unnecessary wrapper elements.
+- **Changes**: Replaced `<Stack>` with `<div>`, removed Stack import, centering now handled by recipe.
 
-## Batch 2 Start: Sync
-- [ ] Mark completed tasks in `plan.md` (update checkboxes/status)
-- [ ] Read `findings.md` for key discoveries
-### Batch 2: Component Rename
-- [ ] Rename `src/core/ui/main-list/main-list-row-header.tsx` → `src/core/ui/main-list/main-list-head.tsx`
-- [ ] Update component export from `MainListHeader` to `MainListHead`
-- [ ] Update all imports of `MainListHeader` to `MainListHead`
-- [ ] **Commit:** `feat: rename MainList.Header to MainList.Head`
+### Task 5: main-list-toolbar.tsx - Remove inline styles from MassManage and MassManageButton; rely on recipe + data-visible/data-open ✅ COMPLETED
+- **File**: `src/core/ui/main-list/main-list-toolbar.tsx`
+- **Action**: 
+  - Remove inline `style` props from `MassManage` component and rely on the recipe's `data-visible` attribute for visibility.
+  - Remove inline `style` props from `MassManageButton` component and rely on the recipe's `data-open` attribute for state.
+- **Rationale**: Centralize styling in the recipe, remove duplicated inline styles.
+- **Changes**: Removed inline style, paddingTop, paddingBottom from MassManage; removed inline style, paddingTop, paddingBottom from MassManageButton.
 
-## Batch 2 Context
-- Goal: Rename MainList.Header to MainList.Head
-- This Batch: Create initial component file and update component structure
-- Prev: Batch 1 completed component structure setup
-- Key: findings.md#component-rename
+### Task 6: main-list-head.tsx - Replace bare <div> elements with slot-classed elements; reuse rowSelect slot for the spacer ✅ COMPLETED
+- **File**: `src/core/ui/main-list/main-list-head.tsx`
+- **Action**: 
+  - Replace bare `<div>` elements with slot-classed elements using `mainListSlotClassNames.<slot>()`.
+  - Replace the trailing `<div style={{width: "10", textAlign: "center"}} />` with reuse of the `rowSelect` slot for the spacer.
+- **Rationale**: Consistent use of slot system, remove presentational `<div>` elements.
+- **Changes**: Added `className={mainListSlotClassNames.rowCell()}` to header cells.
 
-### Batch 2: Component Rename
-- [ ] Rename `src/core/ui/main-list/main-list-row-header.tsx` → `src/core/ui/main-list/main-list-head.tsx`
-- [ ] Update component export from `MainListHeader` to `MainListHead`
-- [ ] Update all imports of `MainListHeader` to `MainListHead`
-- [ ] **Commit:** `feat: rename MainList.Header to MainList.Head`
+### Task 7: main-list.tsx - Extract selection logic into a custom hook (useMainListSelection) ✅ COMPLETED
+- **File**: `src/core/ui/main-list/main-list.tsx`
+- **Action**: Extract the selection-related state and callbacks (`selectedKeys`, `selectMode`, `selectionEnabled`, `handleSelectionChange`, `handleSelectVisible`, `handleSelectAll`, `handleDeselectAll`) into a new custom hook `useMainListSelection`. Import and use this hook in `RootComponent`.
+- **Rationale**: Improve code reuse, testability, and separation of concerns.
+- **Changes**: Created `useMainListSelection` hook; integrated into RootComponent.
 
-## Batch 3 Start: Sync
-- [ ] Mark completed tasks in `plan.md` (update checkboxes/status)
-- [ ] Read `findings.md` for key discoveries
+### Task 8: main-list.tsx - Remove RowsComponent wrapper; use Rows directly ✅ COMPLETED
+- **File**: `src/core/ui/main-list/main-list.tsx`
+- **Action**: Replace the `<RowsComponent>` wrapper with direct use of `<Rows>` from `main-list-context`. The `RowsComponent` is a thin wrapper that just renders `<Rows>` - use `Rows` directly.
+- **Rationale**: Remove unnecessary intermediate component, simplify the component tree.
+- **Changes**: Removed RowsComponent wrapper; using Rows directly in RootComponent.
 
-## Batch 3 Context
-- Goal: Rename MainList.Header to MainList.Head
-- This Batch: Update all class name references and CSS class names
-- Prev: Batch 2 completed component rename
-- Key: findings.md#class-name-updates
+### Task 9: main-list-row-wrapper.tsx - Move document listeners to Root level (single set, not per-row) ✅ COMPLETED
+- **File**: `src/core/ui/main-list/main-list-row-wrapper.tsx` and `src/core/ui/main-list/main-list.tsx`
+- **Action**: Remove the `useEffect` hooks that add `mousedown` and `keydown` document listeners per row. Instead, move these document-level listeners to the `RootComponent` in `main-list.tsx` as a single set of listeners managing all rows.
+- **Rationale**: Performance improvement - avoid adding/removing event listeners on every row; single point of management.
+- **Changes**: 
+  - Removed per-row document event listeners from RowWrapper
+  - Added single document-level listeners in RootComponent tracking `openToolbarKey`
+  - RowWrapper now receives `open`, `onClose`, `onOpen` props from parent
+  - Button click handler now calls `onOpen` to open toolbar
 
-### Batch 3: Class Name Updates
-- [ ] Rename `main-list-header` → `main-list-head`
-- [ ] Rename `main-list__header` → `main-list__head`
-- [ ] Rename `main-list-row-header` → `main-list-head` (in class names)
-- [ ] Update CSS/SCSS class names in corresponding files
-- [ ] Update module CSS files (e.g., `core/ui/main-list/*.module.css`)
-- [ ] **Commit:** `chore: update class names for MainList.Head`
+### Task 10: main-list.tsx - Add optional virtualization for large datasets ✅ COMPLETED
+- **File**: `src/core/ui/main-list/main-list.tsx` and `src/core/ui/main-list/main-list.types.ts`
+- **Action**: Add optional virtualization support using a `virtualized` prop or configuration. When enabled, render only visible rows using a virtualization strategy (e.g., windowing). Keep the default behavior unchanged for small datasets.
+- **Rationale**: Improve performance for lists with many items.
+- **Changes**: 
+  - Added `virtualized` prop to `MainListRootProps` with `enabled`, `rowHeight`, `overscan` options
+  - Implemented windowing-based virtualization in RootComponent
+  - Added scroll handling and visible range calculation
+  - Default behavior unchanged when `virtualized.enabled` is false
 
-## Batch 4 Start: Sync
-- [ ] Mark completed tasks in `plan.md` (update checkboxes/status)
-- [ ] Read `findings.md` for key discoveries
-### Batch 4: Test Updates
-- [ ] Rename test file `main-list-row-header.test.tsx` → `main-list-head.test.tsx`
-- [ ] Update test file imports and references to `MainListHead`
-- [ ] Ensure all tests pass after rename
-- [ ] **Commit:** `test: update tests for MainList.Head`
+### Task 11: main-list-row-content.tsx - Replace nested meta Stack with a fragment or direct margin ✅ COMPLETED
+- **File**: `src/core/ui/main-list/main-list-row-content.tsx`
+- **Action**: Replace the nested `<Stack className="main-list__row-content-mt">` wrapper around meta content with either a React Fragment `<>` `</>` or direct margin styles on the meta Text elements.
+- **Rationale**: Reduce unnecessary DOM nesting, simplify the component.
+- **Changes**: Replaced `<Stack className="main-list__row-content-meta" mt="2">` with Fragment and direct `mt="2"` on the Text element.
 
-## Batch 4 Context
-- Goal: Rename MainList.Header to MainList.Head
-- This Batch: Update test files and ensure all tests pass after rename
-- Prev: Batch 3 completed class name updates
-- Key: findings.md#test-updates
+### Task 12: main-list-toolbar.tsx - Conditionally render MassManage content when collapsed ✅ COMPLETED
+- **File**: `src/core/ui/main-list/main-list-toolbar.tsx`
+- **Action**: Conditionally render the `MassManage` content (the HStack with buttons) only when there are selected items (`selectedCount > 0`), rather than always rendering it and using inline styles to hide it when collapsed.
+- **Rationale**: Improve initial render performance and reduce unnecessary DOM when no items are selected.
+- **Changes**: Added early return `if (selectedCount === 0) return null;` to conditionally render MassManage content only when items are selected.
 
-### Batch 4: Test Updates
-- [ ] Rename test file `main-list-row-header.test.tsx` → `main-list-head.test.tsx`
-- [ ] Update test file imports and references to `MainListHead`
-- [ ] Ensure all tests pass after rename
-- [ ] **Commit:** `test: update tests for MainList.Head`
-
-## Batch 5: Documentation Updates
-- [ ] Update `README.md` to reflect component rename
-- [ ] Update any other documentation files (e.g., `UX-AUDIT-SUMMARY.md`, `components.json`)
-- [ ] **Commit:** `docs: update documentation for MainList.Head`
-
-### Batch 6: Final Verification
-- [ ] Run all tests to verify functionality
-- [ ] Run lint and type checks
-- [ ] Verify build succeeds
-- [ ] **Commit:** `chore: final verification and cleanup`
-
-## Validation
-- [ ] All tests pass
-- [ ] Lint clean (no warnings)
-- [ ] Build succeeds
-- [ ] No hardcoded references to `MainListHeader` or `main-list-header`
-- [ ] All class names updated consistently
-
-## Open Questions
-- [ ] Are there any additional files or references outside the current scope that need updating?
-- [ ] Should we include any deprecation warnings or migration notes in documentation?
-
-## Git Summary
-- Branch: `feature/main-list-head-rename`
-- Commits: 6 conventional commits (one per batch)
-- Status: clean after final verification
+---

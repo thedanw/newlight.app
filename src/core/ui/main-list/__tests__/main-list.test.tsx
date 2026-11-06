@@ -204,7 +204,8 @@ describe("MainList row toolbar (managed)", () => {
             // Mass manage toolbar should be open
             expect(document.querySelector('[data-visible="true"]')).not.toBeNull();
             expect(checkboxes()[0]).toBeChecked();
-            expect(document.querySelector('[data-select-mode="true"] > div > div')).toHaveClass(
+            // RowSelect is now a direct div with rowSelect class (no Stack wrapper)
+            expect(document.querySelector('[data-select-mode="true"] > div')).toHaveClass(
                 mainListSlotClassNames.rowSelect()
             );
         });
@@ -231,7 +232,7 @@ describe("MainList row toolbar (managed)", () => {
         // recipe output is asserted directly, as with the rowSelect tests below.)
         const openRow = document.querySelector('[data-toolbar-open="true"]');
         expect(openRow).not.toBeNull();
-        const rowClass = mainListSlotClassNames.row();
+        const rowClass = mainListSlotClassNames.rowWrapper();
         expect((openRow as Element).className).toContain(rowClass.split(" ")[0]);
 
         // The overlay class itself pins the backdrop at zIndex 50.
@@ -332,7 +333,7 @@ describe("MainList row slots + select variant", () => {
         );
 
         const row = container.querySelector('[data-select-mode="false"]');
-        expect(row?.firstElementChild?.firstElementChild).toHaveClass(mainListSlotClassNames.rowSelect());
+        expect(row?.firstElementChild).toHaveClass(mainListSlotClassNames.rowSelect());
     });
 
     it("switches RowSelect to the visible width variant in select mode", async () => {
@@ -341,7 +342,7 @@ describe("MainList row slots + select variant", () => {
 
         await waitFor(() => {
             const row = document.querySelector('[data-select-mode="true"]');
-            expect(row?.firstElementChild?.firstElementChild).toHaveClass(mainListSlotClassNames.rowSelect());
+            expect(row?.firstElementChild).toHaveClass(mainListSlotClassNames.rowSelect());
         });
     });
 });

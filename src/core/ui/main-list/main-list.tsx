@@ -1,5 +1,5 @@
 "use client";
-import {useCallback, useMemo} from "react";
+import {useCallback, useMemo, useState, useEffect, useRef} from "react";
 import {type ComponentProps} from "react";
 import {Edit2, ChevronLeft, ChevronRight} from "lucide-react";
 import {Icon} from "../icon";
@@ -8,12 +8,14 @@ import {Root, Rows, Footer, mainListCssVars} from "./main-list-context";
 import {Stack} from "styled-system/jsx";
 import {RowSelect} from "./main-list-row-select";
 import {RowButton} from "./main-list-row-button";
-import {Row} from "./main-list-row";
+import {RowWrapper} from "./main-list-row-wrapper";
 import {RowContent} from "./main-list-row-content";
+import {Cell} from "./main-list-cell";
 import {RowToolbar} from "./main-list-row-toolbar";
 import {RowHeader} from "./main-list-head";
 import {Toolbar, MassManage, MassManageButton, PrimaryActions, SecondaryActions} from "./main-list-toolbar";
 import type {MainListRootProps, MainListFooterProps} from "./main-list.types";
+import {useMainListSelection} from "./use-main-list-selection";
 
 export type RootProps = ComponentProps<typeof Root>;
 
@@ -31,14 +33,74 @@ export function RootComponent<T>({
     toolbar,
     selection,
     massManage,
+    virtualized,
     ...props
 }: MainListRootProps<T> & ComponentProps<"div">) {
     // D3: Root is the controlled owner of selection. There is no internal
     // `selectedKeys` state — the consumer's `selection.selectedKeys` is the
     // single source of truth (fixes split-brain, findings #3).
-    const selectedKeys = selection?.selectedKeys ?? EMPTY_SELECTION;
-    const selectMode = selectedKeys.size > 0;
-    const selectionEnabled = selection !== undefined;
+    const {selectedKeys, selectMode, selectionEnabled} = useMainListSelection({
+        selection,
+        items,
+        getKey,
+    });
+
+    // Track which row's toolbar is open (by item key)
+    const [openToolbarKey, setOpenToolbarKey] = useState<string | null>(null);
+
+    // Virtualization state
+    const [scrollTop, setScrollTop] = useState(0);
+    const [containerHeight, setContainerHeight] = useState(0);
+    const rowsRef = useRef<HTMLDivElement>(null);
+
+    // Virtualization config
+    const rowHeight = virtualized?.rowHeight ?? 52;
+    const overscan = virtualized?.overscan ?? 5;
+    const isVirtualized = virtualized?.enabled ?? false;
+
+    // Calculate visible range for virtualization
+    const visibleRange = useMemo(() => {
+        if (!isVirtualized || !containerHeight) {
+            return {startIndex: 0, endIndex: items.length};
+        }
+        const startIndex = Math.max(0, Math.floor(scrollTop / rowHeight) - overscan);
+        const endIndex = Math.min(items.length, Math.ceil((scrollTop + containerHeight) / rowHeight) + overscan);
+        return {startIndex, endIndex};
+    }, [isVirtualized, containerHeight, scrollTop, rowHeight, overscan, items.length]);
+
+    // Single document-level listeners for all rows (Task 9)
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (openToolbarKey) {
+                // Check if click is outside any row with open toolbar
+                const target = event.target as Node;
+                const rows = document.querySelectorAll('[data-toolbar-open="true"]');
+                let clickedInsideOpenRow = false;
+                rows.forEach((row) => {
+                    if (row.contains(target)) {
+                        clickedInsideOpenRow = true;
+                    }
+                });
+                if (!clickedInsideOpenRow) {
+                    setOpenToolbarKey(null);
+                }
+            }
+        };
+
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === "Escape" && openToolbarKey) {
+                event.stopPropagation();
+                setOpenToolbarKey(null);
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+        document.addEventListener("keydown", handleKeyDown);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+            document.removeEventListener("keydown", handleKeyDown);
+        };
+    }, [openToolbarKey]);
 
     // Sync selection from props
     const handleSelectionChange = useCallback(
@@ -95,8 +157,9 @@ export function RootComponent<T>({
         return items.map((item, index) => {
             const key = getKey(item);
             const isSelected = selectedKeys.has(key);
+            const isToolbarOpen = openToolbarKey === key;
             return (
-                <Row
+                <RowWrapper
                     key={key}
                     item={item}
                     index={index}
@@ -133,9 +196,12 @@ export function RootComponent<T>({
                             label="Manage"
                         />
                     }
-                    toolbar={renderRowToolbar?.(item, index, headers)}>
+                    toolbar={renderRowToolbar?.(item, index, headers)}
+                    open={isToolbarOpen}
+                    onClose={() => setOpenToolbarKey(null)}
+                    onOpen={() => setOpenToolbarKey(key)}>
                     {renderRow(item, index, headers)}
-                </Row>
+                </RowWrapper>
             );
         });
     }, [
@@ -149,6 +215,7 @@ export function RootComponent<T>({
         renderRowToolbar,
         onRowClick,
         headers,
+        openToolbarKey,
     ]);
 
     // Mass manage component
@@ -200,11 +267,90 @@ export function RootComponent<T>({
         );
     }, [toolbar, massManageComponent]);
 
+    const totalHeight = items.length * rowHeight;
+    const offsetY = visibleRange.startIndex * rowHeight;
+
+    // Render rows - virtualized or normal
+    const renderedRows = isVirtualized ? (
+        <>
+            <div style={{height: totalHeight, position: "relative"}}>
+                <div
+                    ref={rowsRef}
+                    style={{
+                        transform: `translateY(${offsetY}px)`,
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                    }}
+                    onScroll={(e) => {
+                        setScrollTop(e.currentTarget.scrollTop);
+                        const rect = e.currentTarget.getBoundingClientRect();
+                        setContainerHeight(rect.height);
+                    }}>
+                    {items.slice(visibleRange.startIndex, visibleRange.endIndex).map((item, relativeIndex) => {
+                        const index = visibleRange.startIndex + relativeIndex;
+                        const key = getKey(item);
+                        const isSelected = selectedKeys.has(key);
+                        const isToolbarOpen = openToolbarKey === key;
+                        return (
+                            <RowWrapper
+                                key={key}
+                                item={item}
+                                index={index}
+                                selected={isSelected}
+                                selectMode={selectMode}
+                                onClick={onRowClick ? () => onRowClick(item, index) : undefined}
+                                onSelect={
+                                    selectionEnabled
+                                        ? () => {
+                                              const newKeys = new Set(selectedKeys);
+                                              newKeys.add(key);
+                                              handleSelectionChange(newKeys);
+                                          }
+                                        : undefined
+                                }
+                                select={
+                                    <RowSelect
+                                        checked={isSelected}
+                                        onChange={(checked: boolean) => {
+                                            const newKeys = new Set(selectedKeys);
+                                            if (checked) newKeys.add(key);
+                                            else newKeys.delete(key);
+                                            handleSelectionChange(newKeys);
+                                        }}
+                                    />
+                                }
+                                button={
+                                    <RowButton
+                                        icon={
+                                            <Icon size="sm">
+                                                <Edit2 />
+                                            </Icon>
+                                        }
+                                        label="Manage"
+                                    />
+                                }
+                                toolbar={renderRowToolbar?.(item, index, headers)}
+                                open={isToolbarOpen}
+                                onClose={() => setOpenToolbarKey(null)}
+                                onOpen={() => setOpenToolbarKey(key)}>
+                                {renderRow(item, index, headers)}
+                            </RowWrapper>
+                        );
+                    })}
+                </div>
+            </div>
+        </>
+    ) : (
+        <Rows>{rows}</Rows>
+    );
+
     return (
         <Root ref={props.ref} className={mainListCssVars} {...props}>
             {toolbarComponent}
             {headers.length > 0 && <RowHeader headers={headers} selectMode={selectMode} />}
-            <Rows>{rows}</Rows>
+            {renderedRows}
             {pagination && (
                 <FooterComponent
                     currentPage={pagination.page}
@@ -221,7 +367,7 @@ RootComponent.displayName = "MainList.Root";
 
 // Add sub-components to Root
 Object.assign(RootComponent, {
-    Row,
+    RowWrapper,
     RowHeader,
     Toolbar,
     Footer: FooterComponent,
@@ -234,11 +380,12 @@ Object.assign(Toolbar, {
     MassManage,
 });
 
-Object.assign(Row, {
+Object.assign(RowWrapper, {
     Select: RowSelect,
     Button: RowButton,
     Toolbar: RowToolbar,
     Content: RowContent,
+    Cell: Cell,
 });
 
 // Footer component
@@ -293,7 +440,7 @@ RootComponent.Rows = RowsComponent;
 // Export MainList namespace for proper sub-component access
 export const MainList = {
     Root: RootComponent,
-    Row,
+    RowWrapper,
     RowHeader,
     Toolbar,
     Footer: FooterComponent,
@@ -302,6 +449,7 @@ export const MainList = {
     RowButton,
     RowToolbar,
     RowContent,
+    Cell,
     PrimaryActions,
     SecondaryActions,
     MassManage,

@@ -90,46 +90,39 @@ export const MassManage = forwardRef<HTMLDivElement, MassManageProps>(function M
     ref
 ) {
     return (
-        <Stack
-            ref={ref}
-            className={mainListSlotClassNames.massManage()}
-            data-visible={selectedCount > 0}
-            style={{
-                overflow: "hidden",
-                transition: "height 0.2s ease, padding-top 0.2s ease, padding-bottom 0.2s ease",
-                height: selectedCount > 0 ? "auto" : 0,
-            }}
-            paddingTop={selectedCount > 0 ? 2 : 0}
-            paddingBottom={selectedCount > 0 ? 2 : 0}
-            {...props}>
-            <HStack style={{flex: 1, justifyContent: "flex-start"}}>
-                <Button variant="plain" size="fluidMd" onClick={onSelectAll} disabled={allFilteredSelected}>
-                    Select All
-                </Button>
-                <Button variant="plain" size="fluidMd" onClick={onSelectVisible} disabled={allVisibleSelected}>
-                    Select Visible
-                </Button>
-                <Button variant="plain" size="fluidMd" onClick={onDeselectAll}>
-                    Deselect All
-                </Button>
-                <Button
-                    variant="solid"
-                    colorPalette="red"
-                    size="fluidMd"
-                    onClick={onDeleteSelected}
-                    disabled={deleting || selectedCount === 0}>
-                    <Icon>
-                        <Trash2 />
-                    </Icon>
-                    ({selectedCount})
-                </Button>
-                <Button variant="plain" size="fluidMd" onClick={onClose} aria-label="Clear selection">
-                    <Icon>
-                        <X />
-                    </Icon>
-                </Button>
-                <span className={css({fontSize: "xs", color: "fg.default", px: "2"})}>{selectedCount} selected</span>
-            </HStack>
+        <Stack ref={ref} className={mainListSlotClassNames.massManage()} data-visible={selectedCount > 0} {...props}>
+            {selectedCount > 0 && (
+                <HStack style={{flex: 1, justifyContent: "flex-start"}}>
+                    <Button variant="plain" size="fluidMd" onClick={onSelectAll} disabled={allFilteredSelected}>
+                        Select All
+                    </Button>
+                    <Button variant="plain" size="fluidMd" onClick={onSelectVisible} disabled={allVisibleSelected}>
+                        Select Visible
+                    </Button>
+                    <Button variant="plain" size="fluidMd" onClick={onDeselectAll}>
+                        Deselect All
+                    </Button>
+                    <Button
+                        variant="solid"
+                        colorPalette="red"
+                        size="fluidMd"
+                        onClick={onDeleteSelected}
+                        disabled={deleting || selectedCount === 0}>
+                        <Icon>
+                            <Trash2 />
+                        </Icon>
+                        ({selectedCount})
+                    </Button>
+                    <Button variant="plain" size="fluidMd" onClick={onClose} aria-label="Clear selection">
+                        <Icon>
+                            <X />
+                        </Icon>
+                    </Button>
+                    <span className={css({fontSize: "xs", color: "fg.default", px: "2"})}>
+                        {selectedCount} selected
+                    </span>
+                </HStack>
+            )}
         </Stack>
     );
 });
@@ -146,20 +139,7 @@ export const MassManageButton = forwardRef<HTMLButtonElement, MassManageButtonPr
     ref
 ) {
     return (
-        <Button
-            ref={ref}
-            variant="outline"
-            size="fluidSm"
-            onClick={onClick}
-            data-open={isOpen}
-            style={{
-                overflow: "hidden",
-                transition: "height 0.2s ease, padding-top 0.2s ease, padding-bottom 0.2s ease",
-                height: isOpen ? 0 : "auto",
-            }}
-            paddingTop={isOpen ? 0 : 2}
-            paddingBottom={isOpen ? 0 : 2}
-            {...props}>
+        <Button ref={ref} variant="outline" size="fluidSm" onClick={onClick} data-open={isOpen} {...props}>
             <Icon size="sm">
                 <ListChecks />
             </Icon>

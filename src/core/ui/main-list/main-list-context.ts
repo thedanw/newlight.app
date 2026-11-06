@@ -9,9 +9,9 @@ const mainListSlotClassNames = {
     root: (props?: Parameters<typeof mainList>[0]) => mainList(props).root,
     toolbar: (props?: Parameters<typeof mainList>[0]) => mainList(props).toolbar,
     rows: (props?: Parameters<typeof mainList>[0]) => mainList(props).rows,
-    row: (props?: Parameters<typeof mainList>[0]) => mainList(props).row,
     rowSelect: (props?: Parameters<typeof mainList>[0]) => mainList(props).rowSelect,
     rowContent: (props?: Parameters<typeof mainList>[0]) => mainList(props).rowContent,
+    rowCell: (props?: Parameters<typeof mainList>[0]) => mainList(props).rowCell,
     rowButton: (props?: Parameters<typeof mainList>[0]) => mainList(props).rowButton,
     rowToolbar: (props?: Parameters<typeof mainList>[0]) => mainList(props).rowToolbar,
     rowHeader: (props?: Parameters<typeof mainList>[0]) => mainList(props).rowHeader,
@@ -19,6 +19,7 @@ const mainListSlotClassNames = {
     primaryActions: (props?: Parameters<typeof mainList>[0]) => mainList(props).primaryActions,
     secondaryActions: (props?: Parameters<typeof mainList>[0]) => mainList(props).secondaryActions,
     massManage: (props?: Parameters<typeof mainList>[0]) => mainList(props).massManage,
+    rowWrapper: (props?: Parameters<typeof mainList>[0]) => mainList(props).rowWrapper,
 };
 
 export {mainListSlotClassNames};
@@ -29,7 +30,7 @@ export const Rows = withContext("div", "rows");
 export const Footer = withContext("div", "footer");
 export const Toolbar = withContext("div", "toolbar");
 export const MassManage = withContext("div", "massManage");
-export const Row = withContext("div", "row");
+export const RowWrapper = withContext("div", "rowWrapper");
 export const RowSelect = withContext("div", "rowSelect");
 export const RowButton = withContext("div", "rowButton");
 

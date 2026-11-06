@@ -83,7 +83,7 @@ MainList.Root
       <Div style={{ width: '10', textAlign: 'center' }} className='main-list__rowToolbar' />
     </MainList.Header>
   {/* Row content is rendered within MainList.Row components */}
-  <MainList.Row className={mainListSlotClassNames.row()}>
+  <MainList.Row className={mainListSlotClassNames.rowWrapper()}>
     <MainList.RowContent className={mainListSlotClassNames.rowContent()}>
       <Div style={{ flex: '1 1 0%', minWidth: 0, ...colStyles.name }} className={mainListSlotClassNames.rowCell()}>
         <Div>

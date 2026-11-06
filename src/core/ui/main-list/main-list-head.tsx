@@ -5,6 +5,7 @@ import {HStack} from "styled-system/jsx";
 import {mainListSlotClassNames} from "./main-list-context";
 import type {MainListHeaderConfig} from "./main-list.types";
 import {css} from "styled-system/css";
+import {getHeaderCellStyle} from "./main-list-column-utils";
 
 export interface RowHeaderProps {
     headers?: MainListHeaderConfig[];
@@ -19,7 +20,9 @@ export const RowHeader = forwardRef<HTMLDivElement, RowHeaderProps>(function Row
         <HStack
             ref={ref}
             className={`${mainListSlotClassNames.rowHeader()} ${css({fontSize: "xs"})}`}
-            style={{color: "var(--colors-fg-subtle)", backgroundColor: "var(--colors-bg-subtle)"} as React.CSSProperties}
+            style={
+                {color: "var(--colors-fg-subtle)", backgroundColor: "var(--colors-bg-subtle)"} as React.CSSProperties
+            }
             {...props}>
             <div
                 className={mainListSlotClassNames.rowSelect()}
@@ -29,26 +32,12 @@ export const RowHeader = forwardRef<HTMLDivElement, RowHeaderProps>(function Row
                     overflow: "hidden",
                 }}
             />
-            {headers.map((header: MainListHeaderConfig) => {
-                const isFlexWidth = header.width === "1fr";
-                return (
-                    <div
-                        key={header.key}
-                        style={{
-                            padding: "3",
-                            textAlign: header.align ?? "left",
-                            flex: isFlexWidth ? "1 1 0%" : `0 0 ${header.width}`,
-                            minWidth: isFlexWidth ? undefined : header.width,
-                            maxWidth: isFlexWidth ? undefined : header.width,
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            whiteSpace: "nowrap",
-                        }}>
-                        <Text color="fg.muted">{header.label}</Text>
-                    </div>
-                );
-            })}
-            <div style={{width: "10", textAlign: "center"}} />
+            {headers.map((header: MainListHeaderConfig) => (
+                <div key={header.key} className={mainListSlotClassNames.rowCell()} style={getHeaderCellStyle(header)}>
+                    <Text color="fg.muted">{header.label}</Text>
+                </div>
+            ))}
+            <div className={mainListSlotClassNames.rowSelect()} />
         </HStack>
     );
 });

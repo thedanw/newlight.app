@@ -60,6 +60,7 @@ export const tocCategories: TocCategory[] = [
       { name: 'AbsoluteCenter', description: 'Centers a child within its parent.', shipped: true },
       { name: 'Group', description: 'Groups related controls behind a shared border.', shipped: true },
       { name: 'Span', description: 'Inline text-span primitive.', shipped: true },
+       { name: 'MainList', description: 'List of items with rows, pagination, and selection.', shipped: true },
       { name: 'Card', description: 'Content container (Root/Header/Body/Footer).', shipped: true },
       { name: 'Table', description: 'Tabular data (Head/Body/Row/Cell).', shipped: true },
       { name: 'Image', description: 'Responsive image element.', shipped: true },

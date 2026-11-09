@@ -1,14 +1,5 @@
 "use client";
-import {
-    type ComponentProps,
-    useState,
-    useRef,
-    useEffect,
-    useId,
-    isValidElement,
-    cloneElement,
-    type ReactElement,
-} from "react";
+import {type ComponentProps, useRef, useEffect, useId, isValidElement, cloneElement, type ReactElement} from "react";
 import {mainListSlotClassNames, mainListOverlay} from "./main-list-context";
 import {RowToolbar} from "./main-list-row-toolbar";
 import {RowContent} from "./main-list-row-content";
@@ -22,6 +13,8 @@ type RowTriggerProps = {
     onClick?: (e: React.MouseEvent) => void;
     "aria-expanded"?: boolean;
     "aria-controls"?: string;
+    onToggle?: (isOpen: boolean) => void;
+    isOpen?: boolean;
 };
 
 export function RowWrapper<T>({
@@ -79,6 +72,14 @@ export function RowWrapper<T>({
         onOpen?.();
     };
 
+    const handleToggle = (isOpen: boolean) => {
+        if (isOpen) {
+            handleToolbarOpen();
+        } else {
+            handleToolbarClose();
+        }
+    };
+
     return (
         <>
             {open && <div className={mainListOverlay} onClick={handleToolbarClose} role="presentation" />}
@@ -116,15 +117,19 @@ export function RowWrapper<T>({
                                   "aria-controls": toolbarId,
                               })
                             : button)}
+                    {open &&
+                        button &&
+                        (isValidElement(button)
+                            ? cloneElement(button as ReactElement<RowTriggerProps>, {
+                                  onToggle: handleToggle,
+                                  isOpen: true,
+                                  "aria-expanded": true,
+                                  "aria-controls": toolbarId,
+                              })
+                            : button)}
                 </Stack>
                 {toolbar && (
-                    <RowToolbar
-                        ref={toolbarRef}
-                        open={open}
-                        onClose={handleToolbarClose}
-                        id={toolbarId}
-                        tabIndex={-1 as any}
-                        {...({} as any)}>
+                    <RowToolbar ref={toolbarRef} open={open} id={toolbarId} tabIndex={-1 as any} {...({} as any)}>
                         {toolbar}
                     </RowToolbar>
                 )}

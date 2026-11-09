@@ -94,6 +94,11 @@ export const mainList = defineSlotRecipe({
         },
         rowButton: {
             flexShrink: "0",
+            order: {base: 0, md: 1}, // at base: before toolbar; at md: after toolbar
+            // Custom style for when toolbar is open (button becomes close button)
+            '&[aria-expanded="true"]': {
+                bg: "gray.surface.bg.active",
+            },
         },
         rowToolbar: {
             display: "flex",
@@ -106,6 +111,7 @@ export const mainList = defineSlotRecipe({
             transition: "all 0.4s ease",
             boxShadow: "inset",
             background: "gray.surface.bg.active",
+            order: {base: 1, md: 0}, // at base: after button; at md: before button
             '&[data-open="true"]': {
                 maxHeight: "200px",
                 maxWidth: "full",

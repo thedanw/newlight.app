@@ -20,7 +20,7 @@ export function useMainListSelection<T>({
     items,
     getKey,
 }: {
-    selection?: { selectedKeys: Set<string>; onSelectionChange?: (keys: Set<string>) => void; onSelectVisible?: (keys: Set<string>) => void; onSelectAll?: (keys: Set<string>) => void; onDeselectAll?: () => void; allFilteredKeys?: Set<string> } | undefined;
+    selection?: { selectedKeys: Set<string>; onSelectionChange?: (keys: Set<string>) => void; onSelectVisible?: (visibleKeys: string[]) => void; onSelectAll?: (allKeys: string[]) => void; onDeselectAll?: () => void; allFilteredKeys?: string[] } | undefined;
     items: T[];
     getKey: (item: T) => string;
 }) {

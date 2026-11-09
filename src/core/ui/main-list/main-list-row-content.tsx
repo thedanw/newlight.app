@@ -17,6 +17,8 @@ export interface RowContentProps {
     children?: React.ReactNode;
     /** Column configuration for consistent alignment across modules */
     headers?: MainListHeaderConfig[];
+    /** Additional CSS styles */
+    style?: React.CSSProperties;
 }
 
 export const RowContent = forwardRef<HTMLDivElement, RowContentProps>(function RowContent(
@@ -34,8 +36,10 @@ export const RowContent = forwardRef<HTMLDivElement, RowContentProps>(function R
                   if (!header) return child;
                   // Only apply styles to Cell components (or elements with rowCell class)
                   const childType = child.type as React.ComponentType<any>;
+                  const childProps = child.props as { className?: string | string[] };
                   const isCell =
-                      childType?.displayName?.includes("Cell") || child.props?.className?.includes?.("rowCell");
+                      childType?.displayName?.includes("Cell") ||
+                      (childProps.className?.includes?.("rowCell"));
                   if (!isCell) return child;
                   return cloneElement(child as React.ReactElement<any>, {
                       ...getCellPropsFromHeader(header),

@@ -349,7 +349,9 @@ export function RootComponent<T>({
     return (
         <Root ref={props.ref} className={mainListCssVars} {...props}>
             {toolbarComponent}
-            {headers.length > 0 && <RowHeader headers={headers} selectMode={selectMode} />}
+            {headers.length > 0 && (
+                <RowHeader headers={headers} selectMode={selectMode} selectOpen={selectedKeys.size > 0} />
+            )}
             {renderedRows}
             {pagination && (
                 <FooterComponent

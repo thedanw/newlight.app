@@ -95,6 +95,7 @@ export const mainList = defineSlotRecipe({
         rowButton: {
             flexShrink: "0",
             order: {base: 0, md: 1}, // at base: before toolbar; at md: after toolbar
+            minWidth: "10", // matches icon button width (icon sm=20px + padding)
             // Custom style for when toolbar is open (button becomes close button)
             '&[aria-expanded="true"]': {
                 bg: "gray.surface.bg.active",
@@ -128,6 +129,16 @@ export const mainList = defineSlotRecipe({
             bg: "bg.subtle",
             borderBottomWidth: "1px",
             borderColor: "border",
+            // Select column width controlled by data-select-mode on the header
+            '&[data-select-mode="true"]': {
+                "--main-list-select-width": "48px",
+            },
+            '&[data-select-mode="false"]': {
+                "--main-list-select-width": "0px",
+            },
+            '&[data-select-open="true"]': {
+                "--main-list-select-width": "48px",
+            },
         },
         footer: {
             display: "flex",

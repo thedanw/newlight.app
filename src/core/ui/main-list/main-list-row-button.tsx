@@ -14,6 +14,8 @@ export interface RowButtonProps {
     disabled?: boolean;
     variant?: "plain" | "outline";
     size?: "sm" | "md" | "lg";
+    /** ARIA attribute for controlling element relationship */
+    "aria-controls"?: string;
 }
 
 export const RowButton = forwardRef<HTMLButtonElement, RowButtonProps>(function RowButton(

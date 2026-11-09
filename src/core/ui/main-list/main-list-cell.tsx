@@ -14,6 +14,8 @@ export interface MainListRowCellProps {
     minWidth?: string | number;
     /** Cell content */
     children?: React.ReactNode;
+    /** Additional CSS styles */
+    style?: React.CSSProperties;
 }
 
 export const Cell = forwardRef<HTMLDivElement, MainListRowCellProps>(function Cell(
@@ -29,7 +31,11 @@ export const Cell = forwardRef<HTMLDivElement, MainListRowCellProps>(function Ce
                 minWidth,
                 maxWidth: width,
                 textAlign: align,
-                alignItems: align,
+                alignItems: align === "left"
+                    ? "flex-start"
+                    : align === "right"
+                    ? "flex-end"
+                    : "center",
                 flex,
                 ...props.style,
             }}

@@ -10,10 +10,11 @@ import {getHeaderCellStyle} from "./main-list-column-utils";
 export interface RowHeaderProps {
     headers?: MainListHeaderConfig[];
     selectMode?: boolean;
+    selectOpen?: boolean;
 }
 
 export const RowHeader = forwardRef<HTMLDivElement, RowHeaderProps>(function RowHeader(
-    {headers = [], selectMode, ...props},
+    {headers = [], selectMode = false, selectOpen = false, ...props},
     ref
 ) {
     return (
@@ -21,8 +22,13 @@ export const RowHeader = forwardRef<HTMLDivElement, RowHeaderProps>(function Row
             ref={ref}
             className={`${mainListSlotClassNames.rowHeader()} ${css({fontSize: "xs"})}`}
             style={
-                {color: "var(--colors-fg-subtle)", backgroundColor: "var(--colors-bg-subtle)"} as React.CSSProperties
+                {
+                    color: "var(--colors-fg-subtle)",
+                    backgroundColor: "var(--colors-bg-subtle)",
+                } as React.CSSProperties
             }
+            data-select-mode={selectMode}
+            data-select-open={selectOpen}
             {...props}>
             <div
                 className={mainListSlotClassNames.rowSelect()}
@@ -37,7 +43,7 @@ export const RowHeader = forwardRef<HTMLDivElement, RowHeaderProps>(function Row
                     <Text color="fg.muted">{header.label}</Text>
                 </div>
             ))}
-            <div className={mainListSlotClassNames.rowSelect()} />
+            <div className={mainListSlotClassNames.rowButton()} />
         </HStack>
     );
 });

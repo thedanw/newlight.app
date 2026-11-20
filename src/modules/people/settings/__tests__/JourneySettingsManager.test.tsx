@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { render, act, screen, cleanup } from '@testing-library/react'
+import { render, screen, cleanup } from '@testing-library/react'
 import { JourneySettingsManager } from '../JourneySettingsManager'
 
 // Capture the drag lifecycle handlers passed to each DragDropProvider.

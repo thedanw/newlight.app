@@ -1,0 +1,41 @@
+# Ignore the boss skill junction
+coverage/
+.agents/skills/boss
+.agents/planning/.referenceFiles/churchcrm
+
+.agents/skills/
+.agents/skill-archive/
+
+# Logs
+logs
+*.log
+pnpm-debug.log*
+
+# Dependencies
+node_modules
+
+# Build output
+dist
+dist-ssr
+*.local
+
+# Secrets — never commit (see .env.example)
+.env
+.env.*
+!.env.example
+
+# Panda CSS generated
+styled-system
+# Vite dependency pre-bundle cache (regenerated on dev/build)
+.vite
+# Elvanto live-probe output (contains production PII samples)
+scripts/elvanto-probe/
+
+# Environment secrets (never commit)
+.env
+.env.*
+!.env.example
+# VS Code MCP config (contains personal access tokens — use ${env:VAR} refs)
+.vscode/mcp.json
+# Wrangler local state
+.wrangler/

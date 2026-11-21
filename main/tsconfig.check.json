@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.app.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.check.tsbuildinfo",
+    "incremental": true
+  },
+  "include": [
+    "src/modules/forms/dashboard.tsx",
+    "src/core/ui/main-list/**/*.ts",
+    "src/core/ui/main-list/**/*.tsx"
+  ]
+}

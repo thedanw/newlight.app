@@ -368,3 +368,27 @@ export const SYNC_ENTITIES: SyncEntityConfig[] = [
 export function getSyncEntityConfig(entity: string): SyncEntityConfig | undefined {
     return SYNC_ENTITIES.find((e) => e.entity === entity);
 }
+
+/**
+ * Load a slug→id map for all journey stages so sync can resolve stage values
+ * at runtime instead of assuming deterministic UUIDs.
+ */
+export async function loadStageMap(supabase: TypedSupabaseClient): Promise<Map<string, string>> {
+    const map = new Map<string, string>()
+    try {
+        const { data, error } = await (supabase as any)
+            .from('journey_stages')
+            .select('id, slug')
+            .is('deleted_at', null)
+        if (error) {
+            console.error('[MappingEngine] Failed to load journey stages:', error)
+            return map
+        }
+        for (const row of data ?? []) {
+            if (row?.id && row?.slug) map.set(row.slug, row.id)
+        }
+    } catch (err) {
+        console.error('[MappingEngine] Error loading journey stages:', err)
+    }
+    return map
+}

@@ -1,0 +1,101 @@
+/* Olive palette — GENERATED FILE, DO NOT EDIT.
+   Compiled from src/core/theme/colors/olive.ts (Park UI package, installed
+   via `npx @park-ui/cli add olive`) by scripts/generate-theme-colors.mjs
+   (`pnpm theme:colors`). Self-contained light + dark values, scoped to html
+   data attributes so they override the Panda bundle defaults while this
+   scheme is selected. Loaded on demand by src/core/theme/theme-loader.js.
+   Roles: gray. */
+
+[data-gray-color='olive'] {
+  --colors-gray-1: #fcfdfc;
+  --colors-gray-2: #f8faf8;
+  --colors-gray-3: #eff1ef;
+  --colors-gray-4: #e7e9e7;
+  --colors-gray-5: #dfe2df;
+  --colors-gray-6: #d7dad7;
+  --colors-gray-7: #cccfcc;
+  --colors-gray-8: #b9bcb8;
+  --colors-gray-9: #898e87;
+  --colors-gray-10: #7f847d;
+  --colors-gray-11: #60655f;
+  --colors-gray-12: #1d211c;
+  --colors-gray-a1: #00550003;
+  --colors-gray-a2: #00490007;
+  --colors-gray-a3: #00200010;
+  --colors-gray-a4: #00160018;
+  --colors-gray-a5: #00180020;
+  --colors-gray-a6: #00140028;
+  --colors-gray-a7: #000f0033;
+  --colors-gray-a8: #040f0047;
+  --colors-gray-a9: #050f0078;
+  --colors-gray-a10: #040e0082;
+  --colors-gray-a11: #020a00a0;
+  --colors-gray-a12: #010600e3;
+  --colors-gray-solid-bg: black;
+  --colors-gray-solid-bg-hover: #1d211c;
+  --colors-gray-solid-fg: white;
+  --colors-gray-subtle-bg: #00200010;
+  --colors-gray-subtle-bg-hover: #00160018;
+  --colors-gray-subtle-bg-active: #00180020;
+  --colors-gray-subtle-fg: #1d211c;
+  --colors-gray-surface-bg: white;
+  --colors-gray-surface-bg-hover: #f8faf8;
+  --colors-gray-surface-bg-active: #eff1ef;
+  --colors-gray-surface-border: #d7dad7;
+  --colors-gray-surface-border-hover: #cccfcc;
+  --colors-gray-surface-fg: #1d211c;
+  --colors-gray-outline-bg-hover: #00490007;
+  --colors-gray-outline-bg-active: #00200010;
+  --colors-gray-outline-border: #d7dad7;
+  --colors-gray-outline-fg: #1d211c;
+  --colors-gray-plain-bg-hover: #00200010;
+  --colors-gray-plain-bg-active: #00160018;
+  --colors-gray-plain-fg: #1d211c;
+}
+
+[data-gray-color='olive'][data-mode='dark'] {
+  --colors-gray-1: #111210;
+  --colors-gray-2: #181917;
+  --colors-gray-3: #212220;
+  --colors-gray-4: #282a27;
+  --colors-gray-5: #2f312e;
+  --colors-gray-6: #383a36;
+  --colors-gray-7: #454843;
+  --colors-gray-8: #5c625b;
+  --colors-gray-9: #687066;
+  --colors-gray-10: #767d74;
+  --colors-gray-11: #afb5ad;
+  --colors-gray-12: #eceeec;
+  --colors-gray-a1: #00000000;
+  --colors-gray-a2: #f1f2f008;
+  --colors-gray-a3: #f4f5f312;
+  --colors-gray-a4: #f3fef21a;
+  --colors-gray-a5: #f2fbf122;
+  --colors-gray-a6: #f4faed2c;
+  --colors-gray-a7: #f2fced3b;
+  --colors-gray-a8: #edfdeb57;
+  --colors-gray-a9: #ebfde766;
+  --colors-gray-a10: #f0fdec74;
+  --colors-gray-a11: #f6fef4b0;
+  --colors-gray-a12: #fdfffded;
+  --colors-gray-solid-bg: white;
+  --colors-gray-solid-bg-hover: #eceeec;
+  --colors-gray-solid-fg: black;
+  --colors-gray-subtle-bg: #f4f5f312;
+  --colors-gray-subtle-bg-hover: #f3fef21a;
+  --colors-gray-subtle-bg-active: #f2fbf122;
+  --colors-gray-subtle-fg: #eceeec;
+  --colors-gray-surface-bg: #111210;
+  --colors-gray-surface-bg-hover: #181917;
+  --colors-gray-surface-bg-active: #212220;
+  --colors-gray-surface-border: #383a36;
+  --colors-gray-surface-border-hover: #454843;
+  --colors-gray-surface-fg: #eceeec;
+  --colors-gray-outline-bg-hover: #f1f2f008;
+  --colors-gray-outline-bg-active: #f4f5f312;
+  --colors-gray-outline-border: #383a36;
+  --colors-gray-outline-fg: #eceeec;
+  --colors-gray-plain-bg-hover: #f4f5f312;
+  --colors-gray-plain-bg-active: #f3fef21a;
+  --colors-gray-plain-fg: #eceeec;
+}

@@ -1,0 +1,56 @@
+{
+  "name": "elvanto-sync",
+  "displayName": "Elvanto Sync",
+  "version": "1.0.0",
+  "description": "Two-way sync with Elvanto ChMS (Church Management System)",
+  "author": "New Light",
+  "entryPoint": "index.ts",
+  "settings": {
+    "sections": [
+      {
+        "id": "integrations",
+        "title": "Integrations",
+        "description": "Third-party integrations and external service connections.",
+        "order": 100
+      }
+    ],
+    "pages": [
+      {
+        "sectionId": "integrations",
+        "id": "elvanto-sync",
+        "title": "Elvanto Sync",
+        "component": "ElvantoSyncSettingsPage",
+        "order": 0
+      }
+    ]
+  },
+  "dashboardWidgets": [
+    {
+      "id": "elvanto-sync-status",
+      "title": "Elvanto Sync Status",
+      "component": "ElvantoSyncStatusWidget",
+      "size": "medium"
+    }
+  ],
+  "hooks": {
+    "settingsSections": "registerElvantoSyncSettings",
+    "settingsPages": "registerElvantoSyncPages",
+    "dashboardWidgets": "registerElvantoSyncWidgets",
+    "settingsLinks": "registerElvantoSyncSettingsLinks"
+  },
+  "permissions": [
+    "people.read",
+    "people.write",
+    "households.read",
+    "households.write",
+    "journey_tracks.read",
+    "journey_tracks.write",
+    "elvanto_settings.read",
+    "elvanto_settings.write",
+    "elvanto_sync_config.read",
+    "elvanto_sync_config.write",
+    "elvanto_sync_history.read",
+    "elvanto_sync_dead_letter.read",
+    "elvanto_sync_dead_letter.write"
+  ]
+}

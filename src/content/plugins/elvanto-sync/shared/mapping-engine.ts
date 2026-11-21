@@ -374,21 +374,18 @@ export function getSyncEntityConfig(entity: string): SyncEntityConfig | undefine
  * at runtime instead of assuming deterministic UUIDs.
  */
 export async function loadStageMap(supabase: TypedSupabaseClient): Promise<Map<string, string>> {
-    const map = new Map<string, string>()
+    const map = new Map<string, string>();
     try {
-        const { data, error } = await (supabase as any)
-            .from('journey_stages')
-            .select('id, slug')
-            .is('deleted_at', null)
+        const {data, error} = await (supabase as any).from("journey_stages").select("id, slug").is("deleted_at", null);
         if (error) {
-            console.error('[MappingEngine] Failed to load journey stages:', error)
-            return map
+            console.error("[MappingEngine] Failed to load journey stages:", error);
+            return map;
         }
         for (const row of data ?? []) {
-            if (row?.id && row?.slug) map.set(row.slug, row.id)
+            if (row?.id && row?.slug) map.set(row.slug, row.id);
         }
     } catch (err) {
-        console.error('[MappingEngine] Error loading journey stages:', err)
+        console.error("[MappingEngine] Error loading journey stages:", err);
     }
-    return map
+    return map;
 }

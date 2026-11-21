@@ -1,0 +1,16 @@
+/* Font theme - loaded dynamically */
+[data-font='inter'] {
+  --font-family-base: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+}
+
+[data-font='poppins'] {
+  --font-family-base: 'Poppins', 'Inter', ui-sans-serif, system-ui, sans-serif;
+}
+
+[data-font='raleway'] {
+  --font-family-base: 'Raleway', 'Inter', ui-sans-serif, system-ui, sans-serif;
+}
+
+[data-font='dm-sans'] {
+  --font-family-base: 'DM Sans', 'Inter', ui-sans-serif, system-ui, sans-serif;
+}

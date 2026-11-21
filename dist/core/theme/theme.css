@@ -1,0 +1,16 @@
+/* ==========================================================================
+   BASE THEME - Critical CSS loaded before dynamic palettes
+   ========================================================================== */
+
+:root {
+  color-scheme: light;
+}
+
+[data-color-scheme="dark"] {
+  color-scheme: dark;
+}
+
+:root {
+  --canvas-bg: var(--colors-gray-1);
+  --canvas-fg: var(--colors-fg-default);
+}

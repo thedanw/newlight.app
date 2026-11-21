@@ -1,0 +1,101 @@
+/* Mauve palette — GENERATED FILE, DO NOT EDIT.
+   Compiled from src/core/theme/colors/mauve.ts (Park UI package, installed
+   via `npx @park-ui/cli add mauve`) by scripts/generate-theme-colors.mjs
+   (`pnpm theme:colors`). Self-contained light + dark values, scoped to html
+   data attributes so they override the Panda bundle defaults while this
+   scheme is selected. Loaded on demand by src/core/theme/theme-loader.js.
+   Roles: gray. */
+
+[data-gray-color='mauve'] {
+  --colors-gray-1: #fdfcfd;
+  --colors-gray-2: #faf9fb;
+  --colors-gray-3: #f2eff3;
+  --colors-gray-4: #eae7ec;
+  --colors-gray-5: #e3dfe6;
+  --colors-gray-6: #dbd8e0;
+  --colors-gray-7: #d0cdd7;
+  --colors-gray-8: #bcbac7;
+  --colors-gray-9: #8e8c99;
+  --colors-gray-10: #84828e;
+  --colors-gray-11: #65636d;
+  --colors-gray-12: #211f26;
+  --colors-gray-a1: #55005503;
+  --colors-gray-a2: #2b005506;
+  --colors-gray-a3: #30004010;
+  --colors-gray-a4: #20003618;
+  --colors-gray-a5: #20003820;
+  --colors-gray-a6: #14003527;
+  --colors-gray-a7: #10003332;
+  --colors-gray-a8: #08003145;
+  --colors-gray-a9: #05001d73;
+  --colors-gray-a10: #0500197d;
+  --colors-gray-a11: #0400119c;
+  --colors-gray-a12: #020008e0;
+  --colors-gray-solid-bg: black;
+  --colors-gray-solid-bg-hover: #211f26;
+  --colors-gray-solid-fg: white;
+  --colors-gray-subtle-bg: #30004010;
+  --colors-gray-subtle-bg-hover: #20003618;
+  --colors-gray-subtle-bg-active: #20003820;
+  --colors-gray-subtle-fg: #211f26;
+  --colors-gray-surface-bg: white;
+  --colors-gray-surface-bg-hover: #faf9fb;
+  --colors-gray-surface-bg-active: #f2eff3;
+  --colors-gray-surface-border: #dbd8e0;
+  --colors-gray-surface-border-hover: #d0cdd7;
+  --colors-gray-surface-fg: #211f26;
+  --colors-gray-outline-bg-hover: #2b005506;
+  --colors-gray-outline-bg-active: #30004010;
+  --colors-gray-outline-border: #dbd8e0;
+  --colors-gray-outline-fg: #211f26;
+  --colors-gray-plain-bg-hover: #30004010;
+  --colors-gray-plain-bg-active: #20003618;
+  --colors-gray-plain-fg: #211f26;
+}
+
+[data-gray-color='mauve'][data-mode='dark'] {
+  --colors-gray-1: #121113;
+  --colors-gray-2: #1a191b;
+  --colors-gray-3: #232225;
+  --colors-gray-4: #2b292d;
+  --colors-gray-5: #323035;
+  --colors-gray-6: #3c393f;
+  --colors-gray-7: #49474e;
+  --colors-gray-8: #625f69;
+  --colors-gray-9: #6f6d78;
+  --colors-gray-10: #7c7a85;
+  --colors-gray-11: #b5b2bc;
+  --colors-gray-12: #eeeef0;
+  --colors-gray-a1: #00000000;
+  --colors-gray-a2: #f5f4f609;
+  --colors-gray-a3: #ebeaf814;
+  --colors-gray-a4: #eee5f81d;
+  --colors-gray-a5: #efe6fe25;
+  --colors-gray-a6: #f1e6fd30;
+  --colors-gray-a7: #eee9ff40;
+  --colors-gray-a8: #eee7ff5d;
+  --colors-gray-a9: #eae6fd6e;
+  --colors-gray-a10: #ece9fd7c;
+  --colors-gray-a11: #f5f1ffb7;
+  --colors-gray-a12: #fdfdffef;
+  --colors-gray-solid-bg: white;
+  --colors-gray-solid-bg-hover: #eeeef0;
+  --colors-gray-solid-fg: black;
+  --colors-gray-subtle-bg: #ebeaf814;
+  --colors-gray-subtle-bg-hover: #eee5f81d;
+  --colors-gray-subtle-bg-active: #efe6fe25;
+  --colors-gray-subtle-fg: #eeeef0;
+  --colors-gray-surface-bg: #121113;
+  --colors-gray-surface-bg-hover: #1a191b;
+  --colors-gray-surface-bg-active: #232225;
+  --colors-gray-surface-border: #3c393f;
+  --colors-gray-surface-border-hover: #49474e;
+  --colors-gray-surface-fg: #eeeef0;
+  --colors-gray-outline-bg-hover: #f5f4f609;
+  --colors-gray-outline-bg-active: #ebeaf814;
+  --colors-gray-outline-border: #3c393f;
+  --colors-gray-outline-fg: #eeeef0;
+  --colors-gray-plain-bg-hover: #ebeaf814;
+  --colors-gray-plain-bg-active: #eee5f81d;
+  --colors-gray-plain-fg: #eeeef0;
+}

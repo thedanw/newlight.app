@@ -1,0 +1,99 @@
+/* Yellow palette — GENERATED FILE, DO NOT EDIT.
+   Compiled from src/core/theme/colors/yellow.ts (Park UI package, installed
+   via `npx @park-ui/cli add yellow`) by scripts/generate-theme-colors.mjs
+   (`pnpm theme:colors`). Self-contained light + dark values, scoped to html
+   data attributes so they override the Panda bundle defaults while this
+   scheme is selected. Loaded on demand by src/core/theme/theme-loader.js.
+   Roles: accent. */
+
+[data-color-scheme='yellow'] {
+  --colors-color-palette-1: #fdfdf9;
+  --colors-color-palette-2: #fefce9;
+  --colors-color-palette-3: #fffab8;
+  --colors-color-palette-4: #fff394;
+  --colors-color-palette-5: #ffe770;
+  --colors-color-palette-6: #f3d768;
+  --colors-color-palette-7: #e4c767;
+  --colors-color-palette-8: #d5ae39;
+  --colors-color-palette-9: #ffe629;
+  --colors-color-palette-10: #ffdc00;
+  --colors-color-palette-11: #9e6c00;
+  --colors-color-palette-12: #473b1f;
+  --colors-color-palette-a1: #aaaa0006;
+  --colors-color-palette-a2: #f4dd0016;
+  --colors-color-palette-a3: #ffee0047;
+  --colors-color-palette-a4: #ffe3016b;
+  --colors-color-palette-a5: #ffd5008f;
+  --colors-color-palette-a6: #ebbc0097;
+  --colors-color-palette-a7: #d2a10098;
+  --colors-color-palette-a8: #c99700c6;
+  --colors-color-palette-a9: #ffe100d6;
+  --colors-color-palette-a10: #ffdc00;
+  --colors-color-palette-a11: #9e6c00;
+  --colors-color-palette-a12: #2e2000e0;
+  --colors-color-palette-solid-bg: #ffe629;
+  --colors-color-palette-solid-bg-hover: #ffdc00;
+  --colors-color-palette-solid-fg: #473b1f;
+  --colors-color-palette-subtle-bg: #ffee0047;
+  --colors-color-palette-subtle-bg-hover: #ffe3016b;
+  --colors-color-palette-subtle-bg-active: #ffd5008f;
+  --colors-color-palette-subtle-fg: #9e6c00;
+  --colors-color-palette-surface-bg: #f4dd0016;
+  --colors-color-palette-surface-bg-active: #ffee0047;
+  --colors-color-palette-surface-border: #ebbc0097;
+  --colors-color-palette-surface-border-hover: #d2a10098;
+  --colors-color-palette-surface-fg: #9e6c00;
+  --colors-color-palette-outline-bg-hover: #f4dd0016;
+  --colors-color-palette-outline-bg-active: #ffee0047;
+  --colors-color-palette-outline-border: #d2a10098;
+  --colors-color-palette-outline-fg: #9e6c00;
+  --colors-color-palette-plain-bg-hover: #ffee0047;
+  --colors-color-palette-plain-bg-active: #ffe3016b;
+  --colors-color-palette-plain-fg: #9e6c00;
+}
+
+[data-color-scheme='yellow'][data-mode='dark'] {
+  --colors-color-palette-1: #14120b;
+  --colors-color-palette-2: #1b180f;
+  --colors-color-palette-3: #2d2305;
+  --colors-color-palette-4: #362b00;
+  --colors-color-palette-5: #433500;
+  --colors-color-palette-6: #524202;
+  --colors-color-palette-7: #665417;
+  --colors-color-palette-8: #836a21;
+  --colors-color-palette-9: #ffe629;
+  --colors-color-palette-10: #ffff57;
+  --colors-color-palette-11: #f5e147;
+  --colors-color-palette-12: #f6eeb4;
+  --colors-color-palette-a1: #d1510004;
+  --colors-color-palette-a2: #f9b4000b;
+  --colors-color-palette-a3: #ffaa001e;
+  --colors-color-palette-a4: #fdb70028;
+  --colors-color-palette-a5: #febb0036;
+  --colors-color-palette-a6: #fec40046;
+  --colors-color-palette-a7: #fdcb225c;
+  --colors-color-palette-a8: #fdca327b;
+  --colors-color-palette-a9: #ffe629;
+  --colors-color-palette-a10: #ffff57;
+  --colors-color-palette-a11: #fee949f5;
+  --colors-color-palette-a12: #fef6baf6;
+  --colors-color-palette-solid-bg: #ffe629;
+  --colors-color-palette-solid-bg-hover: #ffff57;
+  --colors-color-palette-solid-fg: #14120b;
+  --colors-color-palette-subtle-bg: #ffaa001e;
+  --colors-color-palette-subtle-bg-hover: #fdb70028;
+  --colors-color-palette-subtle-bg-active: #febb0036;
+  --colors-color-palette-subtle-fg: #fee949f5;
+  --colors-color-palette-surface-bg: #f9b4000b;
+  --colors-color-palette-surface-bg-active: #ffaa001e;
+  --colors-color-palette-surface-border: #fec40046;
+  --colors-color-palette-surface-border-hover: #fdcb225c;
+  --colors-color-palette-surface-fg: #fee949f5;
+  --colors-color-palette-outline-bg-hover: #f9b4000b;
+  --colors-color-palette-outline-bg-active: #ffaa001e;
+  --colors-color-palette-outline-border: #fdcb225c;
+  --colors-color-palette-outline-fg: #fee949f5;
+  --colors-color-palette-plain-bg-hover: #ffaa001e;
+  --colors-color-palette-plain-bg-active: #fdb70028;
+  --colors-color-palette-plain-fg: #fee949f5;
+}

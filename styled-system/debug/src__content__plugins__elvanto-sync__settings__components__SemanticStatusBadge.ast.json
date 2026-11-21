@@ -1,0 +1,107 @@
+{
+  "css": [
+    {
+      "type": "css",
+      "name": "css",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "CallExpression",
+        "line": 18,
+        "column": 12,
+        "endLineNumber": 18,
+        "endColumn": 80
+      },
+      "data": [
+        {
+          "color": "var(--colors-success)",
+          "borderColor": "currentColor"
+        }
+      ]
+    },
+    {
+      "type": "css",
+      "name": "css",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "CallExpression",
+        "line": 19,
+        "column": 12,
+        "endLineNumber": 19,
+        "endColumn": 80
+      },
+      "data": [
+        {
+          "color": "var(--colors-warning)",
+          "borderColor": "currentColor"
+        }
+      ]
+    },
+    {
+      "type": "css",
+      "name": "css",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "CallExpression",
+        "line": 20,
+        "column": 10,
+        "endLineNumber": 20,
+        "endColumn": 76
+      },
+      "data": [
+        {
+          "color": "var(--colors-error)",
+          "borderColor": "currentColor"
+        }
+      ]
+    },
+    {
+      "type": "css",
+      "name": "css",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "CallExpression",
+        "line": 21,
+        "column": 9,
+        "endLineNumber": 21,
+        "endColumn": 74
+      },
+      "data": [
+        {
+          "color": "var(--colors-info)",
+          "borderColor": "currentColor"
+        }
+      ]
+    }
+  ],
+  "cva": [],
+  "sva": [],
+  "token": [],
+  "jsx": [],
+  "recipe": {
+    "badge": [
+      {
+        "type": "jsx-recipe",
+        "name": "Badge",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 37,
+          "column": 5,
+          "endLineNumber": 37,
+          "endColumn": 59
+        },
+        "data": [
+          {
+            "variant": "outline"
+          }
+        ]
+      }
+    ]
+  },
+  "pattern": {}
+}

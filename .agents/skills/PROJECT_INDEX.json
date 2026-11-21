@@ -1,0 +1,117 @@
+{
+    "version": 1,
+    "generatedAt": "2026-11-12T00:00:00Z",
+    "registryType": "project-local",
+    "skills": [
+        {
+            "id": "elvanto-api",
+            "name": "elvanto-api",
+            "description": "Complete documentation and code patterns for LLM agents to interact with the Elvanto Church Management REST API. Use when querying people/volunteers, managing groups, scheduling services/events, updating songs, or processing financial transactions via the Elvanto API.",
+            "category": "elvanto",
+            "tags": [
+                "elvanto",
+                "church-management",
+                "rest-api",
+                "oauth2",
+                "api-key",
+                "people",
+                "groups",
+                "services",
+                "songs",
+                "calendar",
+                "financial",
+                "people-flows"
+            ],
+            "triggers": [
+                "elvanto",
+                "church-api",
+                "query-people",
+                "create-record",
+                "schedule-event",
+                "authenticate-elvanto"
+            ],
+            "path": "elvanto/elvanto-api",
+            "source": "project"
+        },
+        {
+            "id": "bible-study-orient",
+            "name": "bible-study-orient",
+            "description": "Orient phase - Load Grace Dynamic theology, user DNA, and select research sources for a passage.",
+            "category": "bible",
+            "tags": ["bible-study", "orient", "theology", "grace-dynamic", "user-dna", "research-sources"],
+            "triggers": ["bible-study-orient", "orient phase", "start bible study"],
+            "path": "boss/bible/phases/orient",
+            "source": "project"
+        },
+        {
+            "id": "bible-study-research",
+            "name": "bible-study-research",
+            "description": "Research phase - Fetch and extract research for a passage using the ResearchSources.md matrix.",
+            "category": "bible",
+            "tags": ["bible-study", "research", "commentary", "sermon", "article", "source-matrix"],
+            "triggers": ["bible-study-research", "research phase", "bible research"],
+            "path": "boss/bible/phases/research",
+            "source": "project"
+        },
+        {
+            "id": "bible-study-synthesize",
+            "name": "bible-study-synthesize",
+            "description": "Synthesize phase - Consolidate research, select pivot verse and 2-3 applications.",
+            "category": "bible",
+            "tags": ["bible-study", "synthesize", "pivot-verse", "applications", "grace-dynamic"],
+            "triggers": ["bible-study-synthesize", "synthesize phase", "consolidate research"],
+            "path": "boss/bible/phases/synthesize",
+            "source": "project"
+        },
+        {
+            "id": "bible-study-design",
+            "name": "bible-study-design",
+            "description": "Design phase - Generate 5 application options and 3-4 reading strategies from pivot verse and applications.",
+            "category": "bible",
+            "tags": ["bible-study", "design", "application-options", "reading-strategy", "user-selection"],
+            "triggers": ["bible-study-design", "design phase", "application options", "reading strategy"],
+            "path": "boss/bible/phases/design",
+            "source": "project"
+        },
+        {
+            "id": "bible-study-draft",
+            "name": "bible-study-draft",
+            "description": "Draft phase - Collaborative O/I/A question drafting with granular invocation (single question type per section).",
+            "category": "bible",
+            "tags": ["bible-study", "draft", "observe", "interpret", "apply", "granular", "refinement"],
+            "triggers": ["bible-study-draft", "draft phase", "write bible study questions", "observe interpret apply"],
+            "path": "boss/bible/phases/draft",
+            "source": "project"
+        },
+        {
+            "id": "bible-study-review",
+            "name": "bible-study-review",
+            "description": "Review phase - Final validation of study markdown before export: headings, labels, vocab, tone, numbering, answer format.",
+            "category": "bible",
+            "tags": ["bible-study", "review", "validation", "quality-gate", "export-prep"],
+            "triggers": ["bible-study-review", "review phase", "validate bible study", "export prep"],
+            "path": "boss/bible/phases/review",
+            "source": "project"
+        },
+        {
+            "id": "bible-study-series-workflow",
+            "name": "bible-study-series-workflow",
+            "description": "Series workflow - Orchestrates multiple studies: orient (once) → research/synthesize/design/draft/review per study.",
+            "category": "bible",
+            "tags": ["bible-study", "series", "orchestration", "multi-study", "workflow"],
+            "triggers": ["bible-study-series", "new series", "continue series", "series workflow"],
+            "path": "boss/bible/phases/series_workflow",
+            "source": "project"
+        },
+        {
+            "id": "bible-study-export-workflow",
+            "name": "bible-study-export-workflow",
+            "description": "Export workflow - Generates leader/participant guides in HTML, RTF, GDoc, PDF using shared export-config.yaml.",
+            "category": "bible",
+            "tags": ["bible-study", "export", "html", "rtf", "gdoc", "pdf", "leader-guide", "participant-guide"],
+            "triggers": ["bible-study-export", "export bible study", "generate booklet", "create docs"],
+            "path": "boss/bible/phases/export_workflow",
+            "source": "project"
+        }
+    ]
+}

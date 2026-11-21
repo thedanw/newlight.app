@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{title}}</title>
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=menu_book" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Inter+Tight:wght@600;700;800&display=swap');
+
+        :root {
+            --primary: #FF7300;
+            --text-dark: #313638;
+            --secondary-grey: #9ca19a;
+            --page-bg: #FFFFFF;
+            --screen-bg: #60695C;
+            --meta-bg: #F8F9FA;
+            --answer-grey: #7c7d77;
+            --answer-grey2: #ffe4ca;
+        }
+
+        /* Leader guide: answers rendered as muted grey blocks under questions */
+        .answer-block {
+            display: block;
+            margin: 0.25rem 0 0.75rem calc(70px + 0.5rem);
+            padding-left: 0.75rem;
+            font-size: 0.88em;
+            color: var(--answer-grey);
+            font-style: italic;
+            border-left: 3px solid #dbd8d6;
+            background: #FAFAFA;
+        }
+
+        .main-idea {
+            margin-top: 0.25rem;
+            font-size: 0.88em;
+            color: #7c7d77;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1;
+            color: var(--text-dark);
+            background: var(--screen-bg);
+            margin: 0;
+            padding: 2rem;
+            font-size: 11pt;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        h2 a {
+            color: var(--text-dark) !important;
+            text-decoration: none !important;
+        }
+
+        h2 a:hover {
+            color: var(--primary) !important;
+        }
+
+        .page,
+        .reference-page {
+            background: var(--page-bg);
+            max-width: 210mm;
+            min-height: 297mm;
+            margin: 0 auto 3rem auto;
+            padding: 1.5cm;
+            box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .page-break {
+            page-break-after: always;
+            break-after: page;
+        }
+
+        /* HEADER GRID */
+        .header-top {
+            display: grid;
+            grid-template-columns: 70px 1fr;
+            column-gap: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 3px double var(--primary);
+            padding-bottom: 1rem;
+        }
+
+        .study-num {
+            width: 70px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--primary) !important;
+            color: #fff !important;
+            font-family: 'Inter Tight', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .study-title h1 {
+            margin: 0;
+            font-family: 'Inter Tight', sans-serif;
+            font-size: 1.8rem;
+            line-height: 1;
+            color: var(--text-dark);
+            font-weight: 800;
+            text-transform: capitalize;
+        }
+
+        .study-subtitle {
+            font-size: 0.95rem;
+            color: #777;
+            font-style: italic;
+            margin-top: 0.5rem;
+        }
+
+        .study-passages {
+            font-size: 0.9rem;
+            color: var(--secondary-grey);
+            margin-top: 0.4rem;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .meta-block {
+            background: var(--meta-bg) !important;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid #ddd;
+        }
+
+        .meta-label {
+            color: var(--primary);
+            font-weight: 800;
+            font-size: 0.8rem;
+            margin-right: 0.5rem;
+            font-family: 'Inter Tight', sans-serif;
+        }
+
+        h2 {
+            font-family: 'Inter Tight', sans-serif;
+            font-size: 1.1rem;
+            color: var(--secondary-grey);
+            font-weight: 800;
+            text-transform: capitalize;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 0.3rem;
+            line-height: 1;
+        }
+
+        /* Read Passage Heading block */
+        .read-heading {
+            display: flex;
+            align-items: center;
+            border-bottom: none !important;
+            padding-bottom: 0 !important;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .read-icon {
+            background-color: var(--secondary-grey) !important;
+            color: #FFFFFF !important;
+            width: 24px;
+            height: 24px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px !important;
+            /* Material symbol size inside 32px square */
+            margin-right: 0.8rem;
+        }
+
+        .read-title {
+            font-family: 'Inter Tight', sans-serif;
+            font-size: 1rem;
+            font-weight: 800;
+            color: var(--text-dark);
+            letter-spacing: 0.03em;
+        }
+
+        h3 {
+            font-family: 'Inter Tight', sans-serif;
+            font-size: 0.95rem;
+            color: var(--primary);
+            font-weight: 700;
+            margin-top: 1.5rem;
+            margin-bottom: 0.8rem;
+            line-height: 1;
+        }
+
+        /* Two-Column Question Layout */
+        .question-row {
+            display: grid;
+            grid-template-columns: 70px 1fr;
+            column-gap: 0.5rem;
+            margin-top: 0.75rem;
+            margin-bottom: 0;
+            /* Margin spacing after each question content */
+            align-items: start;
+        }
+
+        .question-label {
+            font-family: 'Inter Tight', sans-serif;
+            font-weight: 800;
+            text-align: left;
+            color: var(--secondary-grey);
+        }
+
+        .question-content {
+            font-family: 'Inter', sans-serif;
+            color: var(--text-dark);
+            display: flex;
+            align-items: start;
+        }
+        .subquestion {
+            margin-top: 0.4rem;
+            margin-bottom: 0.4rem;
+        }
+
+        .subquestion .question-label-sub {
+            font-family: 'Inter', sans-serif;
+            font-weight: 400;
+            color: var(--secondary-grey);
+            text-align: center;
+            padding-top: 0.15rem;
+        }
+
+        .subquestion .question-content {
+            color: var(--text-dark);
+            opacity: 0.92;
+        }
+
+        .question-num {
+            font-weight: bold;
+            color: var(--primary);
+            font-family: 'Inter Tight', sans-serif;
+            margin-right: 0.4rem;
+            flex-shrink: 0;
+        }
+
+        /* TOC */
+        .toc-header {
+            font-family: 'Inter Tight', sans-serif;
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 2rem;
+            color: var(--primary);
+            border-bottom: 3px double var(--text-dark);
+            padding-bottom: 0.5rem;
+        }
+
+        /* Symbols reference section (after TOC) */
+        .symbols-section {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--meta-bg);
+        }
+        .symbols-section h2 {
+            font-family: 'Inter Tight', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        .symbols-section p {
+            font-size: 0.85rem;
+            color: var(--secondary-grey);
+            margin-bottom: 1rem;
+        }
+        .symbols-section table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+        }
+        .symbols-section th {
+            text-align: left;
+            padding: 0.5rem 0.6rem;
+            background: var(--meta-bg);
+            color: var(--primary);
+            font-family: 'Inter Tight', sans-serif;
+            font-weight: 700;
+            border-bottom: 2px solid var(--primary);
+        }
+        .symbols-section td {
+            padding: 0.45rem 0.6rem;
+            border-bottom: 1px solid var(--meta-bg);
+            vertical-align: top;
+        }
+
+        table.toc {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table.toc th {
+            text-align: left;
+            padding: 0.8rem;
+            border-bottom: 3px double var(--primary);
+            font-family: 'Inter Tight', sans-serif;
+            font-size: 0.85rem;
+            color: var(--secondary-grey);
+        }
+
+        table.toc td {
+            padding: 1rem 0.8rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .num-col {
+            width: 50px;
+            font-weight: 800;
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+
+        .content-col {
+            font-family: 'Inter Tight', sans-serif;
+            font-weight: 700;
+            text-transform: capitalize;
+        }
+
+        .toc-passage {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 400;
+            color: #666;
+            font-style: italic;
+        }
+
+        /* COUNTERS */
+        .study-container {
+            counter-reset: question;
+        }
+
+        ol {
+            padding-left: 0;
+            list-style: none;
+        }
+
+        ol li {
+            margin-bottom: 0.6rem;
+            padding-left: 1.5rem;
+            position: relative;
+            counter-increment: question;
+        }
+
+        ol li::before {
+            content: counter(question) ".";
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+            color: var(--primary);
+            font-family: 'Inter Tight', sans-serif;
+        }
+
+        /* TITLE PAGE */
+        .title-page {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            height: 80vh;
+            border-bottom: 6px double var(--primary);
+        }
+
+        .church-title {
+            font-family: 'Inter Tight', sans-serif;
+            font-weight: 700;
+            color: var(--secondary-grey);
+            margin-bottom: 2rem;
+            font-size: 1rem;
+        }
+
+        .series-title {
+            font-family: 'Inter Tight', sans-serif;
+            font-size: 4rem;
+            font-weight: 800;
+            margin: 0;
+            color: var(--text-dark);
+            line-height: 1;
+        }
+
+        .series-subtitle {
+            font-size: 1.5rem;
+            color: #555;
+            font-style: italic;
+            margin-top: 1rem;
+            margin-bottom: 4rem;
+            max-width: 600px;
+        }
+
+        .year-mark {
+            font-weight: 800;
+            font-size: 1.2rem;
+            color: var(--primary);
+            border-top: 3px double var(--primary);
+            padding-top: 1rem;
+            width: 100px;
+        }
+
+        /* RESPONSIVE LAYOUT (< 850px) */
+        @media (max-width: 850px) {
+            body {
+                padding: 1rem;
+            }
+
+            .page,
+            .reference-page {
+                width: 100%;
+                max-width: 100%;
+                min-height: auto;
+                padding: 1.5rem;
+                margin-bottom: 2rem;
+            }
+
+            /* Title Page Mobile Scaling */
+            .series-title {
+                font-size: 2.5rem !important;
+            }
+
+            .series-subtitle {
+                font-size: 1.2rem !important;
+                margin-bottom: 2rem !important;
+            }
+
+            .church-title {
+                font-size: 0.85rem !important;
+                margin-bottom: 1rem !important;
+            }
+
+            .header-top {
+                grid-template-columns: 50px 1fr;
+                column-gap: 1rem;
+            }
+
+            .study-num {
+                grid-column: 1;
+                grid-row: 1;
+                width: 50px !important;
+                height: 50px !important;
+                font-size: 1.5rem !important;
+            }
+
+            .study-title {
+                grid-column: 2;
+                grid-row: 1;
+                align-self: center;
+            }
+
+            .study-title h1 {
+                font-size: 1.4rem !important;
+            }
+
+            .study-subtitle {
+                grid-column: 1 / span 2;
+                grid-row: 2;
+                margin-top: 0.5rem;
+                padding-left: 0 !important;
+                font-size: 0.85rem !important;
+            }
+
+            .meta-label {
+                display: block !important;
+                margin-bottom: 0.2rem;
+            }
+        }
+
+        @media print {
+            body {
+                background: none;
+                padding: 0;
+            }
+
+            .page,
+            .reference-page {
+                box-shadow: none;
+                margin: 0;
+                padding: 0;
+                min-height: auto;
+                max-width: none;
+            }
+
+            @page {
+                size: A4;
+                margin: 1.5cm;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- TITLE PAGE -->
+    <div class='page'>
+        <div class='title-page'>
+            <div class='church-title'>New Light Anglican Church</div>
+            <div class='series-title'>{{series_title}}</div>
+            <div class='series-subtitle'>{{series_subtitle}}</div>
+            <div class='year-mark'>{{year}}</div>
+        </div>
+    </div>
+    <div class='page-break'></div>
+
+    <!-- TABLE OF CONTENTS -->
+    <div class='page'>
+        <div class='toc-header'>Series Overview</div>
+        <table class='toc'>
+            <thead>
+                <tr>
+                    <th width='10%'>#</th>
+                    <th width='90%'>Study</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{toc_rows}}
+            </tbody>
+        </table>
+    </div>
+    <div class='page-break'></div>
+
+    <!-- PRE-STUDY REFERENCE PAGE (e.g. Symbols in Revelation) -->
+    {{reference_table}}
+
+    <!-- STUDY PAGES -->
+    {{study_pages}}
+
+</body>
+
+</html>

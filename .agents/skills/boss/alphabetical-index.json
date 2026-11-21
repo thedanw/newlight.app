@@ -1,0 +1,482 @@
+﻿[
+    {
+        "id":  "00_meta-plan-pipeline",
+        "description":  "Orchestrate the full development workflow: brainstorm → plan → optimize → execute → review. Coordinates 01_brainstorming, 02_concise-planning, 03_o...",
+        "path":  "code-plan/00_meta-plan-pipeline",
+        "search_terms":  "context, git, integration, meta, pipeline"
+    },
+    {
+        "id":  "00_seo-skill-orchestrator",
+        "description":  "Meta orchestrator for all SEO skills. Defines two comprehensive workflows: (1) Full-site SEO audit from macro structure to micro page analysis, and...",
+        "path":  "marketing/00_seo-skill-orchestrator",
+        "search_terms":  "meta, seo, analysis, audit, audit-site"
+    },
+    {
+        "id":  "00-ui-ux-skill-orchestrator",
+        "description":  "Meta-orchestrator that coordinates all UI-UX skills to plan, design, build, audit, and enhance user interfaces: use when starting a new UI project,...",
+        "path":  "ui-ux/00-ui-ux-skill-orchestrator",
+        "search_terms":  "meta, ui, ux, 00, audit"
+    },
+    {
+        "id":  "01_brainstorming",
+        "description":  "any creative or constructive work (features, architecture, behavior). Transforms vague ideas into validated designs through disciplined dialogue. O...",
+        "path":  "code-plan/01_brainstorming",
+        "search_terms":  "integration, pipeline, 01, architecture, before"
+    },
+    {
+        "id":  "02_concise-planning",
+        "description":  "user asks for a plan for a coding task. Generates a clear, actionable, atomic checklist following TDD and git-best practices, while initializing fi...",
+        "path":  "code-plan/02_concise-planning",
+        "search_terms":  "context, git, 02, actionable, action-items"
+    },
+    {
+        "id":  "03_optimise-planning",
+        "description":  "Optimize planning documents for small context LLMs by adding token-optimized context statements and task completion sync to every batch.: improve p...",
+        "path":  "code-plan/03_optimise-planning",
+        "search_terms":  "context, token, 03, adding, batch"
+    },
+    {
+        "id":  "04_executing-plans",
+        "description":  "Execute written implementation plans in token-optimized batches with file-tracked context, checkpoints, and git integration.",
+        "path":  "code-plan/04_executing-plans",
+        "search_terms":  "context, git, integration, review, token"
+    },
+    {
+        "id":  "agents-md",
+        "description":  "Create, update, or maintain AGENTS.md / CLAUDE.md files with minimal, high-signal agent documentation: use when the user asks to \u0027create AGENTS.md\u0027...",
+        "path":  "00-setup/agents-md",
+        "search_terms":  "agent, meta, agents, agents.md, asks"
+    },
+    {
+        "id":  "avoid-ai-writing",
+        "description":  "Audit and rewrite content to remove AI writing patterns (\\\"AI-isms\\\"). Use when asked to \\\"remove AI-isms,\\\" \\\"clean up AI writing,\\\" \\\"edit writin...",
+        "path":  "writing/avoid-ai-writing",
+        "search_terms":  "ai, ai-writing, asked, audit, avoid"
+    },
+    {
+        "id":  "bible-nlt",
+        "description":  "Retrieve the New Living Translation (NLT) for any Bible passage.: exact lookup for study or reference",
+        "path":  "bible/bible-nlt",
+        "search_terms":  "bible, nlt, bible nlt fetcher, exact, fetch"
+    },
+    {
+        "id":  "brand",
+        "description":  "Comprehensive brand guidelines for New Light Anglican Church, including colors, typography, design patterns, and styling rules for the Team Hub app...",
+        "path":  "bible/brand",
+        "search_terms":  "brand, church, typography, anglican, application"
+    },
+    {
+        "id":  "brand-visual-generator",
+        "description":  "When the user wants to define, audit, or apply visual identity (typography, colors, spacing, design tokens, frontend aesthetics). Also use when the...",
+        "path":  "marketing/brand-visual-generator",
+        "search_terms":  "brand, color, powerpoint, slide, typography"
+    },
+    {
+        "id":  "brand-voice-creator",
+        "description":  "Create a brand voice document from scratch. Defines voice attributes, tone spectrum, vocabulary rules, do/don\u0027t examples, and agent-consumable guid...",
+        "path":  "marketing/brand-voice-creator",
+        "search_terms":  "agent, brand, copywriting, ai-writing, attributes"
+    },
+    {
+        "id":  "break-writers-block",
+        "description":  "Transforms a passage or theme into a gospel-centered sermon outline with illustrations, hooks, and grace dynamics.",
+        "path":  "bible/break-writers-block",
+        "search_terms":  "sermon, brainstorming, centered, dynamics, gospel"
+    },
+    {
+        "id":  "bug-hunter",
+        "description":  "Systematically finds and fixes bugs using proven debugging techniques. Traces from symptoms to root cause, implements fixes, and prevents regression.",
+        "path":  "debugging/bug-hunter",
+        "search_terms":  "bug, bugs, cause, debugging, finds"
+    },
+    {
+        "id":  "church-webdesign",
+        "description":  "Design welcoming, effective church websites that serve both visitors and members. Combines church-specific best practices with a proven UX/UI workf...",
+        "path":  "ui-ux/church-webdesign",
+        "search_terms":  "church, component, ui, ux, accessibility"
+    },
+    {
+        "id":  "codebase-audit-pre-push",
+        "description":  "Deep audit before GitHub push: removes junk files, dead code, security holes, and optimization issues. Checks every file line-by-line for productio...",
+        "path":  "github/codebase-audit-pre-push",
+        "search_terms":  "github, push, audit, before, checks"
+    },
+    {
+        "id":  "content-strategy",
+        "description":  "Plan a content strategy, topic clusters, editorial roadmap, and content mix for traffic, authority, and lead generation. Use when deciding what to ...",
+        "path":  "writing/content-strategy",
+        "search_terms":  "authority, clusters, content, deciding, editorial"
+    },
+    {
+        "id":  "context-compression",
+        "description":  "Production-ready compression strategies for million-token agent sessions. Covers anchored iterative summarization, opaque compression, and regenera...",
+        "path":  "memory/context-compression",
+        "search_terms":  "agent, context, memory, token, agent-forgetfulness"
+    },
+    {
+        "id":  "context-optimization",
+        "description":  "Reduce token usage for small-context LLMs: compression, caching, partitioning strategies",
+        "path":  "ai-meta/context-optimization",
+        "search_terms":  "compress, context, llm, token, budgets"
+    },
+    {
+        "id":  "context-window-management",
+        "description":  "Strategies for managing LLM context windows including summarization, trimming, routing, and avoiding context rot: use when working with small conte...",
+        "path":  "memory/context-window-management",
+        "search_terms":  "context, llm, route, summarize, token"
+    },
+    {
+        "id":  "copy-editing",
+        "description":  "You are an expert copy editor specializing in marketing and conversion copy. Your goal is to systematically improve existing copy through focused e...",
+        "path":  "marketing/copy-editing",
+        "search_terms":  "conversion, copy, core, editing, editor"
+    },
+    {
+        "id":  "copywriting",
+        "description":  "Write rigorous, conversion-focused marketing copy for landing pages and emails. Enforces brief confirmation and strict no-fabrication rules.: produ...",
+        "path":  "writing/copywriting",
+        "search_terms":  "copywriting, brief, confirmation, conversion, copy"
+    },
+    {
+        "id":  "css-architecture",
+        "description":  "Organize CSS using BEM, SMACSS, and CSS-in-JS patterns: use when building scalable, maintainable styling systems with proper naming conventions.",
+        "path":  "ui-ux/css-architecture",
+        "search_terms":  "css, architecture, bem, building, conventions"
+    },
+    {
+        "id":  "deep-research",
+        "description":  "Execute autonomous multi-step research using Jina AI (Search \u0026 Reader). This skill establishes the logic for the agent to plan, search, read, and s...",
+        "path":  "bible/deep-research",
+        "search_terms":  "agent, jina, search, autonomous, comprehensive"
+    },
+    {
+        "id":  "designing-beautiful-websites",
+        "description":  "Designs UX/UI for websites and web apps: UX strategy, information architecture, user flows, wireframes, UI systems, component specs, and polished v...",
+        "path":  "ui-ux/designing-beautiful-websites",
+        "search_terms":  "component, ui, ux, accessibility, app"
+    },
+    {
+        "id":  "frontend-design",
+        "description":  "You are a frontend designer-engineer, not a layout generator.",
+        "path":  "ui-ux/frontend-design",
+        "search_terms":  "layout, designer, engineer, frontend, generator"
+    },
+    {
+        "id":  "git-pushing",
+        "description":  "Stage all changes, create a conventional commit, and push to the remote branch: use when explicitly asks to push changes (\\\"push this\\\", \\\"commit a...",
+        "path":  "github/git-pushing",
+        "search_terms":  "branch, commit, git, github, push"
+    },
+    {
+        "id":  "illustration_researcher",
+        "description":  "Research and curate engaging sermon illustrations from a verified knowledgebase.: investigate and synthesize",
+        "path":  "bible/illustration_researcher",
+        "search_terms":  "sermon, curate, engaging, illustration researcher, illustrations"
+    },
+    {
+        "id":  "individual_sermon_brainstormer",
+        "description":  "Synthesize research (03-summary.md) into workable outlines and brainstorm main themes and creative presentation options using literary devices.",
+        "path":  "bible/individual_sermon_brainstormer",
+        "search_terms":  "brainstorm, creative, devices, individual sermon brainstormer, literary"
+    },
+    {
+        "id":  "individual_sermon_researcher",
+        "description":  "master instruction set for all biblical and theological research, defining the Research Source Router and the Gold Standard discovery loop.",
+        "path":  "bible/individual_sermon_researcher",
+        "search_terms":  "router, biblical, biblical \u0026 theological research protocol, defining, discovery"
+    },
+    {
+        "id":  "jina-ai-search-foundation",
+        "description":  "Use Jina AI Search Foundation APIs (Embeddings, Reranker, Reader, Search, Batch Embeddings) for semantic search, RAG, web scraping, and large-scale...",
+        "path":  "tools/jina-ai-search-foundation",
+        "search_terms":  "api, embed, jina, llm, scrape"
+    },
+    {
+        "id":  "libreoffice-writer",
+        "description":  "Document creation, format conversion (ODT/DOCX/PDF), mail merge, and automation with LibreOffice Writer.",
+        "path":  "writing/libreoffice-writer",
+        "search_terms":  "merge, pdf, automation, conversion, creation"
+    },
+    {
+        "id":  "llm-prompt-optimizer",
+        "description":  "improving prompts for any LLM. Applies proven prompt engineering techniques to boost output quality, reduce hallucinations, and cut token usage.: u...",
+        "path":  "ai-meta/llm-prompt-optimizer",
+        "search_terms":  "llm, prompt, token, ai, applies"
+    },
+    {
+        "id":  "logic-lens",
+        "description":  "AI-powered Claude Code skill that performs deep code review using formal logic and reasoning frameworks to detect bugs, anti-patterns, and security...",
+        "path":  "debugging/logic-lens",
+        "search_terms":  "review, anti, beyond, bugs, catch"
+    },
+    {
+        "id":  "marketing-psychology",
+        "description":  "Apply behavioral science and mental models to marketing decisions, prioritized using a psychological leverage and feasibility scoring system.",
+        "path":  "marketing/marketing-psychology",
+        "search_terms":  "behavioral, decisions, feasibility, leverage, marketing"
+    },
+    {
+        "id":  "mark-it-down",
+        "description":  "Convert various file formats (PDF, Office docs, images, audio, HTML, etc.) to Markdown using Microsoft\u0027s MarkItDown library for LLM-ready text extr...",
+        "path":  "writing/mark-it-down",
+        "search_terms":  "audio, convert, html, llm, markdown"
+    },
+    {
+        "id":  "md-token-optimizer",
+        "description":  "Analyzes markdown files for token efficiency. TRIGGERS: optimize markdown, reduce tokens, token count, token bloat, too many tokens, make concise, ...",
+        "path":  "ai-meta/md-token-optimizer",
+        "search_terms":  "markdown, token, analyzes, bloat, concise"
+    },
+    {
+        "id":  "parkui",
+        "description":  "Design, build, and maintain ParkUI components (ArkUI + PandaCSS): use when creating ParkUI components, designing ParkUI API, styling ParkUI compone...",
+        "path":  "ui-ux/parkui",
+        "search_terms":  "api, component, css, ui, ux"
+    },
+    {
+        "id":  "performance-optimizer",
+        "description":  "Identifies and fixes performance bottlenecks in code, databases, and APIs. Measures before and after to prove improvements.",
+        "path":  "debugging/performance-optimizer",
+        "search_terms":  "after, apis, before, bottlenecks, code"
+    },
+    {
+        "id":  "pmndrs-postprocessing",
+        "description":  "pmndrs postprocessing for three.js: EffectComposer, passes, effects (bloom, depth of field, SSAO, tone mapping, color grading), and custom shaders:...",
+        "path":  "ui-ux/pmndrs-postprocessing",
+        "search_terms":  "color, image, adding, bloom, blur"
+    },
+    {
+        "id":  "product-design",
+        "description":  "Apple-level product design — visual systems, UX flows, accessibility, proprietary visual language, design tokens, prototyping, and handoff. Covers ...",
+        "path":  "ui-ux/product-design",
+        "search_terms":  "color, typography, accessibility, apple, cognitive"
+    },
+    {
+        "id":  "prompt-engineer",
+        "description":  "Transforms user prompts into optimized prompts using frameworks (RTF, RISEN, Chain of Thought, RODES, Chain of Density, RACE, RISE, STAR, SOAP, CLE...",
+        "path":  "ai-meta/prompt-engineer",
+        "search_terms":  "prompt, transform, ai-enhancement, chain, clear"
+    },
+    {
+        "id":  "prompt-refinement",
+        "description":  "Improve user prompts for large language models. Suggests rewrites, examples, and parameter guidance to improve reliability and output quality.: rew...",
+        "path":  "ai-meta/prompt-refinement",
+        "search_terms":  "llm, prompt, examples, guidance, instruction-tuning"
+    },
+    {
+        "id":  "python-pptx-generator",
+        "description":  "Create complete Python scripts that build polished PowerPoint decks with python-pptx and real slide content.: generate from input",
+        "path":  "writing/python-pptx-generator",
+        "search_terms":  "powerpoint, pptx, python, slide, content"
+    },
+    {
+        "id":  "recursive-context-pruning-token-budgeting",
+        "description":  "Implements Gatekeeper logic to prevent context window bloat — pruning redundant context, managing token budgets (30/20/50 split), and enforcing ato...",
+        "path":  "tools/recursive-context-pruning-token-budgeting",
+        "search_terms":  "context, memory, token, agents, atomic"
+    },
+    {
+        "id":  "rhetoric",
+        "description":  "centralized library of rhetorical and homiletical devices for effective sermon communication.",
+        "path":  "bible/rhetoric",
+        "search_terms":  "rhetoric, sermon, centralized, communication, devices"
+    },
+    {
+        "id":  "seo-aeo-meta-description-generator",
+        "description":  "Writes 3 title tag variants and 3 meta description variants per page with SERP preview, OG tags, and Twitter Card tags. Activate when the user want...",
+        "path":  "marketing/seo-aeo-meta-description-generator",
+        "search_terms":  "meta, seo, tag, activate, aeo"
+    },
+    {
+        "id":  "seo-audit",
+        "description":  "Diagnose and audit SEO issues affecting crawlability, indexation, rankings, and organic performance: use when user wants a comprehensive SEO audit,...",
+        "path":  "marketing/seo-audit",
+        "search_terms":  "seo, affecting, analysis, analyze, audit"
+    },
+    {
+        "id":  "seo-cannibalization-detector",
+        "description":  "Analyzes multiple provided pages to identify keyword overlap and potential cannibalization issues. Suggests differentiation strategies. Use PROACTI...",
+        "path":  "marketing/seo-cannibalization-detector",
+        "search_terms":  "keyword, seo, analyzes, content, content-overlap"
+    },
+    {
+        "id":  "seo-content",
+        "description":  "Content quality and E-E-A-T analysis with AI citation readiness assessment: use when user says \"content quality\", \"E-E-A-T\", \"content analysis\", \"r...",
+        "path":  "marketing/seo-content",
+        "search_terms":  "seo, ai-citation, analysis, assessment, audit"
+    },
+    {
+        "id":  "seo-content-writer",
+        "description":  "Writes SEO-optimized content based on provided keywords and topic briefs. Creates engaging, comprehensive content following best practices. Use PRO...",
+        "path":  "marketing/seo-content-writer",
+        "search_terms":  "copywriting, seo, article, based, best"
+    },
+    {
+        "id":  "seo-keyword-strategist",
+        "description":  "Analyzes keyword usage in provided content, calculates density, suggests semantic variations and LSI keywords based on the topic. Prevents over-opt...",
+        "path":  "marketing/seo-keyword-strategist",
+        "search_terms":  "keyword, seo, analyzes, based, calculates"
+    },
+    {
+        "id":  "seo-meta-optimizer",
+        "description":  "Creates optimized meta titles, descriptions, and URL suggestions based on character limits and best practices. Generates compelling, keyword-rich m...",
+        "path":  "marketing/seo-meta-optimizer",
+        "search_terms":  "keyword, meta, seo, based, best"
+    },
+    {
+        "id":  "seo-page",
+        "description":  "Deep single-page SEO analysis covering on-page elements, content quality, technical meta tags, schema, images, and performance: use when user says ...",
+        "path":  "marketing/seo-page",
+        "search_terms":  "meta, review, schema, seo, analysis"
+    },
+    {
+        "id":  "seo-snippet-hunter",
+        "description":  "Formats content to be eligible for featured snippets and SERP features. Creates snippet-optimized content blocks based on best practices. Use PROAC...",
+        "path":  "marketing/seo-snippet-hunter",
+        "search_terms":  "seo, snippet, answer, based, best"
+    },
+    {
+        "id":  "seo-structure-architect",
+        "description":  "Analyzes and optimizes content structure including header hierarchy, suggests schema markup, and internal linking opportunities. Creates search-fri...",
+        "path":  "marketing/seo-structure-architect",
+        "search_terms":  "schema, search, seo, analyzes, architect"
+    },
+    {
+        "id":  "setup",
+        "description":  "Scaffold a complete agenic workspace from scratch: create .agents folder, link skills via junction/symlink, generate agents.md, and update BOSS_IND...",
+        "path":  "00-setup/setup",
+        "search_terms":  "json, repository, agenic, agenic-workspace, agents"
+    },
+    {
+        "id":  "social-post-writer-seo",
+        "description":  "Social Media Strategist and Content Writer. Creates clear, engaging social media posts for Instagram, LinkedIn, and Facebook.",
+        "path":  "marketing/social-post-writer-seo",
+        "search_terms":  "seo, clear, content, content-writing, creates"
+    },
+    {
+        "id":  "stock-photo-finder",
+        "description":  "Find usable free stock photos for design work, with a strong bias toward Unsplash and other trusted free stock sources. Filter by subject, orientat...",
+        "path":  "ui-ux/stock-photo-finder",
+        "search_terms":  "filter, image, photo, search, stock"
+    },
+    {
+        "id":  "sync-docs",
+        "description":  "Sync markdown to Google Docs and generate high-fidelity RTF, HTML, and PDF documents with New Light Branding.: synchronize across systems",
+        "path":  "bible/sync-docs",
+        "search_terms":  "html, markdown, pdf, branding, fidelity"
+    },
+    {
+        "id":  "systematic-debugging",
+        "description":  "encountering any bug, test failure, or unexpected behavior, before proposing fixes: use when needed",
+        "path":  "debugging/systematic-debugging",
+        "search_terms":  "test, before, behavior, bug, debugging"
+    },
+    {
+        "id":  "technical-change-tracker",
+        "description":  "Track code changes with structured JSON records, state machine enforcement, and AI session handoff for bot continuity",
+        "path":  "memory/technical-change-tracker",
+        "search_terms":  "json, state, accessibility, bot, changes"
+    },
+    {
+        "id":  "ui-a11y",
+        "description":  "Audit a StyleSeed-based component or page for WCAG 2.2 AA issues and apply practical accessibility fixes where the code makes them safe.: inspect c...",
+        "path":  "ui-ux/ui-a11y",
+        "search_terms":  "component, ui, a11y, accessibility, audit"
+    },
+    {
+        "id":  "ui-component",
+        "description":  "Create a new UI component that follows StyleSeed Toss conventions for structure, tokens, accessibility, and component ergonomics.: generate from input",
+        "path":  "ui-ux/ui-component",
+        "search_terms":  "component, ui, accessibility, components, conventions"
+    },
+    {
+        "id":  "ui-page",
+        "description":  "Scaffold a new mobile-first page using StyleSeed Toss layout patterns, section rhythm, and existing shell components.",
+        "path":  "ui-ux/ui-page",
+        "search_terms":  "layout, ui, components, existing, first"
+    },
+    {
+        "id":  "ui-pattern",
+        "description":  "Create reusable UI patterns such as card sections, grids, lists, forms, and chart wrappers using StyleSeed Toss primitives.: generate from input",
+        "path":  "ui-ux/ui-pattern",
+        "search_terms":  "ui, card, chart, design-system, grids"
+    },
+    {
+        "id":  "ui-review",
+        "description":  "Review UI code for StyleSeed design-system compliance, accessibility, mobile ergonomics, spacing discipline, and implementation quality.: evaluate ...",
+        "path":  "ui-ux/ui-review",
+        "search_terms":  "review, ui, accessibility, code, compliance"
+    },
+    {
+        "id":  "ui-setup",
+        "description":  "Interactive StyleSeed setup wizard for choosing app type, brand color, visual style, typography, and the first screen scaffold.",
+        "path":  "ui-ux/ui-setup",
+        "search_terms":  "brand, color, type, typography, ui"
+    },
+    {
+        "id":  "ui-tokens",
+        "description":  "List, add, and update StyleSeed design tokens while keeping JSON sources, CSS variables, and dark-mode values in sync.",
+        "path":  "ui-ux/ui-tokens",
+        "search_terms":  "css, json, ui, add, dark"
+    },
+    {
+        "id":  "ui-ux-pro-max",
+        "description":  "Comprehensive design guide for web and mobile applications: use when designing new UI components or pages, choosing color palettes and typography, ...",
+        "path":  "ui-ux/ui-ux-pro-max",
+        "search_terms":  "color, typography, ui, ux, applications"
+    },
+    {
+        "id":  "unslop",
+        "description":  "Post-process AI-generated text through the unslop CLI to strip AI writing patterns before publishing",
+        "path":  "writing/unslop",
+        "search_terms":  "ai-writing, before, cli, content-quality, generated"
+    },
+    {
+        "id":  "unsplash-integration",
+        "description":  "Fetch and evaluate Unsplash images for design work using direct Unsplash search URLs, source filtering, and practical licensing guidance.",
+        "path":  "ui-ux/unsplash-integration",
+        "search_terms":  "image, integration, photo, search, unsplash"
+    },
+    {
+        "id":  "use-gesture-react",
+        "description":  "Implement use-gesture library within React components for gesture-based interactions: use when adding drag, scroll, pin, press, and other gesture f...",
+        "path":  "ui-ux/use-gesture-react",
+        "search_terms":  "react, add, adding, based, components"
+    },
+    {
+        "id":  "using-superpowers",
+        "description":  "Use at the start of any conversation. Establishes how to find and use skills. If there is even a 1% chance a skill might apply, you must invoke the...",
+        "path":  "tools/using-superpowers",
+        "search_terms":  "meta, before, begin, chance, conversation"
+    },
+    {
+        "id":  "ux-audit",
+        "description":  "Audit screens against Nielsen\u0027s heuristics and mobile UX best practices using the StyleSeed Toss design language as the implementation context.: in...",
+        "path":  "ui-ux/ux-audit",
+        "search_terms":  "context, ux, against, audit, best"
+    },
+    {
+        "id":  "ux-flow",
+        "description":  "Design user flows and screen structure using StyleSeed UX patterns such as progressive disclosure, hub-and-spoke navigation, and information pyrami...",
+        "path":  "ui-ux/ux-flow",
+        "search_terms":  "ux, disclosure, flow, flows, hub"
+    },
+    {
+        "id":  "uxui-principles",
+        "description":  "Evaluate interfaces against 168 research-backed UX/UI principles, detect antipatterns, and inject UX context into AI coding sessions.",
+        "path":  "ui-ux/uxui-principles",
+        "search_terms":  "context, inject, ui, ux, accessibility"
+    },
+    {
+        "id":  "wordpress-centric-high-seo-optimized-blogwriting-skill",
+        "description":  "Create clean, human-sounding, SEO-optimized WordPress blog posts with optional Yoast metadata, JSON-LD schema markup, and image SEO planning. Suppo...",
+        "path":  "writing/wordpress-centric-high-seo-optimized-blogwriting-skill",
+        "search_terms":  "image, json, schema, seo, batch"
+    },
+    {
+        "id":  "youtube-summarizer",
+        "description":  "Extract transcripts from YouTube videos and generate comprehensive, detailed summaries using intelligent analysis frameworks: pull data from source",
+        "path":  "tools/youtube-summarizer",
+        "search_terms":  "extract, analysis, comprehensive, detailed, frameworks"
+    }
+]

@@ -1,0 +1,2517 @@
+{
+  "people/categories/getAll": {
+    "http": 200,
+    "status": "ok",
+    "total": 4,
+    "fields": {
+      "generated_in": {
+        "types": [
+          "string"
+        ],
+        "sample": "0.02"
+      },
+      "status": {
+        "types": [
+          "string"
+        ],
+        "sample": "ok"
+      },
+      "categories": {
+        "types": [
+          "object"
+        ],
+        "sample": ""
+      },
+      "categories.on_this_page": {
+        "types": [
+          "number"
+        ],
+        "sample": "4"
+      },
+      "categories.page": {
+        "types": [
+          "number"
+        ],
+        "sample": "1"
+      },
+      "categories.per_page": {
+        "types": [
+          "number"
+        ],
+        "sample": "4"
+      },
+      "categories.total": {
+        "types": [
+          "number"
+        ],
+        "sample": "4"
+      },
+      "categories.category": {
+        "types": [
+          "array"
+        ],
+        "sample": ""
+      },
+      "categories.category[].id": {
+        "types": [
+          "string"
+        ],
+        "sample": "4f442888-2e4f-45a9-9d21-0dc0f3a5c9ff"
+      },
+      "categories.category[].name": {
+        "types": [
+          "string"
+        ],
+        "sample": "Sunday Linked"
+      },
+      "categories.category[].color": {
+        "types": [
+          "string"
+        ],
+        "sample": "#1c7782"
+      }
+    }
+  },
+  "people/customFields/getAll": {
+    "http": 200,
+    "status": "ok",
+    "total": 0,
+    "fields": {
+      "generated_in": {
+        "types": [
+          "string"
+        ],
+        "sample": "0.03"
+      },
+      "status": {
+        "types": [
+          "string"
+        ],
+        "sample": "ok"
+      },
+      "custom_fields": {
+        "types": [
+          "object"
+        ],
+        "sample": ""
+      },
+      "custom_fields.on_this_page": {
+        "types": [
+          "number"
+        ],
+        "sample": "42"
+      },
+      "custom_fields.page": {
+        "types": [
+          "number"
+        ],
+        "sample": "1"
+      },
+      "custom_fields.per_page": {
+        "types": [
+          "number"
+        ],
+        "sample": "42"
+      },
+      "custom_fields.total": {
+        "types": [
+          "number"
+        ],
+        "sample": "42"
+      },
+      "custom_fields.custom_field": {
+        "types": [
+          "array"
+        ],
+        "sample": ""
+      },
+      "custom_fields.custom_field[].id": {
+        "types": [
+          "string"
+        ],
+        "sample": "03fa1223-2949-431e-850f-e0d4c23b281d"
+      },
+      "custom_fields.custom_field[].name": {
+        "types": [
+          "string"
+        ],
+        "sample": "Legacy Date Added"
+      },
+      "custom_fields.custom_field[].type": {
+        "types": [
+          "string"
+        ],
+        "sample": "datepicker"
+      },
+      "custom_fields.custom_field[].values": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      }
+    }
+  },
+  "people/getAll": {
+    "http": 200,
+    "status": "ok",
+    "total": 5056,
+    "fields": {
+      "generated_in": {
+        "types": [
+          "string"
+        ],
+        "sample": "0.07"
+      },
+      "status": {
+        "types": [
+          "string"
+        ],
+        "sample": "ok"
+      },
+      "people": {
+        "types": [
+          "object"
+        ],
+        "sample": ""
+      },
+      "people.on_this_page": {
+        "types": [
+          "number"
+        ],
+        "sample": "10"
+      },
+      "people.page": {
+        "types": [
+          "number"
+        ],
+        "sample": "1"
+      },
+      "people.per_page": {
+        "types": [
+          "string"
+        ],
+        "sample": "10"
+      },
+      "people.total": {
+        "types": [
+          "number"
+        ],
+        "sample": "5056"
+      },
+      "people.person": {
+        "types": [
+          "array"
+        ],
+        "sample": ""
+      },
+      "people.person[].date_added": {
+        "types": [
+          "string"
+        ],
+        "sample": "2024-08-12 18:00:10"
+      },
+      "people.person[].date_modified": {
+        "types": [
+          "string"
+        ],
+        "sample": "2026-10-03 23:42:39"
+      },
+      "people.person[].firstname": {
+        "types": [
+          "string"
+        ],
+        "sample": "Ava"
+      },
+      "people.person[].preferred_name": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "people.person[].middle_name": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "people.person[].lastname": {
+        "types": [
+          "string"
+        ],
+        "sample": "Gregory"
+      },
+      "people.person[].email": {
+        "types": [
+          "string"
+        ],
+        "sample": "aegconcrete@hotmail.com"
+      },
+      "people.person[].phone": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "people.person[].mobile": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "people.person[].status": {
+        "types": [
+          "string"
+        ],
+        "sample": "Active"
+      },
+      "people.person[].username": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "people.person[].last_login": {
+        "types": [
+          "string"
+        ],
+        "sample": "0000-00-00 00:00:00"
+      },
+      "people.person[].country": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "people.person[].timezone": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "people.person[].picture": {
+        "types": [
+          "string"
+        ],
+        "sample": "https://secure.gravatar.com/avatar/6c6e8"
+      },
+      "people.person[].family_relationship": {
+        "types": [
+          "string"
+        ],
+        "sample": "Child"
+      },
+      "people.person[].id": {
+        "types": [
+          "string"
+        ],
+        "sample": "00113d46-1eaf-4085-933b-0506abfc0d23"
+      },
+      "people.person[].category_id": {
+        "types": [
+          "string"
+        ],
+        "sample": "880e1012-be66-4642-b962-03488bb485dd"
+      },
+      "people.person[].admin": {
+        "types": [
+          "number"
+        ],
+        "sample": "0"
+      },
+      "people.person[].contact": {
+        "types": [
+          "number"
+        ],
+        "sample": "0"
+      },
+      "people.person[].archived": {
+        "types": [
+          "number"
+        ],
+        "sample": "1"
+      },
+      "people.person[].deceased": {
+        "types": [
+          "number"
+        ],
+        "sample": "0"
+      },
+      "people.person[].volunteer": {
+        "types": [
+          "number"
+        ],
+        "sample": "0"
+      },
+      "people.person[].family_id": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      }
+    }
+  },
+  "people/getInfo": {
+    "http": 200,
+    "status": "ok",
+    "fields": {
+      "generated_in": {
+        "types": [
+          "string"
+        ],
+        "sample": "0.03"
+      },
+      "status": {
+        "types": [
+          "string"
+        ],
+        "sample": "ok"
+      },
+      "person": {
+        "types": [
+          "array"
+        ],
+        "sample": ""
+      },
+      "person[].date_added": {
+        "types": [
+          "string"
+        ],
+        "sample": "2024-08-12 18:00:10"
+      },
+      "person[].date_modified": {
+        "types": [
+          "string"
+        ],
+        "sample": "2026-10-03 23:42:39"
+      },
+      "person[].firstname": {
+        "types": [
+          "string"
+        ],
+        "sample": "Ava"
+      },
+      "person[].preferred_name": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "person[].middle_name": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "person[].lastname": {
+        "types": [
+          "string"
+        ],
+        "sample": "Gregory"
+      },
+      "person[].email": {
+        "types": [
+          "string"
+        ],
+        "sample": "aegconcrete@hotmail.com"
+      },
+      "person[].phone": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "person[].mobile": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "person[].status": {
+        "types": [
+          "string"
+        ],
+        "sample": "Active"
+      },
+      "person[].username": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "person[].last_login": {
+        "types": [
+          "string"
+        ],
+        "sample": "0000-00-00 00:00:00"
+      },
+      "person[].country": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "person[].timezone": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "person[].picture": {
+        "types": [
+          "string"
+        ],
+        "sample": "https://secure.gravatar.com/avatar/6c6e8"
+      },
+      "person[].family_relationship": {
+        "types": [
+          "string"
+        ],
+        "sample": "Child"
+      },
+      "person[].id": {
+        "types": [
+          "string"
+        ],
+        "sample": "00113d46-1eaf-4085-933b-0506abfc0d23"
+      },
+      "person[].category_id": {
+        "types": [
+          "string"
+        ],
+        "sample": "880e1012-be66-4642-b962-03488bb485dd"
+      },
+      "person[].admin": {
+        "types": [
+          "number"
+        ],
+        "sample": "0"
+      },
+      "person[].contact": {
+        "types": [
+          "number"
+        ],
+        "sample": "0"
+      },
+      "person[].archived": {
+        "types": [
+          "number"
+        ],
+        "sample": "1"
+      },
+      "person[].deceased": {
+        "types": [
+          "number"
+        ],
+        "sample": "0"
+      },
+      "person[].volunteer": {
+        "types": [
+          "number"
+        ],
+        "sample": "0"
+      },
+      "person[].family_id": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "person[].locations": {
+        "types": [
+          "array"
+        ],
+        "sample": ""
+      }
+    }
+  },
+  "groups/getAll": {
+    "http": 200,
+    "status": "ok",
+    "total": 46,
+    "fields": {
+      "generated_in": {
+        "types": [
+          "string"
+        ],
+        "sample": "0.24"
+      },
+      "status": {
+        "types": [
+          "string"
+        ],
+        "sample": "ok"
+      },
+      "groups": {
+        "types": [
+          "object"
+        ],
+        "sample": ""
+      },
+      "groups.on_this_page": {
+        "types": [
+          "number"
+        ],
+        "sample": "10"
+      },
+      "groups.page": {
+        "types": [
+          "number"
+        ],
+        "sample": "1"
+      },
+      "groups.per_page": {
+        "types": [
+          "string"
+        ],
+        "sample": "10"
+      },
+      "groups.total": {
+        "types": [
+          "number"
+        ],
+        "sample": "46"
+      },
+      "groups.group": {
+        "types": [
+          "array"
+        ],
+        "sample": ""
+      },
+      "groups.group[].date_added": {
+        "types": [
+          "string"
+        ],
+        "sample": "2024-10-17 22:47:45"
+      },
+      "groups.group[].date_modified": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "groups.group[].name": {
+        "types": [
+          "string"
+        ],
+        "sample": "GHC Trends Report of People Category Cha"
+      },
+      "groups.group[].description": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "groups.group[].status": {
+        "types": [
+          "string"
+        ],
+        "sample": "Active"
+      },
+      "groups.group[].meeting_address": {
+        "types": [
+          "string"
+        ],
+        "sample": "https://my.newlight.app/report/?id=cea7a"
+      },
+      "groups.group[].meeting_city": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "groups.group[].meeting_state": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "groups.group[].meeting_postcode": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "groups.group[].meeting_country": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "groups.group[].meeting_day": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "groups.group[].meeting_time": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "groups.group[].meeting_frequency": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "groups.group[].picture": {
+        "types": [
+          "string"
+        ],
+        "sample": "https://d2dek0x2lg6bxh.cloudfront.net/AL"
+      },
+      "groups.group[].id": {
+        "types": [
+          "string"
+        ],
+        "sample": "04938369-6ee5-4613-aa70-4294d61695d0"
+      },
+      "groups.group[].people": {
+        "types": [
+          "array"
+        ],
+        "sample": ""
+      }
+    }
+  },
+  "groups/getInfo": {
+    "http": 200,
+    "status": "ok",
+    "fields": {
+      "generated_in": {
+        "types": [
+          "string"
+        ],
+        "sample": "0.07"
+      },
+      "status": {
+        "types": [
+          "string"
+        ],
+        "sample": "ok"
+      },
+      "group": {
+        "types": [
+          "array"
+        ],
+        "sample": ""
+      },
+      "group[].date_added": {
+        "types": [
+          "string"
+        ],
+        "sample": "2024-10-17 22:47:45"
+      },
+      "group[].date_modified": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "group[].name": {
+        "types": [
+          "string"
+        ],
+        "sample": "GHC Trends Report of People Category Cha"
+      },
+      "group[].description": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "group[].status": {
+        "types": [
+          "string"
+        ],
+        "sample": "Active"
+      },
+      "group[].meeting_address": {
+        "types": [
+          "string"
+        ],
+        "sample": "https://my.newlight.app/report/?id=cea7a"
+      },
+      "group[].meeting_city": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "group[].meeting_state": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "group[].meeting_postcode": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "group[].meeting_country": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "group[].meeting_day": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "group[].meeting_time": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "group[].meeting_frequency": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "group[].picture": {
+        "types": [
+          "string"
+        ],
+        "sample": "https://d2dek0x2lg6bxh.cloudfront.net/AL"
+      },
+      "group[].id": {
+        "types": [
+          "string"
+        ],
+        "sample": "04938369-6ee5-4613-aa70-4294d61695d0"
+      }
+    }
+  },
+  "services/getAll": {
+    "http": 200,
+    "status": "ok",
+    "total": 176,
+    "fields": {
+      "generated_in": {
+        "types": [
+          "string"
+        ],
+        "sample": "0.26"
+      },
+      "status": {
+        "types": [
+          "string"
+        ],
+        "sample": "ok"
+      },
+      "services": {
+        "types": [
+          "object"
+        ],
+        "sample": ""
+      },
+      "services.on_this_page": {
+        "types": [
+          "number"
+        ],
+        "sample": "10"
+      },
+      "services.page": {
+        "types": [
+          "number"
+        ],
+        "sample": "1"
+      },
+      "services.per_page": {
+        "types": [
+          "string"
+        ],
+        "sample": "10"
+      },
+      "services.total": {
+        "types": [
+          "number"
+        ],
+        "sample": "176"
+      },
+      "services.service": {
+        "types": [
+          "array"
+        ],
+        "sample": ""
+      },
+      "services.service[].id": {
+        "types": [
+          "string"
+        ],
+        "sample": "0c3b4bf4-892c-40b8-88c7-26f0f0f8af29"
+      },
+      "services.service[].status": {
+        "types": [
+          "number"
+        ],
+        "sample": "1"
+      },
+      "services.service[].date_added": {
+        "types": [
+          "string"
+        ],
+        "sample": "2025-02-02 00:40:55"
+      },
+      "services.service[].date_modified": {
+        "types": [
+          "string"
+        ],
+        "sample": "2025-10-04 23:29:12"
+      },
+      "services.service[].description": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "services.service[].name": {
+        "types": [
+          "string"
+        ],
+        "sample": "8AM Sundays"
+      },
+      "services.service[].date": {
+        "types": [
+          "string"
+        ],
+        "sample": "2025-10-04 21:00:00"
+      },
+      "services.service[].series_name": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "services.service[].service_type": {
+        "types": [
+          "object"
+        ],
+        "sample": ""
+      },
+      "services.service[].service_type.id": {
+        "types": [
+          "string"
+        ],
+        "sample": "1ec601b1-aa25-4bce-a494-91d84b867a7d"
+      },
+      "services.service[].service_type.name": {
+        "types": [
+          "string"
+        ],
+        "sample": "8AM Sundays."
+      },
+      "services.service[].location": {
+        "types": [
+          "object"
+        ],
+        "sample": ""
+      },
+      "services.service[].location.id": {
+        "types": [
+          "string"
+        ],
+        "sample": "1656f60d-f025-4b86-abdb-1b4ccb62212a"
+      },
+      "services.service[].location.name": {
+        "types": [
+          "string"
+        ],
+        "sample": "Sundays 8 AM"
+      },
+      "services.service[].service_times": {
+        "types": [
+          "object"
+        ],
+        "sample": ""
+      },
+      "services.service[].service_times.service_time": {
+        "types": [
+          "array"
+        ],
+        "sample": ""
+      },
+      "services.service[].service_times.service_time[].id": {
+        "types": [
+          "string"
+        ],
+        "sample": "c3ed7581-526e-41ce-9d45-72005c5ce597"
+      },
+      "services.service[].service_times.service_time[].date_added": {
+        "types": [
+          "string"
+        ],
+        "sample": "2025-02-02 00:40:55"
+      },
+      "services.service[].service_times.service_time[].date_modified": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "services.service[].service_times.service_time[].name": {
+        "types": [
+          "string"
+        ],
+        "sample": "8AM Sunday"
+      },
+      "services.service[].service_times.service_time[].starts": {
+        "types": [
+          "string"
+        ],
+        "sample": "2025-10-04 21:00:00"
+      },
+      "services.service[].service_times.service_time[].ends": {
+        "types": [
+          "string"
+        ],
+        "sample": "2025-10-04 21:00:00"
+      },
+      "services.service[].plans": {
+        "types": [
+          "array"
+        ],
+        "sample": ""
+      },
+      "services.service[].volunteers": {
+        "types": [
+          "object"
+        ],
+        "sample": ""
+      },
+      "services.service[].volunteers.plan": {
+        "types": [
+          "array"
+        ],
+        "sample": ""
+      },
+      "services.service[].volunteers.plan[].time_id": {
+        "types": [
+          "string"
+        ],
+        "sample": "c3ed7581-526e-41ce-9d45-72005c5ce597"
+      },
+      "services.service[].volunteers.plan[].positions": {
+        "types": [
+          "object"
+        ],
+        "sample": ""
+      },
+      "services.service[].volunteers.plan[].positions.position": {
+        "types": [
+          "array"
+        ],
+        "sample": ""
+      },
+      "services.service[].volunteers.plan[].positions.position[].department_name": {
+        "types": [
+          "string"
+        ],
+        "sample": "Welcoming, Setup, Packup"
+      },
+      "services.service[].volunteers.plan[].positions.position[].sub_department_name": {
+        "types": [
+          "string"
+        ],
+        "sample": "Setup/Packup"
+      },
+      "services.service[].volunteers.plan[].positions.position[].position_name": {
+        "types": [
+          "string"
+        ],
+        "sample": "Set-Up / Pack-Up"
+      },
+      "services.service[].volunteers.plan[].positions.position[].volunteers": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "services.service[].volunteers.plan[].positions.position[].department_id": {
+        "types": [
+          "string"
+        ],
+        "sample": "11361100-b63c-44d9-b2b3-8dd743dc4205"
+      },
+      "services.service[].volunteers.plan[].positions.position[].sub_department_id": {
+        "types": [
+          "string"
+        ],
+        "sample": "aceff101-baa4-4711-9c8b-a6451f32c761"
+      },
+      "services.service[].volunteers.plan[].positions.position[].position_id": {
+        "types": [
+          "string"
+        ],
+        "sample": "8485e0a0-5a6c-4fc7-98ce-90f98313f057"
+      },
+      "services.service[].notes": {
+        "types": [
+          "array"
+        ],
+        "sample": ""
+      },
+      "services.service[].files": {
+        "types": [
+          "array"
+        ],
+        "sample": ""
+      },
+      "services.service[].songs": {
+        "types": [
+          "array"
+        ],
+        "sample": ""
+      }
+    }
+  },
+  "services/getInfo": {
+    "http": 200,
+    "status": "ok",
+    "fields": {
+      "generated_in": {
+        "types": [
+          "string"
+        ],
+        "sample": "0.02"
+      },
+      "status": {
+        "types": [
+          "string"
+        ],
+        "sample": "ok"
+      },
+      "service": {
+        "types": [
+          "array"
+        ],
+        "sample": ""
+      },
+      "service[].id": {
+        "types": [
+          "string"
+        ],
+        "sample": "0c3b4bf4-892c-40b8-88c7-26f0f0f8af29"
+      },
+      "service[].status": {
+        "types": [
+          "number"
+        ],
+        "sample": "1"
+      },
+      "service[].date_added": {
+        "types": [
+          "string"
+        ],
+        "sample": "2025-02-02 00:40:55"
+      },
+      "service[].date_modified": {
+        "types": [
+          "string"
+        ],
+        "sample": "2025-10-04 23:29:12"
+      },
+      "service[].description": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "service[].name": {
+        "types": [
+          "string"
+        ],
+        "sample": "8AM Sundays"
+      },
+      "service[].date": {
+        "types": [
+          "string"
+        ],
+        "sample": "2025-10-04 21:00:00"
+      },
+      "service[].series_name": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "service[].service_type": {
+        "types": [
+          "object"
+        ],
+        "sample": ""
+      },
+      "service[].service_type.id": {
+        "types": [
+          "string"
+        ],
+        "sample": "1ec601b1-aa25-4bce-a494-91d84b867a7d"
+      },
+      "service[].service_type.name": {
+        "types": [
+          "string"
+        ],
+        "sample": "8AM Sundays."
+      },
+      "service[].location": {
+        "types": [
+          "object"
+        ],
+        "sample": ""
+      },
+      "service[].location.id": {
+        "types": [
+          "string"
+        ],
+        "sample": "1656f60d-f025-4b86-abdb-1b4ccb62212a"
+      },
+      "service[].location.name": {
+        "types": [
+          "string"
+        ],
+        "sample": "Sundays 8 AM"
+      },
+      "service[].service_times": {
+        "types": [
+          "object"
+        ],
+        "sample": ""
+      },
+      "service[].service_times.service_time": {
+        "types": [
+          "array"
+        ],
+        "sample": ""
+      },
+      "service[].service_times.service_time[].id": {
+        "types": [
+          "string"
+        ],
+        "sample": "c3ed7581-526e-41ce-9d45-72005c5ce597"
+      },
+      "service[].service_times.service_time[].date_added": {
+        "types": [
+          "string"
+        ],
+        "sample": "2025-02-02 00:40:55"
+      },
+      "service[].service_times.service_time[].date_modified": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "service[].service_times.service_time[].name": {
+        "types": [
+          "string"
+        ],
+        "sample": "8AM Sunday"
+      },
+      "service[].service_times.service_time[].starts": {
+        "types": [
+          "string"
+        ],
+        "sample": "2025-10-04 21:00:00"
+      },
+      "service[].service_times.service_time[].ends": {
+        "types": [
+          "string"
+        ],
+        "sample": "2025-10-04 21:00:00"
+      },
+      "service[].rehearsal_times": {
+        "types": [
+          "array"
+        ],
+        "sample": ""
+      },
+      "service[].other_times": {
+        "types": [
+          "array"
+        ],
+        "sample": ""
+      },
+      "service[].plans": {
+        "types": [
+          "array"
+        ],
+        "sample": ""
+      },
+      "service[].volunteers": {
+        "types": [
+          "array"
+        ],
+        "sample": ""
+      },
+      "service[].notes": {
+        "types": [
+          "array"
+        ],
+        "sample": ""
+      },
+      "service[].files": {
+        "types": [
+          "array"
+        ],
+        "sample": ""
+      },
+      "service[].songs": {
+        "types": [
+          "array"
+        ],
+        "sample": ""
+      }
+    }
+  },
+  "songs/getAll": {
+    "http": 200,
+    "status": "ok",
+    "total": 149,
+    "fields": {
+      "generated_in": {
+        "types": [
+          "string"
+        ],
+        "sample": "0.04"
+      },
+      "status": {
+        "types": [
+          "string"
+        ],
+        "sample": "ok"
+      },
+      "songs": {
+        "types": [
+          "object"
+        ],
+        "sample": ""
+      },
+      "songs.on_this_page": {
+        "types": [
+          "number"
+        ],
+        "sample": "10"
+      },
+      "songs.page": {
+        "types": [
+          "number"
+        ],
+        "sample": "1"
+      },
+      "songs.per_page": {
+        "types": [
+          "string"
+        ],
+        "sample": "10"
+      },
+      "songs.total": {
+        "types": [
+          "number"
+        ],
+        "sample": "149"
+      },
+      "songs.song": {
+        "types": [
+          "array"
+        ],
+        "sample": ""
+      },
+      "songs.song[].id": {
+        "types": [
+          "string"
+        ],
+        "sample": "167db820-6c20-49c7-af6a-ee99967b0ef3"
+      },
+      "songs.song[].status": {
+        "types": [
+          "number"
+        ],
+        "sample": "0"
+      },
+      "songs.song[].date_added": {
+        "types": [
+          "string"
+        ],
+        "sample": "2024-08-12 23:28:32"
+      },
+      "songs.song[].date_modified": {
+        "types": [
+          "string"
+        ],
+        "sample": "2024-09-02 06:10:49"
+      },
+      "songs.song[].title": {
+        "types": [
+          "string"
+        ],
+        "sample": "10,000 Reasons (Bless The Lord) (ER2)"
+      },
+      "songs.song[].permalink": {
+        "types": [
+          "string"
+        ],
+        "sample": "10000-reasons-bless-the-lord-er2"
+      },
+      "songs.song[].number": {
+        "types": [
+          "string"
+        ],
+        "sample": "6016351"
+      },
+      "songs.song[].item": {
+        "types": [
+          "number"
+        ],
+        "sample": "0"
+      },
+      "songs.song[].learn": {
+        "types": [
+          "number"
+        ],
+        "sample": "0"
+      },
+      "songs.song[].allow_downloads": {
+        "types": [
+          "number"
+        ],
+        "sample": "0"
+      },
+      "songs.song[].artist": {
+        "types": [
+          "string"
+        ],
+        "sample": "Jonas Myrin, Matt Redman"
+      },
+      "songs.song[].album": {
+        "types": [
+          "string"
+        ],
+        "sample": "10,000 Reasons"
+      },
+      "songs.song[].notes": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "songs.song[].categories": {
+        "types": [
+          "object"
+        ],
+        "sample": ""
+      },
+      "songs.song[].categories.category": {
+        "types": [
+          "array"
+        ],
+        "sample": ""
+      },
+      "songs.song[].categories.category[].id": {
+        "types": [
+          "string"
+        ],
+        "sample": "695f50ec-64e1-4108-8f88-d55c676e35cc"
+      },
+      "songs.song[].categories.category[].name": {
+        "types": [
+          "string"
+        ],
+        "sample": "Item"
+      }
+    }
+  },
+  "songs/getInfo": {
+    "http": 200,
+    "status": "ok",
+    "fields": {
+      "generated_in": {
+        "types": [
+          "string"
+        ],
+        "sample": "0.03"
+      },
+      "status": {
+        "types": [
+          "string"
+        ],
+        "sample": "ok"
+      },
+      "song": {
+        "types": [
+          "array"
+        ],
+        "sample": ""
+      },
+      "song[].id": {
+        "types": [
+          "string"
+        ],
+        "sample": "167db820-6c20-49c7-af6a-ee99967b0ef3"
+      },
+      "song[].status": {
+        "types": [
+          "number"
+        ],
+        "sample": "0"
+      },
+      "song[].date_added": {
+        "types": [
+          "string"
+        ],
+        "sample": "2024-08-12 23:28:32"
+      },
+      "song[].date_modified": {
+        "types": [
+          "string"
+        ],
+        "sample": "2024-09-02 06:10:49"
+      },
+      "song[].title": {
+        "types": [
+          "string"
+        ],
+        "sample": "10,000 Reasons (Bless The Lord) (ER2)"
+      },
+      "song[].permalink": {
+        "types": [
+          "string"
+        ],
+        "sample": "10000-reasons-bless-the-lord-er2"
+      },
+      "song[].number": {
+        "types": [
+          "string"
+        ],
+        "sample": "6016351"
+      },
+      "song[].item": {
+        "types": [
+          "number"
+        ],
+        "sample": "0"
+      },
+      "song[].learn": {
+        "types": [
+          "number"
+        ],
+        "sample": "0"
+      },
+      "song[].allow_downloads": {
+        "types": [
+          "number"
+        ],
+        "sample": "0"
+      },
+      "song[].artist": {
+        "types": [
+          "string"
+        ],
+        "sample": "Jonas Myrin, Matt Redman"
+      },
+      "song[].album": {
+        "types": [
+          "string"
+        ],
+        "sample": "10,000 Reasons"
+      },
+      "song[].notes": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "song[].categories": {
+        "types": [
+          "object"
+        ],
+        "sample": ""
+      },
+      "song[].categories.category": {
+        "types": [
+          "array"
+        ],
+        "sample": ""
+      },
+      "song[].categories.category[].id": {
+        "types": [
+          "string"
+        ],
+        "sample": "695f50ec-64e1-4108-8f88-d55c676e35cc"
+      },
+      "song[].categories.category[].name": {
+        "types": [
+          "string"
+        ],
+        "sample": "Item"
+      }
+    }
+  },
+  "songs/arrangements/getAll": {
+    "http": 200,
+    "status": "ok",
+    "fields": {
+      "generated_in": {
+        "types": [
+          "string"
+        ],
+        "sample": "0.03"
+      },
+      "status": {
+        "types": [
+          "string"
+        ],
+        "sample": "ok"
+      },
+      "arrangements": {
+        "types": [
+          "object"
+        ],
+        "sample": ""
+      },
+      "arrangements.on_this_page": {
+        "types": [
+          "number"
+        ],
+        "sample": "2"
+      },
+      "arrangements.page": {
+        "types": [
+          "number"
+        ],
+        "sample": "1"
+      },
+      "arrangements.per_page": {
+        "types": [
+          "string"
+        ],
+        "sample": "10"
+      },
+      "arrangements.total": {
+        "types": [
+          "number"
+        ],
+        "sample": "2"
+      },
+      "arrangements.arrangement": {
+        "types": [
+          "array"
+        ],
+        "sample": ""
+      },
+      "arrangements.arrangement[].id": {
+        "types": [
+          "string"
+        ],
+        "sample": "bbe1d21a-12a5-4058-8fda-7c33188cfa90"
+      },
+      "arrangements.arrangement[].date_added": {
+        "types": [
+          "string"
+        ],
+        "sample": "2024-08-12 23:28:32"
+      },
+      "arrangements.arrangement[].date_modified": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "arrangements.arrangement[].name": {
+        "types": [
+          "string"
+        ],
+        "sample": "Key of E"
+      },
+      "arrangements.arrangement[].copyright": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "arrangements.arrangement[].sequence": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "arrangements.arrangement[].minutes": {
+        "types": [
+          "string"
+        ],
+        "sample": "0"
+      },
+      "arrangements.arrangement[].seconds": {
+        "types": [
+          "string"
+        ],
+        "sample": "0"
+      },
+      "arrangements.arrangement[].bpm": {
+        "types": [
+          "string"
+        ],
+        "sample": "0"
+      },
+      "arrangements.arrangement[].key_male": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "arrangements.arrangement[].key_female": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "arrangements.arrangement[].lyrics": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "arrangements.arrangement[].chord_chart_key": {
+        "types": [
+          "string"
+        ],
+        "sample": "E"
+      },
+      "arrangements.arrangement[].chord_chart": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      }
+    }
+  },
+  "songs/arrangements/getInfo": {
+    "http": 200,
+    "status": "ok",
+    "fields": {
+      "generated_in": {
+        "types": [
+          "string"
+        ],
+        "sample": "0.03"
+      },
+      "status": {
+        "types": [
+          "string"
+        ],
+        "sample": "ok"
+      },
+      "arrangement": {
+        "types": [
+          "array"
+        ],
+        "sample": ""
+      },
+      "arrangement[].id": {
+        "types": [
+          "string"
+        ],
+        "sample": "bbe1d21a-12a5-4058-8fda-7c33188cfa90"
+      },
+      "arrangement[].date_added": {
+        "types": [
+          "string"
+        ],
+        "sample": "2024-08-12 23:28:32"
+      },
+      "arrangement[].date_modified": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "arrangement[].name": {
+        "types": [
+          "string"
+        ],
+        "sample": "Key of E"
+      },
+      "arrangement[].copyright": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "arrangement[].sequence": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "arrangement[].minutes": {
+        "types": [
+          "string"
+        ],
+        "sample": "0"
+      },
+      "arrangement[].seconds": {
+        "types": [
+          "string"
+        ],
+        "sample": "0"
+      },
+      "arrangement[].bpm": {
+        "types": [
+          "string"
+        ],
+        "sample": "0"
+      },
+      "arrangement[].key_male": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "arrangement[].key_female": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "arrangement[].lyrics": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "arrangement[].chord_chart_key": {
+        "types": [
+          "string"
+        ],
+        "sample": "E"
+      },
+      "arrangement[].chord_chart": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      }
+    }
+  },
+  "songs/keys/getAll": {
+    "http": 200,
+    "status": "ok",
+    "fields": {
+      "generated_in": {
+        "types": [
+          "string"
+        ],
+        "sample": "0.02"
+      },
+      "status": {
+        "types": [
+          "string"
+        ],
+        "sample": "ok"
+      },
+      "keys": {
+        "types": [
+          "object"
+        ],
+        "sample": ""
+      },
+      "keys.on_this_page": {
+        "types": [
+          "number"
+        ],
+        "sample": "1"
+      },
+      "keys.page": {
+        "types": [
+          "number"
+        ],
+        "sample": "1"
+      },
+      "keys.per_page": {
+        "types": [
+          "string"
+        ],
+        "sample": "10"
+      },
+      "keys.total": {
+        "types": [
+          "number"
+        ],
+        "sample": "1"
+      },
+      "keys.key": {
+        "types": [
+          "array"
+        ],
+        "sample": ""
+      },
+      "keys.key[].id": {
+        "types": [
+          "string"
+        ],
+        "sample": "47fe1bfd-9005-40c6-bb23-37d8a4b15b27"
+      },
+      "keys.key[].date_added": {
+        "types": [
+          "string"
+        ],
+        "sample": "2024-08-12 23:28:32"
+      },
+      "keys.key[].date_modified": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "keys.key[].name": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "keys.key[].key_starting": {
+        "types": [
+          "string"
+        ],
+        "sample": "E"
+      },
+      "keys.key[].key_ending": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "keys.key[].arrangement_id": {
+        "types": [
+          "string"
+        ],
+        "sample": "bbe1d21a-12a5-4058-8fda-7c33188cfa90"
+      }
+    }
+  },
+  "songs/keys/getInfo": {
+    "http": 200,
+    "status": "ok",
+    "fields": {
+      "generated_in": {
+        "types": [
+          "string"
+        ],
+        "sample": "0.04"
+      },
+      "status": {
+        "types": [
+          "string"
+        ],
+        "sample": "ok"
+      },
+      "key": {
+        "types": [
+          "array"
+        ],
+        "sample": ""
+      },
+      "key[].id": {
+        "types": [
+          "string"
+        ],
+        "sample": "47fe1bfd-9005-40c6-bb23-37d8a4b15b27"
+      },
+      "key[].date_added": {
+        "types": [
+          "string"
+        ],
+        "sample": "2024-08-12 23:28:32"
+      },
+      "key[].date_modified": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "key[].name": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "key[].key_starting": {
+        "types": [
+          "string"
+        ],
+        "sample": "E"
+      },
+      "key[].key_ending": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "key[].arrangement_id": {
+        "types": [
+          "string"
+        ],
+        "sample": "bbe1d21a-12a5-4058-8fda-7c33188cfa90"
+      }
+    }
+  },
+  "calendar/getAll": {
+    "http": 200,
+    "status": "ok",
+    "total": 0,
+    "fields": {
+      "generated_in": {
+        "types": [
+          "string"
+        ],
+        "sample": "0.04"
+      },
+      "status": {
+        "types": [
+          "string"
+        ],
+        "sample": "ok"
+      },
+      "calendars": {
+        "types": [
+          "object"
+        ],
+        "sample": ""
+      },
+      "calendars.on_this_page": {
+        "types": [
+          "number"
+        ],
+        "sample": "1"
+      },
+      "calendars.page": {
+        "types": [
+          "number"
+        ],
+        "sample": "1"
+      },
+      "calendars.per_page": {
+        "types": [
+          "number"
+        ],
+        "sample": "1"
+      },
+      "calendars.total": {
+        "types": [
+          "number"
+        ],
+        "sample": "1"
+      },
+      "calendars.calendar": {
+        "types": [
+          "array"
+        ],
+        "sample": ""
+      },
+      "calendars.calendar[].name": {
+        "types": [
+          "string"
+        ],
+        "sample": "Default Calendar"
+      },
+      "calendars.calendar[].color": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "calendars.calendar[].members": {
+        "types": [
+          "boolean"
+        ],
+        "sample": "false"
+      },
+      "calendars.calendar[].published": {
+        "types": [
+          "boolean"
+        ],
+        "sample": "true"
+      },
+      "calendars.calendar[].id": {
+        "types": [
+          "string"
+        ],
+        "sample": "bfa54143-6ba5-46c9-82ee-87f2438d1adf"
+      }
+    }
+  },
+  "calendar/events/getAll": {
+    "http": 200,
+    "status": "ok",
+    "total": 174,
+    "fields": {
+      "generated_in": {
+        "types": [
+          "string"
+        ],
+        "sample": "0.10"
+      },
+      "status": {
+        "types": [
+          "string"
+        ],
+        "sample": "ok"
+      },
+      "events": {
+        "types": [
+          "object"
+        ],
+        "sample": ""
+      },
+      "events.on_this_page": {
+        "types": [
+          "number"
+        ],
+        "sample": "10"
+      },
+      "events.page": {
+        "types": [
+          "number"
+        ],
+        "sample": "1"
+      },
+      "events.per_page": {
+        "types": [
+          "string"
+        ],
+        "sample": "10"
+      },
+      "events.total": {
+        "types": [
+          "number"
+        ],
+        "sample": "174"
+      },
+      "events.event": {
+        "types": [
+          "array"
+        ],
+        "sample": ""
+      },
+      "events.event[].id": {
+        "types": [
+          "string"
+        ],
+        "sample": "1b6775f6-b685-4e7b-b3f1-a01ea8e9af7d"
+      },
+      "events.event[].interval": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "events.event[].name": {
+        "types": [
+          "string"
+        ],
+        "sample": "Playtime"
+      },
+      "events.event[].description": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "events.event[].where": {
+        "types": [
+          "string"
+        ],
+        "sample": "Playtime(Tues)"
+      },
+      "events.event[].start_date": {
+        "types": [
+          "string"
+        ],
+        "sample": "2025-10-06 22:30:00"
+      },
+      "events.event[].end_date": {
+        "types": [
+          "string"
+        ],
+        "sample": "2025-10-07 00:00:00"
+      },
+      "events.event[].all_day": {
+        "types": [
+          "number"
+        ],
+        "sample": "0"
+      },
+      "events.event[].url": {
+        "types": [
+          "string"
+        ],
+        "sample": "http://my.newlight.app/calendar_embed/?s"
+      },
+      "events.event[].picture": {
+        "types": [
+          "string"
+        ],
+        "sample": "https://cdn.elvanto.com.au/img/default-e"
+      },
+      "events.event[].color": {
+        "types": [
+          "string"
+        ],
+        "sample": "#e76f51"
+      }
+    }
+  },
+  "financial/transactions/getAll": {
+    "http": 200,
+    "status": "empty-dataset",
+    "error": {
+      "code": 404,
+      "message": "No transactions match your criteria."
+    }
+  },
+  "financial/categories/getAll": {
+    "http": 200,
+    "status": "empty-dataset",
+    "error": {
+      "code": 404,
+      "message": "No categories found."
+    }
+  },
+  "peopleFlows/getAll": {
+    "http": 200,
+    "status": "ok",
+    "total": 0,
+    "fields": {
+      "generated_in": {
+        "types": [
+          "string"
+        ],
+        "sample": "0.02"
+      },
+      "status": {
+        "types": [
+          "string"
+        ],
+        "sample": "ok"
+      },
+      "people_flows": {
+        "types": [
+          "object"
+        ],
+        "sample": ""
+      },
+      "people_flows.on_this_page": {
+        "types": [
+          "number"
+        ],
+        "sample": "3"
+      },
+      "people_flows.page": {
+        "types": [
+          "number"
+        ],
+        "sample": "1"
+      },
+      "people_flows.per_page": {
+        "types": [
+          "number"
+        ],
+        "sample": "3"
+      },
+      "people_flows.total": {
+        "types": [
+          "number"
+        ],
+        "sample": "3"
+      },
+      "people_flows.people_flow": {
+        "types": [
+          "array"
+        ],
+        "sample": ""
+      },
+      "people_flows.people_flow[].status": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "people_flows.people_flow[].name": {
+        "types": [
+          "string"
+        ],
+        "sample": "Interested In Serving"
+      },
+      "people_flows.people_flow[].access": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "people_flows.people_flow[].steps": {
+        "types": [
+          "array"
+        ],
+        "sample": ""
+      },
+      "people_flows.people_flow[].steps[].name": {
+        "types": [
+          "string"
+        ],
+        "sample": "Send Information Email"
+      },
+      "people_flows.people_flow[].steps[].status": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "people_flows.people_flow[].steps[].entry_point": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "people_flows.people_flow[].steps[].steps": {
+        "types": [
+          "array"
+        ],
+        "sample": ""
+      },
+      "people_flows.people_flow[].steps[].admins": {
+        "types": [
+          "array"
+        ],
+        "sample": ""
+      },
+      "people_flows.people_flow[].steps[].id": {
+        "types": [
+          "string"
+        ],
+        "sample": "05fe64ec-1da4-4cc5-9f83-6bd3184ab7bd"
+      },
+      "people_flows.people_flow[].admins": {
+        "types": [
+          "array"
+        ],
+        "sample": ""
+      },
+      "people_flows.people_flow[].locations": {
+        "types": [
+          "array"
+        ],
+        "sample": ""
+      },
+      "people_flows.people_flow[].demographics": {
+        "types": [
+          "array"
+        ],
+        "sample": ""
+      },
+      "people_flows.people_flow[].id": {
+        "types": [
+          "string"
+        ],
+        "sample": "bfdb416e-0dcc-497d-8959-4a518e9c242c"
+      }
+    }
+  },
+  "peopleFlows/steps/getAll": {
+    "http": 200,
+    "status": "ok",
+    "fields": {
+      "generated_in": {
+        "types": [
+          "string"
+        ],
+        "sample": "0.25"
+      },
+      "status": {
+        "types": [
+          "string"
+        ],
+        "sample": "ok"
+      },
+      "people_flow_steps": {
+        "types": [
+          "object"
+        ],
+        "sample": ""
+      },
+      "people_flow_steps.on_this_page": {
+        "types": [
+          "number"
+        ],
+        "sample": "4"
+      },
+      "people_flow_steps.page": {
+        "types": [
+          "number"
+        ],
+        "sample": "1"
+      },
+      "people_flow_steps.per_page": {
+        "types": [
+          "number"
+        ],
+        "sample": "4"
+      },
+      "people_flow_steps.total": {
+        "types": [
+          "number"
+        ],
+        "sample": "4"
+      },
+      "people_flow_steps.people_flow_step": {
+        "types": [
+          "array"
+        ],
+        "sample": ""
+      },
+      "people_flow_steps.people_flow_step[].priority": {
+        "types": [
+          "string"
+        ],
+        "sample": "1"
+      },
+      "people_flow_steps.people_flow_step[].status": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "people_flow_steps.people_flow_step[].name": {
+        "types": [
+          "string"
+        ],
+        "sample": "Send Information Email"
+      },
+      "people_flow_steps.people_flow_step[].description": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "people_flow_steps.people_flow_step[].instructions": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "people_flow_steps.people_flow_step[].notifications": {
+        "types": [
+          "string"
+        ],
+        "sample": "y"
+      },
+      "people_flow_steps.people_flow_step[].entry_point": {
+        "types": [
+          "string"
+        ],
+        "sample": ""
+      },
+      "people_flow_steps.people_flow_step[].step_due": {
+        "types": [
+          "object"
+        ],
+        "sample": ""
+      },
+      "people_flow_steps.people_flow_step[].step_due.type": {
+        "types": [
+          "string"
+        ],
+        "sample": "days"
+      },
+      "people_flow_steps.people_flow_step[].step_due.days": {
+        "types": [
+          "number"
+        ],
+        "sample": "0"
+      },
+      "people_flow_steps.people_flow_step[].hide_pending": {
+        "types": [
+          "string"
+        ],
+        "sample": "0"
+      },
+      "people_flow_steps.people_flow_step[].id": {
+        "types": [
+          "string"
+        ],
+        "sample": "05fe64ec-1da4-4cc5-9f83-6bd3184ab7bd"
+      },
+      "people_flow_steps.people_flow_step[].admins": {
+        "types": [
+          "array"
+        ],
+        "sample": ""
+      },
+      "people_flow_steps.people_flow_step[].steps": {
+        "types": [
+          "array"
+        ],
+        "sample": ""
+      }
+    }
+  },
+  "peopleFlows/steps/people": {
+    "http": 200,
+    "status": "ok",
+    "fields": {
+      "generated_in": {
+        "types": [
+          "string"
+        ],
+        "sample": "0.02"
+      },
+      "status": {
+        "types": [
+          "string"
+        ],
+        "sample": "ok"
+      },
+      "people_flow_step_members": {
+        "types": [
+          "object"
+        ],
+        "sample": ""
+      },
+      "people_flow_step_members.on_this_page": {
+        "types": [
+          "number"
+        ],
+        "sample": "0"
+      },
+      "people_flow_step_members.page": {
+        "types": [
+          "number"
+        ],
+        "sample": "1"
+      },
+      "people_flow_step_members.per_page": {
+        "types": [
+          "number"
+        ],
+        "sample": "0"
+      },
+      "people_flow_step_members.total": {
+        "types": [
+          "number"
+        ],
+        "sample": "0"
+      },
+      "people_flow_step_members.people_flow_step_member": {
+        "types": [
+          "array"
+        ],
+        "sample": ""
+      }
+    }
+  }
+}

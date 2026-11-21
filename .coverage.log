@@ -1,0 +1,210 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.11 [39m[90mD:/daniel/Documents/vibecoding/newlight.app[39m
+      [2mCoverage enabled with [22m[33mv8[39m
+
+ [32m✓[39m src/core/email/__tests__/audience.test.ts [2m([22m[2m22 tests[22m[2m)[22m[32m 105[2mms[22m[39m
+ [32m✓[39m src/core/email/__tests__/renderer.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 220[2mms[22m[39m
+ [32m✓[39m src/core/email/__tests__/unsubscribe.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 289[2mms[22m[39m
+ [32m✓[39m src/core/guards/__tests__/RequireSuperAdmin.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[32m 102[2mms[22m[39m
+ [32m✓[39m src/modules/people/settings/__tests__/SortableStageColumns.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 130[2mms[22m[39m
+ [32m✓[39m src/core/email/components/__tests__/EmailEditor.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 1867[2mms[22m[39m
+     [33m[2m✓[22m[39m exports useEmailEditor hook [33m 1788[2mms[22m[39m
+ [32m✓[39m src/core/ui/__tests__/page-actions.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 76[2mms[22m[39m
+ [32m✓[39m src/core/theme/__tests__/semantic-colors.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 81[2mms[22m[39m
+ [32m✓[39m src/core/guards/__tests__/RequireAuth.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 127[2mms[22m[39m
+ [32m✓[39m src/core/plugins/__tests__/PluginLoader.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[32m 86[2mms[22m[39m
+ [32m✓[39m src/core/email/__tests__/schema.test.ts [2m([22m[2m33 tests[22m[2m)[22m[32m 100[2mms[22m[39m
+ [32m✓[39m src/modules/people/lib/journey-grid-helpers.test.ts [2m([22m[2m28 tests[22m[2m)[22m[32m 80[2mms[22m[39m
+ [32m✓[39m src/core/email/__tests__/queries.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 193[2mms[22m[39m
+ [32m✓[39m src/core/email/__tests__/sending.test.ts [2m([22m[2m22 tests[22m[2m)[22m[32m 141[2mms[22m[39m
+ [32m✓[39m src/content/plugins/elvanto-sync/sync/transforms.test.ts [2m([22m[2m41 tests[22m[2m)[22m[32m 58[2mms[22m[39m
+ [32m✓[39m src/modules/people/lib/search.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 63[2mms[22m[39m
+ [32m✓[39m src/modules/people/lib/profile-permissions.test.ts [2m([22m[2m41 tests[22m[2m)[22m[32m 36[2mms[22m[39m
+ [32m✓[39m src/core/auth/__tests__/provider.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 132[2mms[22m[39m
+ [32m✓[39m src/core/email/__tests__/blocks.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m src/modules/people/lib/journey-tree-helpers.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 81[2mms[22m[39m
+ [32m✓[39m src/modules/people/lib/relationships.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 29[2mms[22m[39m
+ [32m✓[39m src/core/email/__tests__/client.tracking.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 68[2mms[22m[39m
+ [32m✓[39m src/modules/forms/lib/__tests__/schema.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 47[2mms[22m[39m
+ [32m✓[39m src/modules/people/lib/demographics.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m src/core/email/__tests__/permissions.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 20[2mms[22m[39m
+ [32m✓[39m src/modules/people/lib/slug.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m src/modules/people/lib/demographics-crud.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 25[2mms[22m[39m
+ [32m✓[39m src/modules/forms/lib/__tests__/fieldTypes.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 26[2mms[22m[39m
+ [32m✓[39m src/core/ui/main-list/__tests__/main-list.test.tsx [2m([22m[2m16 tests[22m[2m)[22m[33m 1440[2mms[22m[39m
+ [32m✓[39m src/content/plugins/elvanto-sync/settings/components/sync-batch.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+ [32m✓[39m src/modules/people/lib/validation.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 22[2mms[22m[39m
+ [32m✓[39m src/modules/forms/lib/__tests__/formLogic.test.ts [2m([22m[2m23 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+ [32m✓[39m src/core/plugins/__tests__/dragndrop-api.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+ [32m✓[39m src/core/dragndrop/utils/__tests__/reorderTree.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 20[2mms[22m[39m
+ [32m✓[39m src/core/dragndrop/utils/__tests__/cssKeyframes.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 28[2mms[22m[39m
+ [32m✓[39m src/core/ui/__tests__/pull-tab-dots.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 150[2mms[22m[39m
+ [32m✓[39m src/core/dragndrop/components/__tests__/TreeNode.test.tsx [2m([22m[2m14 tests[22m[2m)[22m[33m 400[2mms[22m[39m
+ [32m✓[39m src/modules/people/components/sections/ChildSafety.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 440[2mms[22m[39m
+     [33m[2m✓[22m[39m renders all child safety fields when expanded [33m 357[2mms[22m[39m
+ [32m✓[39m src/modules/people/components/sections/Contact.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 328[2mms[22m[39m
+ [32m✓[39m src/core/ui/__tests__/action-footer.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 349[2mms[22m[39m
+ [32m✓[39m src/modules/people/components/sections/Personal.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 436[2mms[22m[39m
+ [32m✓[39m src/modules/people/components/sections/Demographics.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 480[2mms[22m[39m
+     [33m[2m✓[22m[39m switches to edit mode and back [33m 345[2mms[22m[39m
+ [32m✓[39m src/modules/people/settings/__tests__/JourneySettingsManager.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[33m 1082[2mms[22m[39m
+     [33m[2m✓[22m[39m renders the dnd grid with tree rows and stage columns [33m 351[2mms[22m[39m
+ [32m✓[39m src/core/email/__tests__/client.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 25[2mms[22m[39m
+ [32m✓[39m src/modules/developers/pages/demos/__tests__/dnd-tree.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 1341[2mms[22m[39m
+     [33m[2m✓[22m[39m renders hierarchical category data with 3+ levels [33m 495[2mms[22m[39m
+     [33m[2m✓[22m[39m renders the people org chart [33m 399[2mms[22m[39m
+     [33m[2m✓[22m[39m collapses and re-expands a node [33m 445[2mms[22m[39m
+ [32m✓[39m src/core/dragndrop/utils/__tests__/tree.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 24[2mms[22m[39m
+ [32m✓[39m src/core/dragndrop/components/__tests__/SortableTree.test.tsx [2m([22m[2m14 tests[22m[2m)[22m[33m 1481[2mms[22m[39m
+ [32m✓[39m src/core/auth/lib/name.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+ [32m✓[39m src/modules/people/lib/queries-delete-journey-stage.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+ [32m✓[39m src/modules/people/components/sections/Journey.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[33m 1348[2mms[22m[39m
+     [33m[2m✓[22m[39m selecting a stage updates the journey state on save [33m 322[2mms[22m[39m
+ [32m✓[39m src/modules/people/components/sections/account-access-permissions.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m src/modules/people/lib/demographic-helpers.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m src/core/auth/lib/permissions.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32m✓[39m src/core/auth/lib/validation.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m src/core/email/__tests__/types.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m src/core/auth/lib/__tests__/login-redirect.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32m✓[39m src/core/auth/lib/tile-state.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m src/modules/forms/__tests__/dashboard.test.tsx [2m([22m[2m11 tests[22m[2m)[22m[33m 3708[2mms[22m[39m
+     [33m[2m✓[22m[39m renders the forms list [33m 515[2mms[22m[39m
+     [33m[2m✓[22m[39m filters forms instantly via the header search (D5: search lives in Page.HeaderBottom) [33m 330[2mms[22m[39m
+     [33m[2m✓[22m[39m enables mass manage when a row is selected [33m 315[2mms[22m[39m
+     [33m[2m✓[22m[39m confirms mass deletion, deletes the selection and refreshes [33m 621[2mms[22m[39m
+     [33m[2m✓[22m[39m deletes a single form after confirmation [33m 480[2mms[22m[39m
+     [33m[2m✓[22m[39m duplicates a form from the managed row toolbar [33m 490[2mms[22m[39m
+ [32m✓[39m src/core/email/components/__tests__/EmailComposer.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[32m 23[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m59 passed[39m[22m[90m (59)[39m
+[2m      Tests [22m [1m[32m583 passed[39m[22m[90m (583)[39m
+[2m   Start at [22m 16:45:45
+[2m   Duration [22m 28.17s[2m (transform 38.18s, setup 50.68s, import 245.70s, tests 17.50s, environment 85.14s)[22m
+
+[34m % [39m[2mCoverage report from [22m[33mv8[39m
+-------------------|---------|----------|---------|---------|-------------------
+File               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+-------------------|---------|----------|---------|---------|-------------------
+All files          |   35.32 |    25.21 |   31.41 |   38.36 |                   
+ core/ui/main-list |   94.19 |    84.52 |      90 |   93.91 |                   
+  index.ts         |       0 |        0 |       0 |       0 |                   
+  ...st-context.ts |   85.71 |      100 |   72.72 |   85.71 | 9,11,18           
+  ...ow-button.tsx |     100 |    83.33 |     100 |     100 | 30                
+  ...w-content.tsx |      80 |     87.5 |     100 |      80 | 16                
+  ...ow-header.tsx |     100 |      100 |     100 |     100 |                   
+  ...ow-select.tsx |     100 |      100 |     100 |     100 |                   
+  ...w-toolbar.tsx |     100 |      100 |     100 |     100 |                   
+  ...-list-row.tsx |   91.66 |       75 |   88.88 |   91.17 | 49-51             
+  ...t-toolbar.tsx |     100 |      100 |     100 |     100 |                   
+  main-list.css.ts |     100 |      100 |     100 |     100 |                   
+  main-list.tsx    |   96.87 |    85.18 |   94.73 |   96.61 | 116,271           
+  ...list.types.ts |       0 |        0 |       0 |       0 |                   
+ modules/forms     |   78.84 |    68.96 |   65.11 |   81.91 |                   
+  dashboard.tsx    |   88.04 |    68.96 |   73.68 |   88.37 | ...63,275-284,296 
+  manifest.ts      |     100 |      100 |     100 |     100 |                   
+  public.ts        |       0 |        0 |       0 |       0 |                   
+  routes.tsx       |       0 |      100 |       0 |       0 | 10-34             
+ ...rms/components |       0 |        0 |       0 |       0 |                   
+  ...Container.tsx |       0 |        0 |       0 |       0 | 18-62             
+  FieldCard.tsx    |       0 |        0 |       0 |       0 | 17-92             
+ ...es/forms/hooks |       0 |        0 |       0 |       0 |                   
+  ...enderItem.tsx |       0 |        0 |       0 |       0 | 17-26             
+ modules/forms/lib |   25.92 |    18.88 |   53.84 |   30.23 |                   
+  fieldTypes.ts    |     100 |      100 |     100 |     100 |                   
+  formLogic.ts     |      96 |       95 |     100 |   95.83 | 43                
+  queries.ts       |       0 |        0 |       0 |       0 | 6-278             
+  schema.ts        |     100 |      100 |     100 |     100 |                   
+  types.ts         |       0 |        0 |       0 |       0 |                   
+ ...es/forms/pages |       0 |        0 |       0 |       0 |                   
+  BuilderPage.tsx  |       0 |        0 |       0 |       0 | 28-331            
+  PublicPage.tsx   |       0 |        0 |       0 |       0 | 13-142            
+  ...sionsPage.tsx |       0 |        0 |       0 |       0 | 12-72             
+ ...es/forms/utils |       0 |        0 |       0 |       0 |                   
+  ...dCardItem.tsx |       0 |        0 |       0 |       0 | 17-22             
+ modules/people    |       0 |      100 |       0 |       0 |                   
+  manifest.ts      |       0 |      100 |     100 |       0 | 4                 
+  public.ts        |       0 |        0 |       0 |       0 |                   
+  routes.tsx       |       0 |      100 |       0 |       0 | 10-37             
+  settings.ts      |       0 |      100 |     100 |       0 | 10                
+ ...ple/components |    3.44 |     6.25 |   11.11 |    3.57 |                   
+  PageSkeleton.tsx |     100 |      100 |     100 |     100 |                   
+  ...ailDialog.tsx |       0 |        0 |       0 |       0 | 16-70             
+  index.ts         |       0 |        0 |       0 |       0 |                   
+ ...s/AdminSection |       0 |        0 |       0 |       0 |                   
+  AdminSection.tsx |       0 |        0 |       0 |       0 | 16-118            
+  ...tionField.tsx |       0 |        0 |       0 |       0 | 9                 
+ ...dSafetySection |       0 |        0 |       0 |       0 |                   
+  ...tionField.tsx |       0 |        0 |       0 |       0 | 9                 
+ ...onsentsSection |       0 |        0 |       0 |       0 |                   
+  ...tionField.tsx |       0 |        0 |       0 |       0 | 9                 
+ ...ContactSection |       0 |        0 |       0 |       0 |                   
+  ...tionField.tsx |       0 |        0 |       0 |       0 | 9                 
+ ...raphicsSection |       0 |        0 |       0 |       0 |                   
+  ...tionField.tsx |       0 |        0 |       0 |       0 | 9                 
+ ...ardiansSection |       0 |        0 |       0 |       0 |                   
+  ...tionField.tsx |       0 |        0 |       0 |       0 | 9                 
+ ...JourneySection |       0 |        0 |       0 |       0 |                   
+  ...tionField.tsx |       0 |        0 |       0 |       0 | 9                 
+ ...MedicalSection |       0 |        0 |       0 |       0 |                   
+  ...tionField.tsx |       0 |        0 |       0 |       0 | 9                 
+ ...ersonalSection |       0 |        0 |       0 |       0 |                   
+  ...tionField.tsx |       0 |        0 |       0 |       0 | 9                 
+ ...ns/TagsSection |       0 |        0 |       0 |       0 |                   
+  ...tionField.tsx |       0 |        0 |       0 |       0 | 9                 
+ ...nents/sections |   44.07 |    41.56 |   40.98 |   45.59 |                   
+  ...untAccess.tsx |       0 |        0 |       0 |       0 | 10-128            
+  ChildSafety.tsx  |      36 |    61.53 |   16.66 |   36.17 | 58-75,108-234     
+  Consents.tsx     |       0 |        0 |       0 |       0 | 5-6               
+  Contact.tsx      |   53.12 |    46.42 |      60 |   51.72 | 38-55,72          
+  Demographics.tsx |   54.16 |       48 |   53.33 |   57.14 | ...8,63-80,98,120 
+  Guardians.tsx    |       0 |        0 |       0 |       0 | 10-80             
+  Journey.tsx      |   93.25 |    65.71 |   95.23 |   94.66 | 97-101,198        
+  Medical.tsx      |       0 |        0 |       0 |       0 | 5-6               
+  Personal.tsx     |   54.54 |       50 |   63.63 |   53.33 | 42-59,76          
+  ...leSection.tsx |     100 |      100 |     100 |     100 |                   
+  ...tionField.tsx |       0 |        0 |       0 |       0 | 9                 
+  TagBadge.tsx     |       0 |      100 |       0 |       0 | 5                 
+  Tags.tsx         |       0 |        0 |       0 |       0 | 10-22             
+  ...ermissions.ts |     100 |      100 |     100 |     100 |                   
+ ...les/people/lib |   42.74 |    29.08 |   42.54 |   47.25 |                   
+  ...ic-helpers.ts |     100 |      100 |     100 |     100 |                   
+  email.ts         |       0 |        0 |       0 |       0 | 14-122            
+  hooks.ts         |       0 |        0 |       0 |       0 | 13-110            
+  index.ts         |       0 |        0 |       0 |       0 |                   
+  ...id-helpers.ts |   88.17 |    73.33 |   88.37 |      90 | ...25-226,331-341 
+  ...ee-helpers.ts |   97.05 |    65.21 |   92.85 |     100 | ...19,126,138,153 
+  ...ermissions.ts |   28.57 |       30 |   33.33 |   28.57 | 62-87             
+  queries.ts       |   22.08 |    15.72 |   27.39 |   26.61 | ...81-329,349-477 
+  ...list-hooks.ts |       0 |        0 |       0 |       0 | 6-12              
+  ...ings-hooks.ts |       0 |        0 |       0 |       0 | 6-9               
+  slug.ts          |     100 |      100 |     100 |     100 |                   
+  types.ts         |       0 |        0 |       0 |       0 |                   
+  validation.ts    |     100 |       50 |     100 |     100 | 9                 
+ ...ages/Dashboard |       0 |        0 |       0 |       0 |                   
+  Filters.tsx      |       0 |        0 |       0 |       0 | 14-92             
+  Page.tsx         |       0 |        0 |       0 |       0 | 15-123            
+  Row.tsx          |       0 |        0 |       0 |       0 | 11-44             
+  ...stSidebar.tsx |       0 |        0 |       0 |       0 | 12-100            
+  Table.tsx        |       0 |        0 |       0 |       0 | 12-35             
+ ...ges/EditPerson |       0 |        0 |       0 |       0 |                   
+  Page.tsx         |       0 |        0 |       0 |       0 | 32-297            
+ ...le/pages/Email |       0 |      100 |       0 |       0 |                   
+  Page.tsx         |       0 |      100 |       0 |       0 | 4                 
+ ...ages/Household |       0 |        0 |       0 |       0 |                   
+  Address.tsx      |       0 |        0 |       0 |       0 | 11-37             
+  Members.tsx      |       0 |        0 |       0 |       0 | 6-14              
+  Page.tsx         |       0 |        0 |       0 |       0 | 13-56             
+ ...es/JourneyGrid |       0 |        0 |       0 |       0 |                   
+  Cell.tsx         |       0 |        0 |       0 |       0 | 15-31             
+  Grid.tsx         |       0 |        0 |       0 |       0 | 6-24              
+  Page.tsx         |       0 |        0 |       0 |       0 | 12-69             
+ ...ple/pages/Tags |       0 |        0 |       0 |       0 |                   
+  Manager.tsx      |       0 |        0 |       0 |       0 | 9-21              
+  Page.tsx         |       0 |      100 |       0 |       0 | 7                 
+ ...eople/settings |   36.89 |    35.16 |   29.41 |   40.51 |                   
+  ...gsManager.tsx |   31.42 |    30.95 |   23.86 |   35.38 | ...31-451,512-600 
+  ...tingsPage.tsx |       0 |        0 |       0 |       0 | 20-70             
+  ...geColumns.tsx |   81.08 |    65.78 |   81.81 |    86.2 | 117-121           
+-------------------|---------|----------|---------|---------|-------------------
+ERROR: Coverage for branches (68.96%) does not meet "src/modules/forms/dashboard.tsx" threshold (70%)
+__DONE__  

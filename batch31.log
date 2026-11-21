@@ -1,0 +1,39 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.11 [39m[90mD:/daniel/Documents/vibecoding/newlight.app[39m
+
+ [31m❯[39m src/modules/people/lib/demographics.test.ts [2m([22m[2m2 tests[22m[2m | [22m[31m2 failed[39m[2m)[22m[32m 13[2mms[22m[39m
+[31m     [31m×[31m returns active rows ordered by sort_order (filters deleted_at)[39m[32m 8[2mms[22m[39m
+[31m     [31m×[31m throws when the query fails[39m[32m 2[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 2 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m src/modules/people/lib/demographics.test.ts[2m > [22mgetDemographics[2m > [22mreturns active rows ordered by sort_order (filters deleted_at)
+[31m[1mTypeError[22m: getDemographics is not a function[39m
+[36m [2m❯[22m src/modules/people/lib/demographics.test.ts:[2m37:26[22m[39m
+    [90m 35|[39m     mockFrom[33m.[39m[34mmockReturnValueOnce[39m([34mlistChain[39m(rows))
+    [90m 36|[39m
+    [90m 37|[39m     [35mconst[39m result [33m=[39m [35mawait[39m [34mgetDemographics[39m()
+    [90m   |[39m                          [31m^[39m
+    [90m 38|[39m
+    [90m 39|[39m     [34mexpect[39m(mockFrom)[33m.[39m[34mtoHaveBeenCalledWith[39m([32m'demographics'[39m)
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/modules/people/lib/demographics.test.ts[2m > [22mgetDemographics[2m > [22mthrows when the query fails
+[31m[1mTypeError[22m: getDemographics is not a function[39m
+[36m [2m❯[22m src/modules/people/lib/demographics.test.ts:[2m45:18[22m[39m
+    [90m 43|[39m   [34mit[39m([32m'throws when the query fails'[39m[33m,[39m [35masync[39m () [33m=>[39m {
+    [90m 44|[39m     mockFrom[33m.[39m[34mmockReturnValueOnce[39m([34mlistChain[39m([][33m,[39m [35mnew[39m [33mError[39m([32m'boom'[39m)))
+    [90m 45|[39m     [35mawait[39m [34mexpect[39m([34mgetDemographics[39m())[33m.[39mrejects[33m.[39m[34mtoThrow[39m([32m'boom'[39m)
+    [90m   |[39m                  [31m^[39m
+    [90m 46|[39m   })
+    [90m 47|[39m })
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m2 failed[39m[22m[90m (2)[39m
+[2m   Start at [22m 22:15:00
+[2m   Duration [22m 2.83s[2m (transform 181ms, setup 430ms, import 124ms, tests 13ms, environment 1.35s)[22m
+

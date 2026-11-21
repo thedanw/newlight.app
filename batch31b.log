@@ -1,0 +1,12 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.11 [39m[90mD:/daniel/Documents/vibecoding/newlight.app[39m
+
+ [32m✓[39m src/modules/people/lib/demographic-helpers.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m src/modules/people/lib/demographics.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m src/modules/people/lib/validation.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m3 passed[39m[22m[90m (3)[39m
+[2m      Tests [22m [1m[32m9 passed[39m[22m[90m (9)[39m
+[2m   Start at [22m 22:15:36
+[2m   Duration [22m 6.71s[2m (transform 352ms, setup 1.36s, import 417ms, tests 28ms, environment 2.97s)[22m
+

@@ -1,0 +1,1377 @@
+﻿{
+    "version":  2,
+    "generatedAt":  "2026-11-19T10:20:29Z",
+    "registryType":  "boss-local",
+    "skills":  [
+                   {
+                       "id":  "agents-md",
+                       "name":  "agents-md",
+                       "description":  "Create, update, or maintain AGENTS.md / CLAUDE.md files with minimal, high-signal agent documentation. Use when the user asks to \u0027create AGENTS.md\u0027, \u0027update AGENTS.md\u0027, \u0027maintain agent docs\u0027, or \u0027set ",
+                       "category":  "00-setup",
+                       "tags":  [
+                                    "agents",
+                                    "documentation",
+                                    "claude",
+                                    "best-practices",
+                                    "meta"
+                                ],
+                       "triggers": ["create"],
+                       "path":  "00-setup/agents-md",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "setup",
+                       "name":  "setup",
+                       "description":  "Scaffold a complete agenic workspace from scratch: create .agents folder, link skills via junction/symlink, generate agents.md, and update BOSS_INDEX.json. Use when setting up a new project or cloning",
+                       "category":  "00-setup",
+                       "tags":  [
+                                    "setup",
+                                    "scaffolding",
+                                    "workspace",
+                                    "junction",
+                                    "symlink",
+                                    "agents-md",
+                                    "bootstrap",
+                                    "initialization"
+                                ],
+                       "triggers":  [
+                                        "create",
+                                        "generate"
+                                    ],
+                       "path":  "00-setup/setup",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "context-optimization",
+                       "name":  "context-optimization",
+                       "description":  "Context optimization extends the effective capacity of limited context windows through strategic compression, masking, caching, and partitioning. Use when working with small context LLMs or need to ma",
+                       "category":  "ai-meta",
+                       "tags":  [
+                                    "context",
+                                    "optimization",
+                                    "compression",
+                                    "tokens",
+                                    "efficiency",
+                                    "llm",
+                                    "small-context"
+                                ],
+                       "triggers": [],
+                       "path":  "ai-meta/context-optimization",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "llm-prompt-optimizer",
+                       "name":  "llm-prompt-optimizer",
+                       "description":  "Use when improving prompts for any LLM. Applies proven prompt engineering techniques to boost output quality, reduce hallucinations, and cut token usage.",
+                       "category":  "ai-meta",
+                       "tags":  [
+                                    "prompt-engineering",
+                                    "optimization",
+                                    "llm",
+                                    "ai",
+                                    "quality",
+                                    "hallucination-reduction"
+                                ],
+                       "triggers": [],
+                       "path":  "ai-meta/llm-prompt-optimizer",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "md-token-optimizer",
+                       "name":  "markdown-token-optimizer",
+                       "description":  "Analyzes markdown files for token efficiency. TRIGGERS: optimize markdown, reduce tokens, token count, token bloat, too many tokens, make concise, shrink file, file too large, optimize for AI, token e",
+                       "category":  "ai-meta",
+                       "tags":  [
+
+                                ],
+                       "triggers":  [
+                                        "analyze",
+                                        "optimize"
+                                    ],
+                       "path":  "ai-meta/md-token-optimizer",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "prompt-engineer",
+                       "name":  "prompt-engineer",
+                       "description":  "Transforms user prompts into optimized prompts using frameworks (RTF, RISEN, Chain of Thought, RODES, Chain of Density, RACE, RISE, STAR, SOAP, CLEAR, GROW)",
+                       "category":  "ai-meta",
+                       "tags":  [
+                                    "prompt-engineering",
+                                    "optimization",
+                                    "frameworks",
+                                    "ai-enhancement",
+                                    "templates",
+                                    "quality"
+                                ],
+                       "triggers": ["optimize"],
+                       "path":  "ai-meta/prompt-engineer",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "prompt-refinement",
+                       "name":  "prompt-refinement",
+                       "description":  "Refine and optimize user prompts for large language models. Suggests rewrites, examples, and parameter guidance to improve reliability and output quality.",
+                       "category":  "ai-meta",
+                       "tags":  [
+                                    "prompt-engineering",
+                                    "refinement",
+                                    "llm",
+                                    "instruction-tuning"
+                                ],
+                       "triggers": ["optimize"],
+                       "path":  "ai-meta/prompt-refinement",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "bible-nlt",
+                       "name":  "Bible NLT Fetcher",
+                       "description":  "Fetch the exact wording of the New Living Translation (NLT) for any Bible passage.",
+                       "category":  "bible",
+                       "tags":  [
+
+                                ],
+                       "triggers": [],
+                       "path":  "bible/bible-nlt",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "individual_sermon_researcher",
+                       "name":  "Biblical \u0026 Theological Research Protocol",
+                       "description":  "The master instruction set for all biblical and theological research, defining the Research Source Router and the Gold Standard discovery loop.",
+                       "category":  "bible",
+                       "tags":  [
+
+                                ],
+                       "triggers": [],
+                       "path":  "bible/individual_sermon_researcher",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "deep-research",
+                       "name":  "deep-research",
+                       "description":  "Execute autonomous multi-step research using Jina AI (Search \u0026 Reader). This skill establishes the logic for the agent to plan, search, read, and synthesize information into comprehensive reports.",
+                       "category":  "bible",
+                       "tags":  [
+
+                                ],
+                       "triggers": ["plan"],
+                       "path":  "bible/deep-research",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "illustration_researcher",
+                       "name":  "Illustration Researcher",
+                       "description":  "Research and curate engaging sermon illustrations from a verified knowledgebase.",
+                       "category":  "bible",
+                       "tags":  [
+
+                                ],
+                       "triggers": [],
+                       "path":  "bible/illustration_researcher",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "individual_sermon_brainstormer",
+                       "name":  "Individual Sermon Brainstormer",
+                       "description":  "Synthesize research (03-summary.md) into workable outlines and brainstorm main themes and creative presentation options using literary devices.",
+                       "category":  "bible",
+                       "tags":  [
+
+                                ],
+                       "triggers": [],
+                       "path":  "bible/individual_sermon_brainstormer",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "brand",
+                       "name":  "New Light Brand Guidelines",
+                       "description":  "Comprehensive brand guidelines for New Light Anglican Church, including colors, typography, design patterns, and styling rules for the Team Hub application.",
+                       "category":  "bible",
+                       "tags":  [
+
+                                ],
+                       "triggers": ["design"],
+                       "path":  "bible/brand",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "rhetoric",
+                       "name":  "Rhetoric",
+                       "description":  "A centralized library of rhetorical and homiletical devices for effective sermon communication.",
+                       "category":  "bible",
+                       "tags":  [
+
+                                ],
+                       "triggers": [],
+                       "path":  "bible/rhetoric",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "break-writers-block",
+                       "name":  "sermon-brainstorming",
+                       "description":  "Transforms a passage or theme into a gospel-centered sermon outline with illustrations, hooks, and grace dynamics.",
+                       "category":  "bible",
+                       "tags":  [
+
+                                ],
+                       "triggers": [],
+                       "path":  "bible/break-writers-block",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "sync-docs",
+                       "name":  "Sync \u0026 Document Generation",
+                       "description":  "Sync markdown to Google Docs and generate high-fidelity RTF, HTML, and PDF documents with New Light Branding.",
+                       "category":  "bible",
+                       "tags":  [
+
+                                ],
+                       "triggers": ["generate"],
+                       "path":  "bible/sync-docs",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "00_meta-plan-pipeline",
+                       "name":  "00_meta-plan-pipeline",
+                       "description":  "Orchestrate the full development workflow: brainstorm → plan → optimize → execute → review. Coordinates 01_brainstorming, 02_concise-planning, 03_optimise-planning, and 04_executing-plans into one con",
+                       "category":  "code-plan",
+                       "tags":  [
+                                    "pipeline",
+                                    "orchestration",
+                                    "brainstorm",
+                                    "plan",
+                                    "optimize",
+                                    "execute",
+                                    "review",
+                                    "workflow",
+                                    "git",
+                                    "testing",
+                                    "quality"
+                                ],
+                       "triggers":  [
+                                        "optimize",
+                                        "plan",
+                                        "review",
+                                        "track"
+                                    ],
+                       "path":  "code-plan/00_meta-plan-pipeline",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "01_brainstorming",
+                       "name":  "01_brainstorming",
+                       "description":  "Use before any creative or constructive work (features, architecture, behavior). Transforms vague ideas into validated designs through disciplined dialogue. Outputs decision tree to decision.md for pi",
+                       "category":  "code-plan",
+                       "tags":  [
+                                    "brainstorming",
+                                    "design",
+                                    "planning",
+                                    "collaboration",
+                                    "requirements",
+                                    "architecture",
+                                    "decision-tree"
+                                ],
+                       "triggers":  [
+                                        "design",
+                                        "validate"
+                                    ],
+                       "path":  "code-plan/01_brainstorming",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "02_concise-planning",
+                       "name":  "02_concise-planning",
+                       "description":  "Use when a user asks for a plan for a coding task. Generates a clear, actionable, atomic checklist following TDD and git-best practices, while initializing file-based context tracking. Optimized for s",
+                       "category":  "code-plan",
+                       "tags":  [
+                                    "planning",
+                                    "checklist",
+                                    "tasks",
+                                    "scope",
+                                    "tdd",
+                                    "git",
+                                    "context",
+                                    "organization",
+                                    "small-context",
+                                    "subagents"
+                                ],
+                       "triggers":  [
+                                        "generate",
+                                        "optimize",
+                                        "plan",
+                                        "track"
+                                    ],
+                       "path":  "code-plan/02_concise-planning",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "03_optimise-planning",
+                       "name":  "03_optimise-planning",
+                       "description":  "Optimize planning documents for small context LLMs by adding token-optimized context statements and task completion sync to every batch.",
+                       "category":  "code-plan",
+                       "tags":  [
+                                    "planning",
+                                    "optimization",
+                                    "small-context",
+                                    "context-statements",
+                                    "batch"
+                                ],
+                       "triggers":  [
+                                        "optimize",
+                                        "plan"
+                                    ],
+                       "path":  "code-plan/03_optimise-planning",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "04_executing-plans",
+                       "name":  "04_executing-plans",
+                       "description":  "Execute written implementation plans in token-optimized batches with file-tracked context, checkpoints, and git integration.",
+                       "category":  "code-plan",
+                       "tags":  [
+                                    "execution",
+                                    "implementation",
+                                    "batch",
+                                    "review",
+                                    "checkpoint",
+                                    "tasks",
+                                    "git",
+                                    "context-recovery",
+                                    "todo",
+                                    "context-optimization"
+                                ],
+                       "triggers":  [
+                                        "optimize",
+                                        "plan",
+                                        "track"
+                                    ],
+                       "path":  "code-plan/04_executing-plans",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "bug-hunter",
+                       "name":  "bug-hunter",
+                       "description":  "Systematically finds and fixes bugs using proven debugging techniques. Traces from symptoms to root cause, implements fixes, and prevents regression.",
+                       "category":  "debugging",
+                       "tags":  [
+
+                                ],
+                       "triggers":  [
+                                        "debug",
+                                        "fix"
+                                    ],
+                       "path":  "debugging/bug-hunter",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "logic-lens",
+                       "name":  "logic-lens",
+                       "description":  "AI-powered Claude Code skill that performs deep code review using formal logic and reasoning frameworks to detect bugs, anti-patterns, and security risks beyond what linters catch.",
+                       "category":  "debugging",
+                       "tags":  [
+                                    "code-review",
+                                    "logic-analysis",
+                                    "debugging",
+                                    "security-review",
+                                    "claude-code"
+                                ],
+                       "triggers": ["review"],
+                       "path":  "debugging/logic-lens",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "performance-optimizer",
+                       "name":  "performance-optimizer",
+                       "description":  "Identifies and fixes performance bottlenecks in code, databases, and APIs. Measures before and after to prove improvements.",
+                       "category":  "debugging",
+                       "tags":  [
+
+                                ],
+                       "triggers": ["fix"],
+                       "path":  "debugging/performance-optimizer",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "systematic-debugging",
+                       "name":  "systematic-debugging",
+                       "description":  "Use when encountering any bug, test failure, or unexpected behavior, before proposing fixes",
+                       "category":  "debugging",
+                       "tags":  [
+
+                                ],
+                       "triggers":  [
+                                        "fix",
+                                        "test"
+                                    ],
+                       "path":  "debugging/systematic-debugging",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "codebase-audit-pre-push",
+                       "name":  "codebase-audit-pre-push",
+                       "description":  "Deep audit before GitHub push: removes junk files, dead code, security holes, and optimization issues. Checks every file line-by-line for production readiness.",
+                       "category":  "github",
+                       "tags":  [
+
+                                ],
+                       "triggers":  [
+                                        "audit",
+                                        "push"
+                                    ],
+                       "path":  "github/codebase-audit-pre-push",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "git-pushing",
+                       "name":  "git-pushing",
+                       "description":  "Stage all changes, create a conventional commit, and push to the remote branch. Use when explicitly asks to push changes (\\\"push this\\\", \\\"commit and push\\\"), mentions saving work to remote (\\\"save to",
+                       "category":  "github",
+                       "tags":  [
+
+                                ],
+                       "triggers":  [
+                                        "create",
+                                        "push"
+                                    ],
+                       "path":  "github/git-pushing",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "brand-visual-generator",
+                       "name":  "brand-visual-generator",
+                       "description":  "When the user wants to define, audit, or apply visual identity (typography, colors, spacing, design tokens, frontend aesthetics). Also use when the user mentions \u0027brand style guide,\u0027 \u0027visual identity,",
+                       "category":  "marketing",
+                       "tags":  [
+
+                                ],
+                       "triggers":  [
+                                        "audit",
+                                        "design"
+                                    ],
+                       "path":  "marketing/brand-visual-generator",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "brand-voice-creator",
+                       "name":  "brand-voice-creator",
+                       "description":  "Create a brand voice document from scratch. Defines voice attributes, tone spectrum, vocabulary rules, do/don\u0027t examples, and agent-consumable guidelines. Use when establishing a new brand voice or fo",
+                       "category":  "marketing",
+                       "tags":  [
+                                    "brand-voice",
+                                    "brand-guidelines",
+                                    "voice-document",
+                                    "tone-of-voice",
+                                    "content-strategy",
+                                    "ai-writing",
+                                    "copywriting"
+                                ],
+                       "triggers": ["create"],
+                       "path":  "marketing/brand-voice-creator",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "copy-editing",
+                       "name":  "copy-editing",
+                       "description":  "You are an expert copy editor specializing in marketing and conversion copy. Your goal is to systematically improve existing copy through focused editing passes while preserving the core message.",
+                       "category":  "marketing",
+                       "tags":  [
+
+                                ],
+                       "triggers": [],
+                       "path":  "marketing/copy-editing",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "marketing-psychology",
+                       "name":  "marketing-psychology",
+                       "description":  "Apply behavioral science and mental models to marketing decisions, prioritized using a psychological leverage and feasibility scoring system.",
+                       "category":  "marketing",
+                       "tags":  [
+
+                                ],
+                       "triggers": [],
+                       "path":  "marketing/marketing-psychology",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "seo-aeo-meta-description-generator",
+                       "name":  "seo-aeo-meta-description-generator",
+                       "description":  "Writes 3 title tag variants and 3 meta description variants per page with SERP preview, OG tags, and Twitter Card tags. Activate when the user wants to write meta tags, title tags, or social sharing t",
+                       "category":  "marketing",
+                       "tags":  [
+                                    "seo",
+                                    "aeo",
+                                    "meta",
+                                    "title",
+                                    "description",
+                                    "og",
+                                    "twitter-card",
+                                    "serp",
+                                    "social"
+                                ],
+                       "triggers": ["write"],
+                       "path":  "marketing/seo-aeo-meta-description-generator",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "seo-audit",
+                       "name":  "seo-audit",
+                       "description":  "Diagnose and audit SEO issues affecting crawlability, indexation, rankings, and organic performance. Use when user wants a comprehensive SEO audit, site health check, or technical SEO analysis.",
+                       "category":  "marketing",
+                       "tags":  [
+                                    "seo",
+                                    "audit",
+                                    "technical-seo",
+                                    "crawlability",
+                                    "indexation",
+                                    "rankings"
+                                ],
+                       "triggers": ["audit"],
+                       "path":  "marketing/seo-audit",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "seo-cannibalization-detector",
+                       "name":  "seo-cannibalization-detector",
+                       "description":  "Analyzes multiple provided pages to identify keyword overlap and potential cannibalization issues. Suggests differentiation strategies. Use PROACTIVELY when reviewing similar content.",
+                       "category":  "marketing",
+                       "tags":  [
+                                    "seo",
+                                    "cannibalization",
+                                    "keyword-overlap",
+                                    "content-strategy"
+                                ],
+                       "triggers":  [
+                                        "analyze",
+                                        "review"
+                                    ],
+                       "path":  "marketing/seo-cannibalization-detector",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "seo-content",
+                       "name":  "seo-content",
+                       "description":  "Content quality and E-E-A-T analysis with AI citation readiness assessment. Use when user says \"content quality\", \"E-E-A-T\", \"content analysis\", \"readability check\", \"thin content\", or \"content audit\"",
+                       "category":  "marketing",
+                       "tags":  [
+                                    "seo",
+                                    "content",
+                                    "e-e-a-t",
+                                    "quality",
+                                    "audit",
+                                    "readability",
+                                    "ai-citation"
+                                ],
+                       "triggers": ["audit"],
+                       "path":  "marketing/seo-content",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "seo-content-writer",
+                       "name":  "seo-content-writer",
+                       "description":  "Writes SEO-optimized content based on provided keywords and topic briefs. Creates engaging, comprehensive content following best practices. Use PROACTIVELY for content creation tasks.",
+                       "category":  "marketing",
+                       "tags":  [
+                                    "seo",
+                                    "content-writing",
+                                    "copywriting",
+                                    "keywords",
+                                    "optimization"
+                                ],
+                       "triggers":  [
+                                        "create",
+                                        "optimize",
+                                        "write"
+                                    ],
+                       "path":  "marketing/seo-content-writer",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "seo-keyword-strategist",
+                       "name":  "seo-keyword-strategist",
+                       "description":  "Analyzes keyword usage in provided content, calculates density, suggests semantic variations and LSI keywords based on the topic. Prevents over-optimization. Use PROACTIVELY for content optimization.",
+                       "category":  "marketing",
+                       "tags":  [
+                                    "seo",
+                                    "keywords",
+                                    "lsi",
+                                    "density",
+                                    "optimization",
+                                    "semantic"
+                                ],
+                       "triggers": ["analyze"],
+                       "path":  "marketing/seo-keyword-strategist",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "seo-meta-optimizer",
+                       "name":  "seo-meta-optimizer",
+                       "description":  "Creates optimized meta titles, descriptions, and URL suggestions based on character limits and best practices. Generates compelling, keyword-rich metadata. Use PROACTIVELY for new content.",
+                       "category":  "marketing",
+                       "tags":  [
+                                    "seo",
+                                    "meta",
+                                    "title",
+                                    "description",
+                                    "url",
+                                    "metadata",
+                                    "optimization"
+                                ],
+                       "triggers":  [
+                                        "create",
+                                        "generate",
+                                        "optimize"
+                                    ],
+                       "path":  "marketing/seo-meta-optimizer",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "seo-page",
+                       "name":  "seo-page",
+                       "description":  "Deep single-page SEO analysis covering on-page elements, content quality, technical meta tags, schema, images, and performance. Use when user says \"analyze this page\", \"check page SEO\", or provides a ",
+                       "category":  "marketing",
+                       "tags":  [
+                                    "seo",
+                                    "page",
+                                    "analysis",
+                                    "on-page",
+                                    "technical",
+                                    "schema",
+                                    "images",
+                                    "performance"
+                                ],
+                       "triggers":  [
+                                        "analyze",
+                                        "review"
+                                    ],
+                       "path":  "marketing/seo-page",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "00_seo-skill-orchestrator",
+                       "name":  "seo-skill-orchestrator",
+                       "description":  "Meta orchestrator for all SEO skills. Defines two comprehensive workflows: (1) Full-site SEO audit from macro structure to micro page analysis, and (2) End-to-end content creation from site-wide strat",
+                       "category":  "marketing",
+                       "tags":  [
+                                    "seo",
+                                    "meta",
+                                    "orchestrator",
+                                    "workflow",
+                                    "audit",
+                                    "content-creation",
+                                    "strategy",
+                                    "execution"
+                                ],
+                       "triggers": ["audit"],
+                       "path":  "marketing/00_seo-skill-orchestrator",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "seo-snippet-hunter",
+                       "name":  "seo-snippet-hunter",
+                       "description":  "Formats content to be eligible for featured snippets and SERP features. Creates snippet-optimized content blocks based on best practices. Use PROACTIVELY for question-based content.",
+                       "category":  "marketing",
+                       "tags":  [
+                                    "seo",
+                                    "snippet",
+                                    "featured-snippet",
+                                    "serp",
+                                    "content",
+                                    "optimization",
+                                    "questions"
+                                ],
+                       "triggers":  [
+                                        "create",
+                                        "optimize"
+                                    ],
+                       "path":  "marketing/seo-snippet-hunter",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "seo-structure-architect",
+                       "name":  "seo-structure-architect",
+                       "description":  "Analyzes and optimizes content structure including header hierarchy, suggests schema markup, and internal linking opportunities. Creates search-friendly content organization.",
+                       "category":  "marketing",
+                       "tags":  [
+                                    "seo",
+                                    "structure",
+                                    "headers",
+                                    "schema",
+                                    "internal-linking",
+                                    "content-organization",
+                                    "hierarchy"
+                                ],
+                       "triggers":  [
+                                        "analyze",
+                                        "create",
+                                        "optimize"
+                                    ],
+                       "path":  "marketing/seo-structure-architect",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "social-post-writer-seo",
+                       "name":  "social-post-writer-seo",
+                       "description":  "Social Media Strategist and Content Writer. Creates clear, engaging social media posts for Instagram, LinkedIn, and Facebook.",
+                       "category":  "marketing",
+                       "tags":  [
+                                    "social-media",
+                                    "marketing",
+                                    "content-writing",
+                                    "seo",
+                                    "growth"
+                                ],
+                       "triggers":  [
+                                        "create",
+                                        "write"
+                                    ],
+                       "path":  "marketing/social-post-writer-seo",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "context-compression",
+                       "name":  "context-compression",
+                       "description":  "Production-ready compression strategies for million-token agent sessions. Covers anchored iterative summarization, opaque compression, and regenerative summaries. Use when agent sessions exceed contex",
+                       "category":  "memory",
+                       "tags":  [
+                                    "compression",
+                                    "summarization",
+                                    "tokens",
+                                    "session-management",
+                                    "context",
+                                    "memory"
+                                ],
+                       "triggers": ["debug"],
+                       "path":  "memory/context-compression",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "context-window-management",
+                       "name":  "context-window-management",
+                       "description":  "Strategies for managing LLM context windows including summarization, trimming, routing, and avoiding context rot. Use when working with small context LLMs or need to manage limited token budgets effec",
+                       "category":  "memory",
+                       "tags":  [
+                                    "context",
+                                    "window",
+                                    "management",
+                                    "tokens",
+                                    "summarization",
+                                    "trimming",
+                                    "routing",
+                                    "small-context"
+                                ],
+                       "triggers": [],
+                       "path":  "memory/context-window-management",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "technical-change-tracker",
+                       "name":  "technical-change-tracker",
+                       "description":  "Track code changes with structured JSON records, state machine enforcement, and AI session handoff for bot continuity",
+                       "category":  "memory",
+                       "tags":  [
+                                    "change-tracking",
+                                    "session-handoff",
+                                    "documentation",
+                                    "accessibility",
+                                    "state-machine"
+                                ],
+                       "triggers": ["track"],
+                       "path":  "memory/technical-change-tracker",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "jina-ai-search-foundation",
+                       "name":  "jina-ai-search-foundation",
+                       "description":  "Use Jina AI Search Foundation APIs (Embeddings, Reranker, Reader, Search, Batch Embeddings) for semantic search, RAG, web scraping, and large-scale document processing. Get your Jina AI API key for fr",
+                       "category":  "tools",
+                       "tags":  [
+                                    "embeddings",
+                                    "reranker",
+                                    "reader",
+                                    "search",
+                                    "batch-embeddings",
+                                    "rag",
+                                    "semantic-search",
+                                    "jina-ai",
+                                    "api",
+                                    "llm"
+                                ],
+                       "triggers": [],
+                       "path":  "tools/jina-ai-search-foundation",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "recursive-context-pruning-token-budgeting",
+                       "name":  "recursive-context-pruning-token-budgeting",
+                       "description":  "Implements Gatekeeper logic to prevent context window bloat — pruning redundant context, managing token budgets (30/20/50 split), and enforcing atomic output without bridge phrases. Use when building ",
+                       "category":  "tools",
+                       "tags":  [
+                                    "pruning",
+                                    "tokens",
+                                    "budgeting",
+                                    "atomic-output",
+                                    "conciseness",
+                                    "context-management"
+                                ],
+                       "triggers": ["build"],
+                       "path":  "tools/recursive-context-pruning-token-budgeting",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "using-superpowers",
+                       "name":  "using-superpowers",
+                       "description":  "Use at the start of any conversation. Establishes how to find and use skills. If there is even a 1% chance a skill might apply, you must invoke the skill before any response. Not negotiable.",
+                       "category":  "tools",
+                       "tags":  [
+                                    "meta",
+                                    "skill-discovery",
+                                    "workflow",
+                                    "process",
+                                    "orchestration"
+                                ],
+                       "triggers": [],
+                       "path":  "tools/using-superpowers",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "youtube-summarizer",
+                       "name":  "youtube-summarizer",
+                       "description":  "Extract transcripts from YouTube videos and generate comprehensive, detailed summaries using intelligent analysis frameworks",
+                       "category":  "tools",
+                       "tags":  [
+
+                                ],
+                       "triggers": ["generate"],
+                       "path":  "tools/youtube-summarizer",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "00-ui-ux-skill-orchestrator",
+                       "name":  "00-ui-ux-skill-orchestrator",
+                       "description":  "Meta-orchestrator that coordinates all UI-UX skills to plan, design, build, audit, and enhance user interfaces. Use when starting a new UI project, redesigning an existing interface, or conducting com",
+                       "category":  "ui-ux",
+                       "tags":  [
+                                    "orchestrator",
+                                    "ui",
+                                    "ux",
+                                    "design",
+                                    "audit",
+                                    "workflow",
+                                    "planning",
+                                    "building",
+                                    "enhancing"
+                                ],
+                       "triggers":  [
+                                        "audit",
+                                        "build",
+                                        "design",
+                                        "plan"
+                                    ],
+                       "path":  "ui-ux/00-ui-ux-skill-orchestrator",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "church-webdesign",
+                       "name":  "church-webdesign",
+                       "description":  "Design welcoming, effective church websites that serve both visitors and members. Combines church-specific best practices with a proven UX/UI workflow: strategy, IA, wireframes, visual systems, and co",
+                       "category":  "ui-ux",
+                       "tags":  [
+                                    "church",
+                                    "web-design",
+                                    "ux",
+                                    "ui",
+                                    "wireframes",
+                                    "design-system",
+                                    "accessibility",
+                                    "ministry"
+                                ],
+                       "triggers": ["design"],
+                       "path":  "ui-ux/church-webdesign",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "css-architecture",
+                       "name":  "css-architecture",
+                       "description":  "Organize CSS using BEM, SMACSS, and CSS-in-JS patterns. Use when building scalable, maintainable styling systems with proper naming conventions.",
+                       "category":  "ui-ux",
+                       "tags":  [
+                                    "css",
+                                    "architecture",
+                                    "bem",
+                                    "smacss",
+                                    "css-in-js",
+                                    "styling",
+                                    "design-system",
+                                    "maintainability"
+                                ],
+                       "triggers": ["build"],
+                       "path":  "ui-ux/css-architecture",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "designing-beautiful-websites",
+                       "name":  "designing-beautiful-websites",
+                       "description":  "Designs UX/UI for websites and web apps: UX strategy, information architecture, user flows, wireframes, UI systems, component specs, and polished visual design. Use when the user asks to design, redes",
+                       "category":  "ui-ux",
+                       "tags":  [
+                                    "web-design",
+                                    "ux",
+                                    "ui",
+                                    "wireframes",
+                                    "design-system",
+                                    "visual-design",
+                                    "accessibility"
+                                ],
+                       "triggers": ["design"],
+                       "path":  "ui-ux/designing-beautiful-websites",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "frontend-design",
+                       "name":  "frontend-design",
+                       "description":  "You are a frontend designer-engineer, not a layout generator.",
+                       "category":  "ui-ux",
+                       "tags":  [
+
+                                ],
+                       "triggers": ["design"],
+                       "path":  "ui-ux/frontend-design",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "parkui",
+                       "name":  "parkui",
+                       "description":  "Design, build, and maintain ParkUI components (ArkUI + PandaCSS). Use when creating ParkUI components, designing ParkUI API, styling ParkUI components, or working with ParkUIs composable component arc",
+                       "category":  "ui-ux",
+                       "tags":  [
+                                    "parkui",
+                                    "arkui",
+                                    "panda-css",
+                                    "components",
+                                    "design-system",
+                                    "ui",
+                                    "ux",
+                                    "composable",
+                                    "headless",
+                                    "styling"
+                                ],
+                       "triggers":  [
+                                        "build",
+                                        "design"
+                                    ],
+                       "path":  "ui-ux/parkui",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "pmndrs-postprocessing",
+                       "name":  "pmndrs-postprocessing",
+                       "description":  "pmndrs postprocessing for three.js: EffectComposer, passes, effects (bloom, depth of field, SSAO, tone mapping, color grading), and custom shaders. Use when adding fullscreen image effects, color grad",
+                       "category":  "ui-ux",
+                       "tags":  [
+                                    "postprocessing",
+                                    "threejs",
+                                    "bloom",
+                                    "depth-of-field",
+                                    "ssao",
+                                    "tone-mapping",
+                                    "color-grading",
+                                    "effect-composer",
+                                    "shader-pass",
+                                    "fullscreen-effects"
+                                ],
+                       "triggers": [],
+                       "path":  "ui-ux/pmndrs-postprocessing",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "product-design",
+                       "name":  "product-design",
+                       "description":  "Apple-level product design — visual systems, UX flows, accessibility, proprietary visual language, design tokens, prototyping, and handoff. Covers Figma, design systems, typography, color, spacing, mo",
+                       "category":  "ui-ux",
+                       "tags":  [
+
+                                ],
+                       "triggers": ["design"],
+                       "path":  "ui-ux/product-design",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "stock-photo-finder",
+                       "name":  "stock-photo-finder",
+                       "description":  "Find usable free stock photos for design work, with a strong bias toward Unsplash and other trusted free stock sources. Filter by subject, orientation, mood, and licensing needs.",
+                       "category":  "ui-ux",
+                       "tags":  [
+                                    "stock-photos",
+                                    "unsplash",
+                                    "pexels",
+                                    "pixabay",
+                                    "openverse",
+                                    "free-images",
+                                    "design-assets",
+                                    "licensing"
+                                ],
+                       "triggers": ["design"],
+                       "path":  "ui-ux/stock-photo-finder",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "ui-a11y",
+                       "name":  "ui-a11y",
+                       "description":  "Audit a StyleSeed-based component or page for WCAG 2.2 AA issues and apply practical accessibility fixes where the code makes them safe.",
+                       "category":  "ui-ux",
+                       "tags":  [
+                                    "ui",
+                                    "accessibility",
+                                    "wcag",
+                                    "audit",
+                                    "styleseed"
+                                ],
+                       "triggers":  [
+                                        "audit",
+                                        "fix"
+                                    ],
+                       "path":  "ui-ux/ui-a11y",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "ui-component",
+                       "name":  "ui-component",
+                       "description":  "Generate a new UI component that follows StyleSeed Toss conventions for structure, tokens, accessibility, and component ergonomics.",
+                       "category":  "ui-ux",
+                       "tags":  [
+                                    "ui",
+                                    "components",
+                                    "design-system",
+                                    "frontend",
+                                    "styleseed"
+                                ],
+                       "triggers": ["generate"],
+                       "path":  "ui-ux/ui-component",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "ui-page",
+                       "name":  "ui-page",
+                       "description":  "Scaffold a new mobile-first page using StyleSeed Toss layout patterns, section rhythm, and existing shell components.",
+                       "category":  "ui-ux",
+                       "tags":  [
+                                    "ui",
+                                    "page-design",
+                                    "mobile",
+                                    "layout",
+                                    "styleseed"
+                                ],
+                       "triggers": [],
+                       "path":  "ui-ux/ui-page",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "ui-pattern",
+                       "name":  "ui-pattern",
+                       "description":  "Generate reusable UI patterns such as card sections, grids, lists, forms, and chart wrappers using StyleSeed Toss primitives.",
+                       "category":  "ui-ux",
+                       "tags":  [
+                                    "ui",
+                                    "patterns",
+                                    "design-system",
+                                    "reuse",
+                                    "styleseed"
+                                ],
+                       "triggers": ["generate"],
+                       "path":  "ui-ux/ui-pattern",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "ui-review",
+                       "name":  "ui-review",
+                       "description":  "Review UI code for StyleSeed design-system compliance, accessibility, mobile ergonomics, spacing discipline, and implementation quality.",
+                       "category":  "ui-ux",
+                       "tags":  [
+                                    "ui",
+                                    "review",
+                                    "design-system",
+                                    "accessibility",
+                                    "styleseed"
+                                ],
+                       "triggers":  [
+                                        "design",
+                                        "review"
+                                    ],
+                       "path":  "ui-ux/ui-review",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "ui-setup",
+                       "name":  "ui-setup",
+                       "description":  "Interactive StyleSeed setup wizard for choosing app type, brand color, visual style, typography, and the first screen scaffold.",
+                       "category":  "ui-ux",
+                       "tags":  [
+                                    "ui",
+                                    "design-system",
+                                    "setup",
+                                    "frontend",
+                                    "styleseed"
+                                ],
+                       "triggers": [],
+                       "path":  "ui-ux/ui-setup",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "ui-tokens",
+                       "name":  "ui-tokens",
+                       "description":  "List, add, and update StyleSeed design tokens while keeping JSON sources, CSS variables, and dark-mode values in sync.",
+                       "category":  "ui-ux",
+                       "tags":  [
+                                    "ui",
+                                    "tokens",
+                                    "design-system",
+                                    "theming",
+                                    "styleseed"
+                                ],
+                       "triggers": ["design"],
+                       "path":  "ui-ux/ui-tokens",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "ui-ux-pro-max",
+                       "name":  "ui-ux-pro-max",
+                       "description":  "Comprehensive design guide for web and mobile applications. Use when designing new UI components or pages, choosing color palettes and typography, or reviewing code for UX issues.",
+                       "category":  "ui-ux",
+                       "tags":  [
+
+                                ],
+                       "triggers":  [
+                                        "design",
+                                        "review"
+                                    ],
+                       "path":  "ui-ux/ui-ux-pro-max",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "unsplash-integration",
+                       "name":  "unsplash-integration",
+                       "description":  "Fetch and evaluate Unsplash images for design work using direct Unsplash search URLs, source filtering, and practical licensing guidance.",
+                       "category":  "ui-ux",
+                       "tags":  [
+                                    "unsplash",
+                                    "stock-photos",
+                                    "images",
+                                    "design",
+                                    "photography",
+                                    "licensing"
+                                ],
+                       "triggers": ["design"],
+                       "path":  "ui-ux/unsplash-integration",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "use-gesture-react",
+                       "name":  "use-gesture-react",
+                       "description":  "Implement use-gesture library within React components for gesture-based interactions. Use when adding drag, scroll, pin, press, and other gesture functionality to React UI elements.",
+                       "category":  "ui-ux",
+                       "tags":  [
+                                    "react",
+                                    "gestures",
+                                    "drag",
+                                    "scroll",
+                                    "pin",
+                                    "press",
+                                    "touch",
+                                    "mouse",
+                                    "wheel",
+                                    "interaction"
+                                ],
+                       "triggers": [],
+                       "path":  "ui-ux/use-gesture-react",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "ux-audit",
+                       "name":  "ux-audit",
+                       "description":  "Audit screens against Nielsen\u0027s heuristics and mobile UX best practices using the StyleSeed Toss design language as the implementation context.",
+                       "category":  "ui-ux",
+                       "tags":  [
+                                    "ux",
+                                    "audit",
+                                    "usability",
+                                    "mobile",
+                                    "styleseed"
+                                ],
+                       "triggers":  [
+                                        "audit",
+                                        "design"
+                                    ],
+                       "path":  "ui-ux/ux-audit",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "ux-flow",
+                       "name":  "ux-flow",
+                       "description":  "Design user flows and screen structure using StyleSeed UX patterns such as progressive disclosure, hub-and-spoke navigation, and information pyramids.",
+                       "category":  "ui-ux",
+                       "tags":  [
+                                    "ux",
+                                    "flows",
+                                    "navigation",
+                                    "product-design",
+                                    "styleseed"
+                                ],
+                       "triggers": ["design"],
+                       "path":  "ui-ux/ux-flow",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "uxui-principles",
+                       "name":  "uxui-principles",
+                       "description":  "Evaluate interfaces against 168 research-backed UX/UI principles, detect antipatterns, and inject UX context into AI coding sessions.",
+                       "category":  "ui-ux",
+                       "tags":  [
+                                    "ux",
+                                    "ui",
+                                    "design",
+                                    "evaluation",
+                                    "principles",
+                                    "antipatterns",
+                                    "accessibility"
+                                ],
+                       "triggers": [],
+                       "path":  "ui-ux/uxui-principles",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "avoid-ai-writing",
+                       "name":  "avoid-ai-writing",
+                       "description":  "Audit and rewrite content to remove AI writing patterns (\\\"AI-isms\\\"). Use when asked to \\\"remove AI-isms,\\\" \\\"clean up AI writing,\\\" \\\"edit writing for AI patterns,\\\" \\\"audit writing for AI tells,\\\" ",
+                       "category":  "writing",
+                       "tags":  [
+                                    "writing",
+                                    "editing",
+                                    "voice",
+                                    "quality",
+                                    "ai-writing",
+                                    "audit",
+                                    "rewrite",
+                                    "publishing"
+                                ],
+                       "triggers": ["audit"],
+                       "path":  "writing/avoid-ai-writing",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "content-strategy",
+                       "name":  "content-strategy",
+                       "description":  "Plan a content strategy, topic clusters, editorial roadmap, and content mix for traffic, authority, and lead generation. Use when deciding what to publish, what topics to prioritize, or how to structu",
+                       "category":  "writing",
+                       "tags":  [
+
+                                ],
+                       "triggers": ["plan"],
+                       "path":  "writing/content-strategy",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "copywriting",
+                       "name":  "copywriting",
+                       "description":  "Write rigorous, conversion-focused marketing copy for landing pages and emails. Enforces brief confirmation and strict no-fabrication rules.",
+                       "category":  "writing",
+                       "tags":  [
+
+                                ],
+                       "triggers": ["write"],
+                       "path":  "writing/copywriting",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "mark-it-down",
+                       "name":  "mark-it-down",
+                       "description":  "Convert various file formats (PDF, Office docs, images, audio, HTML, etc.) to Markdown using Microsoft\u0027s MarkItDown library for LLM-ready text extraction",
+                       "category":  "writing",
+                       "tags":  [
+                                    "markdown",
+                                    "conversion",
+                                    "pdf",
+                                    "docx",
+                                    "pptx",
+                                    "xlsx",
+                                    "images",
+                                    "audio",
+                                    "html",
+                                    "text-extraction",
+                                    "llm-prep"
+                                ],
+                       "triggers": ["convert"],
+                       "path":  "writing/mark-it-down",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "python-pptx-generator",
+                       "name":  "python-pptx-generator",
+                       "description":  "Generate complete Python scripts that build polished PowerPoint decks with python-pptx and real slide content.",
+                       "category":  "writing",
+                       "tags":  [
+                                    "python",
+                                    "powerpoint",
+                                    "python-pptx",
+                                    "presentations",
+                                    "slide-decks"
+                                ],
+                       "triggers":  [
+                                        "build",
+                                        "generate"
+                                    ],
+                       "path":  "writing/python-pptx-generator",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "unslop",
+                       "name":  "unslop",
+                       "description":  "Post-process AI-generated text through the unslop CLI to strip AI writing patterns before publishing",
+                       "category":  "writing",
+                       "tags":  [
+                                    "writing",
+                                    "content-quality",
+                                    "ai-writing",
+                                    "text-processing",
+                                    "cli",
+                                    "publishing"
+                                ],
+                       "triggers": ["generate"],
+                       "path":  "writing/unslop",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "wordpress-centric-high-seo-optimized-blogwriting-skill",
+                       "name":  "wordpress-centric-high-seo-optimized-blogwriting-skill",
+                       "description":  "Generate clean, human-sounding, SEO-optimized WordPress blog posts with optional Yoast metadata, JSON-LD schema markup, and image SEO planning. Supports modular batch output.",
+                       "category":  "writing",
+                       "tags":  [
+                                    "writing",
+                                    "blog",
+                                    "seo",
+                                    "content",
+                                    "wordpress"
+                                ],
+                       "triggers":  [
+                                        "generate",
+                                        "optimize",
+                                        "plan"
+                                    ],
+                       "path":  "writing/wordpress-centric-high-seo-optimized-blogwriting-skill",
+                       "source":  "installed"
+                   },
+                   {
+                       "id":  "libreoffice-writer",
+                       "name":  "writer",
+                       "description":  "Document creation, format conversion (ODT/DOCX/PDF), mail merge, and automation with LibreOffice Writer.",
+                       "category":  "writing",
+                       "tags":  [
+
+                                ],
+                       "triggers": ["write"],
+                       "path":  "writing/libreoffice-writer",
+                       "source":  "installed"
+                   }
+               ]
+}

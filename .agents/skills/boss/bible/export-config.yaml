@@ -1,0 +1,303 @@
+# Bible Study Export Configuration
+# Single source of truth for export formatting rules
+# Used by both workflow skills AND create_docs.py
+
+# =============================================================================
+# BRAND COLORS & FONTS
+# =============================================================================
+brand:
+  primary_orange: "#FF7300"
+  midnight: "#313638"
+  secondary_green: "#60695C"
+  off_white: "#F8F9FA"
+  answer_grey: "#888888"
+  font_heading: "Inter Tight"
+  font_body: "Inter"
+  font_weight_heading: 800
+  font_weight_body: 400
+
+# =============================================================================
+# PAGE LAYOUT
+# =============================================================================
+page:
+  size: "A4"              # 210mm x 297mm
+  margins: "2cm"          # All sides
+  max_width: "210mm"
+  min_height: "297mm"
+
+# =============================================================================
+# PAGE BOUNDARIES
+# =============================================================================
+page_boundaries:
+  # Markdown patterns that start a new page in ALL export formats
+  patterns:
+    - "---"
+    - "***"
+    - "___"
+  # These are structural, not decorative - do not render as horizontal rules
+  render_as_rule: false
+  
+  # Special pages (in order)
+  special_pages:
+    - name: "title_page"
+      position: "first"
+    - name: "table_of_contents"
+      position: "after_title_page"
+    - name: "reference_page"
+      position: "after_toc_before_study_1"
+      heading: "Symbols in Revelation"  # Example - configurable per series
+    - name: "study"
+      position: "each_study_starts_new_page"
+
+# =============================================================================
+# STUDY HEADER (The "Mark" Standard)
+# =============================================================================
+study_header:
+  container:
+    class: "header-top"
+    grid_template: "70px 1fr"
+    border_bottom: "3px double #FF7300"
+  
+  number_box:
+    width: "70px"
+    height: "70px"
+    background: "#FF7300"
+    color: "#FFFFFF"
+    font: "Inter Tight"
+    weight: 800
+    size: "2.5rem"  # ~40px
+    display: "flex"
+    align: "center"
+    justify: "center"
+  
+  title_block:
+    title:
+      tag: "h1"
+      font: "Inter Tight"
+      weight: 800
+      case: "capitalize"  # First letter of each word
+      color: "#313638"
+    subtitle:
+      size: "0.95rem"
+      color: "grey"
+      style: "italic"
+      margin_top: "0.25rem"
+
+# =============================================================================
+# METADATA BLOCKS (Main Idea, Passages)
+# =============================================================================
+metadata_block:
+  background: "#F8F9FA"
+  border_left: "4px solid #60695C"
+  padding: "1rem"
+  margin: "1rem 0"
+  labels:
+    - "MAIN IDEA"
+    - "PASSAGES"
+  label_style:
+    color: "#FF7300"
+    weight: "bold"
+    case: "uppercase"
+    size: "0.85rem"
+
+# =============================================================================
+# QUESTION NUMBERING
+# =============================================================================
+numbering:
+  # Continuous within each study, resets at each new study
+  reset_per_study: true
+  continuous_within_study: true
+  
+  # Markdown source uses simple "1." "2." "3." across all sections
+  # HTML output uses CSS counters to render continuous numbers
+  css_counters:
+    enabled: true
+    counter_name: "question"
+    reset_selector: ".study-container"
+    increment_selector: "ol li"
+    display_pseudo: "::before"
+    format: "counter(question) \".\""
+    style:
+      position: "absolute"
+      left: "0"
+      font_weight: "bold"
+      color: "#FF7300"
+      font_family: "'Inter Tight', sans-serif"
+  
+  # Hide default list numbers
+  hide_default_numbers: true
+  list_style: "none"
+  padding_left: "1.5rem"
+
+# =============================================================================
+# SECTION HEADING LEVELS
+# =============================================================================
+headings:
+  opening_discussion:
+    level: 2          # H2
+    bold: true
+    prefix: "**Discuss**: "
+  
+  read_section:
+    format: "blockquote"  # > Read [Passage](link)
+    prefix: "Read "
+    link_pattern: "https://team.newlight.app/bible?&q={encoded_passage}"
+    # Always "Read" never "Reach"
+  
+  focus_section:
+    level: 3          # H3
+    prefix: "Focus: "
+    # e.g., "### Focus: Joining the Heavenly Song"
+  
+  bonus_questions:
+    level: 3          # H3 (never H2)
+    bold: true
+    text: "**Bonus Questions**"
+
+# =============================================================================
+# BIBLE LINKS
+# =============================================================================
+bible_links:
+  base_url: "https://team.newlight.app/bible"
+  query_param: "q"
+  encode: true
+  # Example: https://team.newlight.app/bible?&q=Esther+6%3A1-11
+
+# =============================================================================
+# ANSWER RENDERING (Leader vs Participant)
+# =============================================================================
+answers:
+  # Source format in markdown: <!-- ANSWER Answer text here -->
+  
+  leader:
+    mode: "unwrap_to_div"
+    wrapper:
+      tag: "div"
+      class: "answer-block"
+      style:
+        display: "block"
+        margin_top: "0.25rem"
+        margin_bottom: "0.75rem"
+        padding_left: "1.5rem"
+        font_size: "0.9em"
+        color: "#888888"
+        font_style: "italic"
+        border_left: "2px solid #888888"
+  
+  participant:
+    mode: "strip"
+    # Remove all <!-- ANSWER ... --> comments entirely
+
+# =============================================================================
+# TABLE OF CONTENTS
+# =============================================================================
+toc:
+  enabled: true
+  separate_page: true
+  position: "after_title_page"
+  
+  header:
+    text: "Series Overview"
+    level: 2
+    class: "toc-header"
+  
+  table:
+    columns:
+      - name: "#"
+        width: "10%"
+      - name: "Study"
+        width: "90%"
+    # Each row: Study number + Title + Passages in same cell
+    row_format: "{number}. {title} — {passages}"
+
+# =============================================================================
+# TITLE PAGE
+# =============================================================================
+title_page:
+  enabled: true
+  elements:
+    - class: "church-title"
+      text: "New Light Anglican Church"
+      style:
+        font: "Inter Tight"
+        weight: 800
+        size: "1.5rem"
+        color: "#313638"
+    - class: "series-title"
+      text: "{series_title}"  # Placeholder
+      style:
+        font: "Inter Tight"
+        weight: 800
+        size: "2.5rem"
+        color: "#FF7300"
+        margin_top: "2rem"
+    - class: "series-subtitle"
+      text: "{series_subtitle}"  # Placeholder
+      style:
+        font: "Inter"
+        size: "1.25rem"
+        color: "#60695C"
+        margin_top: "1rem"
+    - class: "year-mark"
+      text: "{year}"  # Placeholder
+      style:
+        font: "Inter"
+        size: "1rem"
+        color: "#888888"
+        margin_top: "3rem"
+
+# =============================================================================
+# OUTPUT FORMATS
+# =============================================================================
+formats:
+  html:
+    enabled: true
+    template: "bible_study_template.html"  # In sync-docs/scripts/
+    css_variables: true
+    page_breaks: true
+  
+  rtf:
+    enabled: true
+    generator: "md_to_rtf_studies.py"  # Specialized for studies
+    # Also create_docs.py has built-in RTF
+  
+  gdoc:
+    enabled: true
+    script: "md_to_gdoc.py"
+    template_doc_id: "1o3tbW_5jlMNsFKaZhht9xfT8rx6mYUdpqYfTJ3o8Zn8"
+    drive_root_folder_id: "1dGRJkjh5hVGvhYc5cZ7k99BeCNA262yy"
+    exports: ["pdf", "docx", "rtf"]
+  
+  pdf:
+    enabled: true
+    method: "headless_chrome"  # Via create_docs.py --pdf
+    requires_html: true
+
+# =============================================================================
+# VALIDATION RULES (Used by quality_gates.py)
+# =============================================================================
+validation:
+  question_max_words: 20
+  vocab_level: "year8"
+  required_sections:
+    - "Discuss"
+    - "Read"
+    - "Focus"
+    - "Bonus Questions"
+  answer_format: "<!-- ANSWER ... -->"
+  heading_hierarchy:
+    - "Discuss" (H2 equivalent)
+    - "Read" (blockquote)
+    - "Focus" (H3)
+    - "Bonus Questions" (H3 bold)
+
+# =============================================================================
+# RESEARCH SOURCE MATRIX (Reference to ResearchSources.md)
+# =============================================================================
+research:
+  source_matrix: "ResearchSources.md"
+  selector_logic:
+    phase_1_structure: ["COM-01", "COM-02"]
+    phase_2_depth: ["ART-01", "ART-02"]
+    phase_3_connection: ["SER-01", "SER-02", "SER-03"]
+  grace_dynamic_filter: true

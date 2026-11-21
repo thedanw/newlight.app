@@ -1,0 +1,13 @@
+# Secrets and OAuth state
+.env
+.env.*.local
+scripts/credentials.json
+scripts/token.json
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Generated utility output
+scripts/links.txt
+scripts/output.txt

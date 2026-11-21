@@ -1,0 +1,2647 @@
+{
+  "css": [],
+  "cva": [],
+  "sva": [],
+  "token": [],
+  "jsx": [
+    {
+      "type": "jsx",
+      "name": "SemanticStatusBadge",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxOpeningElement",
+        "line": 82,
+        "column": 5,
+        "endLineNumber": 82,
+        "endColumn": 63
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Card.Header",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxOpeningElement",
+        "line": 156,
+        "column": 9,
+        "endLineNumber": 156,
+        "endColumn": 22
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Card.Header",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxOpeningElement",
+        "line": 220,
+        "column": 9,
+        "endLineNumber": 220,
+        "endColumn": 22
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Card.Title",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxOpeningElement",
+        "line": 157,
+        "column": 11,
+        "endLineNumber": 157,
+        "endColumn": 23
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Card.Title",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxOpeningElement",
+        "line": 222,
+        "column": 13,
+        "endLineNumber": 222,
+        "endColumn": 25
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Card.Body",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxOpeningElement",
+        "line": 159,
+        "column": 9,
+        "endLineNumber": 159,
+        "endColumn": 20
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Card.Body",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxOpeningElement",
+        "line": 248,
+        "column": 9,
+        "endLineNumber": 248,
+        "endColumn": 20
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Select.Control",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxOpeningElement",
+        "line": 164,
+        "column": 17,
+        "endLineNumber": 164,
+        "endColumn": 33
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Select.Control",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxOpeningElement",
+        "line": 185,
+        "column": 17,
+        "endLineNumber": 185,
+        "endColumn": 33
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Select.Control",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxOpeningElement",
+        "line": 228,
+        "column": 17,
+        "endLineNumber": 228,
+        "endColumn": 33
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Select.Trigger",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxOpeningElement",
+        "line": 165,
+        "column": 19,
+        "endLineNumber": 165,
+        "endColumn": 48
+      },
+      "data": [
+        {
+          "width": "100%"
+        }
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Select.Trigger",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxOpeningElement",
+        "line": 186,
+        "column": 19,
+        "endLineNumber": 186,
+        "endColumn": 48
+      },
+      "data": [
+        {
+          "width": "100%"
+        }
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Select.Trigger",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxOpeningElement",
+        "line": 229,
+        "column": 19,
+        "endLineNumber": 229,
+        "endColumn": 51
+      },
+      "data": [
+        {
+          "minWidth": "80px"
+        }
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Select.ValueText",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxSelfClosingElement",
+        "line": 166,
+        "column": 21,
+        "endLineNumber": 166,
+        "endColumn": 59
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Select.ValueText",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxSelfClosingElement",
+        "line": 187,
+        "column": 21,
+        "endLineNumber": 187,
+        "endColumn": 59
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Select.ValueText",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxSelfClosingElement",
+        "line": 230,
+        "column": 21,
+        "endLineNumber": 230,
+        "endColumn": 41
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Select.Indicator",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxOpeningElement",
+        "line": 167,
+        "column": 21,
+        "endLineNumber": 167,
+        "endColumn": 39
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Select.Indicator",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxOpeningElement",
+        "line": 188,
+        "column": 21,
+        "endLineNumber": 188,
+        "endColumn": 39
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Select.Indicator",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxOpeningElement",
+        "line": 231,
+        "column": 21,
+        "endLineNumber": 231,
+        "endColumn": 39
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "ChevronsUpDownIcon",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxSelfClosingElement",
+        "line": 167,
+        "column": 39,
+        "endLineNumber": 167,
+        "endColumn": 61
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "ChevronsUpDownIcon",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxSelfClosingElement",
+        "line": 188,
+        "column": 39,
+        "endLineNumber": 188,
+        "endColumn": 61
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "ChevronsUpDownIcon",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxSelfClosingElement",
+        "line": 231,
+        "column": 39,
+        "endLineNumber": 231,
+        "endColumn": 61
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Select.Positioner",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxOpeningElement",
+        "line": 170,
+        "column": 17,
+        "endLineNumber": 170,
+        "endColumn": 36
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Select.Positioner",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxOpeningElement",
+        "line": 191,
+        "column": 17,
+        "endLineNumber": 191,
+        "endColumn": 36
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Select.Positioner",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxOpeningElement",
+        "line": 234,
+        "column": 17,
+        "endLineNumber": 234,
+        "endColumn": 36
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Select.Content",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxOpeningElement",
+        "line": 171,
+        "column": 19,
+        "endLineNumber": 171,
+        "endColumn": 35
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Select.Content",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxOpeningElement",
+        "line": 192,
+        "column": 19,
+        "endLineNumber": 192,
+        "endColumn": 35
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Select.Content",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxOpeningElement",
+        "line": 235,
+        "column": 19,
+        "endLineNumber": 235,
+        "endColumn": 35
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Select.Item",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxOpeningElement",
+        "line": 173,
+        "column": 23,
+        "endLineNumber": 173,
+        "endColumn": 65
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Select.Item",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxOpeningElement",
+        "line": 194,
+        "column": 23,
+        "endLineNumber": 194,
+        "endColumn": 65
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Select.Item",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxOpeningElement",
+        "line": 237,
+        "column": 23,
+        "endLineNumber": 237,
+        "endColumn": 65
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Select.ItemText",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxOpeningElement",
+        "line": 174,
+        "column": 25,
+        "endLineNumber": 174,
+        "endColumn": 42
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Select.ItemText",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxOpeningElement",
+        "line": 195,
+        "column": 25,
+        "endLineNumber": 195,
+        "endColumn": 42
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Select.ItemText",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxOpeningElement",
+        "line": 238,
+        "column": 25,
+        "endLineNumber": 238,
+        "endColumn": 42
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Select.ItemIndicator",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxOpeningElement",
+        "line": 175,
+        "column": 25,
+        "endLineNumber": 175,
+        "endColumn": 47
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Select.ItemIndicator",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxOpeningElement",
+        "line": 196,
+        "column": 25,
+        "endLineNumber": 196,
+        "endColumn": 47
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Select.ItemIndicator",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxOpeningElement",
+        "line": 239,
+        "column": 25,
+        "endLineNumber": 239,
+        "endColumn": 47
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "CheckIcon",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxSelfClosingElement",
+        "line": 175,
+        "column": 47,
+        "endLineNumber": 175,
+        "endColumn": 60
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "CheckIcon",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxSelfClosingElement",
+        "line": 196,
+        "column": 47,
+        "endLineNumber": 196,
+        "endColumn": 60
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "CheckIcon",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxSelfClosingElement",
+        "line": 239,
+        "column": 47,
+        "endLineNumber": 239,
+        "endColumn": 60
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Accordion.Item",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxOpeningElement",
+        "line": 257,
+        "column": 19,
+        "endLineNumber": 257,
+        "endColumn": 69
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Accordion.ItemTrigger",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxOpeningElement",
+        "line": 258,
+        "column": 21,
+        "endLineNumber": 258,
+        "endColumn": 44
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Accordion.ItemIndicator",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxSelfClosingElement",
+        "line": 280,
+        "column": 23,
+        "endLineNumber": 280,
+        "endColumn": 50
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Accordion.ItemContent",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxOpeningElement",
+        "line": 282,
+        "column": 21,
+        "endLineNumber": 282,
+        "endColumn": 44
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Accordion.ItemBody",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxOpeningElement",
+        "line": 283,
+        "column": 23,
+        "endLineNumber": 283,
+        "endColumn": 43
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Table.Head",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxOpeningElement",
+        "line": 286,
+        "column": 29,
+        "endLineNumber": 286,
+        "endColumn": 41
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Table.Row",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxOpeningElement",
+        "line": 287,
+        "column": 31,
+        "endLineNumber": 287,
+        "endColumn": 42
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Table.Row",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxOpeningElement",
+        "line": 300,
+        "column": 33,
+        "endLineNumber": 300,
+        "endColumn": 57
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Table.Header",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxOpeningElement",
+        "line": 288,
+        "column": 33,
+        "endLineNumber": 288,
+        "endColumn": 47
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Table.Header",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxOpeningElement",
+        "line": 289,
+        "column": 33,
+        "endLineNumber": 289,
+        "endColumn": 47
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Table.Header",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxOpeningElement",
+        "line": 290,
+        "column": 33,
+        "endLineNumber": 290,
+        "endColumn": 47
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Table.Header",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxOpeningElement",
+        "line": 291,
+        "column": 33,
+        "endLineNumber": 291,
+        "endColumn": 47
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Table.Header",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxOpeningElement",
+        "line": 292,
+        "column": 33,
+        "endLineNumber": 292,
+        "endColumn": 47
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Table.Header",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxOpeningElement",
+        "line": 293,
+        "column": 33,
+        "endLineNumber": 293,
+        "endColumn": 47
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Table.Header",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxOpeningElement",
+        "line": 294,
+        "column": 33,
+        "endLineNumber": 294,
+        "endColumn": 47
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Table.Header",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxOpeningElement",
+        "line": 295,
+        "column": 33,
+        "endLineNumber": 295,
+        "endColumn": 47
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Table.Body",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxOpeningElement",
+        "line": 298,
+        "column": 29,
+        "endLineNumber": 298,
+        "endColumn": 41
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Table.Cell",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxOpeningElement",
+        "line": 301,
+        "column": 35,
+        "endLineNumber": 301,
+        "endColumn": 47
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Table.Cell",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxOpeningElement",
+        "line": 302,
+        "column": 35,
+        "endLineNumber": 302,
+        "endColumn": 47
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Table.Cell",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxOpeningElement",
+        "line": 303,
+        "column": 35,
+        "endLineNumber": 303,
+        "endColumn": 47
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Table.Cell",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxOpeningElement",
+        "line": 304,
+        "column": 35,
+        "endLineNumber": 304,
+        "endColumn": 47
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Table.Cell",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxOpeningElement",
+        "line": 305,
+        "column": 35,
+        "endLineNumber": 305,
+        "endColumn": 47
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Table.Cell",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxOpeningElement",
+        "line": 306,
+        "column": 35,
+        "endLineNumber": 306,
+        "endColumn": 47
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Table.Cell",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxOpeningElement",
+        "line": 307,
+        "column": 35,
+        "endLineNumber": 307,
+        "endColumn": 47
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Table.Cell",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxOpeningElement",
+        "line": 308,
+        "column": 35,
+        "endLineNumber": 308,
+        "endColumn": 47
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Dialog.Backdrop",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxSelfClosingElement",
+        "line": 366,
+        "column": 9,
+        "endLineNumber": 366,
+        "endColumn": 28
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Dialog.Positioner",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxOpeningElement",
+        "line": 367,
+        "column": 9,
+        "endLineNumber": 367,
+        "endColumn": 28
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Dialog.Content",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxOpeningElement",
+        "line": 368,
+        "column": 11,
+        "endLineNumber": 368,
+        "endColumn": 27
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Dialog.Header",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxOpeningElement",
+        "line": 369,
+        "column": 13,
+        "endLineNumber": 369,
+        "endColumn": 28
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Dialog.Title",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxOpeningElement",
+        "line": 370,
+        "column": 15,
+        "endLineNumber": 370,
+        "endColumn": 29
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Dialog.Description",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxOpeningElement",
+        "line": 371,
+        "column": 15,
+        "endLineNumber": 371,
+        "endColumn": 35
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Alert.Title",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxOpeningElement",
+        "line": 417,
+        "column": 19,
+        "endLineNumber": 417,
+        "endColumn": 32
+      },
+      "data": [
+        {}
+      ]
+    },
+    {
+      "type": "jsx",
+      "name": "Alert.Description",
+      "box": {
+        "type": "map",
+        "value": {},
+        "node": "JsxOpeningElement",
+        "line": 418,
+        "column": 19,
+        "endLineNumber": 418,
+        "endColumn": 38
+      },
+      "data": [
+        {}
+      ]
+    }
+  ],
+  "recipe": {
+    "badge": [
+      {
+        "type": "jsx-recipe",
+        "name": "Badge",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 87,
+          "column": 27,
+          "endLineNumber": 87,
+          "endColumn": 51
+        },
+        "data": [
+          {
+            "variant": "subtle"
+          }
+        ]
+      },
+      {
+        "type": "jsx-recipe",
+        "name": "Badge",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 88,
+          "column": 29,
+          "endLineNumber": 88,
+          "endColumn": 54
+        },
+        "data": [
+          {
+            "variant": "outline"
+          }
+        ]
+      },
+      {
+        "type": "jsx-recipe",
+        "name": "Badge",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 89,
+          "column": 30,
+          "endLineNumber": 89,
+          "endColumn": 53
+        },
+        "data": [
+          {
+            "variant": "solid"
+          }
+        ]
+      },
+      {
+        "type": "jsx-recipe",
+        "name": "Badge",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 90,
+          "column": 23,
+          "endLineNumber": 90,
+          "endColumn": 47
+        },
+        "data": [
+          {
+            "variant": "subtle"
+          }
+        ]
+      }
+    ],
+    "card": [
+      {
+        "type": "jsx-recipe",
+        "name": "Card.Root",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 155,
+          "column": 7,
+          "endLineNumber": 155,
+          "endColumn": 18
+        },
+        "data": [
+          {}
+        ]
+      },
+      {
+        "type": "jsx-recipe",
+        "name": "Card.Root",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 219,
+          "column": 7,
+          "endLineNumber": 219,
+          "endColumn": 18
+        },
+        "data": [
+          {}
+        ]
+      }
+    ],
+    "text": [
+      {
+        "type": "jsx-recipe",
+        "name": "Text",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 162,
+          "column": 15,
+          "endLineNumber": 162,
+          "endColumn": 53
+        },
+        "data": [
+          {
+            "textStyle": "xs",
+            "color": "fg.muted"
+          }
+        ]
+      },
+      {
+        "type": "jsx-recipe",
+        "name": "Text",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 183,
+          "column": 15,
+          "endLineNumber": 183,
+          "endColumn": 53
+        },
+        "data": [
+          {
+            "textStyle": "xs",
+            "color": "fg.muted"
+          }
+        ]
+      },
+      {
+        "type": "jsx-recipe",
+        "name": "Text",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 204,
+          "column": 15,
+          "endLineNumber": 204,
+          "endColumn": 53
+        },
+        "data": [
+          {
+            "textStyle": "xs",
+            "color": "fg.muted"
+          }
+        ]
+      },
+      {
+        "type": "jsx-recipe",
+        "name": "Text",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 208,
+          "column": 15,
+          "endLineNumber": 208,
+          "endColumn": 53
+        },
+        "data": [
+          {
+            "textStyle": "xs",
+            "color": "fg.muted"
+          }
+        ]
+      },
+      {
+        "type": "jsx-recipe",
+        "name": "Text",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 224,
+          "column": 15,
+          "endLineNumber": 224,
+          "endColumn": 53
+        },
+        "data": [
+          {
+            "textStyle": "sm",
+            "color": "fg.muted"
+          }
+        ]
+      },
+      {
+        "type": "jsx-recipe",
+        "name": "Text",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 250,
+          "column": 13,
+          "endLineNumber": 250,
+          "endColumn": 61
+        },
+        "data": [
+          {
+            "color": "fg.muted",
+            "textAlign": "center",
+            "p": "6"
+          }
+        ]
+      },
+      {
+        "type": "jsx-recipe",
+        "name": "Text",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 252,
+          "column": 13,
+          "endLineNumber": 252,
+          "endColumn": 61
+        },
+        "data": [
+          {
+            "color": "fg.muted",
+            "textAlign": "center",
+            "p": "6"
+          }
+        ]
+      },
+      {
+        "type": "jsx-recipe",
+        "name": "Text",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 262,
+          "column": 27,
+          "endLineNumber": 262,
+          "endColumn": 68
+        },
+        "data": [
+          {
+            "textStyle": "sm",
+            "fontWeight": "medium"
+          }
+        ]
+      },
+      {
+        "type": "jsx-recipe",
+        "name": "Text",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 263,
+          "column": 27,
+          "endLineNumber": 263,
+          "endColumn": 65
+        },
+        "data": [
+          {
+            "textStyle": "xs",
+            "color": "fg.muted"
+          }
+        ]
+      },
+      {
+        "type": "jsx-recipe",
+        "name": "Text",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 266,
+          "column": 27,
+          "endLineNumber": 266,
+          "endColumn": 65
+        },
+        "data": [
+          {
+            "textStyle": "xs",
+            "color": "fg.muted"
+          }
+        ]
+      },
+      {
+        "type": "jsx-recipe",
+        "name": "Text",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 271,
+          "column": 27,
+          "endLineNumber": 271,
+          "endColumn": 65
+        },
+        "data": [
+          {
+            "textStyle": "xs",
+            "color": "fg.muted"
+          }
+        ]
+      },
+      {
+        "type": "jsx-recipe",
+        "name": "Text",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 274,
+          "column": 27,
+          "endLineNumber": 274,
+          "endColumn": 115
+        },
+        "data": [
+          {
+            "color": "var(--colors-error)"
+          },
+          {
+            "color": "fg.muted"
+          },
+          {
+            "textStyle": "xs"
+          }
+        ]
+      },
+      {
+        "type": "jsx-recipe",
+        "name": "Text",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 376,
+          "column": 19,
+          "endLineNumber": 376,
+          "endColumn": 74
+        },
+        "data": [
+          {
+            "textStyle": "sm",
+            "color": "fg.muted",
+            "minWidth": "120px"
+          }
+        ]
+      },
+      {
+        "type": "jsx-recipe",
+        "name": "Text",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 377,
+          "column": 19,
+          "endLineNumber": 377,
+          "endColumn": 60
+        },
+        "data": [
+          {
+            "textStyle": "sm",
+            "fontWeight": "medium"
+          }
+        ]
+      },
+      {
+        "type": "jsx-recipe",
+        "name": "Text",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 380,
+          "column": 19,
+          "endLineNumber": 380,
+          "endColumn": 74
+        },
+        "data": [
+          {
+            "textStyle": "sm",
+            "color": "fg.muted",
+            "minWidth": "120px"
+          }
+        ]
+      },
+      {
+        "type": "jsx-recipe",
+        "name": "Text",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 381,
+          "column": 19,
+          "endLineNumber": 381,
+          "endColumn": 40
+        },
+        "data": [
+          {
+            "textStyle": "sm"
+          }
+        ]
+      },
+      {
+        "type": "jsx-recipe",
+        "name": "Text",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 384,
+          "column": 19,
+          "endLineNumber": 384,
+          "endColumn": 74
+        },
+        "data": [
+          {
+            "textStyle": "sm",
+            "color": "fg.muted",
+            "minWidth": "120px"
+          }
+        ]
+      },
+      {
+        "type": "jsx-recipe",
+        "name": "Text",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 385,
+          "column": 19,
+          "endLineNumber": 385,
+          "endColumn": 60
+        },
+        "data": [
+          {
+            "textStyle": "sm",
+            "fontWeight": "medium"
+          }
+        ]
+      },
+      {
+        "type": "jsx-recipe",
+        "name": "Text",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 388,
+          "column": 19,
+          "endLineNumber": 388,
+          "endColumn": 74
+        },
+        "data": [
+          {
+            "textStyle": "sm",
+            "color": "fg.muted",
+            "minWidth": "120px"
+          }
+        ]
+      },
+      {
+        "type": "jsx-recipe",
+        "name": "Text",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 389,
+          "column": 19,
+          "endLineNumber": 389,
+          "endColumn": 40
+        },
+        "data": [
+          {
+            "textStyle": "sm"
+          }
+        ]
+      },
+      {
+        "type": "jsx-recipe",
+        "name": "Text",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 392,
+          "column": 19,
+          "endLineNumber": 392,
+          "endColumn": 74
+        },
+        "data": [
+          {
+            "textStyle": "sm",
+            "color": "fg.muted",
+            "minWidth": "120px"
+          }
+        ]
+      },
+      {
+        "type": "jsx-recipe",
+        "name": "Text",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 393,
+          "column": 19,
+          "endLineNumber": 393,
+          "endColumn": 40
+        },
+        "data": [
+          {
+            "textStyle": "sm"
+          }
+        ]
+      },
+      {
+        "type": "jsx-recipe",
+        "name": "Text",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 396,
+          "column": 19,
+          "endLineNumber": 396,
+          "endColumn": 74
+        },
+        "data": [
+          {
+            "textStyle": "sm",
+            "color": "fg.muted",
+            "minWidth": "120px"
+          }
+        ]
+      },
+      {
+        "type": "jsx-recipe",
+        "name": "Text",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 397,
+          "column": 19,
+          "endLineNumber": 397,
+          "endColumn": 40
+        },
+        "data": [
+          {
+            "textStyle": "sm"
+          }
+        ]
+      },
+      {
+        "type": "jsx-recipe",
+        "name": "Text",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 400,
+          "column": 19,
+          "endLineNumber": 400,
+          "endColumn": 74
+        },
+        "data": [
+          {
+            "textStyle": "sm",
+            "color": "fg.muted",
+            "minWidth": "120px"
+          }
+        ]
+      },
+      {
+        "type": "jsx-recipe",
+        "name": "Text",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 401,
+          "column": 19,
+          "endLineNumber": 401,
+          "endColumn": 40
+        },
+        "data": [
+          {
+            "textStyle": "sm"
+          }
+        ]
+      },
+      {
+        "type": "jsx-recipe",
+        "name": "Text",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 404,
+          "column": 19,
+          "endLineNumber": 404,
+          "endColumn": 74
+        },
+        "data": [
+          {
+            "textStyle": "sm",
+            "color": "fg.muted",
+            "minWidth": "120px"
+          }
+        ]
+      },
+      {
+        "type": "jsx-recipe",
+        "name": "Text",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 405,
+          "column": 19,
+          "endLineNumber": 405,
+          "endColumn": 130
+        },
+        "data": [
+          {
+            "color": "var(--colors-error)"
+          },
+          {
+            "color": "inherit"
+          },
+          {
+            "textStyle": "sm"
+          }
+        ]
+      },
+      {
+        "type": "jsx-recipe",
+        "name": "Text",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 410,
+          "column": 19,
+          "endLineNumber": 410,
+          "endColumn": 87
+        },
+        "data": [
+          {
+            "textStyle": "sm",
+            "color": "fg.muted"
+          }
+        ]
+      },
+      {
+        "type": "jsx-recipe",
+        "name": "Text",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 411,
+          "column": 19,
+          "endLineNumber": 411,
+          "endColumn": 40
+        },
+        "data": [
+          {
+            "textStyle": "sm"
+          }
+        ]
+      }
+    ],
+    "select": [
+      {
+        "type": "jsx-recipe",
+        "name": "Select.Root",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 163,
+          "column": 15,
+          "endLineNumber": 163,
+          "endColumn": 165
+        },
+        "data": [
+          {}
+        ]
+      },
+      {
+        "type": "jsx-recipe",
+        "name": "Select.Root",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 184,
+          "column": 15,
+          "endLineNumber": 184,
+          "endColumn": 165
+        },
+        "data": [
+          {}
+        ]
+      },
+      {
+        "type": "jsx-recipe",
+        "name": "Select.Root",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 227,
+          "column": 15,
+          "endLineNumber": 227,
+          "endColumn": 171
+        },
+        "data": [
+          {}
+        ]
+      }
+    ],
+    "input": [
+      {
+        "type": "jsx-recipe",
+        "name": "Input",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxSelfClosingElement",
+          "line": 205,
+          "column": 15,
+          "endLineNumber": 205,
+          "endColumn": 130
+        },
+        "data": [
+          {}
+        ]
+      },
+      {
+        "type": "jsx-recipe",
+        "name": "Input",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxSelfClosingElement",
+          "line": 209,
+          "column": 15,
+          "endLineNumber": 209,
+          "endColumn": 126
+        },
+        "data": [
+          {}
+        ]
+      }
+    ],
+    "button": [
+      {
+        "type": "jsx-recipe",
+        "name": "Button",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 211,
+          "column": 13,
+          "endLineNumber": 211,
+          "endColumn": 120
+        },
+        "data": [
+          {
+            "variant": "outline"
+          }
+        ]
+      },
+      {
+        "type": "jsx-recipe",
+        "name": "Button",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 309,
+          "column": 37,
+          "endLineNumber": 309,
+          "endColumn": 112
+        },
+        "data": [
+          {
+            "variant": "outline",
+            "size": "sm"
+          }
+        ]
+      },
+      {
+        "type": "jsx-recipe",
+        "name": "Button",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 327,
+          "column": 19,
+          "endLineNumber": 327,
+          "endColumn": 126
+        },
+        "data": [
+          {
+            "variant": "outline",
+            "size": "sm"
+          }
+        ]
+      },
+      {
+        "type": "jsx-recipe",
+        "name": "Button",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 343,
+          "column": 25,
+          "endLineNumber": 348,
+          "endColumn": 26
+        },
+        "data": [
+          {
+            "variant": "solid"
+          },
+          {
+            "variant": "outline"
+          },
+          {
+            "size": "sm"
+          }
+        ]
+      },
+      {
+        "type": "jsx-recipe",
+        "name": "Button",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 354,
+          "column": 19,
+          "endLineNumber": 354,
+          "endColumn": 144
+        },
+        "data": [
+          {
+            "variant": "outline",
+            "size": "sm"
+          }
+        ]
+      },
+      {
+        "type": "jsx-recipe",
+        "name": "Button",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 423,
+          "column": 17,
+          "endLineNumber": 423,
+          "endColumn": 81
+        },
+        "data": [
+          {
+            "variant": "outline"
+          }
+        ]
+      }
+    ],
+    "accordion": [
+      {
+        "type": "jsx-recipe",
+        "name": "Accordion.Root",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 255,
+          "column": 15,
+          "endLineNumber": 255,
+          "endColumn": 43
+        },
+        "data": [
+          {}
+        ]
+      }
+    ],
+    "table": [
+      {
+        "type": "jsx-recipe",
+        "name": "Table.Root",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 285,
+          "column": 27,
+          "endLineNumber": 285,
+          "endColumn": 39
+        },
+        "data": [
+          {}
+        ]
+      }
+    ],
+    "dialog": [
+      {
+        "type": "jsx-recipe",
+        "name": "Dialog.Root",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 365,
+          "column": 7,
+          "endLineNumber": 365,
+          "endColumn": 96
+        },
+        "data": [
+          {}
+        ]
+      }
+    ],
+    "alert": [
+      {
+        "type": "jsx-recipe",
+        "name": "Alert.Root",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 416,
+          "column": 17,
+          "endLineNumber": 416,
+          "endColumn": 45
+        },
+        "data": [
+          {
+            "variant": "solid"
+          }
+        ]
+      }
+    ]
+  },
+  "pattern": {
+    "Stack": [
+      {
+        "type": "jsx-pattern",
+        "name": "Stack",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 153,
+          "column": 5,
+          "endLineNumber": 153,
+          "endColumn": 12
+        },
+        "data": [
+          {}
+        ]
+      },
+      {
+        "type": "jsx-pattern",
+        "name": "Stack",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 160,
+          "column": 11,
+          "endLineNumber": 160,
+          "endColumn": 54
+        },
+        "data": [
+          {
+            "flexDirection": "row",
+            "flexWrap": "wrap"
+          }
+        ]
+      },
+      {
+        "type": "jsx-pattern",
+        "name": "Stack",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 161,
+          "column": 13,
+          "endLineNumber": 161,
+          "endColumn": 45
+        },
+        "data": [
+          {
+            "gap": "1",
+            "minWidth": "150px"
+          }
+        ]
+      },
+      {
+        "type": "jsx-pattern",
+        "name": "Stack",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 182,
+          "column": 13,
+          "endLineNumber": 182,
+          "endColumn": 45
+        },
+        "data": [
+          {
+            "gap": "1",
+            "minWidth": "150px"
+          }
+        ]
+      },
+      {
+        "type": "jsx-pattern",
+        "name": "Stack",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 203,
+          "column": 13,
+          "endLineNumber": 203,
+          "endColumn": 45
+        },
+        "data": [
+          {
+            "gap": "1",
+            "minWidth": "180px"
+          }
+        ]
+      },
+      {
+        "type": "jsx-pattern",
+        "name": "Stack",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 207,
+          "column": 13,
+          "endLineNumber": 207,
+          "endColumn": 45
+        },
+        "data": [
+          {
+            "gap": "1",
+            "minWidth": "180px"
+          }
+        ]
+      },
+      {
+        "type": "jsx-pattern",
+        "name": "Stack",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 221,
+          "column": 11,
+          "endLineNumber": 221,
+          "endColumn": 77
+        },
+        "data": [
+          {
+            "flexDirection": "row",
+            "justify": "space-between",
+            "align": "center"
+          }
+        ]
+      },
+      {
+        "type": "jsx-pattern",
+        "name": "Stack",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 326,
+          "column": 17,
+          "endLineNumber": 326,
+          "endColumn": 76
+        },
+        "data": [
+          {
+            "flexDirection": "row",
+            "gap": "2",
+            "justify": "center",
+            "mt": "4"
+          }
+        ]
+      },
+      {
+        "type": "jsx-pattern",
+        "name": "Stack",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 330,
+          "column": 19,
+          "endLineNumber": 330,
+          "endColumn": 54
+        },
+        "data": [
+          {
+            "flexDirection": "row",
+            "gap": "1"
+          }
+        ]
+      },
+      {
+        "type": "jsx-pattern",
+        "name": "Stack",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 373,
+          "column": 13,
+          "endLineNumber": 373,
+          "endColumn": 20
+        },
+        "data": [
+          {}
+        ]
+      },
+      {
+        "type": "jsx-pattern",
+        "name": "Stack",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 374,
+          "column": 15,
+          "endLineNumber": 374,
+          "endColumn": 30
+        },
+        "data": [
+          {
+            "gap": "2"
+          }
+        ]
+      },
+      {
+        "type": "jsx-pattern",
+        "name": "Stack",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 375,
+          "column": 17,
+          "endLineNumber": 375,
+          "endColumn": 44
+        },
+        "data": [
+          {
+            "flexDirection": "row"
+          }
+        ]
+      },
+      {
+        "type": "jsx-pattern",
+        "name": "Stack",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 379,
+          "column": 17,
+          "endLineNumber": 379,
+          "endColumn": 44
+        },
+        "data": [
+          {
+            "flexDirection": "row"
+          }
+        ]
+      },
+      {
+        "type": "jsx-pattern",
+        "name": "Stack",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 383,
+          "column": 17,
+          "endLineNumber": 383,
+          "endColumn": 44
+        },
+        "data": [
+          {
+            "flexDirection": "row"
+          }
+        ]
+      },
+      {
+        "type": "jsx-pattern",
+        "name": "Stack",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 387,
+          "column": 17,
+          "endLineNumber": 387,
+          "endColumn": 44
+        },
+        "data": [
+          {
+            "flexDirection": "row"
+          }
+        ]
+      },
+      {
+        "type": "jsx-pattern",
+        "name": "Stack",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 391,
+          "column": 17,
+          "endLineNumber": 391,
+          "endColumn": 44
+        },
+        "data": [
+          {
+            "flexDirection": "row"
+          }
+        ]
+      },
+      {
+        "type": "jsx-pattern",
+        "name": "Stack",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 395,
+          "column": 17,
+          "endLineNumber": 395,
+          "endColumn": 44
+        },
+        "data": [
+          {
+            "flexDirection": "row"
+          }
+        ]
+      },
+      {
+        "type": "jsx-pattern",
+        "name": "Stack",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 399,
+          "column": 17,
+          "endLineNumber": 399,
+          "endColumn": 44
+        },
+        "data": [
+          {
+            "flexDirection": "row"
+          }
+        ]
+      },
+      {
+        "type": "jsx-pattern",
+        "name": "Stack",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 403,
+          "column": 17,
+          "endLineNumber": 403,
+          "endColumn": 44
+        },
+        "data": [
+          {
+            "flexDirection": "row"
+          }
+        ]
+      },
+      {
+        "type": "jsx-pattern",
+        "name": "Stack",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 409,
+          "column": 17,
+          "endLineNumber": 409,
+          "endColumn": 44
+        },
+        "data": [
+          {
+            "flexDirection": "row"
+          }
+        ]
+      },
+      {
+        "type": "jsx-pattern",
+        "name": "Stack",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 422,
+          "column": 15,
+          "endLineNumber": 422,
+          "endColumn": 64
+        },
+        "data": [
+          {
+            "flexDirection": "row",
+            "gap": "2",
+            "justify": "end"
+          }
+        ]
+      }
+    ],
+    "HStack": [
+      {
+        "type": "jsx-pattern",
+        "name": "HStack",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 223,
+          "column": 13,
+          "endLineNumber": 223,
+          "endColumn": 29
+        },
+        "data": [
+          {
+            "gap": "3"
+          }
+        ]
+      },
+      {
+        "type": "jsx-pattern",
+        "name": "HStack",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 259,
+          "column": 23,
+          "endLineNumber": 259,
+          "endColumn": 108
+        },
+        "data": [
+          {
+            "flex": "1",
+            "justify": "space-between",
+            "gap": "3",
+            "alignItems": "center",
+            "flexWrap": "wrap"
+          }
+        ]
+      },
+      {
+        "type": "jsx-pattern",
+        "name": "HStack",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 260,
+          "column": 25,
+          "endLineNumber": 260,
+          "endColumn": 61
+        },
+        "data": [
+          {
+            "gap": "2",
+            "alignItems": "center"
+          }
+        ]
+      },
+      {
+        "type": "jsx-pattern",
+        "name": "HStack",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 270,
+          "column": 25,
+          "endLineNumber": 270,
+          "endColumn": 61
+        },
+        "data": [
+          {
+            "gap": "3",
+            "alignItems": "center"
+          }
+        ]
+      }
+    ],
+    "Box": [
+      {
+        "type": "jsx-pattern",
+        "name": "Box",
+        "box": {
+          "type": "map",
+          "value": {},
+          "node": "JsxOpeningElement",
+          "line": 284,
+          "column": 25,
+          "endLineNumber": 284,
+          "endColumn": 56
+        },
+        "data": [
+          {
+            "overflowX": "auto",
+            "minW": "0"
+          }
+        ]
+      }
+    ]
+  }
+}

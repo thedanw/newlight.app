@@ -61,6 +61,8 @@ const FILES_ALLOW_RAW = [
   'src/core/ui/action-footer.tsx',
   // Public auth page — centered card layout, NOT inside AppShell/Page.Root.
   'src/core/auth/LoginPage.tsx',
+  // Public form page — centered card layout, NOT inside AppShell/Page.Root.
+  'src/modules/forms/pages/PublicPage.tsx',
   // Router errorElement — full-viewport error screen that must render even
   // when AppShell/Page.Root itself fails; not a scaffold page.
   'src/core/errors/ErrorPage.tsx',

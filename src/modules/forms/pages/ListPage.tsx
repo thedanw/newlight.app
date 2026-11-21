@@ -167,29 +167,29 @@ export default function FormsListPage() {
 
     if (error)
         return (
-            <>
+            <Page.Main>
                 <Page.Header style={{"--module-number": 1} as CSSProperties}>
                     <Page.Heading level={1} icon={Users} title="Forms" />
                 </Page.Header>
                 <Page.Body>
                     <Text>{error.message}</Text>
                 </Page.Body>
-            </>
+            </Page.Main>
         );
     if (!forms)
         return (
-            <>
+            <Page.Main>
                 <Page.Header style={{"--module-number": 1} as CSSProperties}>
                     <Page.Heading level={1} icon={Users} title="Forms" />
                 </Page.Header>
                 <Page.Body>
                     <PageSkeleton />
                 </Page.Body>
-            </>
+            </Page.Main>
         );
 
     return (
-        <>
+        <Page.Main>
             <Page.Header style={{"--module-number": 1} as CSSProperties}>
                 <Page.Heading level={1} icon={Users} title="Forms" />
                 <Page.HeaderBottom>
@@ -346,6 +346,6 @@ export default function FormsListPage() {
                     </Dialog.Content>
                 </Dialog.Root>
             )}
-        </>
+        </Page.Main>
     );
 }

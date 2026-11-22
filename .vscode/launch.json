@@ -1,19 +1,89 @@
 {
-  "version": "0.2.0",
-  "configurations": [
-    {
-      "name": "Dev (Watch)",
-      "type": "node",
-      "request": "launch",
-      "runtimeExecutable": "pnpm",
-      "runtimeArgs": ["dev"],
-      "cwd": "${workspaceFolder}",
-      "console": "integratedTerminal",
-      "internalConsoleOptions": "neverOpen",
-      "skipFiles": ["<node_internals>/**"],
-      "env": {
-        "NODE_ENV": "development"
-      }
-    }
-  ]
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Dev (Watch) - Main",
+            "type": "node",
+            "request": "launch",
+            "runtimeExecutable": "pnpm",
+            "runtimeArgs": ["dev"],
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "skipFiles": ["<node_internals>/**"],
+            "env": {
+                "NODE_ENV": "development"
+            }
+        },
+        {
+            "name": "Dev (Watch) - Module Developers",
+            "type": "node",
+            "request": "launch",
+            "runtimeExecutable": "pnpm",
+            "runtimeArgs": ["dev"],
+            "cwd": "${workspaceFolder}/module-developers",
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "skipFiles": ["<node_internals>/**"],
+            "env": {
+                "NODE_ENV": "development"
+            }
+        },
+        {
+            "name": "Dev (Watch) - Module Forms",
+            "type": "node",
+            "request": "launch",
+            "runtimeExecutable": "pnpm",
+            "runtimeArgs": ["dev"],
+            "cwd": "${workspaceFolder}/module-forms",
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "skipFiles": ["<node_internals>/**"],
+            "env": {
+                "NODE_ENV": "development"
+            }
+        },
+        {
+            "name": "Dev (Watch) - Module People",
+            "type": "node",
+            "request": "launch",
+            "runtimeExecutable": "pnpm",
+            "runtimeArgs": ["dev"],
+            "cwd": "${workspaceFolder}/module-people",
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "skipFiles": ["<node_internals>/**"],
+            "env": {
+                "NODE_ENV": "development"
+            }
+        },
+        {
+            "name": "Dev (Watch) - Plugins Elvanto-Sync",
+            "type": "node",
+            "request": "launch",
+            "runtimeExecutable": "pnpm",
+            "runtimeArgs": ["dev"],
+            "cwd": "${workspaceFolder}/plugins-elvanto-sync",
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "skipFiles": ["<node_internals>/**"],
+            "env": {
+                "NODE_ENV": "development"
+            }
+        },
+        {
+            "name": "Dev (Watch) - Main Files",
+            "type": "node",
+            "request": "launch",
+            "runtimeExecutable": "pnpm",
+            "runtimeArgs": ["dev"],
+            "cwd": "${workspaceFolder}/main",
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "skipFiles": ["<node_internals>/**"],
+            "env": {
+                "NODE_ENV": "development"
+            }
+        }
+    ]
 }

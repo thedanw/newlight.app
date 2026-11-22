@@ -59,10 +59,14 @@ export default defineConfig({
   resolve: {
     alias: {
       '@pandacss/dev': fileURLToPath(
-        new URL('./src/core/theme/colors/pandacss-dev.ts', import.meta.url),
+        new URL('../src/core/theme/colors/pandacss-dev.ts', import.meta.url),
       ),
+      '@/*': fileURLToPath(new URL('../src/*', import.meta.url)),
+      'styled-system/*': fileURLToPath(new URL('../styled-system/*', import.meta.url)),
     },
   },
+  root: '..',
+  publicDir: 'public',
   server: {
     proxy: {
       '/api/elvanto': {
